@@ -1,28 +1,12 @@
-# Mnbara Marketplace Platform
-
-Modern microservices-based marketplace platform with auction capabilities, built on AWS.
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Node.js 18+
-- Docker & Docker Compose
-- AWS Account (for deployment)
-
-### Local Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start all services with Docker
 npm run dev
 
 # Or run individual services
+
 npm run dev:auth
 npm run dev:listing
 npm run dev:auction
 npm run dev:payment
+
 ```
 mnbara-platform/
 ├── services/
