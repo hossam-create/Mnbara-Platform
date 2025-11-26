@@ -1,0 +1,30 @@
+{
+    "name": "mnbara-platform",
+    "version": "1.0.0",
+    "description": "Mnbara Marketplace Platform - Modern Microservices Architecture",
+    "private": true,
+    "workspaces": [
+        "services/*",
+        "mobile/*",
+        "shared/*"
+    ],
+    "scripts": {
+        "dev": "docker-compose up",
+        "dev:auth": "npm run dev --workspace=@mnbara/auth-service",
+        "dev:listing": "npm run dev --workspace=@mnbara/listing-service",
+        "dev:auction": "npm run dev --workspace=@mnbara/auction-service",
+        "dev:payment": "npm run dev --workspace=@mnbara/payment-service",
+        "build": "npm run build --workspaces",
+        "test": "npm run test --workspaces",
+        "lint": "eslint . --ext .js,.ts,.tsx"
+    },
+    "devDependencies": {
+        "eslint": "^8.57.0",
+        "prettier": "^3.2.5",
+        "typescript": "^5.3.3"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    }
+}

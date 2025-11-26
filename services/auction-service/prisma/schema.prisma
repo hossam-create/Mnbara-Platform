@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  
+  bids          Bid[]
+  listings      Listing[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Listing {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String       @db.Text
+  price       Decimal      @db.Decimal(10, 2)
+  currency    String       @default("USD")
+  
+  sellerId    Int
+  seller      User         @relation(fields: [sellerId], references: [id])
+  
+  // Auction fields
+  isAuction   Boolean      @default(false)
+  startingBid Decimal?     @db.Decimal(10, 2)
+  reservePrice Decimal?    @db.Decimal(10, 2)
+  buyNowPrice Decimal?     @db.Decimal(10, 2)
+  currentBid  Decimal?     @db.Decimal(10, 2)
+  auctionEndsAt DateTime?
+  
+  status      ListingStatus @default(DRAFT)
+  isActive    Boolean      @default(true)
+  
+  bids        Bid[]
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  @@index([sellerId])
+  @@index([status])
+  @@index([isAuction])
+}
+
+model Bid {
+  id         Int      @id @default(autoincrement())
+  amount     Decimal  @db.Decimal(10, 2)
+  
+  listingId  Int
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  bidderId   Int
+  bidder     User     @relation(fields: [bidderId], references: [id])
+  
+  isAutoBid  Boolean  @default(false)
+  maxAmount  Decimal? @db.Decimal(10, 2) // For auto-bidding
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([createdAt])
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  DELETED
+}

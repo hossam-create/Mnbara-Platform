@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  SELLER
+  TRAVELER
+  BUYER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String?
+  firstName     String
+  lastName      String
+  role          UserRole  @default(USER)
+  
+  listings      Listing[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  nameAr      String?
+  slug        String     @unique
+  description String?
+  image       String?
+  parentId    Int?
+  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  level       Int        @default(1)
+  displayOrder Int       @default(0)
+  isActive    Boolean    @default(true)
+  
+  listings    Listing[]
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@index([slug])
+  @@index([parentId])
+}
+
+model Listing {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String       @db.Text
+  price       Decimal      @db.Decimal(10, 2)
+  currency    String       @default("USD")
+  
+  sellerId    Int
+  seller      User         @relation(fields: [sellerId], references: [id])
+  categoryId  Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  
+  city        String
+  country     String
+  zipCode     String?
+  latitude    Float?
+  longitude   Float?
+  
+  condition   ListingCondition @default(NEW)
+  quantity    Int          @default(1)
+  images      String[]
+  
+  isAuction   Boolean      @default(false)
+  startingBid Decimal?     @db.Decimal(10, 2)
+  reservePrice Decimal?    @db.Decimal(10, 2)
+  buyNowPrice Decimal?     @db.Decimal(10, 2)
+  currentBid  Decimal?     @db.Decimal(10, 2)
+  auctionEndsAt DateTime?
+  
+  status      ListingStatus @default(DRAFT)
+  isActive    Boolean      @default(true)
+  isFeatured  Boolean      @default(false)
+  viewCount   Int          @default(0)
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([isAuction])
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  DELETED
+}

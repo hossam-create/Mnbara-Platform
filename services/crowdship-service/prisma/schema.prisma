@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  SELLER
+  TRAVELER
+  BUYER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  role          UserRole  @default(USER)
+  rating        Decimal?  @db.Decimal(3, 2) @default(0)
+  
+  travelerLocation    TravelerLocation?
+  travelerAvailability TravelerAvailability[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model TravelerLocation {
+  id          Int      @id @default(autoincrement())
+  travelerId  Int      @unique
+  traveler    User     @relation(fields: [travelerId], references: [id])
+  
+  latitude    Float
+  longitude   Float
+  country     String?
+  airportCode String?
+  
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([travelerId])
+  @@index([country])
+  @@index([airportCode])
+}
+
+model TravelerAvailability {
+  id          Int      @id @default(autoincrement())
+  travelerId  Int
+  traveler    User     @relation(fields: [travelerId], references: [id])
+  
+  origin      String
+  destination String
+  departTime  DateTime
+  arriveTime  DateTime
+  
+  allowedCategories String[]
+  maxWeight   Decimal?  @db.Decimal(8, 2)
+  maxVolume   Decimal?  @db.Decimal(8, 2)
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([travelerId])
+  @@index([origin])
+  @@index([destination])
+  @@index([departTime])
+  @@index([isActive])
+}

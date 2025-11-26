@@ -1,0 +1,315 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  SELLER
+  TRAVELER      // Crowdshipping: travelers who deliver
+  BUYER         // Crowdshipping: buyers requesting delivery
+  ADMIN
+  SUPER_ADMIN
+}
+
+// User model (merged with crowdshipping)
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String?   // Null for OAuth users
+  firstName     String
+  lastName      String
+  fullName      String?   // Crowdshipping compatibility
+  phone         String?
+  avatar        String?
+  emailVerified Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  role          UserRole  @default(USER)
+  
+  // Crowdshipping fields
+  rating        Decimal?  @db.Decimal(3, 2) @default(0)
+  kycStatus     Boolean   @default(false)
+  preferredCategories String[]
+  preferredLanguages  String[]
+  
+  // OAuth
+  googleId      String?   @unique
+  appleId       String?   @unique
+  facebookId    String?   @unique
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  listings            Listing[]
+  bids                Bid[]
+  wallet              Wallet?
+  notifications       Notification[]
+  transactions        Transaction[]
+  travelerLocation    TravelerLocation?      // Crowdshipping
+  travelerAvailability TravelerAvailability[] // Crowdshipping
+  
+  @@index([email])
+  @@index([googleId])
+  @@index([appleId])
+  @@index([role])
+  @@index([kycStatus])
+}
+
+// Category model
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  nameAr      String?    // Arabic name
+  slug        String     @unique
+  description String?
+  image       String?
+  parentId    Int?
+  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  level       Int        @default(1)
+  displayOrder Int       @default(0)
+  isActive    Boolean    @default(true)
+  
+  listings    Listing[]
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@index([slug])
+  @@index([parentId])
+}
+
+// Listing model
+model Listing {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String       @db.Text
+  price       Decimal      @db.Decimal(10, 2)
+  currency    String       @default("USD")
+  
+  // Relations
+  sellerId    Int
+  seller      User         @relation(fields: [sellerId], references: [id])
+  categoryId  Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  
+  // Location
+  city        String
+  country     String
+  zipCode     String?
+  latitude    Float?
+  longitude   Float?
+  
+  // Listing details
+  condition   ListingCondition @default(NEW)
+  quantity    Int          @default(1)
+  images      String[]     // Array of S3 URLs
+  
+  // Auction fields
+  isAuction   Boolean      @default(false)
+  startingBid Decimal?     @db.Decimal(10, 2)
+  reservePrice Decimal?    @db.Decimal(10, 2)
+  buyNowPrice Decimal?     @db.Decimal(10, 2)
+  currentBid  Decimal?     @db.Decimal(10, 2)
+  auctionEndsAt DateTime?
+  
+  // Status
+  status      ListingStatus @default(DRAFT)
+  isActive    Boolean      @default(true)
+  isFeatured  Boolean      @default(false)
+  viewCount   Int          @default(0)
+  
+  // Timestamps
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  
+  // Relations
+  bids        Bid[]
+  
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([isAuction])
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  DELETED
+}
+
+// Bid model for auctions
+model Bid {
+  id         Int      @id @default(autoincrement())
+  amount     Decimal  @db.Decimal(10, 2)
+  
+  listingId  Int
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  bidderId   Int
+  bidder     User     @relation(fields: [bidderId], references: [id])
+  
+  isAutoBid  Boolean  @default(false)
+  maxAmount  Decimal? @db.Decimal(10, 2) // For auto-bidding
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([createdAt])
+}
+
+// Wallet model for Travel Wallet feature
+model Wallet {
+  id         Int      @id @default(autoincrement())
+  balance    Decimal  @db.Decimal(10, 2) @default(0)
+  currency   String   @default("USD")
+  
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  
+  isLocked   Boolean  @default(false)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+// Transaction model
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  amount      Decimal         @db.Decimal(10, 2)
+  currency    String          @default("USD")
+  type        TransactionType
+  status      TransactionStatus @default(PENDING)
+  
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
+  
+  // Payment gateway details
+  stripeId    String?
+  paypalId    String?
+  
+  description String?
+  metadata    Json?           // Additional data
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PAYMENT
+  REFUND
+  COMMISSION
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Notification model
+model Notification {
+  id        Int      @id @default(autoincrement())
+  title     String
+  message   String   @db.Text
+  type      NotificationType
+  isRead    Boolean  @default(false)
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  
+  data      Json?    // Additional data
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+}
+
+enum NotificationType {
+  BID_PLACED
+  BID_WON
+  BID_LOST
+  LISTING_SOLD
+  PAYMENT_RECEIVED
+  GENERAL
+}
+
+// ========================================
+// CROWDSHIPPING MODELS
+// ========================================
+
+// Traveler Location - Real-time GPS tracking
+model TravelerLocation {
+  id          Int      @id @default(autoincrement())
+  travelerId  Int      @unique
+  traveler    User     @relation(fields: [travelerId], references: [id])
+  
+  latitude    Float
+  longitude   Float
+  country     String?
+  airportCode String?
+  
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([travelerId])
+  @@index([country])
+  @@index([airportCode])
+}
+
+// Traveler Availability - Travel schedules
+model TravelerAvailability {
+  id          Int      @id @default(autoincrement())
+  travelerId  Int
+  traveler    User     @relation(fields: [travelerId], references: [id])
+  
+  origin      String   // Origin city/airport
+  destination String   // Destination city/airport
+  departTime  DateTime
+  arriveTime  DateTime
+  
+  allowedCategories String[] // Product categories traveler will carry
+  maxWeight   Decimal?  @db.Decimal(8, 2) // In kg
+  maxVolume   Decimal?  @db.Decimal(8, 2) // In liters
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([travelerId])
+  @@index([origin])
+  @@index([destination])
+  @@index([departTime])
+  @@index([isActive])
+}
