@@ -1,0 +1,13 @@
+feat(frontend): initialize Vite + React + TypeScript project
+
+- Setup Vite 7.2 with React 19 and TypeScript 5.9
+- Configure Tailwind CSS v4 with Vite plugin
+- Add ESLint and Prettier for code quality
+- Setup Vitest for unit testing
+- Create scalable folder structure (components, hooks, services, types)
+- Add environment variable template (.env.example)
+- Move legacy Next.js project to mnbara-web-legacy for reference
+
+BREAKING CHANGE: Replaced Next.js with Vite-based React SPA
+
+AI-assisted: Antigravity
