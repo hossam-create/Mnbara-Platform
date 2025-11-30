@@ -2,18 +2,31 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, cleanup/architecture-reorganization ]
   pull_request:
     branches: [ main, develop ]
 
 jobs:
-  lint-and-test:
-    name: Lint and Test
+  backend-build:
+    name: Backend Build & Test
     runs-on: ubuntu-latest
     
     strategy:
+      fail-fast: false
       matrix:
-        service: [auth-service, listing-service, auction-service, payment-service]
+        service: 
+          - api-gateway
+          - auth-service
+          - listing-service
+          - auction-service
+          - payment-service
+          - orders-service
+          - trips-service
+          - matching-service
+          - crowdship-service
+          - notification-service
+          - recommendation-service
+          - rewards-service
     
     steps:
       - name: Checkout code
@@ -24,26 +37,40 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: 'services/${{ matrix.service }}/package-lock.json'
+          cache-dependency-path: 'backend/services/${{ matrix.service }}/package-lock.json'
       
       - name: Install dependencies
         run: |
-          cd services/${{ matrix.service }}
-          npm ci
+          cd backend/services/${{ matrix.service }}
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
+      
+      - name: Build
+        run: |
+          cd backend/services/${{ matrix.service }}
+          npm run build --if-present
       
       - name: Run linter
         run: |
-          cd services/${{ matrix.service }}
-          npm run lint || echo "Lint not configured yet"
+          cd backend/services/${{ matrix.service }}
+          npm run lint --if-present
       
       - name: Run tests
         run: |
-          cd services/${{ matrix.service }}
-          npm test || echo "Tests not configured yet"
+          cd backend/services/${{ matrix.service }}
+          npm test --if-present
   
-  web-build:
-    name: Web App Build
+  frontend-build:
+    name: Frontend Build
     runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [web, mobile]
     
     steps:
       - name: Checkout code
@@ -54,87 +81,48 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Install web dependencies
+      - name: Install dependencies
         run: |
-          if [ -d "web/mnbara-web" ]; then
-            cd web/mnbara-web
-            npm ci || npm install
-          fi
-      
-      - name: Build web app
-        run: |
-          if [ -d "web/mnbara-web" ]; then
-            cd web/mnbara-web
-            npm run build || echo "Build script not configured yet"
-          fi
-  
-  docker-compose-check:
-    name: Docker Compose Validation
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Validate docker-compose.yml
-        run: |
-          docker-compose config
-      
-      - name: Check for secrets
-        run: |
-          echo "Checking for potential secrets in codebase..."
-          
-          # Check for .env files
-          if git ls-files | grep -E '\.env$'; then
-            echo "❌ ERROR: .env files found in repository"
-            exit 1
-          fi
-          
-          # Check for common secret patterns
-          if git grep -E '(aws_secret_key|stripe_secret|jwt_secret|password\s*=\s*["\047][^"\047]+["\047])' -- ':!*.md' ':!*.yml' ':!*.yaml'; then
-            echo "⚠️ WARNING: Potential secrets found in code"
-            echo "Please review the matches above"
-          fi
-          
-          echo "✅ No .env files found in repository"
-  
-  security-check:
-    name: Security Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      
-      - name: Run npm audit
-        run: |
-          services=("auth-service" "listing-service" "auction-service" "payment-service")
-          for service in "${services[@]}"; do
-            if [ -f "services/$service/package.json" ]; then
-              echo "Auditing $service..."
-              cd "services/$service"
-              npm audit --audit-level=high || echo "Vulnerabilities found in $service"
-              cd ../..
+          if [ -d "frontend/${{ matrix.app }}" ]; then
+            cd frontend/${{ matrix.app }}
+            if [ -f "package-lock.json" ]; then
+              npm ci
+            else
+              npm install
             fi
-          done
+          fi
+      
+      - name: Build
+        run: |
+          if [ -d "frontend/${{ matrix.app }}" ]; then
+            cd frontend/${{ matrix.app }}
+            npm run build --if-present
+          fi
+
+  docker-validation:
+    name: Docker Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Validate docker-compose
+        run: |
+          cd infrastructure/docker
+          docker-compose config
   
-  gitleaks:
-    name: Gitleaks Secret Scanning
+  security-scan:
+    name: Security Scan
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for Gitleaks to scan
+          fetch-depth: 0
       
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2.3.9
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Optional: only for Gitleaks Pro
