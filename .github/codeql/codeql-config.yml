@@ -1,0 +1,27 @@
+name: paths
+paths:
+  - services/**
+  - mobile/**
+  - infrastructure/**
+
+paths-ignore:
+  - '**/*.md'
+  - '**/*.txt'
+  - '**/docs/**'
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/.expo/**'
+  - '**/.expo-shared/**'
+  - '**/android/**'
+  - '**/ios/**'
+  - '**/__tests__/**'
+  - '**/*.test.ts'
+  - '**/*.test.js'
+  - '**/*.spec.ts'
+  - '**/*.spec.js'
+
+queries:
+  - uses: security-extended
+  - uses: security-and-quality

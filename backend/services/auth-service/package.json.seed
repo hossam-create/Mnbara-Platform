@@ -1,0 +1,6 @@
+{
+  "name": "seed:categories",
+  "scripts": {
+    "seed": "ts-node prisma/seeds/ebay-categories.seed.ts"
+  }
+}

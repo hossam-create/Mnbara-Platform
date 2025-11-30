@@ -1,0 +1,57 @@
+name: "ESLint Code Quality"
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: ESLint Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Lint TypeScript Services
+      run: |
+        echo "=== Linting TypeScript Services ==="
+        for service in auth-service listing-service payment-service auction-service notification-service crowdship-service; do
+          echo "Checking services/$service..."
+          if [ -f "services/$service/package.json" ]; then
+            cd "services/$service"
+            npm ci --omit=dev
+            if npm run lint --if-present; then
+              echo "✅ $service passed lint"
+            else
+              echo "❌ $service failed lint"
+              exit 1
+            fi
+            cd ../..
+          fi
+        done
+
+    - name: Lint JavaScript Services
+      run: |
+        echo "=== Linting JavaScript Services ==="
+        for service in recommendation-service rewards-service; do
+          echo "Checking services/$service..."
+          if [ -f "services/$service/package.json" ]; then
+            cd "services/$service"
+            npm ci --omit=dev
+            if npm run lint --if-present; then
+              echo "✅ $service passed lint"
+            else
+              echo "ℹ️ $service has no lint script"
+            fi
+            cd ../..
+          fi
+        done

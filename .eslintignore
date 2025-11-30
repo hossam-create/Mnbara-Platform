@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+*.bundle.js
+.expo/
+.expo-shared/
+android/
+ios/
+*.config.js
+*.config.ts
+prisma/migrations/
+*.d.ts

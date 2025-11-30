@@ -175,3 +175,8 @@ credentials/
 # Don't upload the extracted folder from prepare MnBarh
 **/extracted/
 **/prepare MnBarh/
+
+# ========================================
+# Legacy Projects
+# ========================================
+web/mnbara-web-legacy/
