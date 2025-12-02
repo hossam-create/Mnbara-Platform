@@ -55,7 +55,19 @@ export class AuctionService {
             throw new Error(`Bid must be higher than current bid (${currentBid})`);
         }
 
-        // 2. Create Bid
+        // 2. Check for Auto-Extend (Sniping Prevention)
+        let newEndsAt = auction.auctionEndsAt;
+        if (auction.auctionEndsAt) {
+            const timeRemaining = auction.auctionEndsAt.getTime() - new Date().getTime();
+            const TWO_MINUTES = 2 * 60 * 1000;
+            
+            if (timeRemaining < TWO_MINUTES && timeRemaining > 0) {
+                newEndsAt = new Date(auction.auctionEndsAt.getTime() + TWO_MINUTES);
+                console.log(`Auction ${listingId} auto-extended to ${newEndsAt}`);
+            }
+        }
+
+        // 3. Create Bid
         const bid = await prisma.bid.create({
             data: {
                 listingId,
@@ -69,10 +81,13 @@ export class AuctionService {
             },
         });
 
-        // 3. Update Auction Current Bid
+        // 4. Update Auction Current Bid & End Time
         await prisma.listing.update({
             where: { id: listingId },
-            data: { currentBid: amount },
+            data: { 
+                currentBid: amount,
+                auctionEndsAt: newEndsAt
+            },
         });
 
         return bid;

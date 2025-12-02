@@ -1,13 +1,11 @@
-FROM node:18-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 3007
-
-CMD ["npm", "start"]
+# Run the application
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3007", "--reload"]

@@ -1,0 +1,440 @@
+openapi: 3.0.3
+info:
+  title: Mnbara Platform API
+  description: |
+    Comprehensive API for the Mnbara Crowdshipping & Marketplace Platform.
+    
+    **Features:**
+    - Crowdshipping (Travelers delivering items)
+    - Auctions & Marketplace
+    - AI-powered Recommendations
+    - Escrow & Wallets
+    - Rewards Program
+    
+  version: 1.0.0
+  contact:
+    name: Mnbara Platform
+    email: support@mnbara.com
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development
+  - url: https://api.mnbara.com/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: Authentication & Authorization
+  - name: Users
+    description: User management
+  - name: Listings
+    description: Product listings & marketplace
+  - name: Auctions
+    description: Auction bidding system
+  - name: Orders
+    description: Order & request management
+  - name: Delivery
+    description: Delivery pricing & tracking
+  - name: Payments
+    description: Wallet & transactions
+  - name: Rewards
+    description: Loyalty points system
+  - name: Recommendations
+    description: AI-powered context analysis
+  - name: Matching
+    description: Order-Traveler matching system
+
+paths:
+  # ============================================
+  # MATCHING
+  # ============================================
+  /matching/nearby-requests:
+    get:
+      tags: [Matching]
+      summary: Find nearby buyer requests
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            example: 25.2048
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+            example: 55.2708
+        - name: radius_km
+          in: query
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Nearby requests found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  count:
+                    type: number
+                  data:
+                    type: array
+                    items:
+                      type: object
+
+  /matching/match:
+    post:
+      tags: [Matching]
+      summary: Match traveler with order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [travelerId, orderId]
+              properties:
+                travelerId:
+                  type: number
+                orderId:
+                  type: number
+      responses:
+        '200':
+          description: Match successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+  # ============================================
+  # RECOMMENDATIONS (AI Context)
+  # ============================================
+  /recommendations/context/analyze:
+    post:
+      tags: [Recommendations]
+      summary: Analyze traveler context (Location, Camera, Voice)
+      description: AI endpoint to process traveler's current context and recommend nearby opportunities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [traveler_id, location]
+              properties:
+                traveler_id:
+                  type: string
+                  example: "user-123"
+                location:
+                  type: object
+                  required: [lat, lon]
+                  properties:
+                    lat:
+                      type: number
+                      example: 25.2048
+                    lon:
+                      type: number
+                      example: 55.2708
+                    accuracy:
+                      type: number
+                      example: 10.5
+                activity:
+                  type: string
+                  enum: [walking, in_vehicle, stationary]
+                  example: "walking"
+                detected_objects:
+                  type: array
+                  items:
+                    type: string
+                  example: ["iphone 15", "nike shoes"]
+                voice_transcript:
+                  type: string
+                  example: "I am at Dubai Mall"
+      responses:
+        '200':
+          description: Context analyzed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  recommendations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "opportunity"
+                        message:
+                          type: string
+                          example: "You are at Dubai Mall! 3 people want items from Apple Store here."
+                        potential_earnings:
+                          type: number
+                          example: 150
+                        items:
+                          type: array
+                          items:
+                            type: string
+
+  # ============================================
+  # DELIVERY
+  # ============================================
+  /delivery/calculate-price:
+    post:
+      tags: [Delivery]
+      summary: Calculate delivery cost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [weight, distance, urgency, itemType]
+              properties:
+                weight:
+                  type: number
+                  description: Weight in kg
+                  example: 2.5
+                distance:
+                  type: number
+                  description: Distance in km
+                  example: 150
+                urgency:
+                  type: string
+                  enum: [standard, express, same_day]
+                  example: "express"
+                itemType:
+                  type: string
+                  enum: [electronics, clothing, food, fragile, other]
+                  example: "electronics"
+                insuranceValue:
+                  type: number
+                  description: Item value for insurance
+                  example: 1000
+      responses:
+        '200':
+          description: Price calculated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  pricing:
+                    type: object
+                    properties:
+                      deliveryCost:
+                        type: number
+                        example: 47.50
+                      platformCommission:
+                        type: number
+                        example: 7.13
+                      travelerEarnings:
+                        type: number
+                        example: 40.37
+
+  /delivery/tracking/update:
+    post:
+      tags: [Delivery]
+      summary: Update shipment tracking status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [shipmentId, status]
+              properties:
+                shipmentId:
+                  type: number
+                  example: 123
+                status:
+                  type: string
+                  enum: [REQUESTED, MATCHED, PURCHASED, IN_TRANSIT, ARRIVED, DELIVERED, COMPLETED, CANCELLED]
+                  example: "IN_TRANSIT"
+                location:
+                  type: string
+                  example: "Dubai International Airport"
+                notes:
+                  type: string
+                  example: "Package cleared customs"
+      responses:
+        '200':
+          description: Status updated
+
+  /delivery/tracking/{shipmentId}:
+    get:
+      tags: [Delivery]
+      summary: Get tracking history
+      parameters:
+        - name: shipmentId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Tracking history retrieved
+
+  # ============================================
+  # AUCTIONS
+  # ============================================
+  /auctions/{id}/bid:
+    post:
+      tags: [Auctions]
+      summary: Place a bid on auction
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bidderId, amount]
+              properties:
+                bidderId:
+                  type: number
+                amount:
+                  type: number
+                  example: 250.00
+      responses:
+        '200':
+          description: Bid placed successfully
+        '400':
+          description: Bid too low or auction ended
+
+  # ============================================
+  # REWARDS
+  # ============================================
+  /rewards/balance/{userId}:
+    get:
+      tags: [Rewards]
+      summary: Get user's rewards balance
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Balance retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalPoints:
+                    type: number
+                    example: 1500
+                  availablePoints:
+                    type: number
+                    example: 1200
+                  redeemedPoints:
+                    type: number
+                    example: 300
+
+  /rewards/earn:
+    post:
+      tags: [Rewards]
+      summary: Award points to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, action]
+              properties:
+                userId:
+                  type: number
+                action:
+                  type: string
+                  enum: [DELIVERY_COMPLETED, PURCHASE_MADE, FIRST_ORDER, REFERRAL, REVIEW_SUBMITTED]
+                  example: "DELIVERY_COMPLETED"
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Points awarded
+
+  /rewards/redeem:
+    post:
+      tags: [Rewards]
+      summary: Redeem points
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, points, type]
+              properties:
+                userId:
+                  type: number
+                points:
+                  type: number
+                  example: 500
+                type:
+                  type: string
+                  enum: [WALLET, DISCOUNT]
+                  example: "WALLET"
+      responses:
+        '200':
+          description: Points redeemed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cashValue:
+                    type: number
+                    example: 5.00
+                  remainingPoints:
+                    type: number
+                    example: 700
+
+  /rewards/leaderboard:
+    get:
+      tags: [Rewards]
+      summary: Get top earners leaderboard
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Leaderboard retrieved
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []

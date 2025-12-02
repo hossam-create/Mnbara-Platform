@@ -26,6 +26,8 @@ model User {
   
   travelerLocation    TravelerLocation?
   travelerAvailability TravelerAvailability[]
+  buyerOrders         Order[]   @relation("BuyerOrders")
+  travelerOrders      Order[]   @relation("TravelerOrders")
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -74,4 +76,37 @@ model TravelerAvailability {
   @@index([destination])
   @@index([departTime])
   @@index([isActive])
+}
+
+model Order {
+  id            Int       @id @default(autoincrement())
+  buyerId       Int
+  buyer         User      @relation("BuyerOrders", fields: [buyerId], references: [id])
+  travelerId    Int?
+  traveler      User?     @relation("TravelerOrders", fields: [travelerId], references: [id])
+  
+  status        String    @default("REQUESTED") // Using String to match TS type, or we can define Enum
+  
+  trackingHistory TrackingHistory[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([buyerId])
+  @@index([travelerId])
+  @@index([status])
+}
+
+model TrackingHistory {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id])
+  
+  status      String
+  location    String?
+  notes       String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([orderId])
 }
