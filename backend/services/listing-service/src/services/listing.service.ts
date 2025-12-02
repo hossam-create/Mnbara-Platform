@@ -106,7 +106,6 @@ export class ListingService {
                         id: true,
                         firstName: true,
                         lastName: true,
-                        rating: true,
                         createdAt: true,
                     },
                 },
