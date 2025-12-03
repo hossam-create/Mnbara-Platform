@@ -1,4 +1,4 @@
-import './index.css'
+import './index.css';
 
 function App() {
   return (
@@ -239,7 +239,7 @@ function App() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -75,11 +75,11 @@ function parseFile() {
   console.log(`Parsed ${categories.length} categories`);
   
   // Generate seed file
-  let code = `import { PrismaClient } from '@prisma/client';\n\n`;
-  code += `const prisma = new PrismaClient();\n\n`;
-  code += `// Generated from ebay catogery.txt\n`;
+  let code = 'import { PrismaClient } from \'@prisma/client\';\n\n';
+  code += 'const prisma = new PrismaClient();\n\n';
+  code += '// Generated from ebay catogery.txt\n';
   code += `// Total: ${categories.length} categories\n\n`;
-  code += `const categories = [\n`;
+  code += 'const categories = [\n';
   
   categories.forEach(cat => {
     code += `  { name: "${cat.name.replace(/"/g, '\\"')}", slug: "${cat.slug}", level: ${cat.level}`;
@@ -87,21 +87,21 @@ function parseFile() {
     code += `, order: ${cat.order} },\n`;
   });
   
-  code += `];\n\n`;
-  code += `async function seed() {\n`;
-  code += `  console.log('Seeding categories...');\n`;
-  code += `  await prisma.category.deleteMany({});\n`;
-  code += `  const map = new Map();\n`;
-  code += `  for (const cat of categories) {\n`;
-  code += `    const parentId = cat.parent ? map.get(cat.parent) : null;\n`;
-  code += `    const created = await prisma.category.create({\n`;
-  code += `      data: { name: cat.name, nameAr: cat.name, slug: cat.slug, level: cat.level, parentId, displayOrder: cat.order, isActive: true }\n`;
-  code += `    });\n`;
-  code += `    map.set(cat.slug, created.id);\n`;
-  code += `  }\n`;
-  code += `  console.log('Done! Created', categories.length, 'categories');\n`;
-  code += `}\n\n`;
-  code += `seed().finally(() => prisma.$disconnect());\n`;
+  code += '];\n\n';
+  code += 'async function seed() {\n';
+  code += '  console.log(\'Seeding categories...\');\n';
+  code += '  await prisma.category.deleteMany({});\n';
+  code += '  const map = new Map();\n';
+  code += '  for (const cat of categories) {\n';
+  code += '    const parentId = cat.parent ? map.get(cat.parent) : null;\n';
+  code += '    const created = await prisma.category.create({\n';
+  code += '      data: { name: cat.name, nameAr: cat.name, slug: cat.slug, level: cat.level, parentId, displayOrder: cat.order, isActive: true }\n';
+  code += '    });\n';
+  code += '    map.set(cat.slug, created.id);\n';
+  code += '  }\n';
+  code += '  console.log(\'Done! Created\', categories.length, \'categories\');\n';
+  code += '}\n\n';
+  code += 'seed().finally(() => prisma.$disconnect());\n';
   
   fs.writeFileSync(outputFile, code);
   console.log(`Generated: ${outputFile}`);

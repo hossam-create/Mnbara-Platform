@@ -1,33 +1,33 @@
-import Image from "next/image";
-import Link from "next/link";
-import { Search, ShoppingCart, Bell, User, Clock, TrendingUp, Zap, Star } from "lucide-react";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Search, ShoppingCart, Bell, User, Clock, TrendingUp, Zap, Star } from 'lucide-react';
 
 export default function Home() {
   const categories = [
-    "إلكترونيات", "أزياء", "منزل وحديقة", "رياضة", "ألعاب",
-    "كتب", "سيارات", "جمال وعناية", "هواتف", "أجهزة كمبيوتر",
-    "ساعات", "مجوهرات", "صحة", "أطفال", "موسيقى", "تحف"
+    'إلكترونيات', 'أزياء', 'منزل وحديقة', 'رياضة', 'ألعاب',
+    'كتب', 'سيارات', 'جمال وعناية', 'هواتف', 'أجهزة كمبيوتر',
+    'ساعات', 'مجوهرات', 'صحة', 'أطفال', 'موسيقى', 'تحف'
   ];
 
   const liveAuctions = [
-    { id: 1, title: "ساعة رولكس أصلية", currentBid: "12,500 ريال", timeLeft: "2س 15د", bids: 24, image: "/images/1.png" },
-    { id: 2, title: "آيفون 15 برو ماكس", currentBid: "5,200 ريال", timeLeft: "45د", bids: 18, image: "/images/2.png" },
-    { id: 3, title: "لابتوب ماك بوك برو", currentBid: "8,900 ريال", timeLeft: "1س 30د", bids: 31, image: "/images/3.png" },
-    { id: 4, title: "حقيبة لويس فيتون", currentBid: "3,400 ريال", timeLeft: "3س", bids: 15, image: "/images/4.png" },
+    { id: 1, title: 'ساعة رولكس أصلية', currentBid: '12,500 ريال', timeLeft: '2س 15د', bids: 24, image: '/images/1.png' },
+    { id: 2, title: 'آيفون 15 برو ماكس', currentBid: '5,200 ريال', timeLeft: '45د', bids: 18, image: '/images/2.png' },
+    { id: 3, title: 'لابتوب ماك بوك برو', currentBid: '8,900 ريال', timeLeft: '1س 30د', bids: 31, image: '/images/3.png' },
+    { id: 4, title: 'حقيبة لويس فيتون', currentBid: '3,400 ريال', timeLeft: '3س', bids: 15, image: '/images/4.png' },
   ];
 
   const hotDeals = [
-    { id: 1, title: "سماعات AirPods Pro", price: "850 ريال", oldPrice: "1,200 ريال", discount: "-29%", image: "/images/5.png" },
-    { id: 2, title: "شاشة سامسونج 55 بوصة", price: "1,950 ريال", oldPrice: "2,800 ريال", discount: "-30%", image: "/images/6.png" },
-    { id: 3, title: "بلايستيشن 5", price: "2,100 ريال", oldPrice: "2,600 ريال", discount: "-19%", image: "/images/8.png" },
-    { id: 4, title: "كاميرا كانون EOS", price: "3,200 ريال", oldPrice: "4,500 ريال", discount: "-29%", image: "/images/96.png" },
+    { id: 1, title: 'سماعات AirPods Pro', price: '850 ريال', oldPrice: '1,200 ريال', discount: '-29%', image: '/images/5.png' },
+    { id: 2, title: 'شاشة سامسونج 55 بوصة', price: '1,950 ريال', oldPrice: '2,800 ريال', discount: '-30%', image: '/images/6.png' },
+    { id: 3, title: 'بلايستيشن 5', price: '2,100 ريال', oldPrice: '2,600 ريال', discount: '-19%', image: '/images/8.png' },
+    { id: 4, title: 'كاميرا كانون EOS', price: '3,200 ريال', oldPrice: '4,500 ريال', discount: '-29%', image: '/images/96.png' },
   ];
 
   const featuredProducts = Array(12).fill(null).map((_, i) => ({
     id: i + 1,
     title: `منتج مميز ${i + 1}`,
     price: `${Math.floor(Math.random() * 5000) + 100} ريال`,
-    shipping: "شحن مجاني",
+    shipping: 'شحن مجاني',
     image: `/images/${[1, 2, 3, 4, 5, 6, 8, 96, 97, 98, 99][i % 11]}.png`,
     rating: 4.5,
     reviews: Math.floor(Math.random() * 500) + 50
@@ -229,7 +229,7 @@ export default function Home() {
                       <div className="text-gray-900 font-bold">{product.price}</div>
                       <div className="text-xs text-green-600 mt-1">{product.shipping}</div>
                       <div className="flex items-center gap-1 mt-2 text-xs text-gray-600">
-                        {"★".repeat(Math.floor(product.rating))}
+                        {'★'.repeat(Math.floor(product.rating))}
                         <span>({product.reviews})</span>
                       </div>
                     </div>

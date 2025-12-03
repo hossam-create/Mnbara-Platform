@@ -28,7 +28,7 @@ export class RewardsService {
         
         return prisma.$transaction(async (tx) => {
             // 1. Get or create rewards account
-            let rewards = await tx.rewards.upsert({
+            const rewards = await tx.rewards.upsert({
                 where: { userId },
                 create: {
                     userId,
