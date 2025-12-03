@@ -45,7 +45,7 @@ app.use(errorHandler);
 
 httpServer.listen(PORT, () => {
     console.log(`🚀 Auction Service running on port ${PORT}`);
-    console.log(`🔌 WebSocket Server ready`);
+    console.log('🔌 WebSocket Server ready');
 });
 
 export default app;

@@ -109,7 +109,7 @@ export class SearchService {
             }
 
             // Geo filter
-            let filter: any[] = [];
+            const filter: any[] = [];
             if (filters.lat && filters.lon && filters.distance) {
                 filter.push({
                     geo_distance: {

@@ -1,4 +1,3 @@
-```typescript
 import { Request, Response, NextFunction } from 'express';
 import { AuctionService } from '../services/auction.service';
 // import { io } from '../index'; // We'll need to export io or use a singleton
@@ -64,4 +63,3 @@ export class BidController {
     }
   };
 }
-```
