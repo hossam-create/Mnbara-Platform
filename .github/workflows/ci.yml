@@ -36,7 +36,6 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: backend/services/${{ matrix.service }}/package-lock.json
 
       - name: Install dependencies
         working-directory: backend/services/${{ matrix.service }}
@@ -62,7 +61,6 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: frontend/web/mnbara-web-legacy/package-lock.json
 
       - name: Install dependencies
         working-directory: frontend/web/mnbara-web-legacy
