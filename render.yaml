@@ -5,10 +5,7 @@ services:
     env: docker
     plan: free
     
-  # Redis Cache
-  - type: redis
-    name: mnbara-redis
-    plan: free
+
   # Redis Cache
   - type: redis
     name: mnbara-redis
