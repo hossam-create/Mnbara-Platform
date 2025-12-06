@@ -86,6 +86,43 @@ services:
       timeout: 10s
       retries: 5
 
+  # Kibana Dashboard
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: mnbara-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - mnbara-network
+
+  # Admin Service
+  admin-service:
+    build:
+      context: ../../backend/services/admin-service
+      dockerfile: Dockerfile
+    container_name: mnbara-admin
+    environment:
+      - NODE_ENV=development
+      - PORT=3012
+      - DATABASE_URL=postgresql://mnbara_user:mnbara_pass@postgres:5432/mnbara_db
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+    ports:
+      - "3012:3012"
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    volumes:
+      - ../../backend/services/admin-service:/app
+      - /app/node_modules
+    networks:
+      - mnbara-network
+
 
   # API Gateway
   api-gateway:

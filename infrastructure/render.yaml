@@ -156,13 +156,13 @@ services:
   # Recommendation Service
   - type: web
     name: mnbara-recommendation
-    env: node
+    env: python
     plan: free
-    buildCommand: cd services/recommendation-service && npm install && npx prisma generate && npm start
-    startCommand: cd services/recommendation-service && npm start
+    buildCommand: cd backend/services/recommendation-service && pip install -r requirements.txt
+    startCommand: cd backend/services/recommendation-service && uvicorn src.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.0
       - key: PORT
         value: 3007
       - key: DATABASE_URL

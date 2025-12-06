@@ -1,0 +1,27 @@
+# Grafana Dashboard Configuration for Mnbara Blockchain
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Mnbara Backend Metrics
+  - job_name: 'mnbara-backend'
+    static_configs:
+      - targets: ['localhost:3000']
+    metrics_path: '/metrics'
+    
+  # Node.js Default Metrics
+  - job_name: 'nodejs'
+    static_configs:
+      - targets: ['localhost:3000']
+    metrics_path: '/metrics'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['localhost:9093']
+
+# Alert Rules
+rule_files:
+  - 'blockchain_alerts.yml'

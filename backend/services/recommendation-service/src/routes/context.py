@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+from src import logic
 
 router = APIRouter()
 
@@ -21,26 +22,38 @@ async def analyze_context(context: TravelerContext):
     """
     Analyze traveler context (Location, Camera, Voice) to recommend actions.
     """
-    recommendations = []
-
-    # Mock Logic for Demo
-    if context.voice_transcript and "Dubai Mall" in context.voice_transcript:
-        recommendations.append({
-            "type": "opportunity",
-            "message": "You are at Dubai Mall! 3 people want items from Apple Store here.",
-            "potential_earnings": 150,
-            "items": ["iPhone 15 Pro", "AirPods Max"]
-        })
     
-    if "iphone 15" in [obj.lower() for obj in context.detected_objects]:
-         recommendations.append({
-            "type": "match",
-            "message": "We detected an iPhone 15. User 'Ahmed' in Cairo is looking for this!",
-            "action": "Scan barcode to confirm price"
+    # 1. Location-Based Recommendations (Real Calc)
+    nearby_reqs = logic.find_nearby_requests(context.location.lat, context.location.lon, radius_km=50.0)
+    
+    if nearby_reqs:
+        for req in nearby_reqs:
+            recommendations.append({
+                "type": "opportunity",
+                "message": f"You are {req['distance_km']}km away from '{req['location_name']}'. Someone needs '{req['item_name']}' there!",
+                "potential_earnings": req['reward'],
+                "location": {"lat": req['lat'], "lon": req['lon']}
+            })
+    else:
+        # Fallback if no nearby requests (e.g. for testing anywhere else)
+        recommendations.append({
+            "type": "info",
+            "message": "No specific requests found nearby. Try moving towards major hubs like Dubai or Riyadh.",
+            "nearby_hubs": ["Dubai", "Riyadh", "Cairo", "London", "New York"]
         })
+
+    # 2. Camera/Object Detection Matching
+    if context.detected_objects:
+        object_matches = logic.match_detected_objects(context.detected_objects)
+        recommendations.extend(object_matches)
 
     return {
         "status": "success",
-        "context_processed": context,
-        "recommendations": recommendations
+        "context_processed": {
+            "traveler_id": context.traveler_id,
+            "location_summary": f"{context.location.lat}, {context.location.lon}",
+            "objects_detected": len(context.detected_objects) if context.detected_objects else 0
+        },
+        "recommendations": recommendations,
+        "algo_version": "1.1-haversine"
     }

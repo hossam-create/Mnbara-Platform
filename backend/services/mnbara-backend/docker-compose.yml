@@ -1,62 +1,97 @@
 version: '3.8'
 
 services:
-  mnbara-backend:
-    build: .
-    ports:
-      - "3001:3001"
+  # Main Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mnbara-backend
     environment:
       - NODE_ENV=development
-      - PORT=3001
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=mnbara_db
-      - JWT_SECRET=your-super-secret-jwt-key
-      - JWT_EXPIRES_IN=7d
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - RABBITMQ_URL=amqp://rabbitmq:5672
-      - FRONTEND_URL=http://localhost:3000
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mnbara_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
     depends_on:
-      - postgres
-      - redis
-      - rabbitmq
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
-  postgres:
-    image: postgres:15-alpine
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    container_name: mnbara-backend-db
     environment:
-      POSTGRES_DB: mnbara_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mnbara_dev
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
+  # Redis Cache
   redis:
     image: redis:7-alpine
+    container_name: mnbara-backend-redis
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
+  # RabbitMQ Message Broker
   rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    image: rabbitmq:3.12-management-alpine
+    container_name: mnbara-backend-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Management UI
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
-  postgres_data:
-  redis_data:
-  rabbitmq_data:
+  db_data:
+
+networks:
+  mnbara-network:
+    driver: bridge

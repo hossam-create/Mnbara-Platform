@@ -1,23 +1,25 @@
-# Base image
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
-# Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
-# Copy app source
 COPY . .
 
-# Build the app
 RUN npm run build
 
-# Expose port
-EXPOSE 3001
+FROM node:18-alpine
 
-# Start the app
-CMD ["npm", "run", "start:prod"]
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+
+EXPOSE 3000
+
+CMD ["node", "dist/main.js"]

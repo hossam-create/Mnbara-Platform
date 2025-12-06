@@ -1,0 +1,79 @@
+groups:
+  - name: blockchain_alerts
+    interval: 30s
+    rules:
+      # High Error Rate
+      - alert: HighBlockchainErrorRate
+        expr: rate(blockchain_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High blockchain error rate"
+          description: "Blockchain error rate is {{ $value }} errors/sec"
+
+      # Transaction Failures
+      - alert: HighTransactionFailureRate
+        expr: |
+          rate(blockchain_transactions_total{status="failure"}[5m])
+          /
+          rate(blockchain_transactions_total[5m])
+          > 0.2
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High transaction failure rate"
+          description: "Transaction failure rate is {{ $value | humanizePercentage }}"
+
+      # Escrow Volume Alert
+      - alert: HighEscrowVolume
+        expr: auction_escrow_volume_total > 100
+        for: 1m
+        labels:
+          severity: info
+        annotations:
+          summary: "High escrow volume detected"
+          description: "Total escrow volume is {{ $value }} ETH"
+
+service: Monitoring completed successfully.
+
+      # Active Escrows Alert
+      - alert: TooManyActiveEscrows
+        expr: auction_escrows_active > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many active escrows"
+          description: "Currently {{ $value }} active escrows"
+
+      # Gas Price Alert
+      - alert: HighGasPrice
+        expr: blockchain_gas_price_gwei > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High gas price detected"
+          description: "Current gas price is {{ $value }} Gwei"
+
+      # Slow Transactions
+      - alert: SlowTransactions
+        expr: histogram_quantile(0.95, blockchain_transaction_duration_seconds_bucket) > 30
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Transactions are slow"
+          description: "95th percentile transaction time is {{ $value }}s"
+
+      # Backend Down
+      - alert: BackendDown
+        expr: up{job="mnbara-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend service is down"
+          description: "Mnbara backend has been down for more than 1 minute"

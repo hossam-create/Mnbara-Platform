@@ -16,12 +16,20 @@
         "dev:payment": "npm run dev --workspace=@mnbara/payment-service",
         "build": "npm run build --workspaces",
         "test": "npm run test --workspaces",
-        "lint": "eslint . --ext .js,.ts,.tsx"
+        "lint": "node node_modules/eslint/bin/eslint.js . --ext .js,.ts,.tsx"
+    },
+    "dependencies": {
+        "@openzeppelin/contracts": "^5.4.0",
+        "@openzeppelin/contracts-upgradeable": "^5.4.0",
+        "dotenv": "^17.2.3",
+        "ethers": "^6.8.0"
     },
     "devDependencies": {
+        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
         "@typescript-eslint/eslint-plugin": "^7.0.0",
         "@typescript-eslint/parser": "^7.0.0",
         "eslint": "^8.57.1",
+        "hardhat": "^2.27.1",
         "prettier": "^3.2.5",
         "typescript": "^5.3.3"
     },

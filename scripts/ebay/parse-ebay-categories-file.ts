@@ -287,9 +287,9 @@ const outputFile = path.join(__dirname, '../services/auth-service/prisma/seeds/e
 console.log('🚀 eBay Categories Parser');
 console.log('═══════════════════════════════════════\n');
 
-console.log(\`📄 Reading file: \${inputFile}\`);
+console.log(`Reading file: ${inputFile}`);
 const categories = parseEbayCategoriesFile(inputFile);
-console.log(\`✅ Parsed \${categories.length} categories\\n\`);
+console.log(`✅ Parsed ${categories.length} categories\n`);
 
 // Stats
 const byLevel = categories.reduce((acc, cat) => {
@@ -297,22 +297,22 @@ const byLevel = categories.reduce((acc, cat) => {
   return acc;
 }, {} as Record<number, number>);
 
-console.log('📊 Statistics:');
+console.log('Statistics:');
 Object.keys(byLevel).sort().forEach(level => {
-  console.log(\`   - Level \${level}: \${byLevel[Number(level)]}\`);
+  console.log(`   - Level ${level}: ${byLevel[Number(level)]}`);
 });
 console.log();
 
-console.log(\`📝 Generating seed file: \${outputFile}\`);
+console.log(`Generating seed file: ${outputFile}`);
 const seedCode = generateSeedFile(categories);
 fs.writeFileSync(outputFile, seedCode);
-console.log('✅ Seed file generated\\n');
+console.log('Seed file generated\n');
 
 console.log('═══════════════════════════════════════');
-console.log('🎉 Success!');
+console.log('Success!');
 console.log('═══════════════════════════════════════');
-console.log(\`📁 Output: \${outputFile}\`);
-console.log('\\n🚀 Next step:');
+console.log(`Output: ${outputFile}`);
+console.log('\nNext step:');
 console.log('   cd services/auth-service');
 console.log('   npx ts-node prisma/seeds/ebay-categories-from-file.seed.ts');
 console.log('═══════════════════════════════════════\\n');
