@@ -16,8 +16,8 @@ services:
     name: mnbara-auth
     env: node
     plan: free
-    buildCommand: cd services/auth-service && npm install && npx prisma generate && npm run build
-    startCommand: cd services/auth-service && npm start
+    buildCommand: cd backend/services/auth-service && npm install && npx prisma generate && npm run build
+    startCommand: cd backend/services/auth-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -41,8 +41,8 @@ services:
     name: mnbara-listing
     env: node
     plan: free
-    buildCommand: cd services/listing-service && npm install && npx prisma generate && npm run build
-    startCommand: cd services/listing-service && npm start
+    buildCommand: cd backend/services/listing-service && npm install && npx prisma generate && npm run build
+    startCommand: cd backend/services/listing-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -64,8 +64,8 @@ services:
     name: mnbara-auction
     env: node
     plan: free
-    buildCommand: cd services/auction-service && npm install && npx prisma generate && npm run build
-    startCommand: cd services/auction-service && npm start
+    buildCommand: cd backend/services/auction-service && npm install && npx prisma generate && npm run build
+    startCommand: cd backend/services/auction-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -87,8 +87,8 @@ services:
     name: mnbara-payment
     env: node
     plan: free
-    buildCommand: cd services/payment-service && npm install && npx prisma generate && npm run build
-    startCommand: cd services/payment-service && npm start
+    buildCommand: cd backend/services/payment-service && npm install && npx prisma generate && npm run build
+    startCommand: cd backend/services/payment-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -116,8 +116,8 @@ services:
     name: mnbara-crowdship
     env: node
     plan: free
-    buildCommand: cd services/crowdship-service && npm install && npx prisma generate && npm run build
-    startCommand: cd services/crowdship-service && npm start
+    buildCommand: cd backend/services/crowdship-service && npm install && npx prisma generate && npm run build
+    startCommand: cd backend/services/crowdship-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -139,8 +139,8 @@ services:
     name: mnbara-notification
     env: node
     plan: free
-    buildCommand: cd services/notification-service && npm install && npm run build
-    startCommand: cd services/notification-service && npm start
+    buildCommand: cd backend/services/notification-service && npm install && npm run build
+    startCommand: cd backend/services/notification-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -181,8 +181,8 @@ services:
     name: mnbara-rewards
     env: node
     plan: free
-    buildCommand: cd services/rewards-service && npm install && npx prisma generate && npm start
-    startCommand: cd services/rewards-service && npm start
+    buildCommand: cd backend/services/rewards-service && npm install && npx prisma generate && npm start
+    startCommand: cd backend/services/rewards-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
