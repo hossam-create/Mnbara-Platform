@@ -9,9 +9,12 @@ services:
   - type: redis
     name: mnbara-redis
     plan: free
+  # Redis Cache
+  - type: redis
+    name: mnbara-redis
+    plan: free
     maxmemoryPolicy: noeviction
-
-  # Auth Service
+    ipAllowList: [] # Allow internal connections only
   - type: web
     name: mnbara-auth
     env: node
