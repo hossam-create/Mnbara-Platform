@@ -1,0 +1,321 @@
+# Enhanced Horizontal Pod Autoscaler Configuration
+# Includes custom metrics and advanced scaling behavior
+
+{{- if .Values.autoscaling.hpa.enhanced }}
+
+---
+# Enhanced HPA for Auction Service with custom metrics
+{{- if and .Values.auctionService.enabled .Values.auctionService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.auctionService.name }}-enhanced
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.auctionService.name }}
+  minReplicas: {{ .Values.auctionService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.auctionService.autoscaling.maxReplicas }}
+  metrics:
+    # CPU utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.auctionService.autoscaling.targetCPUUtilizationPercentage | default 60 }}
+    # Memory utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.auctionService.autoscaling.targetMemoryUtilizationPercentage | default 70 }}
+    {{- if .Values.autoscaling.hpa.customMetrics.enabled }}
+    # Custom metric: Active WebSocket connections
+    - type: Pods
+      pods:
+        metric:
+          name: websocket_connections_active
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.auctionService.autoscaling.targetWebsocketConnections | default "500" }}
+    # Custom metric: Bid processing rate
+    - type: Pods
+      pods:
+        metric:
+          name: auction_bids_per_second
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.auctionService.autoscaling.targetBidsPerSecond | default "100" }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.auctionService.autoscaling.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.auctionService.autoscaling.behavior.scaleUp.stabilizationWindowSeconds | default 0 }}
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max
+{{- end }}
+
+---
+# Enhanced HPA for Payment Service
+{{- if and .Values.paymentService.enabled .Values.paymentService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.paymentService.name }}-enhanced
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.paymentService.name }}
+  minReplicas: {{ .Values.paymentService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.paymentService.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.paymentService.autoscaling.targetCPUUtilizationPercentage | default 60 }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.paymentService.autoscaling.targetMemoryUtilizationPercentage | default 70 }}
+    {{- if .Values.autoscaling.hpa.customMetrics.enabled }}
+    # Custom metric: Payment processing queue depth
+    - type: Pods
+      pods:
+        metric:
+          name: payment_queue_depth
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.paymentService.autoscaling.targetQueueDepth | default "50" }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 30
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+      selectPolicy: Max
+{{- end }}
+
+---
+# Enhanced HPA for Notification Service
+{{- if and .Values.notificationService.enabled .Values.notificationService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.notificationService.name }}-enhanced
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.notificationService.name }}
+  minReplicas: {{ .Values.notificationService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.notificationService.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.notificationService.autoscaling.targetCPUUtilizationPercentage | default 70 }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+    {{- if .Values.autoscaling.hpa.customMetrics.enabled }}
+    # Custom metric: Notification queue depth
+    - type: Pods
+      pods:
+        metric:
+          name: notification_queue_depth
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.notificationService.autoscaling.targetQueueDepth | default "100" }}
+    # Custom metric: Active WebSocket connections
+    - type: Pods
+      pods:
+        metric:
+          name: websocket_connections_active
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.notificationService.autoscaling.targetWebsocketConnections | default "1000" }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 180
+      policies:
+        - type: Percent
+          value: 20
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 5
+          periodSeconds: 15
+      selectPolicy: Max
+{{- end }}
+
+---
+# Enhanced HPA for Matching Service
+{{- if and .Values.matchingService.enabled .Values.matchingService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.matchingService.name }}-enhanced
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.matchingService.name }}
+  minReplicas: {{ .Values.matchingService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.matchingService.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.matchingService.autoscaling.targetCPUUtilizationPercentage | default 70 }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+    {{- if .Values.autoscaling.hpa.customMetrics.enabled }}
+    # Custom metric: Geo-spatial query latency
+    - type: Pods
+      pods:
+        metric:
+          name: geo_query_latency_p99
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.matchingService.autoscaling.targetQueryLatency | default "500m" }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 30
+        - type: Pods
+          value: 2
+          periodSeconds: 30
+      selectPolicy: Max
+{{- end }}
+
+---
+# Enhanced HPA for Web Frontend
+{{- if and .Values.webFrontend.enabled .Values.webFrontend.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.webFrontend.name }}-enhanced
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.webFrontend.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.webFrontend.name }}
+  minReplicas: {{ .Values.webFrontend.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.webFrontend.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webFrontend.autoscaling.targetCPUUtilizationPercentage | default 70 }}
+    {{- if .Values.autoscaling.hpa.customMetrics.enabled }}
+    # Custom metric: Requests per second
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: {{ .Values.webFrontend.autoscaling.targetRequestsPerSecond | default "100" }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 20
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 5
+          periodSeconds: 15
+      selectPolicy: Max
+{{- end }}
+
+{{- end }}

@@ -1,0 +1,97 @@
+{{- if .Values.networkPolicy.enabled }}
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-default-deny
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Allow ingress from API Gateway to backend services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-allow-gateway
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/part-of: mnbara-platform
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api-gateway
+      ports:
+        - protocol: TCP
+          port: 3001
+        - protocol: TCP
+          port: 3002
+        - protocol: TCP
+          port: 3003
+        - protocol: TCP
+          port: 3004
+        - protocol: TCP
+          port: 3005
+        - protocol: TCP
+          port: 3006
+        - protocol: TCP
+          port: 3007
+        - protocol: TCP
+          port: 3008
+        - protocol: TCP
+          port: 3009
+        - protocol: TCP
+          port: 3010
+        - protocol: TCP
+          port: 3011
+        - protocol: TCP
+          port: 3012
+---
+# Allow ingress to API Gateway from external
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-allow-external-gateway
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+---
+# Allow ingress to web frontend from external
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-allow-external-web
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: web-frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 80
+{{- end }}

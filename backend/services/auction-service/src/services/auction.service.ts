@@ -78,28 +78,62 @@ export class AuctionService {
       ...data.autoExtendConfig
     };
 
+    const startsAt = data.auctionStartsAt || new Date();
+    if (!(startsAt instanceof Date) || Number.isNaN(startsAt.getTime())) {
+      throw new Error('Invalid auctionStartsAt');
+    }
+    if (!(data.auctionEndsAt instanceof Date) || Number.isNaN(data.auctionEndsAt.getTime())) {
+      throw new Error('Invalid auctionEndsAt');
+    }
+    if (data.auctionEndsAt.getTime() <= startsAt.getTime()) {
+      throw new Error('auctionEndsAt must be after auctionStartsAt');
+    }
+
+    const startingBid = Number(data.startingBid);
+    if (!Number.isFinite(startingBid) || startingBid <= 0) {
+      throw new Error('Invalid startingBid');
+    }
+    const minBidIncrement = data.minBidIncrement === undefined ? 1.0 : Number(data.minBidIncrement);
+    if (!Number.isFinite(minBidIncrement) || minBidIncrement <= 0) {
+      throw new Error('Invalid minBidIncrement');
+    }
+    if (data.reservePrice !== undefined) {
+      const reservePrice = Number(data.reservePrice);
+      if (!Number.isFinite(reservePrice) || reservePrice <= 0) {
+        throw new Error('Invalid reservePrice');
+      }
+    }
+    if (data.buyNowPrice !== undefined) {
+      const buyNowPrice = Number(data.buyNowPrice);
+      if (!Number.isFinite(buyNowPrice) || buyNowPrice <= 0) {
+        throw new Error('Invalid buyNowPrice');
+      }
+    }
+
+    const status = startsAt.getTime() > Date.now() ? ListingStatus.SCHEDULED : ListingStatus.ACTIVE;
+
     return prisma.listing.create({
       data: {
         title: data.title,
         description: data.description,
         sellerId: data.sellerId,
-        price: data.startingBid,
+        price: startingBid,
         currency: data.currency || 'USD',
         isAuction: true,
-        startingBid: data.startingBid,
+        startingBid: startingBid,
         reservePrice: data.reservePrice,
         buyNowPrice: data.buyNowPrice,
-        currentBid: data.startingBid,
+        currentBid: startingBid,
         auctionEndsAt: data.auctionEndsAt,
-        auctionStartsAt: data.auctionStartsAt || new Date(),
+        auctionStartsAt: startsAt,
         originalEndTime: data.auctionEndsAt,
         autoExtendEnabled: autoExtend.enabled,
         autoExtendThresholdMs: autoExtend.thresholdMs,
         autoExtendDurationMs: autoExtend.durationMs,
         maxExtensions: autoExtend.maxExtensions,
         extensionCount: 0,
-        minBidIncrement: data.minBidIncrement || 1.00,
-        status: ListingStatus.ACTIVE,
+        minBidIncrement,
+        status,
       },
     });
   }
@@ -109,7 +143,7 @@ export class AuctionService {
    * AUC-001: Returns current highest bid and bidder information
    */
   async getAuction(id: number) {
-    const auction = await prisma.listing.findUnique({
+    const auction = await prisma.listing.findFirst({
       where: { id, isAuction: true },
       include: {
         seller: {
@@ -158,10 +192,12 @@ export class AuctionService {
     limit?: number;
     offset?: number;
   }) {
+    const now = new Date();
     const where: any = {
       isAuction: true,
       status: ListingStatus.ACTIVE,
-      auctionEndsAt: { gt: new Date() },
+      auctionEndsAt: { gt: now },
+      auctionStartsAt: { lte: now },
     };
 
     if (filters?.minPrice) {
@@ -176,7 +212,7 @@ export class AuctionService {
     if (filters?.endingSoon) {
       // Auctions ending within 1 hour
       const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
-      where.auctionEndsAt = { gt: new Date(), lt: oneHourFromNow };
+      where.auctionEndsAt = { gt: now, lt: oneHourFromNow };
     }
 
     return prisma.listing.findMany({
@@ -196,6 +232,37 @@ export class AuctionService {
   }
 
   /**
+   * Start an auction (change status from SCHEDULED to ACTIVE)
+   */
+  async startAuction(listingId: number) {
+    return await prisma.$transaction(async (tx: TransactionClient) => {
+      const auction = await tx.listing.findUnique({
+        where: { id: listingId },
+      });
+
+      if (!auction) {
+        throw new Error('Auction not found');
+      }
+      if (!auction.isAuction) {
+        throw new Error('Listing is not an auction');
+      }
+      if (auction.status !== ListingStatus.SCHEDULED) {
+        throw new Error(`Auction cannot be started from status: ${auction.status}`);
+      }
+
+      const now = new Date();
+      if (auction.auctionStartsAt && auction.auctionStartsAt.getTime() > now.getTime()) {
+        throw new Error('Auction start time has not been reached yet');
+      }
+
+      return tx.listing.update({
+        where: { id: listingId },
+        data: { status: ListingStatus.ACTIVE },
+      });
+    });
+  }
+
+  /**
    * Place a bid with auto-extend logic
    * This is the core method that handles bid placement and sniping prevention
    */
@@ -204,6 +271,10 @@ export class AuctionService {
     bidderId: number,
     amount: number
   ): Promise<PlaceBidResult> {
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new Error('Invalid bid amount');
+    }
+
     return await prisma.$transaction(async (tx: TransactionClient) => {
       // 1. Get auction with pessimistic lock
       const auction = await tx.listing.findUnique({
@@ -236,6 +307,9 @@ export class AuctionService {
       }
 
       const now = new Date();
+      if (auction.auctionStartsAt && now < auction.auctionStartsAt) {
+        throw new Error('Auction has not started yet');
+      }
       // AUC-001: Auction end must be deterministic based on end time
       if (auction.auctionEndsAt && now > auction.auctionEndsAt) {
         throw new Error('Auction has ended');
@@ -253,7 +327,8 @@ export class AuctionService {
         );
       }
 
-      // 3. Check for auto-extend (sniping prevention)
+      // AUC-002: Auto-extend auction end time if bid placed within threshold
+      // AUC-002: Auto-extension must be capped (max extensions)
       let newEndsAt = auction.auctionEndsAt;
       let wasExtended = false;
       let extensionInfo: PlaceBidResult['extensionInfo'] | undefined;
@@ -261,10 +336,11 @@ export class AuctionService {
       if (
         auction.autoExtendEnabled &&
         auction.auctionEndsAt &&
-        auction.extensionCount < auction.maxExtensions
+        auction.extensionCount < auction.maxExtensions // AUC-002: Cap extensions
       ) {
         const timeRemaining = auction.auctionEndsAt.getTime() - now.getTime();
 
+        // AUC-002: Extend if bid placed within final X minutes (threshold)
         if (timeRemaining > 0 && timeRemaining < auction.autoExtendThresholdMs) {
           // Trigger auto-extend
           const previousEndTime = auction.auctionEndsAt;
@@ -361,6 +437,7 @@ export class AuctionService {
 
   /**
    * Setup or update proxy bid for automatic bidding
+   * AUC-002: Users can place a proxy bid with a maximum bid amount
    */
   async setupProxyBid(listingId: number, bidderId: number, maxAmount: number) {
     return await prisma.$transaction(async (tx: TransactionClient) => {
@@ -404,16 +481,36 @@ export class AuctionService {
 
   /**
    * Process proxy bids after a new bid is placed
+   * AUC-002: Automatically outbids others up to proxy maximum
+   * AUC-002: Respects minimum bid increments
+   * AUC-002: Handles recursive proxy bids safely
+   * AUC-002: Concurrency-safe (placeBid handles transaction safety)
    * This should be called after placeBid to handle automatic outbidding
    */
-  async processProxyBids(listingId: number, currentBidAmount: number, currentBidderId: number) {
+  async processProxyBids(
+    listingId: number,
+    currentBidAmount: number,
+    currentBidderId: number,
+    maxRecursions: number = 10
+  ): Promise<PlaceBidResult | null> {
+    // AUC-002: Prevent infinite recursion
+    if (maxRecursions <= 0) {
+      console.warn(`Proxy bid recursion limit reached for auction ${listingId}`);
+      return null;
+    }
+
+    // Get current auction state (read-only check)
     const auction = await prisma.listing.findUnique({
       where: { id: listingId },
     });
 
-    if (!auction) return null;
+    if (!auction || auction.status !== ListingStatus.ACTIVE) {
+      return null;
+    }
 
-    // Find active proxy bids that can outbid the current bid
+    // AUC-002: Find active proxy bids that can outbid the current bid
+    // Note: This read happens before placeBid transaction, which is safe
+    // because placeBid will re-check the auction state with a lock
     const proxyBids = await prisma.proxyBid.findMany({
       where: {
         listingId,
@@ -430,28 +527,51 @@ export class AuctionService {
     const highestProxy = proxyBids[0];
     const minIncrement = Number(auction.minBidIncrement || 1);
 
-    // Calculate the bid amount (just enough to outbid, or max if needed)
+    // AUC-002: Calculate bid amount respecting minimum increment
+    // Strategy: Bid just enough to outbid, but not more than necessary
     let bidAmount = currentBidAmount + minIncrement;
-    
-    // If there are multiple proxy bids, bid up to the second highest + increment
+
+    // AUC-002: If multiple proxy bids exist, bid up to second highest + increment
+    // This ensures we don't overbid unnecessarily
     if (proxyBids.length > 1) {
       const secondHighest = Number(proxyBids[1].maxAmount);
-      bidAmount = Math.min(Number(highestProxy.maxAmount), secondHighest + minIncrement);
+      // Bid up to second highest + increment, but not more than our max
+      bidAmount = Math.min(
+        Number(highestProxy.maxAmount),
+        Math.max(bidAmount, secondHighest + minIncrement)
+      );
     }
 
-    // Ensure we don't exceed the max amount
+    // AUC-002: Ensure we don't exceed the proxy's max amount
     bidAmount = Math.min(bidAmount, Number(highestProxy.maxAmount));
 
-    // Place the proxy bid
+    // AUC-002: Ensure bid respects minimum increment
+    if (bidAmount < currentBidAmount + minIncrement) {
+      // If we can't meet minimum increment, we can't bid
+      return null;
+    }
+
+    // AUC-002: Place the proxy bid (placeBid handles transaction safety with Serializable isolation)
+    // AUC-002: Proxy bidding works with concurrent bids safely via Serializable isolation
     const result = await this.placeBid(listingId, highestProxy.bidderId, bidAmount);
 
-    // Update the proxy bid's current bid
+    // AUC-002: Update the proxy bid's current bid (after successful bid placement)
     await prisma.proxyBid.update({
       where: { id: highestProxy.id },
       data: { currentBid: bidAmount },
     });
 
-    return result;
+    // AUC-002: Handle recursive proxy bids (if proxy bid triggers another proxy bid)
+    // Check if there are other proxy bids that can outbid this one
+    const nextProxyResult = await this.processProxyBids(
+      listingId,
+      Number(result.auction.currentBid),
+      highestProxy.bidderId,
+      maxRecursions - 1
+    );
+
+    // Return the final result (either the recursive one or this one)
+    return nextProxyResult || result;
   }
 
   /**
@@ -472,6 +592,7 @@ export class AuctionService {
 
   /**
    * End an auction and determine the winner
+   * AUC-002: Winning bid and final price must be deterministic at auction end
    */
   async endAuction(listingId: number) {
     return await prisma.$transaction(async (tx: TransactionClient) => {

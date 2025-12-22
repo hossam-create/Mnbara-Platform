@@ -1,0 +1,411 @@
+name: Deploy Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - 'release/*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      services:
+        description: 'Services to deploy (comma-separated or "all")'
+        required: false
+        default: 'all'
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  EKS_CLUSTER_NAME: mnbara-cluster
+
+jobs:
+  # ============================================
+  # Determine Environment
+  # ============================================
+  setup:
+    name: Setup Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      services: ${{ steps.set-services.outputs.services }}
+      image_tag: ${{ steps.set-tag.outputs.tag }}
+    steps:
+      - name: Determine environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/heads/release/* ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine services
+        id: set-services
+        run: |
+          if [ "${{ github.event.inputs.services }}" == "all" ] || [ -z "${{ github.event.inputs.services }}" ]; then
+            echo 'services=["api-gateway","auth-service","auction-service","payment-service","listing-service","crowdship-service","notification-service","recommendation-service","rewards-service","orders-service","trips-service","matching-service","admin-service","web-frontend","admin-dashboard"]' >> $GITHUB_OUTPUT
+          else
+            # Convert comma-separated to JSON array
+            SERVICES=$(echo "${{ github.event.inputs.services }}" | sed 's/,/","/g' | sed 's/^/["/' | sed 's/$/"]/')
+            echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set image tag
+        id: set-tag
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "tag=${SHORT_SHA}" >> $GITHUB_OUTPUT
+
+  # ============================================
+  # Build and Push Docker Images
+  # ============================================
+  build-backend:
+    name: Build - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - auction-service
+          - payment-service
+          - listing-service
+          - crowdship-service
+          - notification-service
+          - rewards-service
+          - orders-service
+          - trips-service
+          - matching-service
+          - admin-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if service should be built
+        id: should-build
+        run: |
+          SERVICES='${{ needs.setup.outputs.services }}'
+          if echo "$SERVICES" | grep -q "${{ matrix.service }}"; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          else
+            echo "build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check if Dockerfile exists
+        if: steps.should-build.outputs.build == 'true'
+        id: check-dockerfile
+        run: |
+          if [ -f "backend/services/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure AWS credentials
+        if: steps.should-build.outputs.build == 'true' && steps.check-dockerfile.outputs.exists == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: steps.should-build.outputs.build == 'true' && steps.check-dockerfile.outputs.exists == 'true'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        if: steps.should-build.outputs.build == 'true' && steps.check-dockerfile.outputs.exists == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        if: steps.should-build.outputs.build == 'true' && steps.check-dockerfile.outputs.exists == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: backend/services/${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+
+  # ============================================
+  # Build Recommendation Service (Python)
+  # ============================================
+  build-recommendation:
+    name: Build - recommendation-service
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if service should be built
+        id: should-build
+        run: |
+          SERVICES='${{ needs.setup.outputs.services }}'
+          if echo "$SERVICES" | grep -q "recommendation-service"; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          else
+            echo "build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure AWS credentials
+        if: steps.should-build.outputs.build == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: steps.should-build.outputs.build == 'true'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        if: steps.should-build.outputs.build == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        if: steps.should-build.outputs.build == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: backend/services/recommendation-service
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/mnbara/recommendation-service:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbara/recommendation-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # Build Frontend Applications
+  # ============================================
+  build-frontend:
+    name: Build - ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: web-frontend
+            path: frontend/web
+          - app: admin-dashboard
+            path: frontend/admin-dashboard
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if app should be built
+        id: should-build
+        run: |
+          SERVICES='${{ needs.setup.outputs.services }}'
+          if echo "$SERVICES" | grep -q "${{ matrix.app }}"; then
+            echo "build=true" >> $GITHUB_OUTPUT
+          else
+            echo "build=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.should-build.outputs.build == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.should-build.outputs.build == 'true'
+        working-directory: ${{ matrix.path }}
+        run: npm ci
+
+      - name: Build application
+        if: steps.should-build.outputs.build == 'true'
+        working-directory: ${{ matrix.path }}
+        run: npm run build
+        env:
+          NODE_ENV: production
+          VITE_API_URL: ${{ needs.setup.outputs.environment == 'production' && 'https://api.mnbara.com' || 'https://api-staging.mnbara.com' }}
+
+      - name: Configure AWS credentials
+        if: steps.should-build.outputs.build == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: steps.should-build.outputs.build == 'true'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        if: steps.should-build.outputs.build == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        if: steps.should-build.outputs.build == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.path }}
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.app }}:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.app }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # Deploy to Kubernetes
+  # ============================================
+  deploy:
+    name: Deploy to ${{ needs.setup.outputs.environment }}
+    runs-on: ubuntu-latest
+    needs: [setup, build-backend, build-recommendation, build-frontend]
+    environment: ${{ needs.setup.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.0'
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}-${{ needs.setup.outputs.environment }} --region ${{ env.AWS_REGION }}
+
+      - name: Update Helm dependencies
+        working-directory: infrastructure/k8s/mnbara
+        run: helm dependency update
+
+      - name: Deploy with Helm
+        working-directory: infrastructure/k8s/mnbara
+        run: |
+          ENV=${{ needs.setup.outputs.environment }}
+          VALUES_FILE="values-${ENV}.yaml"
+          
+          if [ "$ENV" == "staging" ]; then
+            VALUES_FILE="values-staging.yaml"
+          elif [ "$ENV" == "production" ]; then
+            VALUES_FILE="values-prod.yaml"
+          fi
+          
+          helm upgrade --install mnbara . \
+            -f $VALUES_FILE \
+            --namespace mnbara-${{ needs.setup.outputs.environment }} \
+            --create-namespace \
+            --set image.tag=${{ needs.setup.outputs.image_tag }} \
+            --set global.environment=${{ needs.setup.outputs.environment }} \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/api-gateway -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
+          kubectl rollout status deployment/auth-service -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
+          kubectl rollout status deployment/auction-service -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
+
+      - name: Run smoke tests
+        run: |
+          API_URL=$(kubectl get ingress -n mnbara-${{ needs.setup.outputs.environment }} -o jsonpath='{.items[0].spec.rules[0].host}')
+          curl -f https://${API_URL}/health || echo "Health check endpoint not available"
+
+  # ============================================
+  # Post-Deployment Notifications
+  # ============================================
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [setup, deploy]
+    if: always()
+    steps:
+      - name: Send Slack notification
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "${{ needs.deploy.result == 'success' && '✅' || '❌' }} Deployment to ${{ needs.setup.outputs.environment }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ needs.deploy.result == 'success' && '✅ Deployment Successful' || '❌ Deployment Failed' }}\n*Environment:* ${{ needs.setup.outputs.environment }}\n*Commit:* ${{ github.sha }}\n*Branch:* ${{ github.ref_name }}\n*Actor:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+  # ============================================
+  # Rollback on Failure
+  # ============================================
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [setup, deploy]
+    if: failure() && needs.deploy.result == 'failure'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}-${{ needs.setup.outputs.environment }} --region ${{ env.AWS_REGION }}
+
+      - name: Rollback Helm release
+        run: |
+          helm rollback mnbara -n mnbara-${{ needs.setup.outputs.environment }} || true
+
+      - name: Notify rollback
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "⚠️ Automatic rollback triggered for ${{ needs.setup.outputs.environment }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

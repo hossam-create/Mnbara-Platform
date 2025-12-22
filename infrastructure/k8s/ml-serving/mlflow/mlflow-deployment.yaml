@@ -1,0 +1,195 @@
+# MLflow Model Registry and Tracking Server Deployment
+# Requirements: 17.4 - Personalized recommendations based on browsing history
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-serving
+  labels:
+    app.kubernetes.io/name: ml-serving
+    app.kubernetes.io/part-of: mnbara
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlflow-config
+  namespace: ml-serving
+data:
+  MLFLOW_TRACKING_URI: "postgresql://mlflow:mlflow@mlflow-postgres:5432/mlflow"
+  MLFLOW_ARTIFACT_ROOT: "s3://mnbara-mlflow-artifacts"
+  MLFLOW_S3_ENDPOINT_URL: "http://minio.storage:9000"
+  GUNICORN_CMD_ARGS: "--timeout 300 --workers 4"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mlflow-secrets
+  namespace: ml-serving
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "mlflow-secret-password"
+  AWS_ACCESS_KEY_ID: "minio-access-key"
+  AWS_SECRET_ACCESS_KEY: "minio-secret-key"
+---
+# MLflow PostgreSQL Database
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mlflow-postgres
+  namespace: ml-serving
+spec:
+  serviceName: mlflow-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlflow-postgres
+  template:
+    metadata:
+      labels:
+        app: mlflow-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "mlflow"
+            - name: POSTGRES_USER
+              value: "mlflow"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mlflow-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: mlflow-postgres-data
+              mountPath: /var/lib/postgresql/data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+  volumeClaimTemplates:
+    - metadata:
+        name: mlflow-postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-postgres
+  namespace: ml-serving
+spec:
+  selector:
+    app: mlflow-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+  clusterIP: None
+---
+# MLflow Tracking Server
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlflow-server
+  namespace: ml-serving
+  labels:
+    app: mlflow-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mlflow-server
+  template:
+    metadata:
+      labels:
+        app: mlflow-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+    spec:
+      containers:
+        - name: mlflow
+          image: ghcr.io/mlflow/mlflow:v2.10.0
+          command:
+            - mlflow
+            - server
+            - --host=0.0.0.0
+            - --port=5000
+            - --backend-store-uri=$(MLFLOW_TRACKING_URI)
+            - --default-artifact-root=$(MLFLOW_ARTIFACT_ROOT)
+            - --serve-artifacts
+          ports:
+            - containerPort: 5000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: mlflow-config
+            - secretRef:
+                name: mlflow-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlflow-server
+  namespace: ml-serving
+  labels:
+    app: mlflow-server
+spec:
+  selector:
+    app: mlflow-server
+  ports:
+    - port: 5000
+      targetPort: 5000
+      name: http
+  type: ClusterIP
+---
+# MLflow Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mlflow-ingress
+  namespace: ml-serving
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: mlflow-basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: "MLflow Authentication Required"
+spec:
+  rules:
+    - host: mlflow.mnbara.internal
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mlflow-server
+                port:
+                  number: 5000

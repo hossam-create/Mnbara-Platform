@@ -1,0 +1,62 @@
+MNBARA Platform has been deployed!
+
+{{- if .Values.ingress.enabled }}
+Your application is accessible at:
+{{- range .Values.ingress.hosts }}
+  - http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
+{{- end }}
+{{- end }}
+
+Services deployed:
+{{- if .Values.apiGateway.enabled }}
+  - API Gateway: {{ .Values.apiGateway.name }}:{{ .Values.apiGateway.service.port }}
+{{- end }}
+{{- if .Values.authService.enabled }}
+  - Auth Service: {{ .Values.authService.name }}:{{ .Values.authService.service.port }}
+{{- end }}
+{{- if .Values.listingService.enabled }}
+  - Listing Service: {{ .Values.listingService.name }}:{{ .Values.listingService.service.port }}
+{{- end }}
+{{- if .Values.auctionService.enabled }}
+  - Auction Service: {{ .Values.auctionService.name }}:{{ .Values.auctionService.service.port }}
+{{- end }}
+{{- if .Values.paymentService.enabled }}
+  - Payment Service: {{ .Values.paymentService.name }}:{{ .Values.paymentService.service.port }}
+{{- end }}
+{{- if .Values.crowdshipService.enabled }}
+  - Crowdship Service: {{ .Values.crowdshipService.name }}:{{ .Values.crowdshipService.service.port }}
+{{- end }}
+{{- if .Values.notificationService.enabled }}
+  - Notification Service: {{ .Values.notificationService.name }}:{{ .Values.notificationService.service.port }}
+{{- end }}
+{{- if .Values.recommendationService.enabled }}
+  - Recommendation Service: {{ .Values.recommendationService.name }}:{{ .Values.recommendationService.service.port }}
+{{- end }}
+{{- if .Values.rewardsService.enabled }}
+  - Rewards Service: {{ .Values.rewardsService.name }}:{{ .Values.rewardsService.service.port }}
+{{- end }}
+{{- if .Values.ordersService.enabled }}
+  - Orders Service: {{ .Values.ordersService.name }}:{{ .Values.ordersService.service.port }}
+{{- end }}
+{{- if .Values.tripsService.enabled }}
+  - Trips Service: {{ .Values.tripsService.name }}:{{ .Values.tripsService.service.port }}
+{{- end }}
+{{- if .Values.matchingService.enabled }}
+  - Matching Service: {{ .Values.matchingService.name }}:{{ .Values.matchingService.service.port }}
+{{- end }}
+{{- if .Values.adminService.enabled }}
+  - Admin Service: {{ .Values.adminService.name }}:{{ .Values.adminService.service.port }}
+{{- end }}
+
+To check the status of your deployment:
+  kubectl get pods -n {{ .Values.namespace }}
+
+To view logs:
+  kubectl logs -f deployment/{{ .Values.apiGateway.name }} -n {{ .Values.namespace }}
+
+{{- if .Values.monitoring.enabled }}
+
+Monitoring is enabled. ServiceMonitors have been created for Prometheus.
+{{- end }}
+
+For more information, visit: https://github.com/mnbara/platform

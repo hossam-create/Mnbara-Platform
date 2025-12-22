@@ -1,0 +1,203 @@
+# Development environment values
+# Usage: helm install mnbara ./mnbara -f values-dev.yaml
+
+global:
+  environment: development
+
+namespace: mnbara-dev
+
+# Reduced replicas for development
+apiGateway:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+authService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+listingService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+auctionService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+paymentService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+crowdshipService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+notificationService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+recommendationService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+rewardsService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+ordersService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+tripsService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+matchingService:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+adminService:
+  replicaCount: 1
+
+webFrontend:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+
+adminDashboard:
+  replicaCount: 1
+
+# Smaller infrastructure for dev
+postgresql:
+  primary:
+    persistence:
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+redis:
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  replica:
+    replicaCount: 0
+
+rabbitmq:
+  persistence:
+    size: 1Gi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+elasticsearch:
+  master:
+    replicaCount: 1
+    persistence:
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+  data:
+    replicaCount: 1
+    persistence:
+      size: 10Gi
+
+minio:
+  persistence:
+    size: 10Gi
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+# Disable PDB and network policies for dev
+podDisruptionBudget:
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+# Disable monitoring for dev
+monitoring:
+  enabled: false
+
+# Dev ingress
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: api.mnbara.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: mnbara.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web-frontend
+  tls: []

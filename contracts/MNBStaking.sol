@@ -327,7 +327,7 @@ contract MNBStaking is Initializable, AccessControlUpgradeable, UUPSUpgradeable 
         uint256 minStakeAmount,
         uint256 maxStakeAmount,
         uint256 rewardRate,
-        uint256 totalStaked,
+        uint256 poolTotalStaked,
         bool isActive
     ) {
         StakingPool memory pool = stakingPools[poolId];

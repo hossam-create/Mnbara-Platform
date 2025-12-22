@@ -1,0 +1,380 @@
+# MinIO Server-Side Encryption Configuration
+# Requirements: 19.1 - Data encryption at rest
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio
+  labels:
+    app.kubernetes.io/name: minio
+    security.mnbara.com/encryption: enabled
+
+---
+# MinIO encryption configuration ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-encryption-config
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: encryption
+data:
+  # KES (Key Encryption Service) configuration
+  kes-config.yaml: |
+    version: v1
+    address: 0.0.0.0:7373
+    
+    admin:
+      identity: ${KES_ADMIN_IDENTITY}
+    
+    tls:
+      key: /etc/kes/certs/server.key
+      cert: /etc/kes/certs/server.crt
+      ca: /etc/kes/certs/ca.crt
+    
+    policy:
+      minio:
+        allow:
+          - /v1/key/create/*
+          - /v1/key/generate/*
+          - /v1/key/decrypt/*
+          - /v1/key/bulk/decrypt/*
+          - /v1/key/list/*
+          - /v1/status
+          - /v1/metrics
+          - /v1/log/audit
+          - /v1/log/error
+        identities:
+          - ${MINIO_IDENTITY}
+    
+    keystore:
+      vault:
+        endpoint: https://vault.vault:8200
+        engine: kv-v2
+        version: v2
+        namespace: ""
+        prefix: minio/keys
+        approle:
+          id: ${VAULT_APPROLE_ID}
+          secret: ${VAULT_APPROLE_SECRET}
+        tls:
+          ca: /etc/kes/certs/vault-ca.crt
+        status:
+          ping: 10s
+    
+    log:
+      error: on
+      audit: on
+    
+    cache:
+      expiry:
+        any: 5m
+        unused: 20s
+
+---
+# MinIO StatefulSet with encryption enabled
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: storage
+spec:
+  serviceName: minio-headless
+  replicas: 4
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: minio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minio
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "minio"
+        vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/minio/credentials"
+    spec:
+      serviceAccountName: minio
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: minio
+          image: minio/minio:RELEASE.2024-01-01T00-00-00Z
+          args:
+            - server
+            - --console-address
+            - ":9001"
+            - http://minio-{0...3}.minio-headless.minio.svc.cluster.local/data
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minio-credentials
+                  key: root-password
+            # Server-Side Encryption with KMS
+            - name: MINIO_KMS_KES_ENDPOINT
+              value: "https://kes.minio:7373"
+            - name: MINIO_KMS_KES_KEY_FILE
+              value: "/etc/minio/certs/client.key"
+            - name: MINIO_KMS_KES_CERT_FILE
+              value: "/etc/minio/certs/client.crt"
+            - name: MINIO_KMS_KES_CAPATH
+              value: "/etc/minio/certs/ca.crt"
+            - name: MINIO_KMS_KES_KEY_NAME
+              value: "minio-default-key"
+            # Auto-encrypt all objects
+            - name: MINIO_KMS_AUTO_ENCRYPTION
+              value: "on"
+          ports:
+            - name: api
+              containerPort: 9000
+            - name: console
+              containerPort: 9001
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: certs
+              mountPath: /etc/minio/certs
+              readOnly: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: certs
+          projected:
+            sources:
+              - secret:
+                  name: minio-tls
+              - secret:
+                  name: minio-client-certs
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: encrypted-ssd
+        resources:
+          requests:
+            storage: 100Gi
+
+---
+# KES (Key Encryption Service) Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kes
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: kes
+    app.kubernetes.io/component: encryption
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kes
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "kes"
+    spec:
+      serviceAccountName: kes
+      containers:
+        - name: kes
+          image: minio/kes:2024-01-01T00-00-00Z
+          args:
+            - server
+            - --config=/etc/kes/config/kes-config.yaml
+          ports:
+            - name: https
+              containerPort: 7373
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kes/config
+              readOnly: true
+            - name: certs
+              mountPath: /etc/kes/certs
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: minio-encryption-config
+        - name: certs
+          projected:
+            sources:
+              - secret:
+                  name: kes-tls
+              - secret:
+                  name: vault-ca
+
+---
+# KES Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: kes
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: kes
+spec:
+  ports:
+    - name: https
+      port: 7373
+      targetPort: 7373
+  selector:
+    app.kubernetes.io/name: kes
+
+---
+# MinIO Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+spec:
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+    - name: console
+      port: 9001
+      targetPort: 9001
+  selector:
+    app.kubernetes.io/name: minio
+
+---
+# Headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-headless
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+spec:
+  clusterIP: None
+  ports:
+    - name: api
+      port: 9000
+      targetPort: 9000
+  selector:
+    app.kubernetes.io/name: minio
+
+---
+# ServiceAccount for MinIO
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minio
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+
+---
+# ServiceAccount for KES
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kes
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: kes
+
+---
+# Encrypted StorageClass for MinIO volumes
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: encrypted-ssd
+  labels:
+    app.kubernetes.io/name: minio
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  encrypted: "true"
+  # Use AWS KMS for volume encryption
+  kmsKeyId: alias/mnbara-storage-key
+reclaimPolicy: Retain
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+
+---
+# Bucket encryption policy (applied via mc client)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minio-bucket-policies
+  namespace: minio
+  labels:
+    app.kubernetes.io/name: minio
+data:
+  setup-encryption.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Wait for MinIO to be ready
+    until mc alias set myminio https://minio.minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD; do
+      echo "Waiting for MinIO..."
+      sleep 5
+    done
+    
+    # Create buckets with encryption enabled
+    BUCKETS="mnbara-images mnbara-documents mnbara-kyc mnbara-evidence mnbara-backups"
+    
+    for bucket in $BUCKETS; do
+      # Create bucket if not exists
+      mc mb --ignore-existing myminio/$bucket
+      
+      # Enable server-side encryption
+      mc encrypt set sse-kms minio-default-key myminio/$bucket
+      
+      # Set bucket versioning for compliance
+      mc version enable myminio/$bucket
+      
+      # Set object lock for compliance (KYC documents)
+      if [ "$bucket" = "mnbara-kyc" ] || [ "$bucket" = "mnbara-evidence" ]; then
+        mc retention set --default compliance 365d myminio/$bucket
+      fi
+      
+      echo "Configured encryption for bucket: $bucket"
+    done
+    
+    echo "MinIO encryption setup complete"

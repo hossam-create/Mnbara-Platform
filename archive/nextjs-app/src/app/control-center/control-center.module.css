@@ -1,0 +1,138 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.radar {
+  position: relative;
+  height: 220px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: radial-gradient(circle, rgba(94, 231, 223, 0.1), rgba(4, 9, 20, 0.8));
+  overflow: hidden;
+}
+
+.radar::after {
+  content: '';
+  position: absolute;
+  inset: 20px;
+  border: 1px solid rgba(94, 231, 223, 0.2);
+  border-radius: 50%;
+  animation: pulse 6s infinite linear;
+}
+
+.radar::before {
+  content: '';
+  position: absolute;
+  inset: 45px;
+  border: 1px dashed rgba(94, 231, 223, 0.2);
+  border-radius: 50%;
+}
+
+.radarSweep {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(rgba(94, 231, 223, 0.25), transparent 40%);
+  border-radius: 50%;
+  animation: sweep 5s linear infinite;
+}
+
+.radarMarkers {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.alert strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.alert span {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.miniCards {
+  display: grid;
+  gap: 12px;
+}
+
+.miniCard {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(6, 11, 25, 0.7);
+}
+
+.miniCard h4 {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+}
+
+.miniCard small {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.listItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+@keyframes sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}

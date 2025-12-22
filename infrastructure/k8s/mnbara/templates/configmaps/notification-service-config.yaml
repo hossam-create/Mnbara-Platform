@@ -1,0 +1,44 @@
+# Notification Service ConfigMap
+{{- if .Values.notificationService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.notificationService.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+data:
+  # Server Configuration
+  PORT: {{ .Values.notificationService.env.PORT | default "3006" | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: {{ .Values.notificationService.config.logLevel | default "info" | quote }}
+  
+  # Push Notification Configuration
+  FCM_ENABLED: {{ .Values.notificationService.config.fcm.enabled | default true | quote }}
+  APNS_ENABLED: {{ .Values.notificationService.config.apns.enabled | default true | quote }}
+  APNS_PRODUCTION: {{ .Values.notificationService.config.apns.production | default false | quote }}
+  
+  # Email Configuration
+  EMAIL_ENABLED: {{ .Values.notificationService.config.email.enabled | default true | quote }}
+  EMAIL_PROVIDER: {{ .Values.notificationService.config.email.provider | default "ses" | quote }}
+  EMAIL_FROM_ADDRESS: {{ .Values.notificationService.config.email.fromAddress | default "noreply@mnbara.com" | quote }}
+  EMAIL_FROM_NAME: {{ .Values.notificationService.config.email.fromName | default "MNBARA" | quote }}
+  
+  # SMS Configuration
+  SMS_ENABLED: {{ .Values.notificationService.config.sms.enabled | default false | quote }}
+  SMS_PROVIDER: {{ .Values.notificationService.config.sms.provider | default "twilio" | quote }}
+  
+  # WebSocket Configuration
+  WS_ENABLED: {{ .Values.notificationService.config.websocket.enabled | default true | quote }}
+  WS_PATH: {{ .Values.notificationService.config.websocket.path | default "/notifications" | quote }}
+  
+  # Queue Configuration
+  QUEUE_BATCH_SIZE: {{ .Values.notificationService.config.queue.batchSize | default 100 | quote }}
+  QUEUE_PROCESSING_INTERVAL_MS: {{ .Values.notificationService.config.queue.processingIntervalMs | default 1000 | quote }}
+  QUEUE_RETRY_ATTEMPTS: {{ .Values.notificationService.config.queue.retryAttempts | default 3 | quote }}
+  QUEUE_RETRY_DELAY_MS: {{ .Values.notificationService.config.queue.retryDelayMs | default 5000 | quote }}
+  
+  # Rate Limiting
+  RATE_LIMIT_PER_USER_PER_HOUR: {{ .Values.notificationService.config.rateLimit.perUserPerHour | default 100 | quote }}
+  RATE_LIMIT_PER_USER_PER_DAY: {{ .Values.notificationService.config.rateLimit.perUserPerDay | default 500 | quote }}
+{{- end }}

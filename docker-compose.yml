@@ -1,0 +1,419 @@
+# Mnbara Platform - Complete Docker Compose Setup
+version: '3.8'
+
+services:
+  # ===================
+  # DATABASES
+  # ===================
+  
+  # Main PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: mnbara-postgres
+    environment:
+      POSTGRES_DB: mnbara
+      POSTGRES_USER: mnbara
+      POSTGRES_PASSWORD: mnbara_dev_password
+      POSTGRES_MULTIPLE_DATABASES: auth_db,listing_db,payment_db,orders_db,auction_db,crowdship_db,notification_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnbara"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: mnbara-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RabbitMQ Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mnbara-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: mnbara
+      RABBITMQ_DEFAULT_PASS: mnbara_dev_password
+    ports:
+      - "5672:5672"
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Elasticsearch
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: mnbara-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ===================
+  # BACKEND SERVICES
+  # ===================
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend/services/api-gateway
+      dockerfile: Dockerfile
+    container_name: mnbara-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - LISTING_SERVICE_URL=http://listing-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - ORDERS_SERVICE_URL=http://orders-service:3004
+      - AUCTION_SERVICE_URL=http://auction-service:3005
+      - CROWDSHIP_SERVICE_URL=http://crowdship-service:3006
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+      - auth-service
+      - listing-service
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/api-gateway:/app
+      - /app/node_modules
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    container_name: mnbara-auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/auth_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-in-production
+      - GOOGLE_CLIENT_ID=your-google-client-id
+      - GOOGLE_CLIENT_SECRET=your-google-client-secret
+      - FACEBOOK_APP_ID=your-facebook-app-id
+      - FACEBOOK_APP_SECRET=your-facebook-app-secret
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/auth-service:/app
+      - /app/node_modules
+
+  # Listing Service
+  listing-service:
+    build:
+      context: ./backend/services/listing-service
+      dockerfile: Dockerfile
+    container_name: mnbara-listing-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/listing_db
+      - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - postgres
+      - redis
+      - elasticsearch
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/listing-service:/app
+      - /app/node_modules
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile
+    container_name: mnbara-payment-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/payment_db
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+      - STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+      - PAYPAL_CLIENT_ID=your_paypal_client_id
+      - PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/payment-service:/app
+      - /app/node_modules
+
+  # Orders Service
+  orders-service:
+    build:
+      context: ./backend/services/orders-service
+      dockerfile: Dockerfile
+    container_name: mnbara-orders-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/orders_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbara:mnbara_dev_password@rabbitmq:5672
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - LISTING_SERVICE_URL=http://listing-service:3002
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/orders-service:/app
+      - /app/node_modules
+
+  # Auction Service
+  auction-service:
+    build:
+      context: ./backend/services/auction-service
+      dockerfile: Dockerfile
+    container_name: mnbara-auction-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/auction_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbara:mnbara_dev_password@rabbitmq:5672
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/auction-service:/app
+      - /app/node_modules
+
+  # Crowdship Service
+  crowdship-service:
+    build:
+      context: ./backend/services/crowdship-service
+      dockerfile: Dockerfile
+    container_name: mnbara-crowdship-service
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/crowdship_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbara:mnbara_dev_password@rabbitmq:5672
+      - AI_CORE_SERVICE_URL=http://ai-core:3007
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/crowdship-service:/app
+      - /app/node_modules
+
+  # AI Core Service (Python)
+  ai-core:
+    build:
+      context: ./backend/services/ai-core
+      dockerfile: Dockerfile
+    container_name: mnbara-ai-core
+    ports:
+      - "3007:3007"
+    environment:
+      - ENVIRONMENT=development
+      - PORT=3007
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/ai_db
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/ai-core:/app
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile
+    container_name: mnbara-notification-service
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=development
+      - PORT=3008
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/notification_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbara:mnbara_dev_password@rabbitmq:5672
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+      - TWILIO_ACCOUNT_SID=your_twilio_account_sid
+      - TWILIO_AUTH_TOKEN=your_twilio_auth_token
+      - FIREBASE_SERVER_KEY=your_firebase_server_key
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - mnbara-network
+    volumes:
+      - ./backend/services/notification-service:/app
+      - /app/node_modules
+
+  # ===================
+  # FRONTEND SERVICES
+  # ===================
+
+  # Web Application
+  web-app:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+    container_name: mnbara-web-app
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+      - VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+    depends_on:
+      - api-gateway
+    networks:
+      - mnbara-network
+    volumes:
+      - ./frontend/web:/app
+      - /app/node_modules
+
+  # Admin Dashboard
+  admin-dashboard:
+    build:
+      context: ./frontend/admin-dashboard
+      dockerfile: Dockerfile
+    container_name: mnbara-admin-dashboard
+    ports:
+      - "3001:3000"
+    environment:
+      - VITE_API_URL=http://localhost:8080/api
+    depends_on:
+      - api-gateway
+    networks:
+      - mnbara-network
+    volumes:
+      - ./frontend/admin-dashboard:/app
+      - /app/node_modules
+
+  # ===================
+  # MONITORING & TOOLS
+  # ===================
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mnbara-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - mnbara-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mnbara-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - mnbara-network
+
+# ===================
+# NETWORKS & VOLUMES
+# ===================
+
+networks:
+  mnbara-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  elasticsearch_data:
+  prometheus_data:
+  grafana_data:

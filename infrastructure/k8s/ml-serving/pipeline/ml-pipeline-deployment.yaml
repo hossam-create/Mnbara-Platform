@@ -1,0 +1,182 @@
+# ML Pipeline Components Deployment
+# Requirements: 17.4 - Personalized recommendations based on browsing history
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-pipeline-config
+  namespace: ml-serving
+data:
+  MLFLOW_TRACKING_URI: "http://mlflow-server:5000"
+  TORCHSERVE_URL: "http://torchserve:8080"
+  REDIS_URL: "redis://redis:6379"
+  FEATURE_STORE_TTL_HOURS: "24"
+  RETRAINING_SCHEDULE_HOURS: "24"
+  MONITORING_RETENTION_HOURS: "168"
+  ALERT_COOLDOWN_MINUTES: "30"
+---
+# Feature Store Worker - Computes and caches features
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-store-worker
+  namespace: ml-serving
+  labels:
+    app: feature-store-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: feature-store-worker
+  template:
+    metadata:
+      labels:
+        app: feature-store-worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: worker
+          image: mnbara/recommendation-service:latest
+          command: ["python", "-m", "src.workers.feature_worker"]
+          envFrom:
+            - configMapRef:
+                name: ml-pipeline-config
+          env:
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ml-secrets
+                  key: postgres-url
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+---
+# Retraining Scheduler - Triggers automated retraining
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: retraining-scheduler
+  namespace: ml-serving
+  labels:
+    app: retraining-scheduler
+spec:
+  replicas: 1  # Single instance for scheduler
+  selector:
+    matchLabels:
+      app: retraining-scheduler
+  template:
+    metadata:
+      labels:
+        app: retraining-scheduler
+    spec:
+      containers:
+        - name: scheduler
+          image: mnbara/recommendation-service:latest
+          command: ["python", "-m", "src.workers.retraining_scheduler"]
+          envFrom:
+            - configMapRef:
+                name: ml-pipeline-config
+          env:
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ml-secrets
+                  key: postgres-url
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+---
+# Model Monitor - Tracks performance and triggers alerts
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-monitor
+  namespace: ml-serving
+  labels:
+    app: model-monitor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: model-monitor
+  template:
+    metadata:
+      labels:
+        app: model-monitor
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: monitor
+          image: mnbara/recommendation-service:latest
+          command: ["python", "-m", "src.workers.model_monitor_worker"]
+          envFrom:
+            - configMapRef:
+                name: ml-pipeline-config
+          env:
+            - name: ALERTMANAGER_URL
+              value: "http://alertmanager:9093"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+---
+# CronJob for periodic model retraining
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: model-retraining-job
+  namespace: ml-serving
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: retraining
+              image: mnbara/recommendation-service:latest
+              command: ["python", "-m", "src.workers.run_retraining"]
+              args: ["--model", "recommendation-model"]
+              envFrom:
+                - configMapRef:
+                    name: ml-pipeline-config
+              resources:
+                requests:
+                  memory: "2Gi"
+                  cpu: "1000m"
+                limits:
+                  memory: "4Gi"
+                  cpu: "2000m"
+          restartPolicy: OnFailure
+---
+# ServiceMonitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ml-pipeline-monitor
+  namespace: ml-serving
+  labels:
+    app: ml-pipeline
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: ml-pipeline
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

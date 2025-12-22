@@ -186,7 +186,7 @@ const prisma = new PrismaClient();
 const ebayCategories = [\n`;
 
   categories.forEach(cat => {
-    code += `  {\n`;
+    code += '  {\n';
     code += `    name: '${cat.name.replace(/'/g, "\\'")}',\n`;
     code += `    nameAr: '${cat.nameAr.replace(/'/g, "\\'")}',\n`;
     code += `    slug: '${cat.slug}',\n`;
@@ -195,10 +195,10 @@ const ebayCategories = [\n`;
       code += `    parentSlug: '${cat.parentSlug}',\n`;
     }
     code += `    displayOrder: ${cat.displayOrder},\n`;
-    code += `  },\n`;
+    code += '  },\n';
   });
 
-  code += `];\n\n`;
+  code += '];\n\n';
   
   code += `async function seedCategories() {
   console.log('🌱 Starting eBay categories seed from text file...');

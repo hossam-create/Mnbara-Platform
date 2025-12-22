@@ -1,0 +1,40 @@
+# Matching Service ConfigMap - Geo-spatial matching for crowdshipping
+{{- if .Values.matchingService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.matchingService.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
+data:
+  # Server Configuration
+  PORT: {{ .Values.matchingService.env.PORT | default "3011" | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: {{ .Values.matchingService.config.logLevel | default "info" | quote }}
+  
+  # Geo-Spatial Configuration
+  GEO_DEFAULT_RADIUS_KM: {{ .Values.matchingService.config.geo.defaultRadiusKm | default "50" | quote }}
+  GEO_MAX_RADIUS_KM: {{ .Values.matchingService.config.geo.maxRadiusKm | default "500" | quote }}
+  GEO_SRID: {{ .Values.matchingService.config.geo.srid | default "4326" | quote }}
+  
+  # Matching Algorithm Configuration
+  MATCHING_ALGORITHM: {{ .Values.matchingService.config.matching.algorithm | default "weighted" | quote }}
+  MATCHING_DISTANCE_WEIGHT: {{ .Values.matchingService.config.matching.distanceWeight | default "0.4" | quote }}
+  MATCHING_RATING_WEIGHT: {{ .Values.matchingService.config.matching.ratingWeight | default "0.3" | quote }}
+  MATCHING_CAPACITY_WEIGHT: {{ .Values.matchingService.config.matching.capacityWeight | default "0.2" | quote }}
+  MATCHING_PRICE_WEIGHT: {{ .Values.matchingService.config.matching.priceWeight | default "0.1" | quote }}
+  
+  # Traveler Configuration
+  TRAVELER_MIN_RATING: {{ .Values.matchingService.config.traveler.minRating | default "3.5" | quote }}
+  TRAVELER_MIN_COMPLETED_TRIPS: {{ .Values.matchingService.config.traveler.minCompletedTrips | default "0" | quote }}
+  TRAVELER_MAX_ACTIVE_DELIVERIES: {{ .Values.matchingService.config.traveler.maxActiveDeliveries | default "5" | quote }}
+  
+  # Request Configuration
+  REQUEST_EXPIRY_HOURS: {{ .Values.matchingService.config.request.expiryHours | default "72" | quote }}
+  REQUEST_MAX_MATCHES: {{ .Values.matchingService.config.request.maxMatches | default "10" | quote }}
+  
+  # Cache Configuration
+  CACHE_NEARBY_TTL_SECONDS: {{ .Values.matchingService.config.cache.nearbyTtlSeconds | default "60" | quote }}
+  CACHE_TRAVELER_TTL_SECONDS: {{ .Values.matchingService.config.cache.travelerTtlSeconds | default "300" | quote }}
+{{- end }}

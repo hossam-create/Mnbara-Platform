@@ -1,0 +1,236 @@
+# Vault Agent Injector Configuration
+# Deploys the Vault Agent Injector for automatic secret injection
+---
+# ServiceAccount for Vault Agent Injector
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-agent-injector
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/part-of: mnbara-platform
+
+---
+# ClusterRole for Vault Agent Injector
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-agent-injector
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+rules:
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get"]
+
+---
+# ClusterRoleBinding for Vault Agent Injector
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-agent-injector
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vault-agent-injector
+subjects:
+  - kind: ServiceAccount
+    name: vault-agent-injector
+    namespace: vault
+
+---
+# Service for Vault Agent Injector webhook
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-agent-injector-svc
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+spec:
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: vault-agent-injector
+    component: webhook
+
+---
+# Deployment for Vault Agent Injector
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vault-agent-injector
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-agent-injector
+      component: webhook
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vault-agent-injector
+        component: webhook
+    spec:
+      serviceAccountName: vault-agent-injector
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: vault-agent-injector
+                topologyKey: kubernetes.io/hostname
+      
+      containers:
+        - name: sidecar-injector
+          image: hashicorp/vault-k8s:1.3
+          imagePullPolicy: IfNotPresent
+          args:
+            - agent-inject
+            - 2>&1
+          env:
+            - name: AGENT_INJECT_LISTEN
+              value: ":8080"
+            - name: AGENT_INJECT_LOG_LEVEL
+              value: "info"
+            - name: AGENT_INJECT_VAULT_ADDR
+              value: "https://vault.vault:8200"
+            - name: AGENT_INJECT_VAULT_AUTH_PATH
+              value: "auth/kubernetes"
+            - name: AGENT_INJECT_VAULT_IMAGE
+              value: "hashicorp/vault:1.15"
+            - name: AGENT_INJECT_TLS_AUTO
+              value: "vault-agent-injector-cfg"
+            - name: AGENT_INJECT_TLS_AUTO_HOSTS
+              value: "vault-agent-injector-svc,vault-agent-injector-svc.vault,vault-agent-injector-svc.vault.svc"
+            - name: AGENT_INJECT_LOG_FORMAT
+              value: "json"
+            - name: AGENT_INJECT_REVOKE_ON_SHUTDOWN
+              value: "true"
+            - name: AGENT_INJECT_CPU_REQUEST
+              value: "50m"
+            - name: AGENT_INJECT_CPU_LIMIT
+              value: "250m"
+            - name: AGENT_INJECT_MEM_REQUEST
+              value: "64Mi"
+            - name: AGENT_INJECT_MEM_LIMIT
+              value: "128Mi"
+            - name: AGENT_INJECT_DEFAULT_TEMPLATE
+              value: "json"
+            - name: AGENT_INJECT_VAULT_CACERT_BYTES
+              valueFrom:
+                secretKeyRef:
+                  name: vault-tls
+                  key: ca.crt
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 8080
+              name: https
+          livenessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+
+---
+# MutatingWebhookConfiguration for Vault Agent Injector
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: vault-agent-injector-cfg
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+webhooks:
+  - name: vault.hashicorp.com
+    sideEffects: None
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: vault-agent-injector-svc
+        namespace: vault
+        path: /mutate
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    failurePolicy: Ignore
+    matchPolicy: Exact
+    namespaceSelector:
+      matchExpressions:
+        - key: vault-injection
+          operator: In
+          values:
+            - enabled
+    objectSelector:
+      matchExpressions:
+        - key: vault.hashicorp.com/agent-inject
+          operator: NotIn
+          values:
+            - "false"
+    reinvocationPolicy: Never
+    timeoutSeconds: 30
+
+---
+# PodDisruptionBudget for Vault Agent Injector
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vault-agent-injector
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-agent-injector
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-agent-injector
+      component: webhook

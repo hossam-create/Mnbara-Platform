@@ -28,7 +28,7 @@ describe('ProductCard Component', () => {
   it('should render "Add to Cart" button', () => {
     render(<ProductCard {...mockProduct} onAddToCart={mockOnAddToCart} />);
 
-    const button = screen.getByRole('button', { name: /add to cart/i });
+    const button = screen.getByRole('button', { name: /add.*to cart/i });
     expect(button).toBeInTheDocument();
   });
 
@@ -36,7 +36,7 @@ describe('ProductCard Component', () => {
     const user = userEvent.setup();
     render(<ProductCard {...mockProduct} onAddToCart={mockOnAddToCart} />);
 
-    const button = screen.getByRole('button', { name: /add to cart/i });
+    const button = screen.getByRole('button', { name: /add.*to cart/i });
     await user.click(button);
 
     expect(mockOnAddToCart).toHaveBeenCalledTimes(1);

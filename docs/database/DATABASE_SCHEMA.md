@@ -33,13 +33,58 @@ User financial accounts for holding balances.
 - `user_id` - One-to-one with users
 - `balance` - Available funds
 - `currency` - Default USD
+- `is_locked` - Wallet lock status
 
 **Relationships:**
 - `user_id` → `users.id` (CASCADE DELETE)
 
 ---
 
-### 3. Rewards (`rewards`)
+### 3. Wallet Ledger (`wallet_ledger`)
+Complete audit trail of all wallet balance changes.
+
+**Key Fields:**
+- `wallet_id` - Reference to wallet
+- `amount` - Transaction amount (positive for credit, negative for debit)
+- `type` - Transaction type (DEPOSIT, WITHDRAWAL, PAYMENT, REFUND, ESCROW_HOLD, ESCROW_RELEASE, etc.)
+- `balance_before` - Balance before transaction
+- `balance_after` - Balance after transaction
+- `transaction_id` - Link to transactions table (nullable)
+- `order_id` - Link to orders table (nullable)
+- `escrow_id` - Link to escrow table (nullable)
+- `performed_by` - User who initiated (null for system actions)
+
+**Indexes:**
+- `wallet_id` - Fast lookup by wallet
+- `type` - Filter by transaction type
+- `transaction_id` - Link to transactions
+- `order_id` - Link to orders
+- `created_at` - Chronological queries
+
+**Purpose:**
+- Provides complete audit trail for all wallet operations
+- Enables balance reconciliation and dispute resolution
+- Tracks escrow holds and releases
+- Records all financial movements with context
+
+**Example Query:**
+```sql
+-- Get wallet transaction history
+SELECT * FROM wallet_ledger
+WHERE wallet_id = 123
+ORDER BY created_at DESC
+LIMIT 50;
+
+-- Calculate balance at specific point in time
+SELECT balance_after FROM wallet_ledger
+WHERE wallet_id = 123 AND created_at <= '2025-01-01'
+ORDER BY created_at DESC
+LIMIT 1;
+```
+
+---
+
+### 4. Rewards (`rewards`)
 User loyalty points system.
 
 **Key Fields:**
@@ -53,7 +98,7 @@ User loyalty points system.
 
 ## Geo-Spatial Tables
 
-### 4. Traveler Locations (`traveler_locations`)
+### 5. Traveler Locations (`traveler_locations`)
 Real-time location tracking of travelers.
 
 **Key Fields:**
@@ -77,7 +122,7 @@ WHERE ST_DWithin(
 
 ---
 
-### 5. Trips (`trips`)
+### 6. Trips (`trips`)
 Traveler's planned journeys.
 
 **Key Fields:**
@@ -92,7 +137,7 @@ Traveler's planned journeys.
 
 ## Marketplace Tables
 
-### 6. Listings (`listings`)
+### 7. Listings (`listings`)
 Products for sale (regular or auction).
 
 **Key Fields:**
@@ -108,7 +153,7 @@ Products for sale (regular or auction).
 
 ---
 
-### 7. Bids (`bids`)
+### 8. Bids (`bids`)
 Auction bids history.
 
 **Key Fields:**
@@ -121,7 +166,7 @@ Auction bids history.
 
 ## Order & Delivery Tables
 
-### 8. Orders (`orders`)
+### 9. Orders (`orders`)
 Main order/request table.
 
 **Status Flow:**
@@ -138,7 +183,7 @@ REQUESTED → MATCHED → PURCHASED → IN_TRANSIT → ARRIVED → DELIVERED →
 
 ---
 
-### 9. Tracking Events (`tracking_events`)
+### 10. Tracking Events (`tracking_events`)
 Shipment status update history.
 
 **Key Fields:**
@@ -160,7 +205,7 @@ Shipment status update history.
 
 ## Financial Tables
 
-### 10. Transactions (`transactions`)
+### 11. Transactions (`transactions`)
 All monetary movements.
 
 **Types:**
@@ -179,7 +224,7 @@ All monetary movements.
 
 ## Communication Tables
 
-### 11. Chat Messages (`chat_messages`)
+### 12. Chat Messages (`chat_messages`)
 In-app messaging between users.
 
 **Key Fields:**
@@ -188,7 +233,7 @@ In-app messaging between users.
 
 ---
 
-### 12. Notifications (`notifications`)
+### 13. Notifications (`notifications`)
 Push/email notifications log.
 
 **Types:**
@@ -201,7 +246,7 @@ Push/email notifications log.
 
 ## Review System
 
-### 13. Reviews (`reviews`)
+### 14. Reviews (`reviews`)
 User ratings and feedback.
 
 **Key Fields:**
@@ -213,15 +258,87 @@ User ratings and feedback.
 
 ---
 
+## Consent & KYC Tables
+
+### 15. Consents (`consents`)
+GDPR-compliant user consent tracking.
+
+**Key Fields:**
+- `user_id` - One-to-one with users
+- `essential_data` - Required for core functionality (always true)
+- `analytics_consent` - Anonymous usage data
+- `personalization_consent` - Personalized recommendations
+- `marketing_consent` - Promotional communications
+- `terms_accepted`, `terms_version` - Terms of service acceptance
+- `privacy_policy_accepted`, `privacy_policy_version` - Privacy policy acceptance
+- `consent_source` - WEB | MOBILE_IOS | MOBILE_ANDROID | API
+
+**Indexes:**
+- `user_id` (UNIQUE)
+- `marketing_consent` (for email campaigns)
+
+---
+
+### 16. Consent History (`consent_history`)
+Audit trail for consent changes (GDPR requirement).
+
+**Key Fields:**
+- `user_id` - Reference to user
+- `consent_type` - Which consent changed
+- `previous_value`, `new_value` - Before/after values
+- `ip_address`, `user_agent` - Context of change
+
+---
+
+### 17. KYC Uploads (`kyc_uploads`)
+Document storage for identity verification.
+
+**Key Fields:**
+- `user_id` - Reference to user
+- `document_type` - PASSPORT | NATIONAL_ID | DRIVERS_LICENSE | SELFIE | PROOF_OF_ADDRESS
+- `file_url` - MinIO/S3 encrypted path
+- `status` - PENDING | IN_REVIEW | APPROVED | REJECTED | EXPIRED
+- `expiry_date` - Document expiration
+
+**Indexes:**
+- `user_id`
+- `document_type`
+- `status`
+- `expiry_date` (for expiration alerts)
+
+---
+
+### 18. KYC Verifications (`kyc_verifications`)
+Overall KYC application status per user.
+
+**Key Fields:**
+- `user_id` - One-to-one with users
+- `level` - NONE | BASIC | STANDARD | ENHANCED
+- `status` - PENDING | IN_REVIEW | APPROVED | REJECTED
+- `full_legal_name`, `date_of_birth`, `nationality` - Encrypted personal info
+
+**Verification Levels:**
+- `NONE` - No KYC
+- `BASIC` - Email + phone verified
+- `STANDARD` - ID document verified
+- `ENHANCED` - Full KYC with proof of address
+
+---
+
 ## Performance Considerations
 
 | Table | Est. Rows | Index Strategy |
 |-------|-----------|----------------|
 | users | 100K+ | email, role |
+| wallets | 100K+ | user_id (unique) |
+| wallet_ledger | 10M+ | wallet_id, type, created_at |
 | orders | 1M+ | buyer_id, status, created_at |
 | traveler_locations | 10K+ | GIST (geo) |
 | listings | 500K+ | GIST (geo), is_auction |
 | bids | 5M+ | listing_id, amount DESC |
+| consents | 100K+ | user_id (unique), marketing_consent |
+| kyc_uploads | 200K+ | user_id, status, expiry_date |
+| kyc_verifications | 50K+ | user_id (unique), status |
 
 ---
 

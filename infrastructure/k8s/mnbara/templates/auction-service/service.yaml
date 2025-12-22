@@ -1,0 +1,18 @@
+{{- if .Values.auctionService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.auctionService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+spec:
+  type: {{ .Values.auctionService.service.type }}
+  ports:
+    - port: {{ .Values.auctionService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.auctionService.name) | nindent 4 }}
+{{- end }}

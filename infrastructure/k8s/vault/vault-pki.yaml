@@ -1,0 +1,215 @@
+# Vault PKI Secrets Engine Configuration
+# Configures PKI for service certificates
+---
+# ConfigMap for PKI configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-pki-config
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: pki
+data:
+  # Script to configure PKI secrets engine
+  configure-pki.sh: |
+    #!/bin/sh
+    set -e
+    
+    echo "=== Configuring Vault PKI Infrastructure ==="
+    
+    # Enable PKI secrets engine for root CA
+    echo "Enabling root PKI secrets engine..."
+    vault secrets enable -path=pki pki || echo "Root PKI engine already enabled"
+    
+    # Configure max lease TTL for root CA (10 years)
+    vault secrets tune -max-lease-ttl=87600h pki
+    
+    # Generate root CA
+    echo "Generating root CA..."
+    vault write -format=json pki/root/generate/internal \
+      common_name="MNBARA Root CA" \
+      organization="MNBARA" \
+      ou="Platform Security" \
+      country="US" \
+      ttl=87600h \
+      key_type=rsa \
+      key_bits=4096 > /tmp/root-ca.json
+    
+    # Configure CA and CRL URLs
+    vault write pki/config/urls \
+      issuing_certificates="https://vault.vault:8200/v1/pki/ca" \
+      crl_distribution_points="https://vault.vault:8200/v1/pki/crl"
+    
+    # Enable intermediate PKI secrets engine
+    echo "Enabling intermediate PKI secrets engine..."
+    vault secrets enable -path=pki_int pki || echo "Intermediate PKI engine already enabled"
+    
+    # Configure max lease TTL for intermediate CA (5 years)
+    vault secrets tune -max-lease-ttl=43800h pki_int
+    
+    # Generate intermediate CA CSR
+    echo "Generating intermediate CA CSR..."
+    vault write -format=json pki_int/intermediate/generate/internal \
+      common_name="MNBARA Intermediate CA" \
+      organization="MNBARA" \
+      ou="Platform Services" \
+      country="US" \
+      key_type=rsa \
+      key_bits=4096 > /tmp/intermediate-csr.json
+    
+    # Extract CSR
+    CSR=$(cat /tmp/intermediate-csr.json | jq -r '.data.csr')
+    
+    # Sign intermediate CA with root CA
+    echo "Signing intermediate CA..."
+    vault write -format=json pki/root/sign-intermediate \
+      csr="$CSR" \
+      format=pem_bundle \
+      ttl=43800h > /tmp/intermediate-cert.json
+    
+    # Import signed intermediate certificate
+    CERT=$(cat /tmp/intermediate-cert.json | jq -r '.data.certificate')
+    vault write pki_int/intermediate/set-signed certificate="$CERT"
+    
+    # Configure intermediate CA URLs
+    vault write pki_int/config/urls \
+      issuing_certificates="https://vault.vault:8200/v1/pki_int/ca" \
+      crl_distribution_points="https://vault.vault:8200/v1/pki_int/crl"
+    
+    # Create role for MNBARA services
+    echo "Creating PKI role for MNBARA services..."
+    vault write pki_int/roles/mnbara-service \
+      allowed_domains="mnbara.svc.cluster.local,mnbara.svc,mnbara,localhost" \
+      allow_subdomains=true \
+      allow_bare_domains=true \
+      allow_glob_domains=true \
+      allow_localhost=true \
+      allow_ip_sans=true \
+      enforce_hostnames=false \
+      max_ttl=720h \
+      ttl=72h \
+      key_type=rsa \
+      key_bits=2048 \
+      key_usage="DigitalSignature,KeyEncipherment" \
+      ext_key_usage="ServerAuth,ClientAuth" \
+      organization="MNBARA" \
+      ou="Platform Services" \
+      country="US"
+    
+    # Create role for internal services (shorter TTL)
+    echo "Creating PKI role for internal services..."
+    vault write pki_int/roles/mnbara-internal \
+      allowed_domains="*.mnbara.svc.cluster.local,*.vault.svc.cluster.local" \
+      allow_subdomains=true \
+      allow_bare_domains=false \
+      allow_glob_domains=true \
+      max_ttl=168h \
+      ttl=24h \
+      key_type=ecdsa \
+      key_bits=256 \
+      key_usage="DigitalSignature,KeyEncipherment" \
+      ext_key_usage="ServerAuth,ClientAuth"
+    
+    # Create role for client certificates
+    echo "Creating PKI role for client certificates..."
+    vault write pki_int/roles/mnbara-client \
+      allowed_domains="mnbara.com,*.mnbara.com" \
+      allow_subdomains=true \
+      allow_bare_domains=true \
+      client_flag=true \
+      server_flag=false \
+      max_ttl=8760h \
+      ttl=720h \
+      key_type=rsa \
+      key_bits=2048 \
+      key_usage="DigitalSignature" \
+      ext_key_usage="ClientAuth"
+    
+    echo "=== PKI Configuration Complete ==="
+    
+    # Output root CA for distribution
+    echo "Root CA certificate:"
+    vault read -field=certificate pki/cert/ca
+
+---
+# Job to configure PKI
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-pki-setup
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: pki
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      serviceAccountName: vault-pki-setup
+      restartPolicy: OnFailure
+      containers:
+        - name: configure-pki
+          image: hashicorp/vault:1.15
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Install jq for JSON parsing
+              apk add --no-cache jq
+              
+              # Wait for Vault to be ready and unsealed
+              until vault status 2>/dev/null | grep -q "Sealed.*false"; do
+                echo "Waiting for Vault to be unsealed..."
+                sleep 5
+              done
+              
+              # Login with Kubernetes auth
+              vault login -method=kubernetes role=pki-admin
+              
+              # Run PKI configuration script
+              /scripts/configure-pki.sh
+          env:
+            - name: VAULT_ADDR
+              value: "https://vault.vault:8200"
+            - name: VAULT_CACERT
+              value: "/vault/tls/ca.crt"
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            - name: tls
+              mountPath: /vault/tls
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: vault-pki-config
+            defaultMode: 0755
+        - name: tls
+          secret:
+            secretName: vault-tls
+
+---
+# ServiceAccount for PKI setup job
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-pki-setup
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: pki
+
+---
+# ConfigMap to store root CA for distribution
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-root-ca
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: pki
+data:
+  # This will be populated after PKI setup
+  ca.crt: ""

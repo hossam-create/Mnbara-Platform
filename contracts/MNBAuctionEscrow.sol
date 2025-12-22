@@ -240,9 +240,9 @@ contract MNBAuctionEscrow is
         require(escrow.status == EscrowStatus.DISPUTED, "Not disputed");
         
         if (favorBuyer) {
-            refundBuyer(auctionId);
+            this.refundBuyer(auctionId);
         } else {
-            releaseFunds(auctionId);
+            this.releaseFunds(auctionId);
         }
         
         emit DisputeResolved(auctionId, msg.sender, favorBuyer);

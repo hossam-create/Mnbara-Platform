@@ -1,0 +1,459 @@
+# PostgreSQL Transparent Data Encryption Configuration
+# Requirements: 19.1 - Data encryption at rest
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    security.mnbara.com/encryption: enabled
+
+---
+# PostgreSQL configuration with TDE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: config
+data:
+  postgresql.conf: |
+    # PostgreSQL Configuration with Security Hardening
+    # Requirements: 19.1 - Data encryption at rest
+    
+    # Connection Settings
+    listen_addresses = '*'
+    port = 5432
+    max_connections = 200
+    
+    # SSL/TLS Configuration
+    ssl = on
+    ssl_cert_file = '/etc/postgresql/certs/server.crt'
+    ssl_key_file = '/etc/postgresql/certs/server.key'
+    ssl_ca_file = '/etc/postgresql/certs/ca.crt'
+    ssl_min_protocol_version = 'TLSv1.3'
+    ssl_ciphers = 'HIGH:!aNULL:!MD5:!3DES'
+    ssl_prefer_server_ciphers = on
+    
+    # Memory Settings
+    shared_buffers = 256MB
+    effective_cache_size = 768MB
+    maintenance_work_mem = 64MB
+    work_mem = 4MB
+    
+    # WAL Settings
+    wal_level = replica
+    max_wal_senders = 10
+    wal_keep_size = 1GB
+    
+    # Logging
+    logging_collector = on
+    log_directory = 'pg_log'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_rotation_age = 1d
+    log_rotation_size = 100MB
+    log_min_messages = warning
+    log_min_error_statement = error
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+    log_statement = 'ddl'
+    log_connections = on
+    log_disconnections = on
+    
+    # Security
+    password_encryption = scram-sha-256
+    
+    # Extensions for encryption
+    shared_preload_libraries = 'pgcrypto,pg_stat_statements'
+    
+    # Performance
+    random_page_cost = 1.1
+    effective_io_concurrency = 200
+    
+  pg_hba.conf: |
+    # PostgreSQL Client Authentication Configuration
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    
+    # Local connections
+    local   all             all                                     scram-sha-256
+    
+    # IPv4 local connections (require SSL)
+    hostssl all             all             127.0.0.1/32            scram-sha-256
+    hostssl all             all             10.0.0.0/8              scram-sha-256
+    hostssl all             all             172.16.0.0/12           scram-sha-256
+    hostssl all             all             192.168.0.0/16          scram-sha-256
+    
+    # Replication connections (require SSL)
+    hostssl replication     replicator      10.0.0.0/8              scram-sha-256
+    
+    # Reject all other connections
+    host    all             all             0.0.0.0/0               reject
+
+  # Initialization script for encryption setup
+  init-encryption.sql: |
+    -- Enable pgcrypto extension for field-level encryption
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    
+    -- Enable pg_stat_statements for query monitoring
+    CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+    
+    -- Create encryption key management schema
+    CREATE SCHEMA IF NOT EXISTS encryption;
+    
+    -- Table to track encrypted columns (for key rotation)
+    CREATE TABLE IF NOT EXISTS encryption.encrypted_columns (
+      id SERIAL PRIMARY KEY,
+      table_schema VARCHAR(255) NOT NULL,
+      table_name VARCHAR(255) NOT NULL,
+      column_name VARCHAR(255) NOT NULL,
+      encryption_algorithm VARCHAR(50) DEFAULT 'aes-256-gcm',
+      key_version INTEGER DEFAULT 1,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(table_schema, table_name, column_name)
+    );
+    
+    -- Function to encrypt sensitive data
+    CREATE OR REPLACE FUNCTION encryption.encrypt_data(
+      p_data TEXT,
+      p_key TEXT DEFAULT current_setting('app.encryption_key', true)
+    ) RETURNS BYTEA AS $$
+    BEGIN
+      IF p_key IS NULL OR p_key = '' THEN
+        RAISE EXCEPTION 'Encryption key not configured';
+      END IF;
+      RETURN pgp_sym_encrypt(p_data, p_key, 'cipher-algo=aes256');
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- Function to decrypt sensitive data
+    CREATE OR REPLACE FUNCTION encryption.decrypt_data(
+      p_encrypted BYTEA,
+      p_key TEXT DEFAULT current_setting('app.encryption_key', true)
+    ) RETURNS TEXT AS $$
+    BEGIN
+      IF p_key IS NULL OR p_key = '' THEN
+        RAISE EXCEPTION 'Encryption key not configured';
+      END IF;
+      RETURN pgp_sym_decrypt(p_encrypted, p_key);
+    EXCEPTION
+      WHEN OTHERS THEN
+        RAISE WARNING 'Decryption failed: %', SQLERRM;
+        RETURN NULL;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- Function to hash passwords securely
+    CREATE OR REPLACE FUNCTION encryption.hash_password(
+      p_password TEXT,
+      p_salt TEXT DEFAULT NULL
+    ) RETURNS TEXT AS $$
+    DECLARE
+      v_salt TEXT;
+    BEGIN
+      v_salt := COALESCE(p_salt, encode(gen_random_bytes(16), 'hex'));
+      RETURN v_salt || ':' || encode(
+        digest(v_salt || p_password, 'sha256'),
+        'hex'
+      );
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- Function to verify password hash
+    CREATE OR REPLACE FUNCTION encryption.verify_password(
+      p_password TEXT,
+      p_hash TEXT
+    ) RETURNS BOOLEAN AS $$
+    DECLARE
+      v_salt TEXT;
+      v_computed_hash TEXT;
+    BEGIN
+      v_salt := split_part(p_hash, ':', 1);
+      v_computed_hash := encryption.hash_password(p_password, v_salt);
+      RETURN v_computed_hash = p_hash;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- Grant execute permissions to application role
+    GRANT USAGE ON SCHEMA encryption TO mnbara_app;
+    GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA encryption TO mnbara_app;
+    
+    -- Audit log for encryption operations
+    CREATE TABLE IF NOT EXISTS encryption.audit_log (
+      id BIGSERIAL PRIMARY KEY,
+      operation VARCHAR(50) NOT NULL,
+      table_name VARCHAR(255),
+      column_name VARCHAR(255),
+      performed_by VARCHAR(255),
+      performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      details JSONB
+    );
+    
+    -- Index for audit log queries
+    CREATE INDEX IF NOT EXISTS idx_encryption_audit_performed_at 
+      ON encryption.audit_log(performed_at DESC);
+
+---
+# PostgreSQL StatefulSet with encrypted volumes
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  serviceName: postgres-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "postgres"
+        vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/postgres/credentials"
+        vault.hashicorp.com/agent-inject-secret-encryption-key: "secret/data/postgres/encryption"
+    spec:
+      serviceAccountName: postgres
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      initContainers:
+        - name: init-config
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cp /config/postgresql.conf /etc/postgresql/postgresql.conf
+              cp /config/pg_hba.conf /etc/postgresql/pg_hba.conf
+              chown -R 999:999 /etc/postgresql
+              chmod 600 /etc/postgresql/*.conf
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: postgresql-config
+              mountPath: /etc/postgresql
+      containers:
+        - name: postgres
+          image: postgis/postgis:15-3.4-alpine
+          args:
+            - -c
+            - config_file=/etc/postgresql/postgresql.conf
+            - -c
+            - hba_file=/etc/postgresql/pg_hba.conf
+          env:
+            - name: POSTGRES_DB
+              value: mnbara_db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: postgresql-config
+              mountPath: /etc/postgresql
+              readOnly: true
+            - name: certs
+              mountPath: /etc/postgresql/certs
+              readOnly: true
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+                - -d
+                - $(POSTGRES_DB)
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: postgres-config
+        - name: postgresql-config
+          emptyDir: {}
+        - name: certs
+          secret:
+            secretName: postgres-tls
+            defaultMode: 0600
+        - name: init-scripts
+          configMap:
+            name: postgres-config
+            items:
+              - key: init-encryption.sql
+                path: 01-init-encryption.sql
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: encrypted-ssd
+        resources:
+          requests:
+            storage: 100Gi
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+  selector:
+    app.kubernetes.io/name: postgres
+
+---
+# Headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  clusterIP: None
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+  selector:
+    app.kubernetes.io/name: postgres
+
+---
+# ServiceAccount for PostgreSQL
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: postgres
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+
+---
+# PostgreSQL TLS Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-tls
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  secretName: postgres-tls
+  duration: 8760h  # 1 year
+  renewBefore: 720h  # 30 days
+  subject:
+    organizations:
+      - MNBARA
+  commonName: postgres
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - digital signature
+    - key encipherment
+  dnsNames:
+    - postgres
+    - postgres.postgres
+    - postgres.postgres.svc
+    - postgres.postgres.svc.cluster.local
+    - postgres-headless
+    - postgres-headless.postgres
+    - postgres-headless.postgres.svc
+    - postgres-headless.postgres.svc.cluster.local
+    - localhost
+  ipAddresses:
+    - 127.0.0.1
+  issuerRef:
+    name: vault-ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+
+---
+# Network Policy for PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-network-policy
+  namespace: postgres
+  labels:
+    app.kubernetes.io/name: postgres
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from MNBARA services only
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: mnbara
+      ports:
+        - protocol: TCP
+          port: 5432
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53

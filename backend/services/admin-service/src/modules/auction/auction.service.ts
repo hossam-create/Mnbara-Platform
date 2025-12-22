@@ -57,7 +57,7 @@ export class AuctionService {
 
     // Get current winning bid
     const highestBid = await this.db.query(
-      `SELECT * FROM bids WHERE listing_id = $1 ORDER BY amount DESC LIMIT 1`,
+      'SELECT * FROM bids WHERE listing_id = $1 ORDER BY amount DESC LIMIT 1',
       [id],
     );
 
@@ -111,7 +111,7 @@ export class AuctionService {
 
     // Mark previous bids as outbid
     await this.db.query(
-      `UPDATE bids SET status = 'outbid' WHERE listing_id = $1 AND id != $2 AND status = 'winning'`,
+      'UPDATE bids SET status = \'outbid\' WHERE listing_id = $1 AND id != $2 AND status = \'winning\'',
       [dto.listingId, bid.id],
     );
 
@@ -126,7 +126,7 @@ export class AuctionService {
 
     // Get highest bid
     const highestBid = await this.db.query(
-      `SELECT * FROM bids WHERE listing_id = $1 ORDER BY amount DESC LIMIT 1`,
+      'SELECT * FROM bids WHERE listing_id = $1 ORDER BY amount DESC LIMIT 1',
       [listingId],
     );
 
@@ -153,7 +153,7 @@ export class AuctionService {
 
       // Mark all other bids as lost
       await this.db.query(
-        `UPDATE bids SET status = 'lost' WHERE listing_id = $1 AND id != $2`,
+        'UPDATE bids SET status = \'lost\' WHERE listing_id = $1 AND id != $2',
         [listingId, winner.id],
       );
 

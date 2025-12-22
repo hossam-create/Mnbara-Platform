@@ -1,0 +1,327 @@
+# Vault Audit Logging Configuration
+# Configures audit logging for compliance and security monitoring
+---
+# ConfigMap for audit log configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-audit-config
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: audit
+data:
+  # Audit device configuration script
+  enable-audit.sh: |
+    #!/bin/sh
+    set -e
+    
+    # Wait for Vault to be ready
+    until vault status 2>/dev/null; do
+      echo "Waiting for Vault to be ready..."
+      sleep 5
+    done
+    
+    # Enable file audit device
+    vault audit enable file file_path=/vault/audit/audit.log || true
+    
+    # Enable syslog audit device (optional)
+    # vault audit enable syslog tag="vault" facility="AUTH" || true
+    
+    # Enable socket audit device for log aggregation (optional)
+    # vault audit enable socket address="fluentd.logging:24224" socket_type="tcp" || true
+    
+    echo "Audit logging enabled successfully"
+
+---
+# Fluentd ConfigMap for Vault audit log collection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-fluentd-config
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: audit
+data:
+  fluent.conf: |
+    # Vault Audit Log Collection Configuration
+    
+    <source>
+      @type tail
+      path /vault/audit/audit.log
+      pos_file /var/log/fluentd/vault-audit.pos
+      tag vault.audit
+      <parse>
+        @type json
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+      </parse>
+    </source>
+    
+    # Add Kubernetes metadata
+    <filter vault.audit>
+      @type record_transformer
+      <record>
+        cluster "#{ENV['CLUSTER_NAME']}"
+        namespace "#{ENV['NAMESPACE']}"
+        pod_name "#{ENV['POD_NAME']}"
+        environment "#{ENV['ENVIRONMENT']}"
+      </record>
+    </filter>
+    
+    # Mask sensitive data
+    <filter vault.audit>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        request ${record["request"].tap { |r| r["data"] = "[REDACTED]" if r && r["data"] } rescue record["request"]}
+        response ${record["response"].tap { |r| r["data"] = "[REDACTED]" if r && r["data"] } rescue record["response"]}
+      </record>
+    </filter>
+    
+    # Output to Elasticsearch
+    <match vault.audit>
+      @type elasticsearch
+      host "#{ENV['ELASTICSEARCH_HOST']}"
+      port "#{ENV['ELASTICSEARCH_PORT']}"
+      scheme https
+      ssl_verify true
+      user "#{ENV['ELASTICSEARCH_USER']}"
+      password "#{ENV['ELASTICSEARCH_PASSWORD']}"
+      index_name vault-audit
+      type_name _doc
+      include_timestamp true
+      <buffer>
+        @type file
+        path /var/log/fluentd/buffer/vault-audit
+        flush_interval 5s
+        retry_max_times 3
+        retry_wait 10s
+      </buffer>
+    </match>
+    
+    # Backup output to file (for compliance)
+    <match vault.audit>
+      @type copy
+      <store>
+        @type file
+        path /var/log/vault-audit-backup
+        compress gzip
+        <buffer time>
+          @type file
+          path /var/log/fluentd/buffer/vault-audit-backup
+          timekey 1d
+          timekey_wait 10m
+        </buffer>
+      </store>
+    </match>
+
+---
+# Fluentd DaemonSet for Vault audit log collection
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: vault-audit-collector
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-audit-collector
+    app.kubernetes.io/component: audit
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-audit-collector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vault-audit-collector
+    spec:
+      serviceAccountName: vault-audit-collector
+      containers:
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1.16-debian-elasticsearch8-1
+          env:
+            - name: CLUSTER_NAME
+              value: "mnbara-cluster"
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ENVIRONMENT
+              value: "production"
+            - name: ELASTICSEARCH_HOST
+              value: "elasticsearch.monitoring"
+            - name: ELASTICSEARCH_PORT
+              value: "9200"
+            - name: ELASTICSEARCH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: vault-audit-elasticsearch
+                  key: username
+            - name: ELASTICSEARCH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vault-audit-elasticsearch
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+            limits:
+              cpu: 500m
+              memory: 500Mi
+          volumeMounts:
+            - name: config
+              mountPath: /fluentd/etc
+            - name: vault-audit-logs
+              mountPath: /vault/audit
+              readOnly: true
+            - name: buffer
+              mountPath: /var/log/fluentd
+      volumes:
+        - name: config
+          configMap:
+            name: vault-fluentd-config
+        - name: vault-audit-logs
+          hostPath:
+            path: /var/log/vault-audit
+            type: DirectoryOrCreate
+        - name: buffer
+          emptyDir: {}
+
+---
+# ServiceAccount for audit collector
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-audit-collector
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault-audit-collector
+
+---
+# Secret for Elasticsearch credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-audit-elasticsearch
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: audit
+type: Opaque
+stringData:
+  username: "elastic"
+  password: ""  # Set via external secrets
+
+---
+# PodDisruptionBudget for audit collector
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vault-audit-collector-pdb
+  namespace: vault
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault-audit-collector
+
+---
+# ServiceMonitor for Prometheus metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vault-metrics
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+  endpoints:
+    - port: https
+      scheme: https
+      path: /v1/sys/metrics
+      params:
+        format:
+          - prometheus
+      tlsConfig:
+        insecureSkipVerify: true
+      interval: 30s
+      scrapeTimeout: 10s
+      bearerTokenSecret:
+        name: vault-prometheus-token
+        key: token
+
+---
+# PrometheusRule for Vault alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: vault-alerts
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: monitoring
+spec:
+  groups:
+    - name: vault.rules
+      rules:
+        - alert: VaultSealed
+          expr: vault_core_unsealed == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Vault is sealed"
+            description: "Vault instance {{ $labels.instance }} has been sealed for more than 5 minutes"
+        
+        - alert: VaultDown
+          expr: up{job="vault"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Vault is down"
+            description: "Vault instance {{ $labels.instance }} is down"
+        
+        - alert: VaultHighRequestLatency
+          expr: histogram_quantile(0.99, rate(vault_core_handle_request_duration_seconds_bucket[5m])) > 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High Vault request latency"
+            description: "Vault request latency p99 is above 1 second"
+        
+        - alert: VaultTooManyPendingTokens
+          expr: vault_token_count > 10000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Too many Vault tokens"
+            description: "Vault has more than 10000 active tokens"
+        
+        - alert: VaultLeadershipLost
+          expr: increase(vault_core_leadership_lost_count[1h]) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: "Vault leadership lost"
+            description: "Vault cluster experienced leadership change"
+        
+        - alert: VaultAuditLogFailure
+          expr: increase(vault_audit_log_request_failure[5m]) > 0
+          labels:
+            severity: critical
+          annotations:
+            summary: "Vault audit log failure"
+            description: "Vault failed to write audit logs"

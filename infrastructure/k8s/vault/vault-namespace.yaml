@@ -1,0 +1,10 @@
+# HashiCorp Vault Namespace
+# Creates a dedicated namespace for Vault deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/component: secrets-management

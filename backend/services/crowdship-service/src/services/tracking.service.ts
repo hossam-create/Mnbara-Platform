@@ -1,6 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
+import { NotificationService } from './notification.service';
 
 const prisma = new PrismaClient();
+const notificationService = new NotificationService();
 
 export type ShipmentStatus = 
     | 'REQUESTED'        // Buyer requested item
@@ -27,7 +29,7 @@ export class TrackingService {
     async updateStatus(event: TrackingEvent) {
         const { shipmentId, status, location, notes } = event;
 
-        return prisma.$transaction(async (tx) => {
+        return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
             // 1. Update shipment status
             const shipment = await tx.order.update({
                 where: { id: shipmentId },
@@ -48,7 +50,7 @@ export class TrackingService {
             });
 
             // 3. Notify status change
-            await this.notifyStatusChange(shipmentId, status);
+            await this.notifyStatusChange(shipmentId, status, shipment.buyerId);
 
             return {
                 shipment,
@@ -82,9 +84,10 @@ export class TrackingService {
     /**
      * Notify users about status change
      */
-    private async notifyStatusChange(shipmentId: number, status: ShipmentStatus) {
-        // TODO: Integrate with notification-service
-        console.log(`[Tracking] Shipment ${shipmentId} status changed to ${status}`);
-        // Send push notification, email, SMS
+    private async notifyStatusChange(shipmentId: number, status: ShipmentStatus, userId: number) {
+        await notificationService.notify(userId, `Your shipment #${shipmentId} status is now ${status}`, {
+            shipmentId,
+            status
+        });
     }
 }

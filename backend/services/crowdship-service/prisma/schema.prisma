@@ -78,6 +78,109 @@ model TravelerAvailability {
   @@index([isActive])
 }
 
+enum RequestStatus {
+  REQUESTED
+  NEGOTIATING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+enum OfferStatus {
+  OFFERED
+  COUNTERED
+  ACCEPTED
+  REJECTED
+}
+
+enum TravelStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model ShopperRequest {
+  id                Int            @id @default(autoincrement())
+  buyerId           Int
+  buyer             User           @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  productUrl        String
+  title             String?
+  price             Decimal?       @db.Decimal(10, 2)
+  currency          String         @default("USD")
+  sourceSite        String?
+  sourceCountry     String?
+  destinationCountry String?       // Added for SET-001
+  imageUrl          String?
+  status            RequestStatus  @default(REQUESTED)
+  isOrderReady      Boolean        @default(false)
+  offers            TravelerOffer[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now())
+
+  @@index([buyerId])
+  @@index([status])
+  @@index([sourceCountry])
+  @@index([destinationCountry])
+}
+
+model TravelerOffer {
+  id                 Int           @id @default(autoincrement())
+  requestId          Int
+  request            ShopperRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  travelerId         Int
+  traveler           User          @relation(fields: [travelerId], references: [id], onDelete: Cascade)
+  listedPrice        Decimal       @db.Decimal(10, 2)
+  estimatedTax       Decimal       @db.Decimal(10, 2) @default(0)
+  estimatedShipping  Decimal       @db.Decimal(10, 2) @default(0)
+  platformFee        Decimal       @db.Decimal(10, 2) @default(0)
+  travelerProfit     Decimal       @db.Decimal(10, 2) @default(0)
+  totalProposed      Decimal       @db.Decimal(10, 2)
+  status             OfferStatus   @default(OFFERED)
+  lastActor          String        @default("traveler")
+  counterNote        String?
+  travelDepartureDate DateTime?
+  travelArrivalDate  DateTime?
+  travelStatus       TravelStatus  @default(PENDING)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @default(now())
+
+  @@index([requestId])
+  @@index([travelerId])
+  @@index([status])
+  @@unique([requestId, travelerId])
+}
+
+enum OrderLinkStatus {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+}
+
+model RequestOrder {
+  id                  Int             @id @default(autoincrement())
+  requestId           Int             @unique
+  request             ShopperRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  offerId             Int
+  offer               TravelerOffer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  buyerId             Int
+  buyer               User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  travelerId          Int
+  traveler            User            @relation("TravelerOrderLink", fields: [travelerId], references: [id], onDelete: Cascade)
+  productTitle        String?
+  productUrl          String
+  sourceSite          String?
+  sourceCountry       String?
+  priceBreakdown      Json
+  totalProposed       Decimal         @db.Decimal(10, 2)
+  travelDepartureDate DateTime?
+  travelArrivalDate   DateTime?
+  status              OrderLinkStatus @default(PENDING_PAYMENT)
+  createdAt           DateTime        @default(now())
+
+  @@index([offerId])
+}
+
 model Order {
   id            Int       @id @default(autoincrement())
   buyerId       Int

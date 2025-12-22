@@ -1,0 +1,89 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.pillStack {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.guardrails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.guardrail {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px 16px;
+  background: rgba(10, 16, 30, 0.6);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.guardrail div {
+  flex: 1;
+}
+
+.guardrail p {
+  margin: 4px 0 0 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+
+.invites {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inviteItem {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+.inviteItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sessionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.sessionCard {
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px;
+  background: rgba(6, 11, 25, 0.7);
+}
+
+.sessionCard h4 {
+  margin: 0 0 6px 0;
+}
+
+.sessionCard p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.9rem;
+}

@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 const prisma = new PrismaClient();
 
@@ -13,15 +14,15 @@ export class WalletService {
         });
     }
 
-    // Get Balance
+    // Get Balance (returns available & pending)
     async getBalance(userId: number) {
-        const wallet = await prisma.wallet.findUnique({
+        let wallet = await prisma.wallet.findUnique({
             where: { userId },
         });
 
         if (!wallet) {
             // Auto-create if missing (resilience)
-            return this.createWallet(userId);
+            wallet = await this.createWallet(userId);
         }
 
         return wallet;
@@ -54,35 +55,186 @@ export class WalletService {
         });
     }
 
-    // Withdraw (Remove funds)
-    async withdraw(userId: number, amount: number) {
-        return prisma.$transaction(async (tx) => {
-            const wallet = await tx.wallet.findUnique({ where: { userId } });
+    // ====== PAYOUT METHODS ======
 
-            if (!wallet || Number(wallet.balance) < amount) {
-                throw new Error('Insufficient funds');
+    async addPayoutMethod(userId: number, provider: string, identifier: string, externalRef?: string) {
+        const masked = this.maskIdentifier(identifier);
+        // If no methods exist, set as default
+        const existing = await prisma.payoutMethod.findFirst({ where: { userId } });
+        const method = await prisma.payoutMethod.create({
+            data: {
+                userId,
+                provider,
+                maskedIdentifier: masked,
+                externalRef: externalRef ?? null,
+                isDefault: !existing,
+            },
+        });
+        return method;
+    }
+
+    async getPayoutMethods(userId: number) {
+        return prisma.payoutMethod.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    private maskIdentifier(identifier: string): string {
+        if (identifier.length <= 4) return identifier;
+        const last4 = identifier.slice(-4);
+        return `**** ${last4}`;
+    }
+
+    // ====== WITHDRAWALS (FULL BALANCE ONLY) ======
+
+    async requestFullWithdrawal(userId: number, payoutMethodId?: number) {
+        return prisma.$transaction(async (tx) => {
+            // Lock wallet row via unique where in transaction
+            const wallet = await tx.wallet.findUnique({ where: { userId } });
+            if (!wallet) {
+                throw new Error('Wallet not found');
             }
 
-            // 1. Create Transaction Record
-            const transaction = await tx.transaction.create({
+            const available = wallet.balance as Decimal;
+            const pending = wallet.pendingBalance as Decimal;
+
+            if (pending.gt(new Decimal(0))) {
+                throw new Error('Withdrawal already in progress');
+            }
+
+            if (available.lte(new Prisma.Decimal(0))) {
+                throw new Error('No funds available for withdrawal');
+            }
+
+            // Resolve payout method
+            let method = null;
+            if (payoutMethodId) {
+                method = await tx.payoutMethod.findFirst({
+                    where: { id: payoutMethodId, userId },
+                });
+            } else {
+                method =
+                    (await tx.payoutMethod.findFirst({ where: { userId, isDefault: true } })) ||
+                    (await tx.payoutMethod.findFirst({ where: { userId } }));
+            }
+
+            if (!method) {
+                throw new Error('No payout method configured');
+            }
+
+            const amount = available;
+
+            // Create WithdrawalRequest
+            const withdrawal = await tx.withdrawalRequest.create({
                 data: {
                     userId,
-                    amount: -amount, // Negative for withdrawal display logic if needed, or keep positive and rely on type
-                    type: 'WITHDRAWAL',
-                    status: 'PENDING', // Pending admin approval or gateway processing
-                    description: 'Wallet Withdrawal',
+                    walletId: wallet.id,
+                    payoutMethodId: method.id,
+                    amount,
+                    currency: wallet.currency,
+                    status: 'REQUESTED',
                 },
             });
 
-            // 2. Deduct from Wallet (Lock funds)
+            // Move balance -> pendingBalance
             const updatedWallet = await tx.wallet.update({
-                where: { userId },
+                where: { id: wallet.id },
                 data: {
-                    balance: { decrement: amount },
+                    balance: new Decimal(0),
+                    pendingBalance: pending.add(amount),
                 },
             });
 
-            return { transaction, wallet: updatedWallet };
+            // Optionally create a transaction row for audit (type WITHDRAWAL, status PENDING)
+            await tx.transaction.create({
+                data: {
+                    userId,
+                    amount: amount,
+                    currency: wallet.currency,
+                    type: 'WITHDRAWAL',
+                    status: 'PENDING',
+                    description: 'Wallet withdrawal requested',
+                },
+            });
+
+            return { withdrawal, wallet: updatedWallet };
+        });
+    }
+
+    async listWithdrawals(userId: number) {
+        return prisma.withdrawalRequest.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
+
+    // Internal helpers for processing withdrawals (to be used by worker/admin)
+    async markWithdrawalCompleted(id: number) {
+        return prisma.$transaction(async (tx) => {
+            const wr = await tx.withdrawalRequest.findUnique({ where: { id } });
+            if (!wr) throw new Error('Withdrawal not found');
+            if (wr.status !== 'REQUESTED' && wr.status !== 'PROCESSING') {
+                throw new Error('Withdrawal not in processable state');
+            }
+
+            const wallet = await tx.wallet.findUnique({ where: { id: wr.walletId } });
+            if (!wallet) throw new Error('Wallet not found');
+
+            const pending = wallet.pendingBalance as Decimal;
+            const amount = wr.amount as Decimal;
+
+            const updatedWallet = await tx.wallet.update({
+                where: { id: wallet.id },
+                data: {
+                    pendingBalance: pending.sub(amount),
+                },
+            });
+
+            const updatedWr = await tx.withdrawalRequest.update({
+                where: { id },
+                data: {
+                    status: 'COMPLETED',
+                    processedAt: new Date(),
+                },
+            });
+
+            return { withdrawal: updatedWr, wallet: updatedWallet };
+        });
+    }
+
+    async markWithdrawalFailed(id: number, reason: string) {
+        return prisma.$transaction(async (tx) => {
+            const wr = await tx.withdrawalRequest.findUnique({ where: { id } });
+            if (!wr) throw new Error('Withdrawal not found');
+            if (wr.status !== 'REQUESTED' && wr.status !== 'PROCESSING') {
+                throw new Error('Withdrawal not in processable state');
+            }
+
+            const wallet = await tx.wallet.findUnique({ where: { id: wr.walletId } });
+            if (!wallet) throw new Error('Wallet not found');
+
+            const pending = wallet.pendingBalance as Decimal;
+            const amount = wr.amount as Decimal;
+
+            const updatedWallet = await tx.wallet.update({
+                where: { id: wallet.id },
+                data: {
+                    pendingBalance: pending.sub(amount),
+                    balance: (wallet.balance as Decimal).add(amount),
+                },
+            });
+
+            const updatedWr = await tx.withdrawalRequest.update({
+                where: { id },
+                data: {
+                    status: 'FAILED',
+                    failureReason: reason,
+                    processedAt: new Date(),
+                },
+            });
+
+            return { withdrawal: updatedWr, wallet: updatedWallet };
         });
     }
 

@@ -1,0 +1,147 @@
+# Vault Auto-Unseal Configuration
+# Configures auto-unseal using AWS KMS, Azure Key Vault, or GCP Cloud KMS
+---
+# AWS KMS Auto-Unseal ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-auto-unseal-aws
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+data:
+  auto-unseal.hcl: |
+    # AWS KMS Auto-Unseal Configuration
+    seal "awskms" {
+      region     = "${AWS_REGION}"
+      kms_key_id = "${AWS_KMS_KEY_ID}"
+      
+      # Optional: Use specific endpoint for VPC endpoints
+      # endpoint   = "https://kms.${AWS_REGION}.amazonaws.com"
+    }
+
+---
+# Azure Key Vault Auto-Unseal ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-auto-unseal-azure
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+data:
+  auto-unseal.hcl: |
+    # Azure Key Vault Auto-Unseal Configuration
+    seal "azurekeyvault" {
+      tenant_id      = "${AZURE_TENANT_ID}"
+      client_id      = "${AZURE_CLIENT_ID}"
+      client_secret  = "${AZURE_CLIENT_SECRET}"
+      vault_name     = "${AZURE_VAULT_NAME}"
+      key_name       = "${AZURE_KEY_NAME}"
+    }
+
+---
+# GCP Cloud KMS Auto-Unseal ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-auto-unseal-gcp
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+data:
+  auto-unseal.hcl: |
+    # GCP Cloud KMS Auto-Unseal Configuration
+    seal "gcpckms" {
+      project     = "${GCP_PROJECT}"
+      region      = "${GCP_REGION}"
+      key_ring    = "${GCP_KEY_RING}"
+      crypto_key  = "${GCP_CRYPTO_KEY}"
+    }
+
+---
+# Secret for AWS KMS credentials (if not using IRSA)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-aws-kms-credentials
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+type: Opaque
+stringData:
+  # These should be populated via external secrets or sealed secrets
+  AWS_REGION: "us-east-1"
+  AWS_KMS_KEY_ID: ""
+  # Only needed if not using IRSA
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+
+---
+# Secret for Azure Key Vault credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-azure-kms-credentials
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+type: Opaque
+stringData:
+  AZURE_TENANT_ID: ""
+  AZURE_CLIENT_ID: ""
+  AZURE_CLIENT_SECRET: ""
+  AZURE_VAULT_NAME: ""
+  AZURE_KEY_NAME: "vault-unseal-key"
+
+---
+# Secret for GCP Cloud KMS credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-gcp-kms-credentials
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+type: Opaque
+stringData:
+  GCP_PROJECT: ""
+  GCP_REGION: "us-central1"
+  GCP_KEY_RING: "vault-keyring"
+  GCP_CRYPTO_KEY: "vault-unseal-key"
+  # Service account key JSON (if not using Workload Identity)
+  GOOGLE_APPLICATION_CREDENTIALS_JSON: ""
+
+---
+# RBAC for AWS IRSA (IAM Roles for Service Accounts)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-aws-irsa
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+  annotations:
+    # Replace with your AWS account ID and role name
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/vault-kms-unseal-role"
+
+---
+# RBAC for GCP Workload Identity
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-gcp-workload-identity
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: auto-unseal
+  annotations:
+    # Replace with your GCP project and service account
+    iam.gke.io/gcp-service-account: "vault-kms@PROJECT_ID.iam.gserviceaccount.com"

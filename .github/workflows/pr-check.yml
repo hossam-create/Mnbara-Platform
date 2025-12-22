@@ -1,0 +1,239 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================
+  # PR Metadata Check
+  # ============================================
+  pr-check:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Check PR title
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          # Check for conventional commit format
+          if [[ ! "$TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?:\ .+ ]]; then
+            echo "⚠️ PR title should follow conventional commit format"
+            echo "Examples: feat: add new feature, fix(auth): resolve login issue"
+          fi
+
+      - name: Check PR description
+        run: |
+          BODY="${{ github.event.pull_request.body }}"
+          if [ -z "$BODY" ] || [ ${#BODY} -lt 50 ]; then
+            echo "⚠️ Please provide a meaningful PR description (at least 50 characters)"
+          fi
+
+  # ============================================
+  # Changed Files Detection
+  # ============================================
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend-web: ${{ steps.changes.outputs.frontend-web }}
+      frontend-admin: ${{ steps.changes.outputs.frontend-admin }}
+      frontend-mobile: ${{ steps.changes.outputs.frontend-mobile }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      contracts: ${{ steps.changes.outputs.contracts }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend-web:
+              - 'frontend/web/**'
+            frontend-admin:
+              - 'frontend/admin-dashboard/**'
+            frontend-mobile:
+              - 'frontend/mobile/**'
+            infrastructure:
+              - 'infrastructure/**'
+              - '.github/workflows/**'
+            contracts:
+              - 'contracts/**'
+
+  # ============================================
+  # Backend PR Checks
+  # ============================================
+  backend-check:
+    name: Backend Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Get changed services
+        id: changed-services
+        run: |
+          SERVICES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep "^backend/services/" | cut -d'/' -f3 | sort -u | tr '\n' ' ')
+          echo "services=$SERVICES" >> $GITHUB_OUTPUT
+
+      - name: Test changed services
+        run: |
+          for service in ${{ steps.changed-services.outputs.services }}; do
+            if [ -d "backend/services/$service" ] && [ -f "backend/services/$service/package.json" ]; then
+              echo "Testing $service"
+              cd "backend/services/$service"
+              npm ci
+              npm run lint --if-present
+              npm test --if-present
+              cd -
+            fi
+          done
+
+  # ============================================
+  # Frontend Web PR Checks
+  # ============================================
+  frontend-web-check:
+    name: Frontend Web Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend-web == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install and test
+        working-directory: frontend/web
+        run: |
+          npm ci
+          npm run lint --if-present
+          npm run type-check --if-present
+          npm test -- --run --passWithNoTests
+          npm run build
+
+  # ============================================
+  # Frontend Admin PR Checks
+  # ============================================
+  frontend-admin-check:
+    name: Frontend Admin Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend-admin == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install and test
+        working-directory: frontend/admin-dashboard
+        run: |
+          npm ci
+          npm run lint --if-present
+          npm test -- --run --passWithNoTests
+          npm run build
+
+  # ============================================
+  # Infrastructure PR Checks
+  # ============================================
+  infrastructure-check:
+    name: Infrastructure Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.infrastructure == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+
+      - name: Lint Helm charts
+        run: helm lint infrastructure/k8s/mnbara
+
+      - name: Validate workflows
+        run: |
+          for workflow in .github/workflows/*.yml; do
+            echo "Validating $workflow"
+            # Basic YAML validation
+            python3 -c "import yaml; yaml.safe_load(open('$workflow'))"
+          done
+
+  # ============================================
+  # Contract PR Checks
+  # ============================================
+  contracts-check:
+    name: Contracts Check
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.contracts == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install and test
+        run: |
+          npm ci
+          npx hardhat compile
+          npx hardhat test
+
+  # ============================================
+  # PR Summary
+  # ============================================
+  pr-summary:
+    name: PR Summary
+    runs-on: ubuntu-latest
+    needs:
+      - pr-check
+      - detect-changes
+      - backend-check
+      - frontend-web-check
+      - frontend-admin-check
+      - infrastructure-check
+      - contracts-check
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## PR Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| PR Validation | ${{ needs.pr-check.result == 'success' && '✅' || needs.pr-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ needs.backend-check.result == 'success' && '✅' || needs.backend-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Web | ${{ needs.frontend-web-check.result == 'success' && '✅' || needs.frontend-web-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Admin | ${{ needs.frontend-admin-check.result == 'success' && '✅' || needs.frontend-admin-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure | ${{ needs.infrastructure-check.result == 'success' && '✅' || needs.infrastructure-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contracts | ${{ needs.contracts-check.result == 'success' && '✅' || needs.contracts-check.result == 'skipped' && '⏭️' || '❌' }} |" >> $GITHUB_STEP_SUMMARY

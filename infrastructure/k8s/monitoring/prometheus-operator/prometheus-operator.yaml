@@ -1,0 +1,155 @@
+# Prometheus Operator Deployment
+# This deploys the Prometheus Operator which manages Prometheus, Alertmanager, and ServiceMonitors
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+    app.kubernetes.io/part-of: mnbara-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-operator
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+rules:
+  - apiGroups: ["monitoring.coreos.com"]
+    resources:
+      - alertmanagers
+      - alertmanagers/finalizers
+      - alertmanagers/status
+      - alertmanagerconfigs
+      - prometheuses
+      - prometheuses/finalizers
+      - prometheuses/status
+      - prometheusagents
+      - prometheusagents/finalizers
+      - prometheusagents/status
+      - thanosrulers
+      - thanosrulers/finalizers
+      - thanosrulers/status
+      - scrapeconfigs
+      - servicemonitors
+      - podmonitors
+      - probes
+      - prometheusrules
+    verbs: ["*"]
+  - apiGroups: ["apps"]
+    resources:
+      - statefulsets
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - secrets
+    verbs: ["*"]
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs: ["list", "delete"]
+  - apiGroups: [""]
+    resources:
+      - services
+      - services/finalizers
+      - endpoints
+    verbs: ["get", "create", "update", "delete"]
+  - apiGroups: [""]
+    resources:
+      - nodes
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - events
+    verbs: ["patch", "create"]
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources:
+      - storageclasses
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-operator
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-operator
+subjects:
+  - kind: ServiceAccount
+    name: prometheus-operator
+    namespace: monitoring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+    app.kubernetes.io/part-of: mnbara-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus-operator
+    spec:
+      serviceAccountName: prometheus-operator
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: prometheus-operator
+          image: quay.io/prometheus-operator/prometheus-operator:v0.70.0
+          args:
+            - --kubelet-service=kube-system/kubelet
+            - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.70.0
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-operator
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      name: http
+  selector:
+    app.kubernetes.io/name: prometheus-operator

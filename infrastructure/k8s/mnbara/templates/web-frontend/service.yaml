@@ -1,0 +1,18 @@
+{{- if .Values.webFrontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.webFrontend.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.webFrontend.name) | nindent 4 }}
+spec:
+  type: {{ .Values.webFrontend.service.type }}
+  ports:
+    - port: {{ .Values.webFrontend.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.webFrontend.name) | nindent 4 }}
+{{- end }}

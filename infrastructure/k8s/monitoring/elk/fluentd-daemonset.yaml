@@ -1,0 +1,270 @@
+# Fluentd DaemonSet for Log Collection
+# Collects logs from all pods and forwards to Elasticsearch
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluentd
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: fluentd
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluentd
+  labels:
+    app.kubernetes.io/name: fluentd
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - namespaces
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluentd
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluentd
+subjects:
+  - kind: ServiceAccount
+    name: fluentd
+    namespace: monitoring
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: fluentd
+data:
+  fluent.conf: |
+    # Input: Collect container logs
+    <source>
+      @type tail
+      @id in_tail_container_logs
+      path /var/log/containers/*.log
+      pos_file /var/log/fluentd-containers.log.pos
+      tag kubernetes.*
+      read_from_head true
+      <parse>
+        @type json
+        time_key time
+        time_format %Y-%m-%dT%H:%M:%S.%NZ
+        keep_time_key true
+      </parse>
+    </source>
+    
+    # Filter: Add Kubernetes metadata
+    <filter kubernetes.**>
+      @type kubernetes_metadata
+      @id filter_kube_metadata
+      kubernetes_url "#{ENV['KUBERNETES_SERVICE_HOST']}:#{ENV['KUBERNETES_SERVICE_PORT']}"
+      verify_ssl false
+      skip_labels false
+      skip_container_metadata false
+      skip_master_url false
+      skip_namespace_metadata false
+    </filter>
+    
+    # Filter: Parse JSON logs from MNBARA services
+    <filter kubernetes.var.log.containers.mnbara**>
+      @type parser
+      key_name log
+      reserve_data true
+      remove_key_name_field true
+      <parse>
+        @type json
+        json_parser json
+      </parse>
+    </filter>
+    
+    # Filter: Add service-specific labels
+    <filter kubernetes.**>
+      @type record_transformer
+      enable_ruby true
+      <record>
+        service_name ${record.dig("kubernetes", "labels", "app.kubernetes.io/name") || "unknown"}
+        namespace ${record.dig("kubernetes", "namespace_name") || "unknown"}
+        pod_name ${record.dig("kubernetes", "pod_name") || "unknown"}
+        container_name ${record.dig("kubernetes", "container_name") || "unknown"}
+        cluster "mnbara-production"
+        environment "#{ENV['ENVIRONMENT'] || 'production'}"
+      </record>
+    </filter>
+    
+    # Filter: Drop health check logs
+    <filter kubernetes.**>
+      @type grep
+      <exclude>
+        key log
+        pattern /GET \/health|GET \/metrics|GET \/ready|GET \/live/
+      </exclude>
+    </filter>
+    
+    # Output: Send to Elasticsearch
+    <match kubernetes.**>
+      @type elasticsearch
+      @id out_es
+      @log_level info
+      include_tag_key true
+      host elasticsearch-logs
+      port 9200
+      scheme http
+      ssl_verify false
+      
+      # Index naming
+      logstash_format true
+      logstash_prefix mnbara-logs
+      logstash_dateformat %Y.%m.%d
+      
+      # Index lifecycle management
+      ilm_policy_id mnbara-logs-policy
+      ilm_policy_overwrite true
+      ilm_policy {
+        "policy": {
+          "phases": {
+            "hot": {
+              "min_age": "0ms",
+              "actions": {
+                "rollover": {
+                  "max_age": "1d",
+                  "max_size": "10gb"
+                }
+              }
+            },
+            "warm": {
+              "min_age": "2d",
+              "actions": {
+                "shrink": {
+                  "number_of_shards": 1
+                },
+                "forcemerge": {
+                  "max_num_segments": 1
+                }
+              }
+            },
+            "delete": {
+              "min_age": "30d",
+              "actions": {
+                "delete": {}
+              }
+            }
+          }
+        }
+      }
+      
+      # Buffer settings
+      <buffer>
+        @type file
+        path /var/log/fluentd-buffers/kubernetes.system.buffer
+        flush_mode interval
+        retry_type exponential_backoff
+        flush_thread_count 2
+        flush_interval 5s
+        retry_forever false
+        retry_max_interval 30
+        chunk_limit_size 2M
+        queue_limit_length 8
+        overflow_action block
+      </buffer>
+    </match>
+    
+    # Output: Send MNBARA service logs to separate index
+    <match kubernetes.var.log.containers.mnbara**>
+      @type elasticsearch
+      @id out_es_mnbara
+      host elasticsearch-logs
+      port 9200
+      scheme http
+      
+      logstash_format true
+      logstash_prefix mnbara-services
+      logstash_dateformat %Y.%m.%d
+      
+      <buffer>
+        @type file
+        path /var/log/fluentd-buffers/mnbara.buffer
+        flush_mode interval
+        flush_interval 5s
+        chunk_limit_size 2M
+        queue_limit_length 8
+      </buffer>
+    </match>
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: fluentd
+    app.kubernetes.io/part-of: mnbara-monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fluentd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: fluentd
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "24231"
+    spec:
+      serviceAccountName: fluentd
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+      containers:
+        - name: fluentd
+          image: fluent/fluentd-kubernetes-daemonset:v1.16-debian-elasticsearch8-1
+          env:
+            - name: FLUENT_ELASTICSEARCH_HOST
+              value: "elasticsearch-logs"
+            - name: FLUENT_ELASTICSEARCH_PORT
+              value: "9200"
+            - name: FLUENT_ELASTICSEARCH_SCHEME
+              value: "http"
+            - name: FLUENT_ELASTICSEARCH_SSL_VERIFY
+              value: "false"
+            - name: ENVIRONMENT
+              value: "production"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: config
+              mountPath: /fluentd/etc/fluent.conf
+              subPath: fluent.conf
+            - name: buffer
+              mountPath: /var/log/fluentd-buffers
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: config
+          configMap:
+            name: fluentd-config
+        - name: buffer
+          emptyDir: {}

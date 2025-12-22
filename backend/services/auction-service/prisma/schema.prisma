@@ -15,6 +15,7 @@ model User {
   
   bids          Bid[]
   listings      Listing[]
+  proxyBids     ProxyBid[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -37,11 +38,29 @@ model Listing {
   buyNowPrice Decimal?     @db.Decimal(10, 2)
   currentBid  Decimal?     @db.Decimal(10, 2)
   auctionEndsAt DateTime?
+  auctionStartsAt DateTime?
+  
+  // Auto-extend configuration (sniping prevention)
+  autoExtendEnabled     Boolean  @default(true)
+  autoExtendThresholdMs Int      @default(120000)  // 2 minutes in milliseconds
+  autoExtendDurationMs  Int      @default(120000)  // Extend by 2 minutes
+  maxExtensions         Int      @default(10)      // Maximum number of extensions
+  extensionCount        Int      @default(0)       // Current extension count
+  originalEndTime       DateTime?                  // Original end time before extensions
+  
+  // Bid increment configuration
+  minBidIncrement       Decimal? @db.Decimal(10, 2) @default(1.00)
+  
+  // Winner tracking
+  winnerId              Int?
+  finalPrice            Decimal? @db.Decimal(10, 2)
   
   status      ListingStatus @default(DRAFT)
   isActive    Boolean      @default(true)
   
   bids        Bid[]
+  proxyBids   ProxyBid[]
+  auctionExtensions AuctionExtension[]
   
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -49,6 +68,7 @@ model Listing {
   @@index([sellerId])
   @@index([status])
   @@index([isAuction])
+  @@index([auctionEndsAt])
 }
 
 model Bid {
@@ -63,17 +83,77 @@ model Bid {
   isAutoBid  Boolean  @default(false)
   maxAmount  Decimal? @db.Decimal(10, 2) // For auto-bidding
   
+  // Track if this bid triggered an extension
+  triggeredExtension Boolean @default(false)
+  
+  // Bid status
+  status     BidStatus @default(ACTIVE)
+  
   createdAt  DateTime @default(now())
   
   @@index([listingId])
   @@index([bidderId])
   @@index([createdAt])
+  @@index([status])
+}
+
+// Proxy bid configuration for automatic bidding
+model ProxyBid {
+  id          Int      @id @default(autoincrement())
+  
+  listingId   Int
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  bidderId    Int
+  bidder      User     @relation(fields: [bidderId], references: [id])
+  
+  maxAmount   Decimal  @db.Decimal(10, 2)  // Maximum amount user is willing to pay
+  currentBid  Decimal  @db.Decimal(10, 2)  // Current bid placed by proxy
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([listingId, bidderId])
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([isActive])
+}
+
+// Track auction extensions for audit purposes
+model AuctionExtension {
+  id              Int      @id @default(autoincrement())
+  
+  listingId       Int
+  listing         Listing  @relation(fields: [listingId], references: [id])
+  
+  previousEndTime DateTime
+  newEndTime      DateTime
+  extensionMs     Int      // Duration of extension in milliseconds
+  
+  triggeredByBidId Int?    // The bid that triggered this extension
+  extensionNumber  Int     // Which extension this is (1st, 2nd, etc.)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([createdAt])
 }
 
 enum ListingStatus {
   DRAFT
+  SCHEDULED
   ACTIVE
+  ENDED        // AUC-001: Added for clear auction end state
   SOLD
   EXPIRED
+  CANCELLED
   DELETED
+}
+
+enum BidStatus {
+  ACTIVE
+  OUTBID
+  WINNING
+  WON
+  CANCELLED
 }

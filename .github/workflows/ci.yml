@@ -1,85 +1,439 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches: [main, develop, 'feature/*', 'release/*']
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  backend-ci:
-    name: ${{ matrix.service }} (Lint & Test)
+  # ============================================
+  # Code Quality Checks
+  # ============================================
+  lint-and-format:
+    name: Lint & Format Check
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        service: [
-          api-gateway,
-          auction-service,
-          auth-service,
-          crowdship-service,
-          listing-service,
-          matching-service,
-          notification-service,
-          orders-service,
-          payment-service,
-          recommendation-service,
-          rewards-service,
-          trips-service
-        ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        working-directory: backend/services/${{ matrix.service }}
-        run: npm ci
-
-      - name: Run lint
-        working-directory: backend/services/${{ matrix.service }}
-        run: npm run lint --if-present
-
-      - name: Run tests
-        working-directory: backend/services/${{ matrix.service }}
-        run: npm test --if-present
-
-  frontend-build:
-    name: Frontend Build (Web)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run ESLint
+        run: npm run lint --if-present
+
+      - name: Check formatting
+        run: npm run format:check --if-present
+
+  # ============================================
+  # Backend Services CI
+  # ============================================
+  backend-ci:
+    name: Backend - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auction-service
+          - auth-service
+          - crowdship-service
+          - listing-service
+          - matching-service
+          - notification-service
+          - orders-service
+          - payment-service
+          - rewards-service
+          - trips-service
+          - admin-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Check if service exists
+        id: check-service
+        run: |
+          if [ -d "backend/services/${{ matrix.service }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/${{ matrix.service }}
+        run: npm ci
+
+      - name: Run lint
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/${{ matrix.service }}
+        run: npm run lint --if-present
+
+      - name: Run type check
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/${{ matrix.service }}
+        run: npm run type-check --if-present
+
+      - name: Run tests
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/${{ matrix.service }}
+        run: npm test --if-present
+        env:
+          NODE_ENV: test
+
+      - name: Upload coverage
+        if: steps.check-service.outputs.exists == 'true'
+        uses: codecov/codecov-action@v3
+        with:
+          flags: ${{ matrix.service }}
+          fail_ci_if_error: false
+        continue-on-error: true
+
+  # ============================================
+  # Recommendation Service (Python)
+  # ============================================
+  recommendation-service-ci:
+    name: Backend - recommendation-service (Python)
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Check if service exists
+        id: check-service
+        run: |
+          if [ -d "backend/services/recommendation-service" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/recommendation-service
+        run: |
+          pip install -r requirements.txt --quiet || true
+          pip install pytest pytest-cov flake8 black --quiet
+
+      - name: Run linting
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/recommendation-service
+        run: flake8 src/ --max-line-length=120 --ignore=E501,W503
+        continue-on-error: true
+
+      - name: Run tests
+        if: steps.check-service.outputs.exists == 'true'
+        working-directory: backend/services/recommendation-service
+        run: pytest --cov=src --cov-report=xml || true
+        continue-on-error: true
+
+  # ============================================
+  # Frontend Web CI
+  # ============================================
+  frontend-web-ci:
+    name: Frontend - Web App
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
-        working-directory: frontend/web/mnbara-web-legacy
+        working-directory: frontend/web
         run: npm ci
 
-      - name: Build web app
-        working-directory: frontend/web/mnbara-web-legacy
-        run: npm run build
+      - name: Run lint
+        working-directory: frontend/web
+        run: npm run lint --if-present
 
-  gitleaks:
-    name: Gitleaks Secret Scanning
+      - name: Run type check
+        working-directory: frontend/web
+        run: npm run type-check --if-present
+
+      - name: Run tests
+        working-directory: frontend/web
+        run: npm test -- --run --passWithNoTests
+        env:
+          NODE_ENV: test
+
+      - name: Build
+        working-directory: frontend/web
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: frontend/web/dist
+          retention-days: 7
+
+  # ============================================
+  # Frontend Admin Dashboard CI
+  # ============================================
+  frontend-admin-ci:
+    name: Frontend - Admin Dashboard
     runs-on: ubuntu-latest
+    needs: lint-and-format
     steps:
-      - name: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: frontend/admin-dashboard
+        run: npm ci
+
+      - name: Run lint
+        working-directory: frontend/admin-dashboard
+        run: npm run lint --if-present
+
+      - name: Run tests
+        working-directory: frontend/admin-dashboard
+        run: npm test -- --run --passWithNoTests
+        env:
+          NODE_ENV: test
+
+      - name: Build
+        working-directory: frontend/admin-dashboard
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-build
+          path: frontend/admin-dashboard/dist
+          retention-days: 7
+
+  # ============================================
+  # Mobile App CI
+  # ============================================
+  mobile-ci:
+    name: Frontend - Mobile App
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Check if mobile app exists
+        id: check-mobile
+        run: |
+          if [ -d "frontend/mobile/mnbara-app" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        if: steps.check-mobile.outputs.exists == 'true'
+        working-directory: frontend/mobile/mnbara-app
+        run: npm ci
+
+      - name: Run lint
+        if: steps.check-mobile.outputs.exists == 'true'
+        working-directory: frontend/mobile/mnbara-app
+        run: npm run lint --if-present
+
+      - name: Run tests
+        if: steps.check-mobile.outputs.exists == 'true'
+        working-directory: frontend/mobile/mnbara-app
+        run: npm test -- --passWithNoTests
+        env:
+          NODE_ENV: test
+
+  # ============================================
+  # Smart Contract Tests
+  # ============================================
+  contracts-ci:
+    name: Smart Contracts
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      - name: Run contract tests
+        run: npx hardhat test
+        continue-on-error: true
+
+  # ============================================
+  # Security Scanning
+  # ============================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2.3.9
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high || true
+        continue-on-error: true
+
+  # ============================================
+  # Docker Build Test
+  # ============================================
+  docker-build:
+    name: Docker Build - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-web-ci]
+    if: github.event_name == 'pull_request'
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - auction-service
+          - payment-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check if Dockerfile exists
+        id: check-dockerfile
+        run: |
+          if [ -f "backend/services/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Docker image
+        if: steps.check-dockerfile.outputs.exists == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: backend/services/${{ matrix.service }}
+          push: false
+          tags: mnbara/${{ matrix.service }}:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # Helm Chart Validation
+  # ============================================
+  helm-validate:
+    name: Helm Chart Validation
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.0'
+
+      - name: Lint Helm chart
+        run: helm lint infrastructure/k8s/mnbara
+
+      - name: Template Helm chart (dev)
+        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-dev.yaml > /dev/null
+
+      - name: Template Helm chart (staging)
+        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-staging.yaml > /dev/null
+
+      - name: Template Helm chart (prod)
+        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-prod.yaml > /dev/null
+
+  # ============================================
+  # CI Summary
+  # ============================================
+  ci-summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs:
+      - backend-ci
+      - recommendation-service-ci
+      - frontend-web-ci
+      - frontend-admin-ci
+      - mobile-ci
+      - contracts-ci
+      - security-scan
+      - helm-validate
+    if: always()
+    steps:
+      - name: Check CI Status
+        run: |
+          if [ "${{ needs.backend-ci.result }}" == "failure" ] || \
+             [ "${{ needs.frontend-web-ci.result }}" == "failure" ] || \
+             [ "${{ needs.frontend-admin-ci.result }}" == "failure" ]; then
+            echo "CI failed"
+            exit 1
+          fi
+          echo "CI passed successfully"

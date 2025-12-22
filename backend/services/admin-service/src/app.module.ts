@@ -22,6 +22,10 @@ import { AuctionModule } from './modules/auction/auction.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { SearchModule } from './modules/search/search.module';
+import { DisputesModule } from './modules/disputes/disputes.module';
+import { LegalModule } from './modules/legal/legal.module';
+import { TravelerKycModule } from './modules/traveler-kyc/traveler-kyc.module';
+import { AuditModule } from './modules/audit/audit.module';
 import { MetricsController } from './modules/monitoring/metrics.controller';
 
 // Middleware
@@ -52,6 +56,10 @@ import {
     AuthModule,
     UsersModule,
     SearchModule,
+    DisputesModule,
+    LegalModule,
+    TravelerKycModule,
+    AuditModule,
   ],
 
   controllers: [MetricsController],

@@ -1,0 +1,353 @@
+# Redis Encryption at Rest Configuration
+# Requirements: 19.1 - Data encryption at rest
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redis
+  labels:
+    app.kubernetes.io/name: redis
+    security.mnbara.com/encryption: enabled
+
+---
+# Redis configuration with encryption
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: config
+data:
+  redis.conf: |
+    # Redis Configuration with Security Hardening
+    # Requirements: 19.1 - Data encryption at rest
+    
+    # Network
+    bind 0.0.0.0
+    port 0
+    tls-port 6379
+    
+    # TLS Configuration
+    tls-cert-file /etc/redis/certs/tls.crt
+    tls-key-file /etc/redis/certs/tls.key
+    tls-ca-cert-file /etc/redis/certs/ca.crt
+    tls-auth-clients yes
+    tls-protocols "TLSv1.3"
+    tls-ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256
+    tls-prefer-server-ciphers yes
+    
+    # Authentication
+    requirepass ${REDIS_PASSWORD}
+    masterauth ${REDIS_PASSWORD}
+    
+    # Memory Management
+    maxmemory 2gb
+    maxmemory-policy allkeys-lru
+    
+    # Persistence with encryption
+    # RDB snapshots
+    save 900 1
+    save 300 10
+    save 60 10000
+    rdbcompression yes
+    rdbchecksum yes
+    dbfilename dump.rdb
+    dir /data
+    
+    # AOF persistence
+    appendonly yes
+    appendfilename "appendonly.aof"
+    appendfsync everysec
+    no-appendfsync-on-rewrite no
+    auto-aof-rewrite-percentage 100
+    auto-aof-rewrite-min-size 64mb
+    aof-use-rdb-preamble yes
+    
+    # Security
+    protected-mode yes
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    rename-command DEBUG ""
+    rename-command CONFIG "CONFIG_${REDIS_CONFIG_SUFFIX}"
+    rename-command SHUTDOWN "SHUTDOWN_${REDIS_SHUTDOWN_SUFFIX}"
+    
+    # Logging
+    loglevel notice
+    logfile ""
+    
+    # Cluster mode (if enabled)
+    # cluster-enabled yes
+    # cluster-config-file nodes.conf
+    # cluster-node-timeout 5000
+
+---
+# Redis StatefulSet with encrypted volumes
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: cache
+spec:
+  serviceName: redis-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: redis
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "redis"
+        vault.hashicorp.com/agent-inject-secret-password: "secret/data/redis/credentials"
+        vault.hashicorp.com/agent-inject-template-password: |
+          {{- with secret "secret/data/redis/credentials" -}}
+          export REDIS_PASSWORD="{{ .Data.data.password }}"
+          export REDIS_CONFIG_SUFFIX="{{ .Data.data.config_suffix }}"
+          export REDIS_SHUTDOWN_SUFFIX="{{ .Data.data.shutdown_suffix }}"
+          {{- end -}}
+    spec:
+      serviceAccountName: redis
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      initContainers:
+        # Init container to set up encrypted swap
+        - name: setup-encryption
+          image: busybox:1.36
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Ensure data directory has correct permissions
+              chown -R 999:999 /data
+              chmod 700 /data
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: redis
+          image: redis:7.2-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Source secrets from Vault
+              source /vault/secrets/password
+              
+              # Substitute environment variables in config
+              envsubst < /etc/redis/redis.conf > /tmp/redis.conf
+              
+              # Start Redis with the processed config
+              redis-server /tmp/redis.conf
+          ports:
+            - name: redis-tls
+              containerPort: 6379
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /etc/redis
+              readOnly: true
+            - name: certs
+              mountPath: /etc/redis/certs
+              readOnly: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - --tls
+                - --cert
+                - /etc/redis/certs/tls.crt
+                - --key
+                - /etc/redis/certs/tls.key
+                - --cacert
+                - /etc/redis/certs/ca.crt
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - --tls
+                - --cert
+                - /etc/redis/certs/tls.crt
+                - --key
+                - /etc/redis/certs/tls.key
+                - --cacert
+                - /etc/redis/certs/ca.crt
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: redis-config
+        - name: certs
+          secret:
+            secretName: redis-tls
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: encrypted-ssd
+        resources:
+          requests:
+            storage: 10Gi
+
+---
+# Redis Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  ports:
+    - name: redis-tls
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/name: redis
+
+---
+# Headless service for StatefulSet
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-headless
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  clusterIP: None
+  ports:
+    - name: redis-tls
+      port: 6379
+      targetPort: 6379
+  selector:
+    app.kubernetes.io/name: redis
+
+---
+# ServiceAccount for Redis
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: redis
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+
+---
+# Redis TLS Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: redis-tls
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  secretName: redis-tls
+  duration: 8760h  # 1 year
+  renewBefore: 720h  # 30 days
+  subject:
+    organizations:
+      - MNBARA
+  commonName: redis
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+    - digital signature
+    - key encipherment
+  dnsNames:
+    - redis
+    - redis.redis
+    - redis.redis.svc
+    - redis.redis.svc.cluster.local
+    - redis-headless
+    - redis-headless.redis
+    - redis-headless.redis.svc
+    - redis-headless.redis.svc.cluster.local
+    - "*.redis-headless.redis.svc.cluster.local"
+    - localhost
+  ipAddresses:
+    - 127.0.0.1
+  issuerRef:
+    name: vault-ca-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
+
+---
+# Network Policy for Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-network-policy
+  namespace: redis
+  labels:
+    app.kubernetes.io/name: redis
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: redis
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from MNBARA services only
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: mnbara
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow Redis cluster communication
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+        - protocol: TCP
+          port: 16379

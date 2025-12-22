@@ -1,0 +1,247 @@
+# Certificate Rotation Automation Configuration
+# Requirements: 19.1 - Set up certificate rotation automation
+---
+# cert-manager Certificate Policy for automatic rotation
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cert-rotation-policy
+  namespace: cert-manager
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: policy
+data:
+  # Certificate rotation policy documentation
+  policy.md: |
+    # Certificate Rotation Policy
+    
+    ## Rotation Schedule
+    - Public certificates (Let's Encrypt): 90 days, renew at 15 days
+    - Internal service certificates: 1 year, renew at 30 days
+    - Root CA: 10 years, renew at 1 year
+    - Intermediate CA: 5 years, renew at 6 months
+    
+    ## Rotation Process
+    1. cert-manager monitors certificate expiry
+    2. New certificate is requested before expiry
+    3. New certificate is stored in Kubernetes secret
+    4. Services automatically pick up new certificates
+    5. Old certificate is retained until expiry
+    
+    ## Zero-Downtime Rotation
+    - Services use secret volume mounts with auto-reload
+    - Istio sidecar handles certificate rotation transparently
+    - NGINX ingress reloads certificates automatically
+
+---
+# CronJob for certificate health monitoring
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-health-monitor
+  namespace: cert-manager
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: monitoring
+spec:
+  schedule: "0 */6 * * *"  # Every 6 hours
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: cert-health-monitor
+          containers:
+            - name: monitor
+              image: bitnami/kubectl:1.28
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  #!/bin/bash
+                  set -e
+                  
+                  echo "=== Certificate Health Check ==="
+                  echo "Time: $(date -u)"
+                  
+                  # Get all certificates
+                  CERTS=$(kubectl get certificates -A -o json)
+                  
+                  # Check each certificate
+                  echo "$CERTS" | jq -r '.items[] | "\(.metadata.namespace)/\(.metadata.name)|\(.status.notAfter)|\(.status.conditions[0].status)"' | while IFS='|' read -r name expiry ready; do
+                    if [ "$ready" != "True" ]; then
+                      echo "WARNING: Certificate $name is not ready"
+                      # Send alert
+                      curl -X POST "$ALERTMANAGER_URL/api/v1/alerts" \
+                        -H "Content-Type: application/json" \
+                        -d "[{\"labels\":{\"alertname\":\"CertificateNotReady\",\"certificate\":\"$name\",\"severity\":\"warning\"}}]" || true
+                    fi
+                    
+                    # Check if expiring within 7 days
+                    EXPIRY_EPOCH=$(date -d "$expiry" +%s 2>/dev/null || echo "0")
+                    NOW_EPOCH=$(date +%s)
+                    DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+                    
+                    if [ "$DAYS_LEFT" -lt 7 ] && [ "$DAYS_LEFT" -gt 0 ]; then
+                      echo "WARNING: Certificate $name expires in $DAYS_LEFT days"
+                      curl -X POST "$ALERTMANAGER_URL/api/v1/alerts" \
+                        -H "Content-Type: application/json" \
+                        -d "[{\"labels\":{\"alertname\":\"CertificateExpiringSoon\",\"certificate\":\"$name\",\"days_left\":\"$DAYS_LEFT\",\"severity\":\"warning\"}}]" || true
+                    elif [ "$DAYS_LEFT" -le 0 ]; then
+                      echo "CRITICAL: Certificate $name has expired!"
+                      curl -X POST "$ALERTMANAGER_URL/api/v1/alerts" \
+                        -H "Content-Type: application/json" \
+                        -d "[{\"labels\":{\"alertname\":\"CertificateExpired\",\"certificate\":\"$name\",\"severity\":\"critical\"}}]" || true
+                    else
+                      echo "OK: Certificate $name expires in $DAYS_LEFT days"
+                    fi
+                  done
+                  
+                  echo "=== Health Check Complete ==="
+              env:
+                - name: ALERTMANAGER_URL
+                  value: "http://alertmanager.monitoring:9093"
+          restartPolicy: OnFailure
+
+---
+# ServiceAccount for cert health monitor
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cert-health-monitor
+  namespace: cert-manager
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: monitoring
+
+---
+# ClusterRole for reading certificates
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cert-health-monitor
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: monitoring
+rules:
+  - apiGroups: ["cert-manager.io"]
+    resources: ["certificates"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cert-health-monitor
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cert-health-monitor
+subjects:
+  - kind: ServiceAccount
+    name: cert-health-monitor
+    namespace: cert-manager
+
+---
+# Prometheus rules for certificate monitoring
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: cert-manager
+    app.kubernetes.io/component: monitoring
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: cert-manager
+      rules:
+        - alert: CertificateExpiringSoon
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 604800
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} expires in less than 7 days"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} will expire in {{ $value | humanizeDuration }}"
+        
+        - alert: CertificateExpired
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} has expired"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has expired"
+        
+        - alert: CertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} is not ready"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has been not ready for 15 minutes"
+        
+        - alert: CertificateRenewalFailed
+          expr: increase(certmanager_certificate_renewal_timestamp_seconds[1h]) == 0 and certmanager_certificate_expiration_timestamp_seconds - time() < 172800
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificate {{ $labels.name }} renewal failed"
+            description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} failed to renew and expires in less than 2 days"
+
+---
+# Vault PKI auto-rotation configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-pki-rotation
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: pki
+data:
+  rotate-intermediate.sh: |
+    #!/bin/bash
+    # Script to rotate intermediate CA
+    # Run this manually or via scheduled job every 2 years
+    
+    set -e
+    
+    echo "=== Rotating Intermediate CA ==="
+    
+    # Generate new intermediate CA CSR
+    vault write -format=json pki_int/intermediate/generate/internal \
+      common_name="MNBARA Intermediate CA v2" \
+      organization="MNBARA" \
+      ou="Platform Services" \
+      country="US" \
+      key_type=rsa \
+      key_bits=4096 > /tmp/new-intermediate-csr.json
+    
+    # Extract CSR
+    CSR=$(cat /tmp/new-intermediate-csr.json | jq -r '.data.csr')
+    
+    # Sign with root CA
+    vault write -format=json pki/root/sign-intermediate \
+      csr="$CSR" \
+      format=pem_bundle \
+      ttl=43800h > /tmp/new-intermediate-cert.json
+    
+    # Import signed certificate
+    CERT=$(cat /tmp/new-intermediate-cert.json | jq -r '.data.certificate')
+    vault write pki_int/intermediate/set-signed certificate="$CERT"
+    
+    echo "=== Intermediate CA Rotated ==="
+    echo "All existing certificates will continue to work until expiry"
+    echo "New certificates will be signed by the new intermediate CA"

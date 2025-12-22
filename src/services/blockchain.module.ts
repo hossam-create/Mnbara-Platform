@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BlockchainService } from './blockchain.service';
 import { ContractsService } from './contracts.service';
@@ -25,4 +25,10 @@ import { DeploymentService } from './deployment.service';
   ],
   exports: [BlockchainService, ContractsService, DeploymentService],
 })
-export class BlockchainModule {}
+export class BlockchainModule implements OnModuleInit {
+  constructor(private readonly deploymentService: DeploymentService) {}
+
+  async onModuleInit() {
+    await this.deploymentService.loadDeploymentResults();
+  }
+}

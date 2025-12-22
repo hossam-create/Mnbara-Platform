@@ -1,0 +1,66 @@
+{{- if .Values.ordersService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.ordersService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.ordersService.name) | nindent 4 }}
+spec:
+  {{- if not .Values.ordersService.autoscaling.enabled }}
+  replicas: {{ .Values.ordersService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mnbara.serviceSelectorLabels" (list . .Values.ordersService.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mnbara.serviceSelectorLabels" (list . .Values.ordersService.name) | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      containers:
+        - name: {{ .Values.ordersService.name }}
+          image: {{ include "mnbara.image" (dict "root" . "service" .Values.ordersService) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ordersService.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.ordersService.env.PORT | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.ordersService.env.NODE_ENV | quote }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-database" (include "mnbara.fullname" .)) .Values.secrets.database.existingSecret }}
+                  key: password
+            - name: DATABASE_URL
+              value: {{ include "mnbara.databaseUrl" . | quote }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-redis" (include "mnbara.fullname" .)) .Values.secrets.redis.existingSecret }}
+                  key: redis-password
+            - name: REDIS_URL
+              value: {{ include "mnbara.redisUrl" . | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "mnbara.fullname" . }}-common
+          resources:
+            {{- toYaml .Values.ordersService.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

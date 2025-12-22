@@ -1,0 +1,18 @@
+{{- if .Values.adminService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.adminService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.adminService.name) | nindent 4 }}
+spec:
+  type: {{ .Values.adminService.service.type }}
+  ports:
+    - port: {{ .Values.adminService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.adminService.name) | nindent 4 }}
+{{- end }}

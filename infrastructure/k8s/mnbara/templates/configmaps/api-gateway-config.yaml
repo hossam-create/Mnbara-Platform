@@ -1,0 +1,46 @@
+# API Gateway Service ConfigMap
+{{- if .Values.apiGateway.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.apiGateway.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+data:
+  # Server Configuration
+  PORT: {{ .Values.apiGateway.env.PORT | default "8080" | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: {{ .Values.apiGateway.config.logLevel | default "info" | quote }}
+  LOG_FORMAT: {{ .Values.apiGateway.config.logFormat | default "json" | quote }}
+  
+  # CORS Configuration
+  CORS_ORIGINS: {{ .Values.apiGateway.env.CORS_ORIGINS | default "*" | quote }}
+  CORS_METHODS: {{ .Values.apiGateway.config.corsMethods | default "GET,POST,PUT,DELETE,PATCH,OPTIONS" | quote }}
+  CORS_HEADERS: {{ .Values.apiGateway.config.corsHeaders | default "Content-Type,Authorization,X-Request-ID,X-Correlation-ID" | quote }}
+  
+  # Rate Limiting Configuration
+  RATE_LIMIT_ENABLED: {{ .Values.apiGateway.config.rateLimiting.enabled | default true | quote }}
+  RATE_LIMIT_WINDOW_MS: {{ .Values.apiGateway.config.rateLimiting.windowMs | default 60000 | quote }}
+  RATE_LIMIT_MAX_REQUESTS: {{ .Values.apiGateway.config.rateLimiting.maxRequests | default 100 | quote }}
+  RATE_LIMIT_SKIP_SUCCESSFUL: {{ .Values.apiGateway.config.rateLimiting.skipSuccessful | default false | quote }}
+  
+  # Circuit Breaker Configuration
+  CIRCUIT_BREAKER_ENABLED: {{ .Values.apiGateway.config.circuitBreaker.enabled | default true | quote }}
+  CIRCUIT_BREAKER_THRESHOLD: {{ .Values.apiGateway.config.circuitBreaker.threshold | default 5 | quote }}
+  CIRCUIT_BREAKER_TIMEOUT: {{ .Values.apiGateway.config.circuitBreaker.timeout | default 30000 | quote }}
+  CIRCUIT_BREAKER_RESET_TIMEOUT: {{ .Values.apiGateway.config.circuitBreaker.resetTimeout | default 60000 | quote }}
+  
+  # Request Timeout Configuration
+  REQUEST_TIMEOUT_MS: {{ .Values.apiGateway.config.requestTimeout | default 30000 | quote }}
+  KEEP_ALIVE_TIMEOUT_MS: {{ .Values.apiGateway.config.keepAliveTimeout | default 65000 | quote }}
+  
+  # Health Check Configuration
+  HEALTH_CHECK_PATH: {{ .Values.apiGateway.config.healthCheckPath | default "/health" | quote }}
+  METRICS_PATH: {{ .Values.apiGateway.config.metricsPath | default "/metrics" | quote }}
+  
+  # Tracing Configuration
+  TRACING_ENABLED: {{ .Values.apiGateway.config.tracing.enabled | default true | quote }}
+  TRACING_SERVICE_NAME: {{ .Values.apiGateway.name | quote }}
+  TRACING_SAMPLE_RATE: {{ .Values.apiGateway.config.tracing.sampleRate | default "0.1" | quote }}
+{{- end }}

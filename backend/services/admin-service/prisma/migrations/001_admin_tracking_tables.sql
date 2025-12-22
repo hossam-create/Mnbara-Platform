@@ -155,6 +155,92 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_secret VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS kyc_verified_at TIMESTAMP;
 
+-- CreateTable: traveler_kyc_profiles
+-- Full KYC profiles for travelers
+CREATE TABLE IF NOT EXISTS traveler_kyc_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    status VARCHAR(20) DEFAULT 'submitted', -- submitted, under_review, verified, rejected
+    risk_level VARCHAR(20) DEFAULT 'low', -- low, medium, high
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    nationality VARCHAR(100),
+    date_of_birth DATE,
+    gender VARCHAR(20),
+    email VARCHAR(255),
+    local_phone VARCHAR(50),
+    foreign_phone VARCHAR(50),
+    from_country VARCHAR(100),
+    to_country VARCHAR(100),
+    from_city VARCHAR(100),
+    to_city VARCHAR(100),
+    departure_date DATE,
+    return_date DATE,
+    permanent_address TEXT,
+    city VARCHAR(100),
+    postal_code VARCHAR(20),
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_relation VARCHAR(50),
+    emergency_contact_phone VARCHAR(50),
+    emergency_contact_country VARCHAR(100),
+    digital_signature VARCHAR(255),
+    terms_accepted BOOLEAN DEFAULT FALSE,
+    privacy_accepted BOOLEAN DEFAULT FALSE,
+    data_processing_accepted BOOLEAN DEFAULT FALSE,
+    submitted_at TIMESTAMP DEFAULT NOW(),
+    reviewed_at TIMESTAMP,
+    rejection_reason TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT fk_traveler_kyc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- CreateTable: traveler_documents
+-- KYC document storage for travelers
+CREATE TABLE IF NOT EXISTS traveler_documents (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    type VARCHAR(50) NOT NULL, -- passport, selfie, flight_ticket, boarding_pass
+    file_hash VARCHAR(255) NOT NULL,
+    encrypted_path TEXT NOT NULL,
+    file_name VARCHAR(255),
+    file_size INTEGER,
+    mime_type VARCHAR(100),
+    uploaded_at TIMESTAMP DEFAULT NOW(),
+    verified BOOLEAN DEFAULT FALSE,
+    verification_notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT fk_traveler_docs_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- CreateTable: traveler_travel_data
+-- Verified travel information for KYC
+CREATE TABLE IF NOT EXISTS traveler_travel_data (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    from_country VARCHAR(100),
+    to_country VARCHAR(100),
+    from_city VARCHAR(100),
+    to_city VARCHAR(100),
+    departure_date DATE,
+    return_date DATE,
+    verified_ticket BOOLEAN DEFAULT FALSE,
+    verified_boarding_pass BOOLEAN DEFAULT FALSE,
+    flight_number VARCHAR(50),
+    airline VARCHAR(100),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT fk_traveler_data_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Create indexes
+CREATE INDEX idx_traveler_kyc_user ON traveler_kyc_profiles(user_id);
+CREATE INDEX idx_traveler_kyc_status ON traveler_kyc_profiles(status);
+CREATE INDEX idx_traveler_kyc_risk ON traveler_kyc_profiles(risk_level);
+CREATE INDEX idx_traveler_docs_user ON traveler_documents(user_id);
+CREATE INDEX idx_traveler_docs_type ON traveler_documents(type);
+CREATE INDEX idx_traveler_data_user ON traveler_travel_data(user_id);
+
 -- Create updated_at trigger function if not exists
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -183,6 +269,19 @@ CREATE TRIGGER set_updated_at_escrow
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- Add triggers for new traveler tables
+DROP TRIGGER IF EXISTS set_updated_at_traveler_kyc ON traveler_kyc_profiles;
+CREATE TRIGGER set_updated_at_traveler_kyc
+    BEFORE UPDATE ON traveler_kyc_profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS set_updated_at_traveler_data ON traveler_travel_data;
+CREATE TRIGGER set_updated_at_traveler_data
+    BEFORE UPDATE ON traveler_travel_data
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Comments
 COMMENT ON TABLE user_sessions IS 'Tracks user login/logout sessions for analytics';
 COMMENT ON TABLE user_activity_logs IS 'Logs all user actions for behavior analysis';
@@ -191,3 +290,6 @@ COMMENT ON TABLE auction_events IS 'Real-time auction activity tracking';
 COMMENT ON TABLE traveler_flights IS 'Flight tracking for travelers';
 COMMENT ON TABLE escrow_transactions IS 'Escrow payment lifecycle management';
 COMMENT ON TABLE system_metrics IS 'System performance metrics';
+COMMENT ON TABLE traveler_kyc_profiles IS 'Full KYC profiles for traveler verification';
+COMMENT ON TABLE traveler_documents IS 'KYC document storage for traveler verification';
+COMMENT ON TABLE traveler_travel_data IS 'Verified travel information for KYC compliance';

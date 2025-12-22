@@ -362,7 +362,7 @@ export const productApi = {
     }),
 
   getByCategory: (categoryId: string, page = 1) =>
-    api.get<ApiResponse<SearchResult<Product>>>(`/v1/products`, {
+    api.get<ApiResponse<SearchResult<Product>>>('/v1/products', {
       params: { categoryId, page },
     }),
 

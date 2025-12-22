@@ -1,0 +1,23 @@
+{{- if and .Values.recommendationService.enabled .Values.recommendationService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.recommendationService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.recommendationService.name }}
+  minReplicas: {{ .Values.recommendationService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.recommendationService.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.recommendationService.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

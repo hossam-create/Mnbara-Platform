@@ -1,0 +1,26 @@
+# Common ConfigMap for all services
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mnbara.fullname" . }}-common
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+data:
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  # Service URLs for inter-service communication
+  AUTH_SERVICE_URL: "http://{{ .Values.authService.name }}:{{ .Values.authService.service.port }}"
+  LISTING_SERVICE_URL: "http://{{ .Values.listingService.name }}:{{ .Values.listingService.service.port }}"
+  AUCTION_SERVICE_URL: "http://{{ .Values.auctionService.name }}:{{ .Values.auctionService.service.port }}"
+  PAYMENT_SERVICE_URL: "http://{{ .Values.paymentService.name }}:{{ .Values.paymentService.service.port }}"
+  CROWDSHIP_SERVICE_URL: "http://{{ .Values.crowdshipService.name }}:{{ .Values.crowdshipService.service.port }}"
+  NOTIFICATION_SERVICE_URL: "http://{{ .Values.notificationService.name }}:{{ .Values.notificationService.service.port }}"
+  RECOMMENDATION_SERVICE_URL: "http://{{ .Values.recommendationService.name }}:{{ .Values.recommendationService.service.port }}"
+  REWARDS_SERVICE_URL: "http://{{ .Values.rewardsService.name }}:{{ .Values.rewardsService.service.port }}"
+  ORDERS_SERVICE_URL: "http://{{ .Values.ordersService.name }}:{{ .Values.ordersService.service.port }}"
+  TRIPS_SERVICE_URL: "http://{{ .Values.tripsService.name }}:{{ .Values.tripsService.service.port }}"
+  MATCHING_SERVICE_URL: "http://{{ .Values.matchingService.name }}:{{ .Values.matchingService.service.port }}"
+  ADMIN_SERVICE_URL: "http://{{ .Values.adminService.name }}:{{ .Values.adminService.service.port }}"
+  # Infrastructure URLs
+  ELASTICSEARCH_NODE: {{ include "mnbara.elasticsearchUrl" . | quote }}
+  MINIO_ENDPOINT: {{ include "mnbara.minioUrl" . | quote }}

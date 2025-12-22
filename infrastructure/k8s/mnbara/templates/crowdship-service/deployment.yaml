@@ -1,0 +1,66 @@
+{{- if .Values.crowdshipService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.crowdshipService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.crowdshipService.name) | nindent 4 }}
+spec:
+  {{- if not .Values.crowdshipService.autoscaling.enabled }}
+  replicas: {{ .Values.crowdshipService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mnbara.serviceSelectorLabels" (list . .Values.crowdshipService.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mnbara.serviceSelectorLabels" (list . .Values.crowdshipService.name) | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      containers:
+        - name: {{ .Values.crowdshipService.name }}
+          image: {{ include "mnbara.image" (dict "root" . "service" .Values.crowdshipService) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.crowdshipService.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.crowdshipService.env.PORT | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.crowdshipService.env.NODE_ENV | quote }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-database" (include "mnbara.fullname" .)) .Values.secrets.database.existingSecret }}
+                  key: password
+            - name: DATABASE_URL
+              value: {{ include "mnbara.databaseUrl" . | quote }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-redis" (include "mnbara.fullname" .)) .Values.secrets.redis.existingSecret }}
+                  key: redis-password
+            - name: REDIS_URL
+              value: {{ include "mnbara.redisUrl" . | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "mnbara.fullname" . }}-common
+          resources:
+            {{- toYaml .Values.crowdshipService.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

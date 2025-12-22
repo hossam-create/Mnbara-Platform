@@ -1,0 +1,360 @@
+# HashiCorp Vault High-Availability Deployment
+# Deploys Vault in HA mode with Raft storage backend
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/part-of: mnbara-platform
+
+---
+# Vault Server Configuration ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+data:
+  vault.hcl: |
+    # Vault HA Configuration
+    ui = true
+    
+    # Listener configuration
+    listener "tcp" {
+      address = "[::]:8200"
+      cluster_address = "[::]:8201"
+      tls_disable = false
+      tls_cert_file = "/vault/tls/tls.crt"
+      tls_key_file = "/vault/tls/tls.key"
+      tls_client_ca_file = "/vault/tls/ca.crt"
+      
+      # Telemetry
+      telemetry {
+        unauthenticated_metrics_access = true
+      }
+    }
+    
+    # Raft storage backend for HA
+    storage "raft" {
+      path = "/vault/data"
+      node_id = "HOSTNAME"
+      
+      retry_join {
+        leader_api_addr = "https://vault-0.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+        leader_client_cert_file = "/vault/tls/tls.crt"
+        leader_client_key_file = "/vault/tls/tls.key"
+      }
+      
+      retry_join {
+        leader_api_addr = "https://vault-1.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+        leader_client_cert_file = "/vault/tls/tls.crt"
+        leader_client_key_file = "/vault/tls/tls.key"
+      }
+      
+      retry_join {
+        leader_api_addr = "https://vault-2.vault-internal:8200"
+        leader_ca_cert_file = "/vault/tls/ca.crt"
+        leader_client_cert_file = "/vault/tls/tls.crt"
+        leader_client_key_file = "/vault/tls/tls.key"
+      }
+    }
+    
+    # Service registration for Kubernetes
+    service_registration "kubernetes" {}
+    
+    # Telemetry for Prometheus
+    telemetry {
+      prometheus_retention_time = "30s"
+      disable_hostname = true
+    }
+    
+    # API address
+    api_addr = "https://HOSTNAME.vault-internal:8200"
+    cluster_addr = "https://HOSTNAME.vault-internal:8201"
+    
+    # Disable memory lock (required for containers)
+    disable_mlock = true
+    
+    # Log level
+    log_level = "info"
+    log_format = "json"
+
+---
+# Headless Service for StatefulSet DNS
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-internal
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: https
+      port: 8200
+      targetPort: 8200
+    - name: https-internal
+      port: 8201
+      targetPort: 8201
+  selector:
+    app.kubernetes.io/name: vault
+    component: server
+
+---
+# Active Vault Service (routes to leader)
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-active
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 8200
+      targetPort: 8200
+  selector:
+    app.kubernetes.io/name: vault
+    component: server
+    vault-active: "true"
+
+---
+# Standby Vault Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-standby
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 8200
+      targetPort: 8200
+  selector:
+    app.kubernetes.io/name: vault
+    component: server
+    vault-active: "false"
+
+---
+# Main Vault Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+spec:
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 8200
+      targetPort: 8200
+    - name: https-internal
+      port: 8201
+      targetPort: 8201
+  selector:
+    app.kubernetes.io/name: vault
+    component: server
+
+---
+# Vault StatefulSet for HA deployment
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  serviceName: vault-internal
+  replicas: 3
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+      component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vault
+        component: server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8200"
+        prometheus.io/path: "/v1/sys/metrics"
+    spec:
+      serviceAccountName: vault
+      terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+        fsGroup: 1000
+      
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: vault
+                  component: server
+              topologyKey: kubernetes.io/hostname
+      
+      initContainers:
+        - name: vault-init
+          image: hashicorp/vault:1.15
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Replace HOSTNAME placeholder in config
+              cp /vault/config/vault.hcl /vault/config-processed/vault.hcl
+              sed -i "s/HOSTNAME/${HOSTNAME}/g" /vault/config-processed/vault.hcl
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: config
+              mountPath: /vault/config
+            - name: config-processed
+              mountPath: /vault/config-processed
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      
+      containers:
+        - name: vault
+          image: hashicorp/vault:1.15
+          imagePullPolicy: IfNotPresent
+          command:
+            - vault
+            - server
+            - -config=/vault/config-processed/vault.hcl
+          env:
+            - name: HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: VAULT_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: VAULT_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: VAULT_ADDR
+              value: "https://127.0.0.1:8200"
+            - name: VAULT_API_ADDR
+              value: "https://$(POD_IP):8200"
+            - name: VAULT_CLUSTER_ADDR
+              value: "https://$(VAULT_K8S_POD_NAME).vault-internal:8201"
+            - name: VAULT_RAFT_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SKIP_CHOWN
+              value: "true"
+            - name: SKIP_SETCAP
+              value: "true"
+            - name: VAULT_CACERT
+              value: /vault/tls/ca.crt
+          ports:
+            - containerPort: 8200
+              name: https
+            - containerPort: 8201
+              name: https-internal
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  vault status -tls-skip-verify 2>&1 | grep -E "Sealed.*false|Initialized.*true"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204
+              port: 8200
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - IPC_LOCK
+          volumeMounts:
+            - name: data
+              mountPath: /vault/data
+            - name: config-processed
+              mountPath: /vault/config-processed
+            - name: tls
+              mountPath: /vault/tls
+              readOnly: true
+            - name: audit-logs
+              mountPath: /vault/audit
+      
+      volumes:
+        - name: config
+          configMap:
+            name: vault-config
+        - name: config-processed
+          emptyDir: {}
+        - name: tls
+          secret:
+            secretName: vault-tls
+        - name: audit-logs
+          emptyDir: {}
+  
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi

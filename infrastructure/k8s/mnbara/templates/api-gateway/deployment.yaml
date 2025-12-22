@@ -1,0 +1,137 @@
+{{- if .Values.apiGateway.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.apiGateway.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+spec:
+  {{- if not .Values.apiGateway.autoscaling.enabled }}
+  replicas: {{ .Values.apiGateway.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.apiGateway.service.port }}"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 14 }}
+      containers:
+        - name: {{ .Values.apiGateway.name }}
+          image: {{ include "mnbara.image" (dict "root" . "service" .Values.apiGateway) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: {{ .Values.apiGateway.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.apiGateway.env.PORT | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.apiGateway.env.NODE_ENV | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.apiGateway.env.LOG_LEVEL | default "info" | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-jwt" (include "mnbara.fullname" .)) .Values.secrets.jwt.existingSecret }}
+                  key: jwt-secret
+            - name: REDIS_URL
+              value: {{ include "mnbara.redisUrl" . | quote }}
+            - name: CORS_ORIGINS
+              value: {{ .Values.apiGateway.env.CORS_ORIGINS | default "http://localhost:3000" | quote }}
+            # Service URLs
+            - name: AUTH_SERVICE_URL
+              value: "http://{{ .Values.authService.name }}:{{ .Values.authService.service.port }}"
+            - name: LISTING_SERVICE_URL
+              value: "http://{{ .Values.listingService.name }}:{{ .Values.listingService.service.port }}"
+            - name: AUCTION_SERVICE_URL
+              value: "http://{{ .Values.auctionService.name }}:{{ .Values.auctionService.service.port }}"
+            - name: PAYMENT_SERVICE_URL
+              value: "http://{{ .Values.paymentService.name }}:{{ .Values.paymentService.service.port }}"
+            - name: CROWDSHIP_SERVICE_URL
+              value: "http://{{ .Values.crowdshipService.name }}:{{ .Values.crowdshipService.service.port }}"
+            - name: NOTIFICATION_SERVICE_URL
+              value: "http://{{ .Values.notificationService.name }}:{{ .Values.notificationService.service.port }}"
+            - name: RECOMMENDATION_SERVICE_URL
+              value: "http://{{ .Values.recommendationService.name }}:{{ .Values.recommendationService.service.port }}"
+            - name: REWARDS_SERVICE_URL
+              value: "http://{{ .Values.rewardsService.name }}:{{ .Values.rewardsService.service.port }}"
+            - name: ORDERS_SERVICE_URL
+              value: "http://{{ .Values.ordersService.name }}:{{ .Values.ordersService.service.port }}"
+            - name: TRIPS_SERVICE_URL
+              value: "http://{{ .Values.tripsService.name }}:{{ .Values.tripsService.service.port }}"
+            - name: MATCHING_SERVICE_URL
+              value: "http://{{ .Values.matchingService.name }}:{{ .Values.matchingService.service.port }}"
+            - name: ADMIN_SERVICE_URL
+              value: "http://{{ .Values.adminService.name }}:{{ .Values.adminService.service.port }}"
+          envFrom:
+            - configMapRef:
+                name: {{ include "mnbara.fullname" . }}-common
+          resources:
+            {{- toYaml .Values.apiGateway.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 30
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

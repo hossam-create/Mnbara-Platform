@@ -1,0 +1,233 @@
+# Traffic Management Policies for MNBARA Platform
+# Includes circuit breakers, rate limiting, and traffic routing
+
+{{- if .Values.serviceMesh.enabled }}
+{{- if eq .Values.serviceMesh.provider "istio" }}
+
+---
+# EnvoyFilter - Global rate limiting configuration
+{{- if .Values.serviceMesh.rateLimiting.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: {{ include "mnbara.fullname" . }}-rate-limit
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+      app.kubernetes.io/name: {{ .Values.apiGateway.name }}
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: SIDECAR_INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: http_local_rate_limiter
+              token_bucket:
+                max_tokens: {{ .Values.serviceMesh.rateLimiting.maxTokens | default 1000 }}
+                tokens_per_fill: {{ .Values.serviceMesh.rateLimiting.tokensPerFill | default 100 }}
+                fill_interval: {{ .Values.serviceMesh.rateLimiting.fillInterval | default "1s" }}
+              filter_enabled:
+                runtime_key: local_rate_limit_enabled
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              filter_enforced:
+                runtime_key: local_rate_limit_enforced
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              response_headers_to_add:
+                - append: false
+                  header:
+                    key: x-local-rate-limit
+                    value: "true"
+{{- end }}
+
+---
+# VirtualService - Auction Service with WebSocket support
+{{- if .Values.auctionService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.auctionService.name }}-vs
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.auctionService.name }}
+  http:
+    # WebSocket route - no timeout for long-lived connections
+    - match:
+        - headers:
+            upgrade:
+              exact: websocket
+      route:
+        - destination:
+            host: {{ .Values.auctionService.name }}
+            port:
+              number: {{ .Values.auctionService.service.port }}
+      timeout: 0s  # No timeout for WebSocket
+    # Regular HTTP route
+    - route:
+        - destination:
+            host: {{ .Values.auctionService.name }}
+            port:
+              number: {{ .Values.auctionService.service.port }}
+      timeout: 10s
+      retries:
+        attempts: 2
+        perTryTimeout: 5s
+        retryOn: gateway-error,connect-failure
+{{- end }}
+
+---
+# VirtualService - Payment Service with strict retry policy
+{{- if .Values.paymentService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.paymentService.name }}-vs
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.paymentService.name }}
+  http:
+    # Webhook endpoints - no retries (idempotency concerns)
+    - match:
+        - uri:
+            prefix: /webhooks
+      route:
+        - destination:
+            host: {{ .Values.paymentService.name }}
+            port:
+              number: {{ .Values.paymentService.service.port }}
+      timeout: 60s
+      retries:
+        attempts: 0
+    # Regular payment endpoints
+    - route:
+        - destination:
+            host: {{ .Values.paymentService.name }}
+            port:
+              number: {{ .Values.paymentService.service.port }}
+      timeout: 30s
+      retries:
+        attempts: 2
+        perTryTimeout: 15s
+        retryOn: gateway-error,connect-failure
+{{- end }}
+
+---
+# VirtualService - Notification Service with WebSocket support
+{{- if .Values.notificationService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.notificationService.name }}-vs
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.notificationService.name }}
+  http:
+    # WebSocket route for real-time notifications
+    - match:
+        - headers:
+            upgrade:
+              exact: websocket
+      route:
+        - destination:
+            host: {{ .Values.notificationService.name }}
+            port:
+              number: {{ .Values.notificationService.service.port }}
+      timeout: 0s
+    # Regular HTTP route
+    - route:
+        - destination:
+            host: {{ .Values.notificationService.name }}
+            port:
+              number: {{ .Values.notificationService.service.port }}
+      timeout: 15s
+      retries:
+        attempts: 3
+        perTryTimeout: 5s
+        retryOn: gateway-error,connect-failure,refused-stream
+{{- end }}
+
+---
+# VirtualService - Matching Service (geo-spatial queries can be slow)
+{{- if .Values.matchingService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.matchingService.name }}-vs
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.matchingService.name }}
+  http:
+    - route:
+        - destination:
+            host: {{ .Values.matchingService.name }}
+            port:
+              number: {{ .Values.matchingService.service.port }}
+      timeout: 45s
+      retries:
+        attempts: 2
+        perTryTimeout: 20s
+        retryOn: gateway-error,connect-failure
+{{- end }}
+
+---
+# Sidecar - Limit egress traffic to known services
+apiVersion: networking.istio.io/v1beta1
+kind: Sidecar
+metadata:
+  name: {{ include "mnbara.fullname" . }}-sidecar
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  workloadSelector:
+    labels:
+      app.kubernetes.io/part-of: mnbara-platform
+  egress:
+    - hosts:
+        - "./*"  # All services in same namespace
+        - "istio-system/*"  # Istio control plane
+        {{- if .Values.postgresql.enabled }}
+        - "./{{ .Release.Name }}-postgresql"
+        {{- end }}
+        {{- if .Values.redis.enabled }}
+        - "./{{ .Release.Name }}-redis-master"
+        {{- end }}
+        {{- if .Values.rabbitmq.enabled }}
+        - "./{{ .Release.Name }}-rabbitmq"
+        {{- end }}
+        {{- if .Values.elasticsearch.enabled }}
+        - "./{{ .Release.Name }}-elasticsearch"
+        {{- end }}
+
+{{- end }}
+{{- end }}

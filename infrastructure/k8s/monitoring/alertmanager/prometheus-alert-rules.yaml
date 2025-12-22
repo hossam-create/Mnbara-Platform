@@ -1,0 +1,333 @@
+# Prometheus Alert Rules for MNBARA Platform
+# Defines alerts for payment failures, auction timer drift, and service health
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mnbara-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-rules
+    app.kubernetes.io/part-of: mnbara-monitoring
+spec:
+  groups:
+    # ============================================
+    # Payment Alerts (Critical)
+    # ============================================
+    - name: payment.alerts
+      rules:
+        - alert: PaymentFailureRateHigh
+          expr: |
+            (
+              sum(rate(payment_transactions_total{status="failed"}[5m]))
+              / sum(rate(payment_transactions_total[5m]))
+            ) > 0.05
+          for: 2m
+          labels:
+            severity: critical
+            service: payment-service
+            team: payments
+          annotations:
+            summary: "High payment failure rate detected"
+            description: "Payment failure rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+            runbook_url: "https://wiki.mnbara.com/runbooks/payment-failures"
+            dashboard_url: "http://grafana:3000/d/mnbara-payment-transactions"
+
+        - alert: PaymentServiceDown
+          expr: up{job="payment-service"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            service: payment-service
+            team: payments
+          annotations:
+            summary: "Payment service is down"
+            description: "Payment service has been unreachable for more than 1 minute"
+            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+
+        - alert: PaymentProcessingLatencyHigh
+          expr: |
+            histogram_quantile(0.99, sum(rate(payment_processing_duration_seconds_bucket[5m])) by (le))
+            > 5
+          for: 5m
+          labels:
+            severity: warning
+            service: payment-service
+            team: payments
+          annotations:
+            summary: "Payment processing latency is high"
+            description: "P99 payment processing latency is {{ $value | humanizeDuration }} (threshold: 5s)"
+
+        - alert: EscrowHoldFailure
+          expr: |
+            sum(rate(escrow_hold_failures_total[5m])) > 0.1
+          for: 2m
+          labels:
+            severity: critical
+            service: payment-service
+            team: payments
+          annotations:
+            summary: "Escrow hold operations are failing"
+            description: "Escrow hold failure rate is {{ $value }} per second"
+
+        - alert: StripeWebhookFailures
+          expr: |
+            sum(rate(stripe_webhook_failures_total[5m])) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            service: payment-service
+            team: payments
+          annotations:
+            summary: "Stripe webhook processing failures"
+            description: "Stripe webhook failure rate is {{ $value }} per second"
+
+    # ============================================
+    # Auction Alerts (Critical)
+    # ============================================
+    - name: auction.alerts
+      rules:
+        - alert: AuctionTimerDrift
+          expr: |
+            histogram_quantile(0.99, sum(rate(auction_timer_drift_seconds_bucket[5m])) by (le))
+            > 1
+          for: 1m
+          labels:
+            severity: critical
+            service: auction-service
+            team: auctions
+          annotations:
+            summary: "Auction timer drift detected"
+            description: "P99 auction timer drift is {{ $value }}s (threshold: 1s). This can cause unfair auction endings."
+            runbook_url: "https://wiki.mnbara.com/runbooks/auction-timer-drift"
+            dashboard_url: "http://grafana:3000/d/mnbara-auction-activity"
+
+        - alert: AuctionServiceDown
+          expr: up{job="auction-service"} == 0
+          for: 30s
+          labels:
+            severity: critical
+            service: auction-service
+            team: auctions
+          annotations:
+            summary: "Auction service is down"
+            description: "Auction service has been unreachable for more than 30 seconds. Active auctions may be affected."
+            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+
+        - alert: AuctionBidProcessingLatencyHigh
+          expr: |
+            histogram_quantile(0.99, sum(rate(auction_bid_processing_duration_seconds_bucket[5m])) by (le))
+            > 0.5
+          for: 2m
+          labels:
+            severity: warning
+            service: auction-service
+            team: auctions
+          annotations:
+            summary: "Auction bid processing is slow"
+            description: "P99 bid processing latency is {{ $value | humanizeDuration }} (threshold: 500ms)"
+
+        - alert: AuctionWebSocketConnectionsHigh
+          expr: |
+            sum(auction_websocket_connections_active) > 8000
+          for: 5m
+          labels:
+            severity: warning
+            service: auction-service
+            team: auctions
+          annotations:
+            summary: "High number of WebSocket connections"
+            description: "{{ $value }} active WebSocket connections (threshold: 8000). Consider scaling auction service."
+
+        - alert: AuctionBidRejectionRateHigh
+          expr: |
+            (
+              sum(rate(auction_bids_total{status="rejected"}[5m]))
+              / sum(rate(auction_bids_total[5m]))
+            ) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            service: auction-service
+            team: auctions
+          annotations:
+            summary: "High bid rejection rate"
+            description: "Bid rejection rate is {{ $value | humanizePercentage }} (threshold: 10%)"
+
+    # ============================================
+    # Service Health Alerts
+    # ============================================
+    - name: service.health
+      rules:
+        - alert: ServiceDown
+          expr: up == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: platform
+          annotations:
+            summary: "Service {{ $labels.job }} is down"
+            description: "{{ $labels.job }} has been unreachable for more than 1 minute"
+            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum by (service) (rate(http_requests_total{status=~"5.."}[5m]))
+              / sum by (service) (rate(http_requests_total[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "High error rate for {{ $labels.service }}"
+            description: "Error rate for {{ $labels.service }} is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.99, sum by (service, le) (rate(http_request_duration_seconds_bucket[5m])))
+            > 2
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "High latency for {{ $labels.service }}"
+            description: "P99 latency for {{ $labels.service }} is {{ $value | humanizeDuration }} (threshold: 2s)"
+
+        - alert: PodCrashLooping
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="mnbara"}[1h]) > 5
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Pod {{ $labels.pod }} is crash looping"
+            description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last hour"
+
+        - alert: PodNotReady
+          expr: |
+            kube_pod_status_ready{namespace="mnbara", condition="true"} == 0
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Pod {{ $labels.pod }} is not ready"
+            description: "Pod {{ $labels.pod }} has been not ready for more than 5 minutes"
+
+    # ============================================
+    # Infrastructure Alerts
+    # ============================================
+    - name: infrastructure.alerts
+      rules:
+        - alert: DatabaseConnectionPoolExhausted
+          expr: |
+            (
+              sum(db_pool_active_connections)
+              / sum(db_pool_max_connections)
+            ) > 0.9
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Database connection pool nearly exhausted"
+            description: "Connection pool usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+        - alert: RedisMemoryHigh
+          expr: |
+            (
+              sum(redis_memory_used_bytes)
+              / sum(redis_memory_max_bytes)
+            ) > 0.85
+          for: 10m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Redis memory usage is high"
+            description: "Redis memory usage is {{ $value | humanizePercentage }} (threshold: 85%)"
+
+        - alert: RabbitMQQueueBacklog
+          expr: |
+            sum by (queue) (rabbitmq_queue_messages) > 10000
+          for: 10m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "RabbitMQ queue {{ $labels.queue }} has high backlog"
+            description: "Queue {{ $labels.queue }} has {{ $value }} messages (threshold: 10000)"
+
+        - alert: ElasticsearchClusterRed
+          expr: elasticsearch_cluster_health_status{color="red"} == 1
+          for: 1m
+          labels:
+            severity: critical
+            team: platform
+          annotations:
+            summary: "Elasticsearch cluster is RED"
+            description: "Elasticsearch cluster health is RED. Search functionality may be impaired."
+
+        - alert: DiskSpaceLow
+          expr: |
+            (
+              node_filesystem_avail_bytes{mountpoint="/"}
+              / node_filesystem_size_bytes{mountpoint="/"}
+            ) < 0.1
+          for: 10m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Low disk space on {{ $labels.instance }}"
+            description: "Disk space on {{ $labels.instance }} is {{ $value | humanizePercentage }} available"
+
+    # ============================================
+    # Crowdship/Traveler Alerts
+    # ============================================
+    - name: crowdship.alerts
+      rules:
+        - alert: MatchingServiceDown
+          expr: up{job="matching-service"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            service: matching-service
+            team: crowdship
+          annotations:
+            summary: "Matching service is down"
+            description: "Matching service has been unreachable for more than 2 minutes. Traveler matching is affected."
+
+        - alert: LowMatchSuccessRate
+          expr: |
+            (
+              sum(rate(traveler_match_accepted_total[1h]))
+              / sum(rate(traveler_match_proposed_total[1h]))
+            ) < 0.3
+          for: 1h
+          labels:
+            severity: warning
+            service: matching-service
+            team: crowdship
+          annotations:
+            summary: "Low traveler match success rate"
+            description: "Match success rate is {{ $value | humanizePercentage }} (threshold: 30%)"
+
+        - alert: DeliveryCompletionRateLow
+          expr: |
+            (
+              sum(rate(delivery_completed_total[24h]))
+              / sum(rate(delivery_created_total[24h]))
+            ) < 0.7
+          for: 2h
+          labels:
+            severity: warning
+            service: crowdship-service
+            team: crowdship
+          annotations:
+            summary: "Low delivery completion rate"
+            description: "Delivery completion rate is {{ $value | humanizePercentage }} (threshold: 70%)"

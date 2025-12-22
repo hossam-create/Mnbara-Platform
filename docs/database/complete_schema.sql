@@ -29,9 +29,46 @@ CREATE TABLE IF NOT EXISTS wallets (
     user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     balance DECIMAL(12,2) DEFAULT 0,
     currency VARCHAR(3) DEFAULT 'USD',
+    is_locked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Wallet Ledger - Complete audit trail of all wallet balance changes
+CREATE TABLE IF NOT EXISTS wallet_ledger (
+    id SERIAL PRIMARY KEY,
+    wallet_id INTEGER NOT NULL REFERENCES wallets(id) ON DELETE CASCADE,
+    
+    -- Transaction details
+    amount DECIMAL(12,2) NOT NULL,              -- Positive for credit, negative for debit
+    currency VARCHAR(3) DEFAULT 'USD',
+    type VARCHAR(30) NOT NULL,                  -- DEPOSIT, WITHDRAWAL, PAYMENT, REFUND, ESCROW_HOLD, etc.
+    
+    -- Balance tracking
+    balance_before DECIMAL(12,2) NOT NULL,      -- Balance before this transaction
+    balance_after DECIMAL(12,2) NOT NULL,       -- Balance after this transaction
+    
+    -- Reference to related entities
+    transaction_id INTEGER,                     -- Link to transactions table
+    order_id INTEGER,                           -- Link to orders table
+    escrow_id INTEGER,                          -- Link to escrow table
+    
+    -- Description and metadata
+    description TEXT,
+    metadata JSONB,                             -- Additional structured data
+    
+    -- Audit trail
+    performed_by INTEGER,                       -- User ID who initiated (null for system actions)
+    ip_address VARCHAR(45),
+    
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_wallet_ledger_wallet ON wallet_ledger(wallet_id);
+CREATE INDEX idx_wallet_ledger_type ON wallet_ledger(type);
+CREATE INDEX idx_wallet_ledger_transaction ON wallet_ledger(transaction_id);
+CREATE INDEX idx_wallet_ledger_order ON wallet_ledger(order_id);
+CREATE INDEX idx_wallet_ledger_created ON wallet_ledger(created_at);
 
 -- ============================================
 -- REWARDS SYSTEM
@@ -308,3 +345,160 @@ END;
 $$;
 
 COMMENT ON DATABASE mnbara_db IS 'Mnbara Platform - Crowdshipping & Marketplace';
+
+-- ============================================
+-- CONSENT & KYC TABLES (GDPR Compliance)
+-- ============================================
+
+-- User Consents - GDPR compliant consent tracking
+CREATE TABLE IF NOT EXISTS consents (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- Consent types
+    essential_data BOOLEAN DEFAULT TRUE,           -- Required - core platform functionality
+    analytics_consent BOOLEAN DEFAULT FALSE,       -- Anonymous usage data & crash reports
+    personalization_consent BOOLEAN DEFAULT FALSE, -- Personalized recommendations
+    marketing_consent BOOLEAN DEFAULT FALSE,       -- Promotional emails & offers
+    
+    -- Terms acceptance
+    terms_accepted BOOLEAN DEFAULT FALSE,
+    terms_version VARCHAR(50),                     -- Version of terms accepted
+    terms_accepted_at TIMESTAMP,
+    
+    privacy_policy_accepted BOOLEAN DEFAULT FALSE,
+    privacy_policy_version VARCHAR(50),            -- Version of privacy policy accepted
+    privacy_policy_accepted_at TIMESTAMP,
+    
+    -- Consent metadata
+    ip_address VARCHAR(45),                        -- IP at time of consent (IPv6 compatible)
+    user_agent TEXT,                               -- Browser/device info
+    consent_source VARCHAR(20) DEFAULT 'WEB',      -- WEB, MOBILE_IOS, MOBILE_ANDROID, API
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    
+    UNIQUE(user_id)
+);
+
+CREATE INDEX idx_consents_user ON consents(user_id);
+CREATE INDEX idx_consents_marketing ON consents(marketing_consent);
+
+-- Consent History - Audit trail for consent changes
+CREATE TABLE IF NOT EXISTS consent_history (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- What changed
+    consent_type VARCHAR(50) NOT NULL,             -- e.g., 'marketing_consent', 'analytics_consent'
+    previous_value BOOLEAN NOT NULL,
+    new_value BOOLEAN NOT NULL,
+    
+    -- Context
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    source VARCHAR(20) DEFAULT 'WEB',
+    
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_consent_history_user ON consent_history(user_id);
+CREATE INDEX idx_consent_history_type ON consent_history(consent_type);
+CREATE INDEX idx_consent_history_created ON consent_history(created_at);
+
+-- KYC Uploads - Document storage for identity verification
+CREATE TABLE IF NOT EXISTS kyc_uploads (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- Document details
+    document_type VARCHAR(30) NOT NULL,            -- PASSPORT, NATIONAL_ID, DRIVERS_LICENSE, etc.
+    document_number VARCHAR(255),                  -- Encrypted document number
+    document_country VARCHAR(3),                   -- Issuing country (ISO code)
+    
+    -- File storage
+    file_url TEXT NOT NULL,                        -- MinIO/S3 URL (encrypted path)
+    file_name VARCHAR(255) NOT NULL,               -- Original filename
+    file_size INTEGER NOT NULL,                    -- Size in bytes
+    mime_type VARCHAR(100) NOT NULL,               -- e.g., 'image/jpeg', 'application/pdf'
+    file_hash VARCHAR(64),                         -- SHA-256 hash for integrity
+    
+    -- Document validity
+    issued_date DATE,
+    expiry_date DATE,
+    
+    -- Verification
+    status VARCHAR(30) DEFAULT 'PENDING',          -- PENDING, IN_REVIEW, APPROVED, REJECTED, EXPIRED
+    verified_at TIMESTAMP,
+    verified_by INTEGER,                           -- Admin user ID who verified
+    
+    -- Rejection details
+    rejection_reason VARCHAR(255),
+    rejection_notes TEXT,
+    
+    -- Metadata
+    upload_ip_address VARCHAR(45),
+    upload_user_agent TEXT,
+    
+    -- Timestamps
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_kyc_uploads_user ON kyc_uploads(user_id);
+CREATE INDEX idx_kyc_uploads_type ON kyc_uploads(document_type);
+CREATE INDEX idx_kyc_uploads_status ON kyc_uploads(status);
+CREATE INDEX idx_kyc_uploads_expiry ON kyc_uploads(expiry_date);
+
+-- KYC Verification - Overall KYC application status
+CREATE TABLE IF NOT EXISTS kyc_verifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- Verification level
+    level VARCHAR(20) DEFAULT 'BASIC',             -- NONE, BASIC, STANDARD, ENHANCED
+    
+    -- Overall status
+    status VARCHAR(30) DEFAULT 'PENDING',          -- PENDING, IN_REVIEW, APPROVED, REJECTED
+    
+    -- Personal info (encrypted)
+    full_legal_name VARCHAR(255),
+    date_of_birth DATE,
+    nationality VARCHAR(3),                        -- ISO country code
+    address TEXT,
+    
+    -- Review details
+    reviewed_by INTEGER,                           -- Admin user ID
+    reviewed_at TIMESTAMP,
+    review_notes TEXT,
+    
+    -- Timestamps
+    submitted_at TIMESTAMP,
+    approved_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_kyc_verifications_user ON kyc_verifications(user_id);
+CREATE INDEX idx_kyc_verifications_status ON kyc_verifications(status);
+CREATE INDEX idx_kyc_verifications_level ON kyc_verifications(level);
+
+-- Apply updated_at trigger to new tables
+DO $
+DECLARE
+    t text;
+BEGIN
+    FOREACH t IN ARRAY ARRAY['consents', 'kyc_uploads', 'kyc_verifications']
+    LOOP
+        EXECUTE format('
+            DROP TRIGGER IF EXISTS set_updated_at ON %I;
+            CREATE TRIGGER set_updated_at
+            BEFORE UPDATE ON %I
+            FOR EACH ROW
+            EXECUTE FUNCTION update_updated_at_column();
+        ', t, t);
+    END LOOP;
+END;
+$;
+

@@ -12,3 +12,4 @@ ios/
 *.config.ts
 prisma/migrations/
 *.d.ts
+archive/

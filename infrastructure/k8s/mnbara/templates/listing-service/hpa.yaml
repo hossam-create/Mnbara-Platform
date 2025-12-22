@@ -1,0 +1,23 @@
+{{- if and .Values.listingService.enabled .Values.listingService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.listingService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.listingService.name }}
+  minReplicas: {{ .Values.listingService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.listingService.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.listingService.autoscaling.targetCPUUtilizationPercentage }}
+{{- end }}

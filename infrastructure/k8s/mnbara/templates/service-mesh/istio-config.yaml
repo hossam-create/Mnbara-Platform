@@ -1,0 +1,222 @@
+# Istio Service Mesh Configuration for MNBARA Platform
+# This file configures Istio for service-to-service communication with mTLS
+
+{{- if .Values.serviceMesh.enabled }}
+{{- if eq .Values.serviceMesh.provider "istio" }}
+
+---
+# PeerAuthentication - Enable mTLS for all services in namespace
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: {{ include "mnbara.fullname" . }}-mtls
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  mtls:
+    mode: {{ .Values.serviceMesh.istio.mtls.mode | default "STRICT" }}
+
+---
+# AuthorizationPolicy - Default deny all traffic
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-deny-all
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  {}  # Empty spec means deny all
+
+---
+# AuthorizationPolicy - Allow traffic from API Gateway to backend services
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-allow-api-gateway
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: mnbara-platform
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/{{ .Values.namespace }}/sa/{{ include "mnbara.serviceAccountName" . }}"
+        - source:
+            namespaces:
+              - "istio-system"
+              - "{{ .Values.namespace }}"
+
+---
+# AuthorizationPolicy - Allow ingress traffic to API Gateway
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "mnbara.fullname" . }}-allow-ingress
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.apiGateway.name }}
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces:
+              - "istio-system"
+      to:
+        - operation:
+            ports:
+              - "{{ .Values.apiGateway.service.port }}"
+
+---
+# DestinationRule - Configure mTLS and load balancing for API Gateway
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.apiGateway.name }}-destination
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.apiGateway.name }}.{{ .Values.namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: {{ .Values.serviceMesh.istio.connectionPool.maxConnections | default 100 }}
+        connectTimeout: {{ .Values.serviceMesh.istio.connectionPool.connectTimeout | default "10s" }}
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: {{ .Values.serviceMesh.istio.connectionPool.http1MaxPendingRequests | default 100 }}
+        http2MaxRequests: {{ .Values.serviceMesh.istio.connectionPool.http2MaxRequests | default 1000 }}
+    loadBalancer:
+      simple: {{ .Values.serviceMesh.istio.loadBalancer | default "ROUND_ROBIN" }}
+    outlierDetection:
+      consecutive5xxErrors: {{ .Values.serviceMesh.istio.outlierDetection.consecutive5xxErrors | default 5 }}
+      interval: {{ .Values.serviceMesh.istio.outlierDetection.interval | default "30s" }}
+      baseEjectionTime: {{ .Values.serviceMesh.istio.outlierDetection.baseEjectionTime | default "30s" }}
+      maxEjectionPercent: {{ .Values.serviceMesh.istio.outlierDetection.maxEjectionPercent | default 50 }}
+
+---
+# DestinationRule - Auth Service
+{{- if .Values.authService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.authService.name }}-destination
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.authService.name }}.{{ .Values.namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    loadBalancer:
+      simple: {{ .Values.serviceMesh.istio.loadBalancer | default "ROUND_ROBIN" }}
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+{{- end }}
+
+---
+# DestinationRule - Auction Service (Critical - needs special handling)
+{{- if .Values.auctionService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.auctionService.name }}-destination
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.auctionService.name }}.{{ .Values.namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 5s
+      http:
+        h2UpgradePolicy: UPGRADE
+        http1MaxPendingRequests: 200
+        http2MaxRequests: 2000
+    loadBalancer:
+      simple: LEAST_REQUEST
+    outlierDetection:
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 30
+{{- end }}
+
+---
+# DestinationRule - Payment Service (Critical - needs reliability)
+{{- if .Values.paymentService.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: {{ .Values.paymentService.name }}-destination
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.paymentService.name }}.{{ .Values.namespace }}.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 10s
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 500
+        maxRetries: 3
+    loadBalancer:
+      simple: ROUND_ROBIN
+    outlierDetection:
+      consecutive5xxErrors: 2
+      interval: 10s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 20
+{{- end }}
+
+---
+# VirtualService - Retry and timeout policies for API Gateway
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ .Values.apiGateway.name }}-vs
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.apiGateway.name }}
+  http:
+    - route:
+        - destination:
+            host: {{ .Values.apiGateway.name }}
+            port:
+              number: {{ .Values.apiGateway.service.port }}
+      timeout: {{ .Values.serviceMesh.istio.timeout | default "30s" }}
+      retries:
+        attempts: {{ .Values.serviceMesh.istio.retries.attempts | default 3 }}
+        perTryTimeout: {{ .Values.serviceMesh.istio.retries.perTryTimeout | default "10s" }}
+        retryOn: {{ .Values.serviceMesh.istio.retries.retryOn | default "gateway-error,connect-failure,refused-stream" }}
+
+{{- end }}
+{{- end }}

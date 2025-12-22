@@ -1,0 +1,128 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  padding-bottom: 140px;
+}
+
+.hero {
+  padding: 110px 24px 80px;
+  background: radial-gradient(circle at top right, rgba(239, 182, 18, 0.25), transparent 60%),
+    linear-gradient(135deg, rgba(18, 18, 18, 0.04), rgba(239, 182, 18, 0.1));
+}
+
+.heroInner {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+
+.kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-weight: 800;
+  color: var(--color-accent-darker);
+}
+
+.title {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba(18, 18, 18, 0.75);
+}
+
+.section {
+  padding: 0 24px;
+}
+
+.sectionInner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: grid;
+  gap: 32px;
+}
+
+.stepsGrid {
+  display: grid;
+  gap: 24px;
+}
+
+.stepCard {
+  border: 1px solid rgba(18, 18, 18, 0.1);
+  border-radius: 24px;
+  padding: 28px;
+  background: var(--color-surface);
+  box-shadow: 0 24px 48px rgba(18, 18, 18, 0.05);
+  display: grid;
+  gap: 12px;
+}
+
+.stepLabel {
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent-darker);
+}
+
+.stepTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.stepBody {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(18, 18, 18, 0.72);
+}
+
+.panel {
+  border: 1px solid rgba(18, 18, 18, 0.09);
+  border-radius: 28px;
+  padding: 36px;
+  background: rgba(239, 182, 18, 0.08);
+  display: grid;
+  gap: 20px;
+}
+
+.panelHeading {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.panelCopy {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba(18, 18, 18, 0.75);
+}
+
+@media (min-width: 900px) {
+  .sectionInner {
+    grid-template-columns: 3fr 2fr;
+  }
+
+  .stepsGrid {
+    grid-column: 1;
+  }
+
+  .panel {
+    grid-column: 2;
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero,
+  .section {
+    padding: 0 20px;
+  }
+}

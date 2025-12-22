@@ -1,0 +1,15 @@
+# Grafana Dashboards ConfigMap
+# This ConfigMap contains all MNBARA platform dashboards
+# Dashboards are loaded from JSON files in the dashboards directory
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/part-of: mnbara-monitoring
+data:
+  # Dashboard files are mounted from the dashboards directory
+  # In production, use a separate ConfigMap generator or Helm chart
+  # to include the JSON files from infrastructure/k8s/monitoring/grafana/dashboards/

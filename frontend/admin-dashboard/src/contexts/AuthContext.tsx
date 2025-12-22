@@ -1,148 +1,179 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import axios from 'axios';
+/**
+ * AuthContext - React Context for authentication state management
+ * Requirements: SEC-004, SEC-005
+ */
 
-interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
-  permissions: string[];
-}
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User, authService, UserRole, Permissions } from '../services/auth.service';
 
 interface AuthContextType {
   user: User | null;
-  isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, mfaCode?: string) => Promise<any>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
-  refreshToken: () => Promise<void>;
+  hasPermission: (permission: string) => boolean;
+  hasAnyPermission: (permissions: string[]) => boolean;
+  hasAllPermissions: (permissions: string[]) => boolean;
+  canAccess: (feature: string) => boolean;
+  hasRole: (role: UserRole) => boolean;
+  hasAnyRole: (roles: UserRole[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize auth state
   useEffect(() => {
-    // Check if user is logged in on mount
-    const storedUser = localStorage.getItem('user');
-    const accessToken = localStorage.getItem('accessToken');
+    const initializeAuth = async () => {
+      try {
+        // Check if user is already logged in (e.g., from localStorage)
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    if (storedUser && accessToken) {
-      setUser(JSON.parse(storedUser));
-      setupAxiosInterceptors();
-    }
-    setIsLoading(false);
+    initializeAuth();
   }, []);
 
-  const setupAxiosInterceptors = () => {
-    // Add token to all requests
-    axios.interceptors.request.use(
-      (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => Promise.reject(error)
-    );
-
-    // Handle token refresh on 401
-    axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
-
-          try {
-            await refreshToken();
-            return axios(originalRequest);
-          } catch (refreshError) {
-            logout();
-            return Promise.reject(refreshError);
-          }
-        }
-
-        return Promise.reject(error);
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      const user = await authService.login(email, password);
+      if (user) {
+        setUser(user);
+        return true;
       }
-    );
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const login = async (email: string, password: string, mfaCode?: string) => {
-    const response = await axios.post('/api/admin/auth/login', {
-      email,
-      password,
-      mfaCode,
-    });
-
-    if (response.data.requiresMfa) {
-      return response.data;
-    }
-
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-
-    setUser(response.data.user);
-    setupAxiosInterceptors();
-
-    return response.data;
-  };
-
-  const logout = () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    
-    if (refreshToken) {
-      axios.post('/api/admin/auth/logout', { refreshToken }).catch(() => {
-        // Ignore errors on logout
-      });
-    }
-
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+  const logout = (): void => {
+    authService.logout();
     setUser(null);
   };
 
-  const refreshToken = async () => {
-    const refreshTokenValue = localStorage.getItem('refreshToken');
-    
-    if (!refreshTokenValue) {
-      throw new Error('No refresh token');
-    }
+  const hasPermission = (permission: string): boolean => {
+    return authService.hasPermission(permission);
+  };
 
-    const response = await axios.post('/api/admin/auth/refresh', {
-      refreshToken: refreshTokenValue,
-    });
+  const hasAnyPermission = (permissions: string[]): boolean => {
+    return authService.hasAnyPermission(permissions);
+  };
 
-    localStorage.setItem('accessToken', response.data.accessToken);
+  const hasAllPermissions = (permissions: string[]): boolean => {
+    return authService.hasAllPermissions(permissions);
+  };
+
+  const canAccess = (feature: string): boolean => {
+    return authService.canAccess(feature);
+  };
+
+  const hasRole = (role: UserRole): boolean => {
+    return authService.hasRole(role);
+  };
+
+  const hasAnyRole = (roles: UserRole[]): boolean => {
+    return authService.hasAnyRole(roles);
+  };
+
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    login,
+    logout,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    canAccess,
+    hasRole,
+    hasAnyRole
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        logout,
-        refreshToken,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+// Higher Order Component for role-based access
+interface WithAuthProps {
+  requiredPermissions?: string[];
+  requiredRole?: UserRole;
+  requiredAnyRole?: UserRole[];
+  fallback?: React.ReactElement;
+}
+
+export const withAuth = <P extends object>(
+  WrappedComponent: React.ComponentType<P>,
+  options: WithAuthProps = {}
+): React.FC<P> => {
+  const {
+    requiredPermissions = [],
+    requiredRole,
+    requiredAnyRole,
+    fallback = <div>Access Denied</div>
+  } = options;
+
+  return (props: P) => {
+    const auth = useAuth();
+
+    // Check permissions
+    const hasRequiredPermissions = requiredPermissions.length === 0 || 
+      auth.hasAllPermissions(requiredPermissions);
+
+    // Check role requirements
+    const hasRequiredRole = !requiredRole || auth.hasRole(requiredRole);
+    const hasAnyRequiredRole = !requiredAnyRole || auth.hasAnyRole(requiredAnyRole);
+
+    const canAccess = hasRequiredPermissions && hasRequiredRole && hasAnyRequiredRole;
+
+    if (auth.isLoading) {
+      return <div>Loading...</div>;
+    }
+
+    if (!canAccess) {
+      return fallback;
+    }
+
+    return <WrappedComponent {...props} />;
+  };
+};
+
+// Hook for route protection
+export const useRouteGuard = (requiredPermissions?: string[], requiredRole?: UserRole): boolean => {
+  const auth = useAuth();
+  
+  if (auth.isLoading) return false;
+  
+  const hasPermissions = !requiredPermissions || auth.hasAllPermissions(requiredPermissions);
+  const hasRole = !requiredRole || auth.hasRole(requiredRole);
+  
+  return hasPermissions && hasRole;
 };

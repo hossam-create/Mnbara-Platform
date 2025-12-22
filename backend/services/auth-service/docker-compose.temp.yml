@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  prisma-migrate:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://mnbara_user:mnbara_pass@mnbara-postgres:5432/mnbara_db?schema=public
+    networks:
+      - docker_mnbara-network
+    command: sh -c "npm install prisma@5.8.1 && npx prisma migrate deploy"
+
+networks:
+  docker_mnbara-network:
+    external: true

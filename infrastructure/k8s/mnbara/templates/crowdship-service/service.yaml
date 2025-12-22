@@ -1,0 +1,18 @@
+{{- if .Values.crowdshipService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.crowdshipService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.crowdshipService.name) | nindent 4 }}
+spec:
+  type: {{ .Values.crowdshipService.service.type }}
+  ports:
+    - port: {{ .Values.crowdshipService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.crowdshipService.name) | nindent 4 }}
+{{- end }}

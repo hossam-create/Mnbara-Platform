@@ -90,7 +90,7 @@ export class UsersService {
   async getUserById(id: number) {
     // Get user details
     const userResult = await this.db.query(
-      `SELECT * FROM users WHERE id = $1`,
+      'SELECT * FROM users WHERE id = $1',
       [id]
     );
 
@@ -151,7 +151,7 @@ export class UsersService {
     );
 
     const totalResult = await this.db.query(
-      `SELECT COUNT(*) as count FROM user_sessions WHERE user_id = $1`,
+      'SELECT COUNT(*) as count FROM user_sessions WHERE user_id = $1',
       [userId]
     );
 
@@ -183,7 +183,7 @@ export class UsersService {
     );
 
     const totalResult = await this.db.query(
-      `SELECT COUNT(*) as count FROM user_activity_logs WHERE user_id = $1`,
+      'SELECT COUNT(*) as count FROM user_activity_logs WHERE user_id = $1',
       [userId]
     );
 

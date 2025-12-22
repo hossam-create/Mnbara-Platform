@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: mnbara_user
       POSTGRES_PASSWORD: mnbara_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -133,18 +133,38 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=8080
+      - LOG_LEVEL=info
       - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
       - AUTH_SERVICE_URL=http://auth-service:3001
       - LISTING_SERVICE_URL=http://listing-service:3002
       - AUCTION_SERVICE_URL=http://auction-service:3003
       - PAYMENT_SERVICE_URL=http://payment-service:3004
+      - CROWDSHIP_SERVICE_URL=http://crowdship-service:3005
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3006
+      - RECOMMENDATION_SERVICE_URL=http://recommendation-service:3007
+      - REWARDS_SERVICE_URL=http://rewards-service:3008
+      - ORDERS_SERVICE_URL=http://orders-service:3009
+      - TRIPS_SERVICE_URL=http://trips-service:3010
+      - MATCHING_SERVICE_URL=http://matching-service:3011
+      - ADMIN_SERVICE_URL=http://admin-service:3012
     ports:
       - "8080:8080"
     depends_on:
+      - redis
       - auth-service
       - listing-service
       - auction-service
       - payment-service
+      - crowdship-service
+      - notification-service
+      - recommendation-service
+      - rewards-service
+      - orders-service
+      - trips-service
+      - matching-service
+      - admin-service
     volumes:
       - ../../backend/services/api-gateway:/app
       - /app/node_modules
@@ -185,6 +205,7 @@ services:
       - PORT=3002
       - DATABASE_URL=postgresql://mnbara_user:mnbara_pass@postgres:5432/mnbara_db
       - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
       - AWS_REGION=us-east-1
       - S3_BUCKET=mnbara-images
     ports:
@@ -192,6 +213,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - elasticsearch
     volumes:
       - ../../backend/services/listing-service:/app
       - /app/node_modules
@@ -229,11 +251,13 @@ services:
       - PORT=3003
       - DATABASE_URL=postgresql://mnbara_user:mnbara_pass@postgres:5432/mnbara_db
       - REDIS_URL=redis://redis:6379
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
     ports:
       - "3003:3003"
     depends_on:
       - postgres
       - redis
+      - elasticsearch
     volumes:
       - ../../backend/services/auction-service:/app
       - /app/node_modules

@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import travelerRoutes from './routes/traveler.routes';
 import deliveryRoutes from './routes/delivery.routes';
+import shopperRequestRoutes from './routes/shopper-request.routes';
+import offerRoutes from './routes/offer.routes';
+import matchingRoutes from './routes/matching.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -26,6 +29,9 @@ app.get('/health', (req, res) => {
 
 app.use('/api/travelers', travelerRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/shopper-requests', shopperRequestRoutes);
+app.use('/api/offers', offerRoutes);
+app.use('/api/matching', matchingRoutes);
 
 // Error handling
 app.use(errorHandler);

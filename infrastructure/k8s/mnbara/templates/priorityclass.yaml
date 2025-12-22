@@ -1,0 +1,31 @@
+{{- if .Values.priorityClasses.enabled }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ include "mnbara.fullname" . }}-critical
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+value: {{ .Values.priorityClasses.critical.value }}
+globalDefault: false
+description: {{ .Values.priorityClasses.critical.description | quote }}
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ include "mnbara.fullname" . }}-high
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+value: {{ .Values.priorityClasses.high.value }}
+globalDefault: false
+description: {{ .Values.priorityClasses.high.description | quote }}
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ include "mnbara.fullname" . }}-normal
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+value: {{ .Values.priorityClasses.normal.value }}
+globalDefault: true
+description: {{ .Values.priorityClasses.normal.description | quote }}
+{{- end }}

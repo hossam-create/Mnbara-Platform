@@ -1,0 +1,319 @@
+# Production environment values
+# Usage: helm install mnbara ./mnbara -f values-prod.yaml
+
+global:
+  environment: production
+
+namespace: mnbara-prod
+
+# Production replicas with autoscaling
+apiGateway:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 60
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+
+authService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 65
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+
+listingService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 65
+
+auctionService:
+  replicaCount: 5
+  autoscaling:
+    enabled: true
+    minReplicas: 5
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 50
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+paymentService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 60
+
+crowdshipService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+
+notificationService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 60
+
+recommendationService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 8
+
+rewardsService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 8
+
+ordersService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+
+tripsService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+
+matchingService:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+adminService:
+  replicaCount: 2
+
+webFrontend:
+  replicaCount: 3
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 60
+
+adminDashboard:
+  replicaCount: 2
+
+# Production infrastructure
+postgresql:
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: gp3
+    resources:
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+      requests:
+        cpu: 1000m
+        memory: 2Gi
+
+redis:
+  master:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: gp3
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  replica:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: gp3
+
+rabbitmq:
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: gp3
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+elasticsearch:
+  master:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: gp3
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+  data:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 200Gi
+      storageClass: gp3
+
+minio:
+  persistence:
+    enabled: true
+    size: 500Gi
+    storageClass: gp3
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+# Enable PDB for production
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Enable network policies
+networkPolicy:
+  enabled: true
+
+# Enable monitoring
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 15s
+
+# Production ingress with TLS
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  hosts:
+    - host: api.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web-frontend
+    - host: www.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web-frontend
+    - host: admin.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: admin-dashboard
+  tls:
+    - secretName: mnbara-prod-tls
+      hosts:
+        - api.mnbara.com
+        - mnbara.com
+        - www.mnbara.com
+        - admin.mnbara.com
+
+
+# Enable resource quota for production
+resourceQuota:
+  enabled: true
+  requests:
+    cpu: "100"
+    memory: "200Gi"
+  limits:
+    cpu: "200"
+    memory: "400Gi"
+  pods: "500"
+  services: "100"
+  secrets: "200"
+  configmaps: "200"
+  pvcs: "100"
+  storage: "5Ti"
+
+# Production limit ranges
+limitRange:
+  enabled: true
+  default:
+    cpu: "1"
+    memory: "1Gi"
+  defaultRequest:
+    cpu: "200m"
+    memory: "512Mi"
+  max:
+    cpu: "8"
+    memory: "16Gi"
+  min:
+    cpu: "100m"
+    memory: "128Mi"
+  maxStorage: "1Ti"
+  minStorage: "5Gi"
+
+# Enable priority classes
+priorityClasses:
+  enabled: true

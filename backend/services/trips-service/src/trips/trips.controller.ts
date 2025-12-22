@@ -10,6 +10,8 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,6 +24,7 @@ import { TripsService } from './trips.service';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { UpdateTripDto } from './dto/update-trip.dto';
 import { SearchTripsDto } from './dto/search-trips.dto';
+import { KycGuard } from '../common/auth/kyc.guard';
 
 const MOCK_TRAVELER_ID = 1;
 
@@ -32,10 +35,16 @@ export class TripsController {
   constructor(private readonly tripsService: TripsService) {}
 
   @Post()
+  @UseGuards(KycGuard)
   @ApiOperation({ summary: 'Create a new trip' })
   @ApiResponse({ status: 201, description: 'Trip created successfully' })
-  create(@Body() createTripDto: CreateTripDto) {
-    return this.tripsService.create(MOCK_TRAVELER_ID, createTripDto);
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  create(@Req() req: any, @Body() createTripDto: CreateTripDto) {
+    const travelerId = req.user?.id;
+    if (!travelerId) {
+      throw new Error('User not authenticated');
+    }
+    return this.tripsService.create(travelerId, createTripDto);
   }
 
   @Get('search')
@@ -46,10 +55,16 @@ export class TripsController {
   }
 
   @Get('my-trips')
+  @UseGuards(KycGuard)
   @ApiOperation({ summary: 'Get my trips as a traveler' })
   @ApiResponse({ status: 200, description: 'Trips retrieved successfully' })
-  findMyTrips() {
-    return this.tripsService.findMyTrips(MOCK_TRAVELER_ID);
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  findMyTrips(@Req() req: any) {
+    const travelerId = req.user?.id;
+    if (!travelerId) {
+      throw new Error('User not authenticated');
+    }
+    return this.tripsService.findMyTrips(travelerId);
   }
 
   @Get(':id')
@@ -62,22 +77,35 @@ export class TripsController {
   }
 
   @Patch(':id')
+  @UseGuards(KycGuard)
   @ApiOperation({ summary: 'Update trip' })
   @ApiParam({ name: 'id', description: 'Trip ID' })
   @ApiResponse({ status: 200, description: 'Trip updated successfully' })
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
   update(
+    @Req() req: any,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTripDto: UpdateTripDto,
   ) {
-    return this.tripsService.update(id, MOCK_TRAVELER_ID, updateTripDto);
+    const travelerId = req.user?.id;
+    if (!travelerId) {
+      throw new Error('User not authenticated');
+    }
+    return this.tripsService.update(id, travelerId, updateTripDto);
   }
 
   @Delete(':id')
+  @UseGuards(KycGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cancel trip' })
   @ApiParam({ name: 'id', description: 'Trip ID' })
   @ApiResponse({ status: 200, description: 'Trip cancelled successfully' })
-  cancel(@Param('id', ParseIntPipe) id: number) {
-    return this.tripsService.cancel(id, MOCK_TRAVELER_ID);
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  cancel(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
+    const travelerId = req.user?.id;
+    if (!travelerId) {
+      throw new Error('User not authenticated');
+    }
+    return this.tripsService.cancel(id, travelerId);
   }
 }

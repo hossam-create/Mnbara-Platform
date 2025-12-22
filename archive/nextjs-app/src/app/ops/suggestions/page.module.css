@@ -1,0 +1,145 @@
+.root {
+  padding: 48px 0 80px;
+}
+
+.hero {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(18, 18, 18, 0.65);
+}
+
+.title {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  color: rgba(18, 18, 18, 0.8);
+  max-width: 640px;
+}
+
+.summaryBar {
+  border: 1px solid rgba(18, 18, 18, 0.1);
+  border-radius: 24px;
+  padding: 20px 24px;
+  background: #fffdf7;
+  margin-bottom: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timestamp {
+  font-size: 0.9rem;
+  color: rgba(18, 18, 18, 0.7);
+}
+
+.badgeRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 18, 18, 0.12);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.suggestionsGrid {
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  border: 1px solid rgba(18, 18, 18, 0.1);
+  border-radius: 28px;
+  padding: 28px;
+  background: #ffffff;
+  display: grid;
+  gap: 18px;
+}
+
+.cardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.typePill {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(18, 18, 18, 0.15);
+}
+
+.severity {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.summary {
+  color: rgba(18, 18, 18, 0.8);
+}
+
+.recommended {
+  padding: 20px;
+  border-radius: 20px;
+  background: #f4f6ff;
+  border: 1px solid rgba(18, 18, 18, 0.08);
+  color: rgba(18, 18, 18, 0.85);
+}
+
+.metaList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: rgba(18, 18, 18, 0.7);
+}
+
+.timer {
+  font-size: 0.85rem;
+  color: rgba(18, 18, 18, 0.65);
+}
+
+.manualReminder {
+  font-size: 0.85rem;
+  color: rgba(195, 123, 0, 0.9);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.actions {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .suggestionsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+}

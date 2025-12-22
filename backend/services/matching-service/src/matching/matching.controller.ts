@@ -6,6 +6,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Headers,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -39,8 +40,10 @@ export class MatchingController {
   @ApiOperation({ summary: 'Request a match between order and trip' })
   @ApiResponse({ status: 200, description: 'Match requested successfully' })
   @ApiResponse({ status: 400, description: 'Invalid request' })
-  requestMatch(@Body() matchDto: MatchRequestDto) {
-    return this.matchingService.requestMatch(matchDto, MOCK_BUYER_ID);
+  requestMatch(@Body() matchDto: MatchRequestDto, @Headers('x-user-id') userId: string) {
+    // Fallback to mock if header missing (for dev)
+    const buyerId = userId ? parseInt(userId, 10) : MOCK_BUYER_ID;
+    return this.matchingService.requestMatch(matchDto, buyerId);
   }
 
   @Post('accept-match')
@@ -48,8 +51,9 @@ export class MatchingController {
   @ApiOperation({ summary: 'Traveler accepts a match' })
   @ApiResponse({ status: 200, description: 'Match accepted' })
   @ApiResponse({ status: 404, description: 'Match not found' })
-  acceptMatch(@Body() matchDto: MatchRequestDto) {
-    return this.matchingService.acceptMatch(matchDto, MOCK_TRAVELER_ID);
+  acceptMatch(@Body() matchDto: MatchRequestDto, @Headers('x-user-id') userId: string) {
+    const travelerId = userId ? parseInt(userId, 10) : MOCK_TRAVELER_ID;
+    return this.matchingService.acceptMatch(matchDto, travelerId);
   }
 
   @Post('reject-match')
@@ -57,7 +61,8 @@ export class MatchingController {
   @ApiOperation({ summary: 'Traveler rejects a match' })
   @ApiResponse({ status: 200, description: 'Match rejected' })
   @ApiResponse({ status: 404, description: 'Match not found' })
-  rejectMatch(@Body() matchDto: MatchRequestDto) {
-    return this.matchingService.rejectMatch(matchDto, MOCK_TRAVELER_ID);
+  rejectMatch(@Body() matchDto: MatchRequestDto, @Headers('x-user-id') userId: string) {
+    const travelerId = userId ? parseInt(userId, 10) : MOCK_TRAVELER_ID;
+    return this.matchingService.rejectMatch(matchDto, travelerId);
   }
 }

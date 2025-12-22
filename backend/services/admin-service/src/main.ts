@@ -35,9 +35,9 @@ async function bootstrap() {
 
   logger.log(`🚀 Mnbara Backend started on port ${port}`, 'Bootstrap');
   logger.log(`📊 Metrics available at http://localhost:${port}/metrics`, 'Bootstrap');
-  logger.log(`🔌 WebSocket server on port 3001`, 'Bootstrap');
-  logger.log(`🔐 Security middleware enabled`, 'Bootstrap');
-  logger.log(`📝 Logging to ./logs directory`, 'Bootstrap');
+  logger.log('🔌 WebSocket server on port 3001', 'Bootstrap');
+  logger.log('🔐 Security middleware enabled', 'Bootstrap');
+  logger.log('📝 Logging to ./logs directory', 'Bootstrap');
   logger.log(`🐛 Sentry error tracking enabled: ${!!process.env.SENTRY_DSN}`, 'Bootstrap');
 }
 

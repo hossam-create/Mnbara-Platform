@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { TravelerService } from '../services/traveler.service';
+
+const travelerService = new TravelerService();
 
 export class TravelerController {
     // Update traveler location (GPS tracking)
@@ -7,12 +10,12 @@ export class TravelerController {
             const { travelerId } = req.params;
             const { latitude, longitude, country, airportCode } = req.body;
 
-            // TODO: Save to database using Prisma
-            // const location = await prisma.travelerLocation.upsert({
-            //   where: { travelerId: parseInt(travelerId) },
-            //   update: { latitude, longitude, country, airportCode, lastSeenAt: new Date() },
-            //   create: { travelerId: parseInt(travelerId), latitude, longitude, country, airportCode }
-            // });
+            await travelerService.updateLocation(parseInt(travelerId), {
+                latitude,
+                longitude,
+                country,
+                airportCode
+            });
 
             res.status(204).send();
         } catch (error) {
@@ -24,16 +27,14 @@ export class TravelerController {
     async getLocation(req: Request, res: Response, next: NextFunction) {
         try {
             const { travelerId } = req.params;
+            const location = await travelerService.getLocation(parseInt(travelerId));
+            
+            if (!location) {
+                res.status(404).json({ message: 'Location not found' });
+                return;
+            }
 
-            // TODO: Fetch from database
-            res.json({
-                travelerId,
-                latitude: 25.2048,
-                longitude: 55.2708,
-                country: 'UAE',
-                airportCode: 'DXB',
-                lastSeenAt: new Date(),
-            });
+            res.json(location);
         } catch (error) {
             next(error);
         }
@@ -43,28 +44,8 @@ export class TravelerController {
     async createAvailability(req: Request, res: Response, next: NextFunction) {
         try {
             const { travelerId } = req.params;
-            const {
-                origin,
-                destination,
-                departTime,
-                arriveTime,
-                allowedCategories,
-                maxWeight,
-                maxVolume,
-            } = req.body;
-
-            // TODO: Save to database
-            res.status(201).json({
-                id: Date.now(),
-                travelerId: parseInt(travelerId),
-                origin,
-                destination,
-                departTime,
-                arriveTime,
-                allowedCategories,
-                maxWeight,
-                maxVolume,
-            });
+            const availability = await travelerService.addAvailability(parseInt(travelerId), req.body);
+            res.status(201).json(availability);
         } catch (error) {
             next(error);
         }
@@ -74,23 +55,49 @@ export class TravelerController {
     async getAvailability(req: Request, res: Response, next: NextFunction) {
         try {
             const { travelerId } = req.params;
-
-            // TODO: Fetch from database
-            res.json([
-                {
-                    id: 1,
-                    travelerId: parseInt(travelerId),
-                    origin: 'Dubai (DXB)',
-                    destination: 'New York (JFK)',
-                    departTime: new Date('2025-12-01T10:00:00Z'),
-                    arriveTime: new Date('2025-12-01T18:00:00Z'),
-                    lon: 54.3773,
-                },
-                reward: 50,
-                },
-            ]);
-    } catch(error) {
-        next(error);
+            const trips = await travelerService.getTravelerTrips(parseInt(travelerId));
+            res.json(trips);
+        } catch(error) {
+            next(error);
+        }
     }
-}
+
+    // Update availability functionality would go here
+    async updateAvailability(req: Request, res: Response, next: NextFunction) {
+        // Implementation delegated to service update method if exists, or simple strict CRUD
+        // For now, keeping as placeholder for route compliance, or removing if not used.
+        // Routes defined it, so we need it.
+        try {
+             res.status(501).json({ message: 'Not implemented' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteAvailability(req: Request, res: Response, next: NextFunction) {
+        try {
+            // Placeholder
+            res.status(501).json({ message: 'Not implemented' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getRecommendations(req: Request, res: Response, next: NextFunction) {
+        try {
+             res.json([]); // Empty array fallback
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getNearbyRequests(req: Request, res: Response, next: NextFunction) {
+        try {
+            // const { lat, lon, radius } = req.query;
+            // Placeholder: Service integration for nearby requests pending PostGIS
+             res.json([]);
+        } catch (error) {
+            next(error);
+        }
+    }
 }

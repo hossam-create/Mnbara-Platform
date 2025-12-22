@@ -1,0 +1,445 @@
+# Vault Kubernetes Authentication Configuration
+# Configures Kubernetes auth method for service authentication
+---
+# ConfigMap for Kubernetes auth configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-k8s-auth-config
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: kubernetes-auth
+data:
+  # Script to configure Kubernetes authentication
+  configure-k8s-auth.sh: |
+    #!/bin/sh
+    set -e
+    
+    echo "=== Configuring Vault Kubernetes Authentication ==="
+    
+    # Enable Kubernetes auth method
+    echo "Enabling Kubernetes auth method..."
+    vault auth enable kubernetes 2>/dev/null || echo "Kubernetes auth already enabled"
+    
+    # Configure Kubernetes auth with in-cluster config
+    echo "Configuring Kubernetes auth..."
+    vault write auth/kubernetes/config \
+      kubernetes_host="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}" \
+      token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+      kubernetes_ca_cert="$(cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt)" \
+      issuer="https://kubernetes.default.svc.cluster.local"
+    
+    echo "Kubernetes authentication configured successfully!"
+
+  # Script to create service policies
+  create-service-policies.sh: |
+    #!/bin/sh
+    set -e
+    
+    echo "=== Creating Vault Policies for MNBARA Services ==="
+    
+    # API Gateway Policy
+    vault policy write api-gateway - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read JWT secrets
+    path "secret/data/mnbara/jwt" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Auth Service Policy
+    vault policy write auth-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read and manage JWT secrets
+    path "secret/data/mnbara/jwt" {
+      capabilities = ["read"]
+    }
+    # Read OAuth credentials
+    path "secret/data/mnbara/oauth" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read encryption keys
+    path "secret/data/mnbara/encryption" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Payment Service Policy
+    vault policy write payment-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Stripe credentials
+    path "secret/data/mnbara/stripe" {
+      capabilities = ["read"]
+    }
+    # Read PayPal credentials
+    path "secret/data/mnbara/paypal" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    # Read blockchain credentials
+    path "secret/data/mnbara/blockchain" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Auction Service Policy
+    vault policy write auction-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Listing Service Policy
+    vault policy write listing-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read MinIO credentials
+    path "secret/data/mnbara/minio" {
+      capabilities = ["read"]
+    }
+    # Read Elasticsearch credentials
+    path "secret/data/mnbara/elasticsearch" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Notification Service Policy
+    vault policy write notification-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read notification credentials (FCM/APNs)
+    path "secret/data/mnbara/notifications" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Recommendation Service Policy
+    vault policy write recommendation-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Matching Service Policy
+    vault policy write matching-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Trips Service Policy
+    vault policy write trips-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Orders Service Policy
+    vault policy write orders-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Rewards Service Policy
+    vault policy write rewards-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Admin Service Policy
+    vault policy write admin-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read all service secrets (admin access)
+    path "secret/data/mnbara/*" {
+      capabilities = ["read", "list"]
+    }
+    EOF
+    
+    # Crowdship Service Policy
+    vault policy write crowdship-service - <<EOF
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    EOF
+    
+    # Secrets Migration Policy (for initial setup)
+    vault policy write secrets-migration - <<EOF
+    # Full access to mnbara secrets for migration
+    path "secret/data/mnbara/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+    path "secret/metadata/mnbara/*" {
+      capabilities = ["list", "read", "delete"]
+    }
+    EOF
+    
+    echo "All service policies created successfully!"
+
+  # Script to create Kubernetes auth roles
+  create-k8s-roles.sh: |
+    #!/bin/sh
+    set -e
+    
+    echo "=== Creating Kubernetes Auth Roles ==="
+    
+    # API Gateway Role
+    vault write auth/kubernetes/role/api-gateway \
+      bound_service_account_names=api-gateway \
+      bound_service_account_namespaces=mnbara \
+      policies=api-gateway \
+      ttl=1h
+    
+    # Auth Service Role
+    vault write auth/kubernetes/role/auth-service \
+      bound_service_account_names=auth-service \
+      bound_service_account_namespaces=mnbara \
+      policies=auth-service \
+      ttl=1h
+    
+    # Payment Service Role
+    vault write auth/kubernetes/role/payment-service \
+      bound_service_account_names=payment-service \
+      bound_service_account_namespaces=mnbara \
+      policies=payment-service \
+      ttl=1h
+    
+    # Auction Service Role
+    vault write auth/kubernetes/role/auction-service \
+      bound_service_account_names=auction-service \
+      bound_service_account_namespaces=mnbara \
+      policies=auction-service \
+      ttl=1h
+    
+    # Listing Service Role
+    vault write auth/kubernetes/role/listing-service \
+      bound_service_account_names=listing-service \
+      bound_service_account_namespaces=mnbara \
+      policies=listing-service \
+      ttl=1h
+    
+    # Notification Service Role
+    vault write auth/kubernetes/role/notification-service \
+      bound_service_account_names=notification-service \
+      bound_service_account_namespaces=mnbara \
+      policies=notification-service \
+      ttl=1h
+    
+    # Recommendation Service Role
+    vault write auth/kubernetes/role/recommendation-service \
+      bound_service_account_names=recommendation-service \
+      bound_service_account_namespaces=mnbara \
+      policies=recommendation-service \
+      ttl=1h
+    
+    # Matching Service Role
+    vault write auth/kubernetes/role/matching-service \
+      bound_service_account_names=matching-service \
+      bound_service_account_namespaces=mnbara \
+      policies=matching-service \
+      ttl=1h
+    
+    # Trips Service Role
+    vault write auth/kubernetes/role/trips-service \
+      bound_service_account_names=trips-service \
+      bound_service_account_namespaces=mnbara \
+      policies=trips-service \
+      ttl=1h
+    
+    # Orders Service Role
+    vault write auth/kubernetes/role/orders-service \
+      bound_service_account_names=orders-service \
+      bound_service_account_namespaces=mnbara \
+      policies=orders-service \
+      ttl=1h
+    
+    # Rewards Service Role
+    vault write auth/kubernetes/role/rewards-service \
+      bound_service_account_names=rewards-service \
+      bound_service_account_namespaces=mnbara \
+      policies=rewards-service \
+      ttl=1h
+    
+    # Admin Service Role
+    vault write auth/kubernetes/role/admin-service \
+      bound_service_account_names=admin-service \
+      bound_service_account_namespaces=mnbara \
+      policies=admin-service \
+      ttl=1h
+    
+    # Crowdship Service Role
+    vault write auth/kubernetes/role/crowdship-service \
+      bound_service_account_names=crowdship-service \
+      bound_service_account_namespaces=mnbara \
+      policies=crowdship-service \
+      ttl=1h
+    
+    # Secrets Migration Role (for initial setup)
+    vault write auth/kubernetes/role/secrets-migration \
+      bound_service_account_names=vault-secrets-migration \
+      bound_service_account_namespaces=vault \
+      policies=secrets-migration \
+      ttl=30m
+    
+    echo "All Kubernetes auth roles created successfully!"
+
+---
+# Job to configure Kubernetes authentication
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-k8s-auth-setup
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: kubernetes-auth-setup
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      serviceAccountName: vault
+      restartPolicy: OnFailure
+      containers:
+        - name: configure-k8s-auth
+          image: hashicorp/vault:1.15
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Wait for Vault to be ready and unsealed
+              echo "Waiting for Vault to be ready..."
+              until vault status 2>/dev/null | grep -q "Sealed.*false"; do
+                echo "Waiting for Vault to be unsealed..."
+                sleep 5
+              done
+              
+              # Login with root token (for initial setup only)
+              # In production, use a more secure method
+              vault login "${VAULT_ROOT_TOKEN}"
+              
+              # Run configuration scripts
+              /scripts/configure-k8s-auth.sh
+              /scripts/create-service-policies.sh
+              /scripts/create-k8s-roles.sh
+              
+              echo "Vault Kubernetes authentication setup complete!"
+          env:
+            - name: VAULT_ADDR
+              value: "https://vault.vault:8200"
+            - name: VAULT_CACERT
+              value: "/vault/tls/ca.crt"
+            - name: VAULT_ROOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-root-token
+                  key: token
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+            - name: tls
+              mountPath: /vault/tls
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: vault-k8s-auth-config
+            defaultMode: 0755
+        - name: tls
+          secret:
+            secretName: vault-tls

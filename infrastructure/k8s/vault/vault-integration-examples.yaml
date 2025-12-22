@@ -1,0 +1,344 @@
+# Vault Integration Examples
+# Shows how to configure services to use Vault Agent Injector
+---
+# Namespace configuration to enable Vault injection
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mnbara
+  labels:
+    vault-injection: enabled
+    app.kubernetes.io/part-of: mnbara-platform
+
+---
+# Example: Auth Service with Vault Agent Injection
+# This shows the annotations needed for automatic secret injection
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service-vault-example
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/component: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-service-example
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth-service-example
+      annotations:
+        # Enable Vault Agent Injector
+        vault.hashicorp.com/agent-inject: "true"
+        
+        # Vault role to use for authentication
+        vault.hashicorp.com/role: "auth-service"
+        
+        # TLS configuration
+        vault.hashicorp.com/tls-skip-verify: "false"
+        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
+        
+        # Database secrets injection
+        vault.hashicorp.com/agent-inject-secret-database.json: "secret/data/mnbara/database"
+        vault.hashicorp.com/agent-inject-template-database.json: |
+          {{- with secret "secret/data/mnbara/database" -}}
+          {
+            "host": "{{ .Data.data.host }}",
+            "port": "{{ .Data.data.port }}",
+            "database": "{{ .Data.data.database }}",
+            "username": "{{ .Data.data.username }}",
+            "password": "{{ .Data.data.password }}",
+            "ssl_mode": "{{ .Data.data.ssl_mode }}"
+          }
+          {{- end -}}
+        
+        # JWT secrets injection
+        vault.hashicorp.com/agent-inject-secret-jwt.json: "secret/data/mnbara/jwt"
+        vault.hashicorp.com/agent-inject-template-jwt.json: |
+          {{- with secret "secret/data/mnbara/jwt" -}}
+          {
+            "secret": "{{ .Data.data.secret }}",
+            "refresh_secret": "{{ .Data.data.refresh_secret }}",
+            "expiry": "{{ .Data.data.expiry }}",
+            "refresh_expiry": "{{ .Data.data.refresh_expiry }}"
+          }
+          {{- end -}}
+        
+        # OAuth secrets injection
+        vault.hashicorp.com/agent-inject-secret-oauth.json: "secret/data/mnbara/oauth"
+        vault.hashicorp.com/agent-inject-template-oauth.json: |
+          {{- with secret "secret/data/mnbara/oauth" -}}
+          {
+            "google_client_id": "{{ .Data.data.google_client_id }}",
+            "google_client_secret": "{{ .Data.data.google_client_secret }}",
+            "apple_client_id": "{{ .Data.data.apple_client_id }}",
+            "apple_client_secret": "{{ .Data.data.apple_client_secret }}"
+          }
+          {{- end -}}
+        
+        # Redis secrets injection
+        vault.hashicorp.com/agent-inject-secret-redis.json: "secret/data/mnbara/redis"
+        vault.hashicorp.com/agent-inject-template-redis.json: |
+          {{- with secret "secret/data/mnbara/redis" -}}
+          {
+            "host": "{{ .Data.data.host }}",
+            "port": "{{ .Data.data.port }}",
+            "password": "{{ .Data.data.password }}"
+          }
+          {{- end -}}
+        
+        # Encryption keys injection
+        vault.hashicorp.com/agent-inject-secret-encryption.json: "secret/data/mnbara/encryption"
+        vault.hashicorp.com/agent-inject-template-encryption.json: |
+          {{- with secret "secret/data/mnbara/encryption" -}}
+          {
+            "database_key": "{{ .Data.data.database_key }}",
+            "field_encryption_key": "{{ .Data.data.field_encryption_key }}"
+          }
+          {{- end -}}
+        
+        # Agent configuration
+        vault.hashicorp.com/agent-pre-populate-only: "false"
+        vault.hashicorp.com/agent-revoke-on-shutdown: "true"
+        vault.hashicorp.com/agent-revoke-grace: "30"
+    spec:
+      serviceAccountName: auth-service
+      containers:
+        - name: auth-service
+          image: mnbara/auth-service:latest
+          env:
+            # Point to Vault-injected secrets
+            - name: DATABASE_CONFIG_FILE
+              value: "/vault/secrets/database.json"
+            - name: JWT_CONFIG_FILE
+              value: "/vault/secrets/jwt.json"
+            - name: OAUTH_CONFIG_FILE
+              value: "/vault/secrets/oauth.json"
+            - name: REDIS_CONFIG_FILE
+              value: "/vault/secrets/redis.json"
+            - name: ENCRYPTION_CONFIG_FILE
+              value: "/vault/secrets/encryption.json"
+          volumeMounts:
+            - name: vault-tls
+              mountPath: /vault/tls
+              readOnly: true
+      volumes:
+        - name: vault-tls
+          secret:
+            secretName: vault-tls
+
+---
+# Example: Payment Service with Vault Agent Injection
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service-vault-example
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/component: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service-example
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: payment-service-example
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "payment-service"
+        vault.hashicorp.com/tls-skip-verify: "false"
+        vault.hashicorp.com/ca-cert: "/vault/tls/ca.crt"
+        
+        # Database secrets
+        vault.hashicorp.com/agent-inject-secret-database.json: "secret/data/mnbara/database"
+        vault.hashicorp.com/agent-inject-template-database.json: |
+          {{- with secret "secret/data/mnbara/database" -}}
+          {
+            "host": "{{ .Data.data.host }}",
+            "port": "{{ .Data.data.port }}",
+            "database": "{{ .Data.data.database }}",
+            "username": "{{ .Data.data.username }}",
+            "password": "{{ .Data.data.password }}"
+          }
+          {{- end -}}
+        
+        # Stripe secrets
+        vault.hashicorp.com/agent-inject-secret-stripe.json: "secret/data/mnbara/stripe"
+        vault.hashicorp.com/agent-inject-template-stripe.json: |
+          {{- with secret "secret/data/mnbara/stripe" -}}
+          {
+            "secret_key": "{{ .Data.data.secret_key }}",
+            "webhook_secret": "{{ .Data.data.webhook_secret }}",
+            "publishable_key": "{{ .Data.data.publishable_key }}"
+          }
+          {{- end -}}
+        
+        # PayPal secrets
+        vault.hashicorp.com/agent-inject-secret-paypal.json: "secret/data/mnbara/paypal"
+        vault.hashicorp.com/agent-inject-template-paypal.json: |
+          {{- with secret "secret/data/mnbara/paypal" -}}
+          {
+            "client_id": "{{ .Data.data.client_id }}",
+            "secret": "{{ .Data.data.secret }}",
+            "mode": "{{ .Data.data.mode }}"
+          }
+          {{- end -}}
+        
+        # Blockchain secrets
+        vault.hashicorp.com/agent-inject-secret-blockchain.json: "secret/data/mnbara/blockchain"
+        vault.hashicorp.com/agent-inject-template-blockchain.json: |
+          {{- with secret "secret/data/mnbara/blockchain" -}}
+          {
+            "infura_api_key": "{{ .Data.data.infura_api_key }}",
+            "deployer_private_key": "{{ .Data.data.deployer_private_key }}"
+          }
+          {{- end -}}
+        
+        vault.hashicorp.com/agent-pre-populate-only: "false"
+        vault.hashicorp.com/agent-revoke-on-shutdown: "true"
+    spec:
+      serviceAccountName: payment-service
+      containers:
+        - name: payment-service
+          image: mnbara/payment-service:latest
+          env:
+            - name: DATABASE_CONFIG_FILE
+              value: "/vault/secrets/database.json"
+            - name: STRIPE_CONFIG_FILE
+              value: "/vault/secrets/stripe.json"
+            - name: PAYPAL_CONFIG_FILE
+              value: "/vault/secrets/paypal.json"
+            - name: BLOCKCHAIN_CONFIG_FILE
+              value: "/vault/secrets/blockchain.json"
+          volumeMounts:
+            - name: vault-tls
+              mountPath: /vault/tls
+              readOnly: true
+      volumes:
+        - name: vault-tls
+          secret:
+            secretName: vault-tls
+
+---
+# ServiceAccounts for each service (required for Vault K8s auth)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api-gateway
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: api-gateway
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: auth-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: payment-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auction-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: auction-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: listing-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: listing-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notification-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: notification-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: recommendation-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: recommendation-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: matching-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: matching-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trips-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: trips-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: orders-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: orders-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rewards-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: rewards-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: admin-service
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: crowdship-service
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: crowdship-service

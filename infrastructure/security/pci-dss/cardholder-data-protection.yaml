@@ -1,0 +1,276 @@
+# PCI-DSS Cardholder Data Protection Configuration
+# Requirements: 19.1 - Implement cardholder data protection
+---
+# ConfigMap for data protection policies
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cardholder-data-policy
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+data:
+  # Data classification policy
+  data-classification.yaml: |
+    # MNBARA Data Classification Policy
+    # PCI-DSS Requirement 3: Protect stored cardholder data
+    
+    classifications:
+      # Cardholder Data (CHD) - NEVER STORED
+      prohibited:
+        - primary_account_number  # PAN
+        - card_verification_value # CVV/CVC
+        - pin_block              # PIN
+        - full_track_data        # Magnetic stripe data
+      
+      # Sensitive Authentication Data (SAD) - NEVER STORED
+      never_store:
+        - cvv
+        - cvc
+        - cvc2
+        - cvv2
+        - pin
+        - pin_block
+      
+      # Tokenized Data - Safe to store
+      tokenized:
+        - stripe_payment_method_id
+        - stripe_customer_id
+        - paypal_billing_agreement_id
+      
+      # Encrypted at rest
+      encrypted:
+        - last_four_digits  # Last 4 of card (for display)
+        - card_brand        # Visa, Mastercard, etc.
+        - expiry_month      # Encrypted
+        - expiry_year       # Encrypted
+    
+    retention:
+      # Transaction records
+      transactions:
+        retention_period: 7_years
+        encryption: required
+        access: audit_logged
+      
+      # Payment tokens
+      tokens:
+        retention_period: until_customer_deletion
+        encryption: required
+        access: service_only
+      
+      # Audit logs
+      audit_logs:
+        retention_period: 1_year
+        encryption: required
+        access: security_team_only
+
+  # Tokenization configuration
+  tokenization.yaml: |
+    # Payment Tokenization Configuration
+    # All card data is tokenized via Stripe - no raw card data touches our systems
+    
+    provider: stripe
+    
+    tokenization_flow:
+      # Client-side tokenization (recommended)
+      client_side:
+        enabled: true
+        sdk: stripe_elements
+        # Card data goes directly to Stripe, never to our servers
+        
+      # Server-side tokenization (fallback)
+      server_side:
+        enabled: false
+        # Disabled - we don't handle raw card data
+    
+    token_types:
+      payment_method:
+        prefix: pm_
+        scope: customer
+        reusable: true
+        
+      setup_intent:
+        prefix: seti_
+        scope: customer
+        reusable: false
+        
+      payment_intent:
+        prefix: pi_
+        scope: transaction
+        reusable: false
+
+---
+# OPA (Open Policy Agent) policy for data protection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-data-protection-policy
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+data:
+  cardholder-data.rego: |
+    package cardholder.data
+    
+    # Deny any request containing raw card data
+    deny[msg] {
+      input.request.body.card_number
+      msg := "Raw card numbers are not allowed"
+    }
+    
+    deny[msg] {
+      input.request.body.cvv
+      msg := "CVV/CVC values are not allowed"
+    }
+    
+    deny[msg] {
+      input.request.body.cvc
+      msg := "CVV/CVC values are not allowed"
+    }
+    
+    deny[msg] {
+      input.request.body.pin
+      msg := "PIN values are not allowed"
+    }
+    
+    # Validate that only tokenized payment methods are used
+    allow {
+      input.request.body.payment_method_id
+      startswith(input.request.body.payment_method_id, "pm_")
+    }
+    
+    allow {
+      input.request.body.payment_intent_id
+      startswith(input.request.body.payment_intent_id, "pi_")
+    }
+    
+    # Log all payment-related requests
+    audit[msg] {
+      input.request.path == "/api/payments"
+      msg := sprintf("Payment request from %v", [input.request.source_ip])
+    }
+
+---
+# Falco rules for runtime data protection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-pci-rules
+  namespace: falco
+  labels:
+    app.kubernetes.io/name: falco
+    security.mnbara.com/pci-dss: "true"
+data:
+  pci-dss-rules.yaml: |
+    # Falco rules for PCI-DSS compliance
+    
+    - rule: Detect Card Number Pattern in Logs
+      desc: Detect potential card numbers in application logs
+      condition: >
+        (fd.name contains "log" or fd.name contains "stdout") and
+        (evt.buffer matches "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b")
+      output: >
+        Potential card number detected in logs
+        (user=%user.name command=%proc.cmdline file=%fd.name container=%container.name)
+      priority: CRITICAL
+      tags: [pci-dss, cardholder-data]
+    
+    - rule: Unauthorized Access to Payment Service
+      desc: Detect unauthorized access attempts to payment service
+      condition: >
+        container.name = "payment-service" and
+        evt.type in (connect, accept) and
+        not (fd.sip in (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16))
+      output: >
+        Unauthorized network access to payment service
+        (user=%user.name command=%proc.cmdline connection=%fd.name container=%container.name)
+      priority: WARNING
+      tags: [pci-dss, network]
+    
+    - rule: Sensitive File Access in Payment Container
+      desc: Detect access to sensitive files in payment containers
+      condition: >
+        container.name = "payment-service" and
+        evt.type in (open, openat) and
+        fd.name in (/etc/passwd, /etc/shadow, /proc/self/environ)
+      output: >
+        Sensitive file access in payment container
+        (user=%user.name command=%proc.cmdline file=%fd.name container=%container.name)
+      priority: WARNING
+      tags: [pci-dss, file-access]
+    
+    - rule: Shell Spawned in Payment Container
+      desc: Detect shell spawned in payment container
+      condition: >
+        container.name = "payment-service" and
+        spawned_process and
+        proc.name in (bash, sh, zsh, dash, ksh)
+      output: >
+        Shell spawned in payment container
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [pci-dss, shell]
+
+---
+# Secret for encryption keys (managed by Vault)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-encryption-keys
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+  annotations:
+    # Managed by Vault Agent Injector
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "payment-service"
+    vault.hashicorp.com/agent-inject-secret-encryption-key: "secret/data/payment/encryption"
+type: Opaque
+data:
+  # Placeholder - actual keys injected by Vault
+  encryption-key: ""
+
+---
+# Data masking configuration for logs
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-masking-config
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+data:
+  masking-rules.json: |
+    {
+      "rules": [
+        {
+          "name": "mask_card_numbers",
+          "pattern": "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b",
+          "replacement": "****-****-****-****"
+        },
+        {
+          "name": "mask_cvv",
+          "pattern": "\\b(cvv|cvc|cvc2|cvv2)[\"']?\\s*[:=]\\s*[\"']?\\d{3,4}",
+          "replacement": "$1: ***"
+        },
+        {
+          "name": "mask_expiry",
+          "pattern": "\\b(exp|expiry|expiration)[\"']?\\s*[:=]\\s*[\"']?\\d{2}[/\\-]\\d{2,4}",
+          "replacement": "$1: **/**"
+        },
+        {
+          "name": "mask_ssn",
+          "pattern": "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+          "replacement": "***-**-****"
+        },
+        {
+          "name": "mask_api_keys",
+          "pattern": "(sk_live_|pk_live_|sk_test_|pk_test_)[a-zA-Z0-9]{24,}",
+          "replacement": "$1****"
+        }
+      ]
+    }

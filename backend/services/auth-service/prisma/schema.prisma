@@ -1,3 +1,4 @@
+// Auth Service Database Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,562 +8,189 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  SELLER
-  TRAVELER      // Crowdshipping: travelers who deliver
-  BUYER         // Crowdshipping: buyers requesting delivery
-  ADMIN
-  SUPER_ADMIN
-}
-
-// User model (merged with crowdshipping)
 model User {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  password      String?   // Null for OAuth users
-  firstName     String
-  lastName      String
-  fullName      String?   // Crowdshipping compatibility
-  phone         String?
-  avatar        String?
-  emailVerified Boolean   @default(false)
-  isActive      Boolean   @default(true)
-  role          UserRole  @default(USER)
+  id                String   @id @default(cuid())
+  email             String   @unique
+  emailVerified     Boolean  @default(false)
+  emailVerifiedAt   DateTime?
+  username          String?  @unique
+  firstName         String?
+  lastName          String?
+  avatar            String?
+  phone             String?
+  phoneVerified     Boolean  @default(false)
+  phoneVerifiedAt   DateTime?
+  dateOfBirth       DateTime?
+  gender            Gender?
   
-  // Crowdshipping fields
-  rating        Decimal?  @db.Decimal(3, 2) @default(0)
-  kycStatus     Boolean   @default(false)
-  preferredCategories String[]
-  preferredLanguages  String[]
-  
-  // OAuth
-  googleId      String?   @unique
-  appleId       String?   @unique
-  facebookId    String?   @unique
-  
-  // Timestamps
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  lastLoginAt   DateTime?
-  
-  // Relations
-  listings            Listing[]
-  bids                Bid[]
-  wallet              Wallet?
-  notifications       Notification[]
-  transactions        Transaction[]
-  travelerLocation    TravelerLocation?      // Crowdshipping
-  travelerAvailability TravelerAvailability[] // Crowdshipping
-  refreshTokens       RefreshToken[]         // Auth tokens
-  buyerOrders         Order[]  @relation("BuyerOrders")
-  travelerOrders      Order[]  @relation("TravelerOrders")
-  trips               Trip[]
-  disputes            Dispute[]
-  
-  @@index([email])
-  @@index([googleId])
-  @@index([appleId])
-  @@index([role])
-  @@index([kycStatus])
-}
-
-// Refresh Token for secure token rotation
-model RefreshToken {
-  id          Int      @id @default(autoincrement())
-  token       String   @unique
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  expiresAt   DateTime
-  createdAt   DateTime @default(now())
-  revokedAt   DateTime?
-  
-  @@index([userId])
-  @@index([token])
-  @@index([expiresAt])
-}
-
-// Category model
-model Category {
-  id          Int        @id @default(autoincrement())
-  name        String
-  nameAr      String?    // Arabic name
-  slug        String     @unique
-  description String?
-  image       String?
-  parentId    Int?
-  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
-  children    Category[] @relation("SubCategories")
-  level       Int        @default(1)
-  displayOrder Int       @default(0)
-  isActive    Boolean    @default(true)
-  
-  listings    Listing[]
-  
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  @@index([slug])
-  @@index([parentId])
-}
-
-// Listing model
-model Listing {
-  id          Int          @id @default(autoincrement())
-  title       String
-  description String       @db.Text
-  price       Decimal      @db.Decimal(10, 2)
-  currency    String       @default("USD")
-  
-  // Relations
-  sellerId    Int
-  seller      User         @relation(fields: [sellerId], references: [id])
-  categoryId  Int
-  category    Category     @relation(fields: [categoryId], references: [id])
-  
-  // Location
-  city        String
-  country     String
-  zipCode     String?
-  latitude    Float?
-  longitude   Float?
-  
-  // Listing details
-  condition   ListingCondition @default(NEW)
-  quantity    Int          @default(1)
-  images      String[]     // Array of S3 URLs
-  
-  // Auction fields
-  isAuction   Boolean      @default(false)
-  startingBid Decimal?     @db.Decimal(10, 2)
-  reservePrice Decimal?    @db.Decimal(10, 2)
-  buyNowPrice Decimal?     @db.Decimal(10, 2)
-  currentBid  Decimal?     @db.Decimal(10, 2)
-  auctionEndsAt DateTime?
+  // Authentication
+  passwordHash      String?
+  twoFactorEnabled  Boolean  @default(false)
+  twoFactorSecret   String?
   
   // Status
-  status      ListingStatus @default(DRAFT)
-  isActive    Boolean      @default(true)
-  isFeatured  Boolean      @default(false)
-  viewCount   Int          @default(0)
+  status            UserStatus @default(ACTIVE)
+  lastLoginAt       DateTime?
+  lastActiveAt      DateTime?
   
-  // Timestamps
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  publishedAt DateTime?
-  expiresAt   DateTime?
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
   
   // Relations
-  bids        Bid[]
+  roles             UserRole[]
+  sessions          UserSession[]
+  socialAccounts    SocialAccount[]
+  loginAttempts     LoginAttempt[]
+  passwordResets    PasswordReset[]
+  auditLogs         AuditLog[]
   
-  @@index([sellerId])
-  @@index([categoryId])
-  @@index([status])
-  @@index([isAuction])
+  @@map("users")
 }
 
-enum ListingCondition {
-  NEW
-  LIKE_NEW
-  GOOD
-  FAIR
-  POOR
-}
-
-enum ListingStatus {
-  DRAFT
-  ACTIVE
-  SOLD
-  EXPIRED
-  DELETED
-}
-
-// Bid model for auctions
-model Bid {
-  id         Int      @id @default(autoincrement())
-  amount     Decimal  @db.Decimal(10, 2)
-  
-  listingId  Int
-  listing    Listing  @relation(fields: [listingId], references: [id])
-  bidderId   Int
-  bidder     User     @relation(fields: [bidderId], references: [id])
-  
-  isAutoBid  Boolean  @default(false)
-  maxAmount  Decimal? @db.Decimal(10, 2) // For auto-bidding
-  
-  createdAt  DateTime @default(now())
-  
-  @@index([listingId])
-  @@index([bidderId])
-  @@index([createdAt])
-}
-
-// Wallet model for Travel Wallet feature
-model Wallet {
-  id         Int      @id @default(autoincrement())
-  balance    Decimal  @db.Decimal(10, 2) @default(0)
-  currency   String   @default("USD")
-  
-  userId     Int      @unique
-  user       User     @relation(fields: [userId], references: [id])
-  
-  isLocked   Boolean  @default(false)
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  @@index([userId])
-}
-
-// Transaction model
-model Transaction {
-  id          Int             @id @default(autoincrement())
-  amount      Decimal         @db.Decimal(10, 2)
-  currency    String          @default("USD")
-  type        TransactionType
-  status      TransactionStatus @default(PENDING)
-  
-  userId      Int
-  user        User            @relation(fields: [userId], references: [id])
-  
-  // Payment gateway details
-  stripeId    String?
-  paypalId    String?
-  
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
   description String?
-  metadata    Json?           // Additional data
+  permissions String[] // JSON array of permissions
+  isSystem    Boolean  @default(false)
   
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
-  @@index([userId])
-  @@index([status])
+  // Relations
+  users       UserRole[]
+  
+  @@map("roles")
 }
 
-enum TransactionType {
-  DEPOSIT
-  WITHDRAWAL
-  PAYMENT
-  REFUND
-  COMMISSION
+model UserRole {
+  id     String @id @default(cuid())
+  userId String
+  roleId String
+  
+  assignedAt DateTime @default(now())
+  assignedBy String?
+  expiresAt  DateTime?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, roleId])
+  @@map("user_roles")
 }
 
-enum TransactionStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-  CANCELLED
+model UserSession {
+  id           String    @id @default(cuid())
+  userId       String
+  sessionToken String    @unique
+  refreshToken String?   @unique
+  deviceId     String?
+  deviceName   String?
+  ipAddress    String?
+  userAgent    String?
+  
+  expiresAt    DateTime
+  lastUsedAt   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
 }
 
-// Notification model
-model Notification {
-  id        Int      @id @default(autoincrement())
-  title     String
-  message   String   @db.Text
-  type      NotificationType
-  isRead    Boolean  @default(false)
+model SocialAccount {
+  id           String @id @default(cuid())
+  userId       String
+  provider     SocialProvider
+  providerId   String
+  providerData Json?
   
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   
-  data      Json?    // Additional data
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerId])
+  @@map("social_accounts")
+}
+
+model LoginAttempt {
+  id        String @id @default(cuid())
+  userId    String?
+  email     String
+  ipAddress String
+  userAgent String?
+  success   Boolean
+  reason    String?
   
   createdAt DateTime @default(now())
   
-  @@index([userId])
-  @@index([isRead])
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("login_attempts")
 }
 
-enum NotificationType {
-  BID_PLACED
-  BID_WON
-  BID_LOST
-  LISTING_SOLD
-  PAYMENT_RECEIVED
-  GENERAL
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("password_resets")
 }
 
-// ========================================
-// CROWDSHIPPING MODELS
-// ========================================
-
-// Traveler Location - Real-time GPS tracking
-model TravelerLocation {
-  id          Int      @id @default(autoincrement())
-  travelerId  Int      @unique
-  traveler    User     @relation(fields: [travelerId], references: [id])
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String?
+  resourceId String?
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
   
-  latitude    Float
-  longitude   Float
-  country     String?
-  airportCode String?
+  createdAt DateTime @default(now())
   
-  lastSeenAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Relations
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   
-  @@index([travelerId])
-  @@index([country])
-  @@index([airportCode])
+  @@map("audit_logs")
 }
 
-// Traveler Availability - Travel schedules
-model TravelerAvailability {
-  id          Int      @id @default(autoincrement())
-  travelerId  Int
-  traveler    User     @relation(fields: [travelerId], references: [id])
-  
-  origin      String   // Origin city/airport
-  destination String   // Destination city/airport
-  departTime  DateTime
-  arriveTime  DateTime
-  
-  allowedCategories String[] // Product categories traveler will carry
-  maxWeight   Decimal?  @db.Decimal(8, 2) // In kg
-  maxVolume   Decimal?  @db.Decimal(8, 2) // In liters
-  
-  isActive    Boolean  @default(true)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([travelerId])
-  @@index([origin])
-  @@index([destination])
-  @@index([departTime])
-  @@index([isActive])
+// Enums
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
 }
 
-// ========================================
-// ORDERS & TRIPS MODELS
-// ========================================
-
-enum DeliveryType {
-  CROWDSHIP
-  STANDARD
-  EXPRESS
-}
-
-enum OrderStatus {
-  PENDING
-  MATCHED
-  PAID
-  IN_TRANSIT
-  DELIVERED
-  COMPLETED
-  CANCELLED
-  DISPUTED
-}
-
-// Order model - Buyer requests
-model Order {
-  id              Int           @id @default(autoincrement())
-  orderNumber     String        @unique @default(uuid())
-  
-  // Buyer info
-  buyerId         Int
-  buyer           User          @relation("BuyerOrders", fields: [buyerId], references: [id])
-  
-  // Delivery method
-  deliveryType    DeliveryType  @default(CROWDSHIP)
-  travelerId      Int?
-  traveler        User?         @relation("TravelerOrders", fields: [travelerId], references: [id])
-  tripId          Int?
-  trip            Trip?         @relation(fields: [tripId], references: [id])
-  
-  // Order details
-  items           OrderItem[]
-  totalAmount     Decimal       @db.Decimal(10, 2)
-  currency        String        @default("USD")
-  totalWeight     Decimal?      @db.Decimal(8, 2)
-  
-  // Locations
-  pickupCity      String
-  pickupCountry   String
-  pickupAddress   String?
-  deliveryCity    String
-  deliveryCountry String
-  deliveryAddress String?
-  
-  // Status
-  status          OrderStatus   @default(PENDING)
-  
-  // Escrow
-  escrowId        Int?          @unique
-  escrow          Escrow?
-  
-  // Tracking
-  trackingNumber  String?
-  estimatedDelivery DateTime?
-  actualDelivery  DateTime?
-  
-  // Timestamps
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  completedAt     DateTime?
-  
-  @@index([buyerId])
-  @@index([travelerId])
-  @@index([tripId])
-  @@index([status])
-  @@index([orderNumber])
-}
-
-model OrderItem {
-  id          Int      @id @default(autoincrement())
-  orderId     Int
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  productName String
-  productUrl  String?
-  quantity    Int      @default(1)
-  price       Decimal  @db.Decimal(10, 2)
-  weight      Decimal? @db.Decimal(8, 2)
-  category    String?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([orderId])
-}
-
-enum TripStatus {
+enum UserStatus {
   ACTIVE
-  MATCHED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
+  INACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
 }
 
-// Trip model - Traveler availability
-model Trip {
-  id              Int       @id @default(autoincrement())
-  travelerId      Int
-  traveler        User      @relation(fields: [travelerId], references: [id])
-  
-  // Route
-  originCity      String
-  originCountry   String
-  originAirport   String?
-  destCity        String
-  destCountry     String
-  destAirport     String?
-  
-  // Schedule
-  departureDate   DateTime
-  arrivalDate     DateTime
-  
-  // Capacity
-  totalWeight     Decimal   @db.Decimal(8, 2)
-  availableWeight Decimal   @db.Decimal(8, 2)
-  totalVolume     Decimal?  @db.Decimal(8, 2)
-  availableVolume Decimal?  @db.Decimal(8, 2)
-  allowedCategories String[]
-  
-  // Pricing
-  pricePerKg      Decimal   @db.Decimal(10, 2)
-  basePrice       Decimal?  @db.Decimal(10, 2)
-  
-  // Status
-  status          TripStatus @default(ACTIVE)
-  isPublic        Boolean   @default(true)
-  
-  // Matched orders
-  orders          Order[]
-  
-  // Additional info
-  notes           String?   @db.Text
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  @@index([travelerId])
-  @@index([originCountry, destCountry])
-  @@index([departureDate])
-  @@index([status])
-  @@index([isPublic])
-}
-
-// ========================================
-// ESCROW & PAYMENT MODELS
-// ========================================
-
-enum EscrowStatus {
-  PENDING
-  HELD
-  RELEASED_TO_TRAVELER
-  REFUNDED_TO_BUYER
-  DISPUTED
-}
-
-model Escrow {
-  id              Int           @id @default(autoincrement())
-  orderId         Int           @unique
-  order           Order         @relation(fields: [orderId], references: [id])
-  
-  amount          Decimal       @db.Decimal(10, 2)
-  currency        String        @default("USD")
-  
-  // Payment gateway
-  stripePaymentId String?
-  paypalOrderId   String?
-  paymentMethod   String?
-  
-  // Status
-  status          EscrowStatus  @default(PENDING)
-  
-  // Release conditions
-  buyerApproved   Boolean       @default(false)
-  deliveryConfirmed Boolean     @default(false)
-  autoReleaseAt   DateTime?     // Auto-release after X days
-  
-  // Dispute
-  disputeId       Int?          @unique
-  dispute         Dispute?
-  
-  // Timestamps
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  heldAt          DateTime?
-  releasedAt      DateTime?
-  
-  @@index([orderId])
-  @@index([status])
-}
-
-enum DisputeStatus {
-  OPEN
-  UNDER_REVIEW
-  RESOLVED_BUYER
-  RESOLVED_TRAVELER
-  RESOLVED_SPLIT
-  CLOSED
-}
-
-model Dispute {
-  id          Int           @id @default(autoincrement())
-  escrowId    Int           @unique
-  escrow      Escrow        @relation(fields: [escrowId], references: [id])
-  
-  raisedBy    Int
-  user        User          @relation(fields: [raisedBy], references: [id])
-  
-  reason      String        @db.Text
-  evidence    String[]      // URLs to uploaded evidence
-  
-  status      DisputeStatus @default(OPEN)
-  resolution  String?       @db.Text
-  
-  // Admin handling
-  assignedTo  Int?          // Admin user ID
-  adminNotes  String?       @db.Text
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  resolvedAt  DateTime?
-  
-  @@index([escrowId])
-  @@index([raisedBy])
-  @@index([status])
+enum SocialProvider {
+  GOOGLE
+  FACEBOOK
+  APPLE
+  TWITTER
+  LINKEDIN
 }

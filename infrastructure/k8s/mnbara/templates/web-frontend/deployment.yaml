@@ -1,0 +1,44 @@
+{{- if .Values.webFrontend.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.webFrontend.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.webFrontend.name) | nindent 4 }}
+spec:
+  {{- if not .Values.webFrontend.autoscaling.enabled }}
+  replicas: {{ .Values.webFrontend.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mnbara.serviceSelectorLabels" (list . .Values.webFrontend.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mnbara.serviceSelectorLabels" (list . .Values.webFrontend.name) | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      containers:
+        - name: {{ .Values.webFrontend.name }}
+          image: {{ include "mnbara.image" (dict "root" . "service" .Values.webFrontend) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.webFrontend.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

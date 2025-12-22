@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import listingRoutes from './routes/listing.routes';
 import categoryRoutes from './routes/category.routes';
+import feeRoutes from './routes/fee.routes';
+import resaleRoutes from './routes/resale.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -26,6 +28,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/listings', listingRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/v1/fees', feeRoutes);
+app.use('/api/resale-listings', resaleRoutes);
 
 // Error handling
 app.use(errorHandler);

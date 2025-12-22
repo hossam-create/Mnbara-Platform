@@ -1,0 +1,290 @@
+# Alertmanager Deployment for MNBARA Platform
+# Handles alerts from Prometheus and routes to PagerDuty/Slack
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alertmanager-secrets
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/part-of: mnbara-monitoring
+type: Opaque
+stringData:
+  # Replace with actual values in production
+  pagerduty-service-key: "your-pagerduty-service-key"
+  slack-webhook-url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+  slack-webhook-url-critical: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK-CRITICAL"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/part-of: mnbara-monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+      slack_api_url_file: /etc/alertmanager/secrets/slack-webhook-url
+      pagerduty_url: https://events.pagerduty.com/v2/enqueue
+
+    # Route tree
+    route:
+      group_by: ['alertname', 'service', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: 'slack-notifications'
+      
+      routes:
+        # Critical alerts go to PagerDuty and Slack critical channel
+        - match:
+            severity: critical
+          receiver: 'pagerduty-critical'
+          continue: true
+        
+        - match:
+            severity: critical
+          receiver: 'slack-critical'
+        
+        # Payment failures are always critical
+        - match:
+            alertname: PaymentFailureRateHigh
+          receiver: 'pagerduty-critical'
+          continue: true
+        
+        - match:
+            alertname: PaymentFailureRateHigh
+          receiver: 'slack-critical'
+        
+        # Auction timer drift is critical
+        - match:
+            alertname: AuctionTimerDrift
+          receiver: 'pagerduty-critical'
+          continue: true
+        
+        - match:
+            alertname: AuctionTimerDrift
+          receiver: 'slack-critical'
+        
+        # Service down alerts
+        - match:
+            alertname: ServiceDown
+          receiver: 'pagerduty-critical'
+          continue: true
+        
+        # Warning alerts go to Slack only
+        - match:
+            severity: warning
+          receiver: 'slack-notifications'
+        
+        # Info alerts (low priority)
+        - match:
+            severity: info
+          receiver: 'slack-notifications'
+          group_wait: 5m
+          repeat_interval: 24h
+
+    # Inhibition rules
+    inhibit_rules:
+      # If a critical alert is firing, suppress warnings for the same service
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname', 'service']
+      
+      # If the entire cluster is down, suppress individual service alerts
+      - source_match:
+          alertname: 'ClusterDown'
+        target_match_re:
+          alertname: 'ServiceDown|HighErrorRate|HighLatency'
+
+    # Receivers
+    receivers:
+      - name: 'slack-notifications'
+        slack_configs:
+          - channel: '#mnbara-alerts'
+            send_resolved: true
+            title: '{{ template "slack.title" . }}'
+            text: '{{ template "slack.text" . }}'
+            color: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}danger{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}good{{ end }}{{ else }}good{{ end }}'
+            actions:
+              - type: button
+                text: 'View in Grafana'
+                url: '{{ template "grafana.url" . }}'
+              - type: button
+                text: 'Silence Alert'
+                url: '{{ template "alertmanager.silence.url" . }}'
+
+      - name: 'slack-critical'
+        slack_configs:
+          - api_url_file: /etc/alertmanager/secrets/slack-webhook-url-critical
+            channel: '#mnbara-critical'
+            send_resolved: true
+            title: '🚨 CRITICAL: {{ template "slack.title" . }}'
+            text: '{{ template "slack.text" . }}'
+            color: 'danger'
+
+      - name: 'pagerduty-critical'
+        pagerduty_configs:
+          - service_key_file: /etc/alertmanager/secrets/pagerduty-service-key
+            severity: '{{ if eq .CommonLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
+            description: '{{ template "pagerduty.description" . }}'
+            details:
+              firing: '{{ template "pagerduty.firing" . }}'
+              num_firing: '{{ .Alerts.Firing | len }}'
+              num_resolved: '{{ .Alerts.Resolved | len }}'
+              resolved: '{{ template "pagerduty.resolved" . }}'
+
+    # Templates
+    templates:
+      - '/etc/alertmanager/templates/*.tmpl'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-templates
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+data:
+  slack.tmpl: |
+    {{ define "slack.title" }}
+    [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .CommonLabels.alertname }}
+    {{ end }}
+
+    {{ define "slack.text" }}
+    {{ range .Alerts }}
+    *Alert:* {{ .Labels.alertname }}
+    *Severity:* {{ .Labels.severity }}
+    *Service:* {{ .Labels.service | default "unknown" }}
+    *Description:* {{ .Annotations.description }}
+    *Details:*
+    {{ range .Labels.SortedPairs }}  • {{ .Name }}: `{{ .Value }}`
+    {{ end }}
+    {{ end }}
+    {{ end }}
+
+    {{ define "grafana.url" }}
+    http://grafana:3000/d/mnbara-service-health?var-service={{ .CommonLabels.service }}
+    {{ end }}
+
+    {{ define "alertmanager.silence.url" }}
+    http://alertmanager:9093/#/silences/new?filter=%7Balertname%3D%22{{ .CommonLabels.alertname }}%22%7D
+    {{ end }}
+
+  pagerduty.tmpl: |
+    {{ define "pagerduty.description" }}
+    {{ .CommonLabels.alertname }}: {{ .CommonAnnotations.summary }}
+    {{ end }}
+
+    {{ define "pagerduty.firing" }}
+    {{ range .Alerts.Firing }}
+    - {{ .Labels.alertname }}: {{ .Annotations.description }}
+    {{ end }}
+    {{ end }}
+
+    {{ define "pagerduty.resolved" }}
+    {{ range .Alerts.Resolved }}
+    - {{ .Labels.alertname }}: {{ .Annotations.description }}
+    {{ end }}
+    {{ end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/part-of: mnbara-monitoring
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alertmanager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: alertmanager
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.26.0
+          args:
+            - --config.file=/etc/alertmanager/alertmanager.yml
+            - --storage.path=/alertmanager
+            - --cluster.listen-address=0.0.0.0:9094
+            - --web.external-url=http://alertmanager:9093
+          ports:
+            - containerPort: 9093
+              name: http
+            - containerPort: 9094
+              name: cluster
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alertmanager/alertmanager.yml
+              subPath: alertmanager.yml
+            - name: templates
+              mountPath: /etc/alertmanager/templates
+            - name: secrets
+              mountPath: /etc/alertmanager/secrets
+              readOnly: true
+            - name: storage
+              mountPath: /alertmanager
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9093
+            initialDelaySeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9093
+            initialDelaySeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: alertmanager-config
+        - name: templates
+          configMap:
+            name: alertmanager-templates
+        - name: secrets
+          secret:
+            secretName: alertmanager-secrets
+        - name: storage
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-mnbara
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: alertmanager
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9093
+      targetPort: 9093
+      name: web
+    - port: 9094
+      targetPort: 9094
+      name: cluster
+  selector:
+    app.kubernetes.io/name: alertmanager

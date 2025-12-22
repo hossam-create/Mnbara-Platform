@@ -1,0 +1,46 @@
+# Auction Service ConfigMap - Critical service for real-time bidding
+{{- if .Values.auctionService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.auctionService.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+data:
+  # Server Configuration
+  PORT: {{ .Values.auctionService.env.PORT | default "3003" | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: {{ .Values.auctionService.config.logLevel | default "info" | quote }}
+  
+  # WebSocket Configuration
+  WS_ENABLED: {{ .Values.auctionService.config.websocket.enabled | default true | quote }}
+  WS_PATH: {{ .Values.auctionService.config.websocket.path | default "/ws" | quote }}
+  WS_PING_INTERVAL: {{ .Values.auctionService.config.websocket.pingInterval | default 30000 | quote }}
+  WS_PING_TIMEOUT: {{ .Values.auctionService.config.websocket.pingTimeout | default 5000 | quote }}
+  WS_MAX_CONNECTIONS: {{ .Values.auctionService.config.websocket.maxConnections | default 10000 | quote }}
+  
+  # Auction Configuration
+  AUCTION_MIN_BID_INCREMENT_PERCENT: {{ .Values.auctionService.config.auction.minBidIncrementPercent | default "1" | quote }}
+  AUCTION_AUTO_EXTEND_ENABLED: {{ .Values.auctionService.config.auction.autoExtendEnabled | default true | quote }}
+  AUCTION_AUTO_EXTEND_THRESHOLD_SECONDS: {{ .Values.auctionService.config.auction.autoExtendThresholdSeconds | default 120 | quote }}
+  AUCTION_AUTO_EXTEND_DURATION_SECONDS: {{ .Values.auctionService.config.auction.autoExtendDurationSeconds | default 300 | quote }}
+  AUCTION_MAX_EXTENSIONS: {{ .Values.auctionService.config.auction.maxExtensions | default 10 | quote }}
+  
+  # Proxy Bid Configuration
+  PROXY_BID_ENABLED: {{ .Values.auctionService.config.proxyBid.enabled | default true | quote }}
+  PROXY_BID_MAX_AMOUNT: {{ .Values.auctionService.config.proxyBid.maxAmount | default "1000000" | quote }}
+  
+  # Notification Configuration
+  NOTIFICATION_OUTBID_ENABLED: {{ .Values.auctionService.config.notifications.outbidEnabled | default true | quote }}
+  NOTIFICATION_ENDING_SOON_ENABLED: {{ .Values.auctionService.config.notifications.endingSoonEnabled | default true | quote }}
+  NOTIFICATION_ENDING_SOON_THRESHOLD_SECONDS: {{ .Values.auctionService.config.notifications.endingSoonThresholdSeconds | default 120 | quote }}
+  
+  # Cache Configuration
+  CACHE_BID_TTL_SECONDS: {{ .Values.auctionService.config.cache.bidTtlSeconds | default 300 | quote }}
+  CACHE_AUCTION_TTL_SECONDS: {{ .Values.auctionService.config.cache.auctionTtlSeconds | default 60 | quote }}
+  
+  # Performance Configuration
+  BID_PROCESSING_BATCH_SIZE: {{ .Values.auctionService.config.performance.bidProcessingBatchSize | default 100 | quote }}
+  BID_PROCESSING_INTERVAL_MS: {{ .Values.auctionService.config.performance.bidProcessingIntervalMs | default 100 | quote }}
+{{- end }}

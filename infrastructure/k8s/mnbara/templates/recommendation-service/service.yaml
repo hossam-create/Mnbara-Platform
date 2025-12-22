@@ -1,0 +1,18 @@
+{{- if .Values.recommendationService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.recommendationService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+spec:
+  type: {{ .Values.recommendationService.service.type }}
+  ports:
+    - port: {{ .Values.recommendationService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+{{- end }}

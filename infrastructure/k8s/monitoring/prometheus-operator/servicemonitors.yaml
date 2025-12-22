@@ -1,0 +1,295 @@
+# ServiceMonitors for all MNBARA Backend Services
+# These configure Prometheus to scrape metrics from each service
+
+---
+# API Gateway ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: api-gateway
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: api-gateway
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      honorLabels: true
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: namespace
+---
+# Auth Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: auth-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Listing Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: listing-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: listing-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: listing-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Auction Service ServiceMonitor (critical - more frequent scraping)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: auction-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: auction-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auction-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+---
+# Payment Service ServiceMonitor (critical - more frequent scraping)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: payment-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+---
+# Crowdship Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: crowdship-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: crowdship-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: crowdship-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Notification Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: notification-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Recommendation Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: recommendation-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: recommendation-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: recommendation-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Rewards Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rewards-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: rewards-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: rewards-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Orders Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: orders-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: orders-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: orders-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Trips Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: trips-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: trips-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: trips-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Matching Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: matching-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: matching-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: matching-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+---
+# Admin Service ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: admin-service
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: admin-service
+    app.kubernetes.io/part-of: mnbara-platform
+spec:
+  namespaceSelector:
+    matchNames:
+      - mnbara
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: admin-service
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s

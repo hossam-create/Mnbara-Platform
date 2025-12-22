@@ -1,0 +1,49 @@
+# Payment Service ConfigMap - Critical service for financial transactions
+{{- if .Values.paymentService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.paymentService.name }}-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+data:
+  # Server Configuration
+  PORT: {{ .Values.paymentService.env.PORT | default "3004" | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  LOG_LEVEL: {{ .Values.paymentService.config.logLevel | default "info" | quote }}
+  
+  # Payment Provider Configuration
+  STRIPE_ENABLED: {{ .Values.paymentService.config.stripe.enabled | default true | quote }}
+  STRIPE_API_VERSION: {{ .Values.paymentService.config.stripe.apiVersion | default "2023-10-16" | quote }}
+  STRIPE_WEBHOOK_TOLERANCE_SECONDS: {{ .Values.paymentService.config.stripe.webhookToleranceSeconds | default 300 | quote }}
+  
+  PAYPAL_ENABLED: {{ .Values.paymentService.config.paypal.enabled | default true | quote }}
+  PAYPAL_MODE: {{ .Values.paymentService.config.paypal.mode | default "sandbox" | quote }}
+  
+  PAYMOB_ENABLED: {{ .Values.paymentService.config.paymob.enabled | default false | quote }}
+  
+  # Escrow Configuration
+  ESCROW_ENABLED: {{ .Values.paymentService.config.escrow.enabled | default true | quote }}
+  ESCROW_HOLD_DURATION_DAYS: {{ .Values.paymentService.config.escrow.holdDurationDays | default 14 | quote }}
+  ESCROW_AUTO_RELEASE_ENABLED: {{ .Values.paymentService.config.escrow.autoReleaseEnabled | default true | quote }}
+  ESCROW_DISPUTE_WINDOW_DAYS: {{ .Values.paymentService.config.escrow.disputeWindowDays | default 7 | quote }}
+  
+  # Wallet Configuration
+  WALLET_ENABLED: {{ .Values.paymentService.config.wallet.enabled | default true | quote }}
+  WALLET_MIN_BALANCE: {{ .Values.paymentService.config.wallet.minBalance | default "0" | quote }}
+  WALLET_MAX_BALANCE: {{ .Values.paymentService.config.wallet.maxBalance | default "100000" | quote }}
+  
+  # Transaction Configuration
+  TRANSACTION_RETRY_ATTEMPTS: {{ .Values.paymentService.config.transaction.retryAttempts | default 3 | quote }}
+  TRANSACTION_RETRY_DELAY_MS: {{ .Values.paymentService.config.transaction.retryDelayMs | default 1000 | quote }}
+  TRANSACTION_TIMEOUT_MS: {{ .Values.paymentService.config.transaction.timeoutMs | default 30000 | quote }}
+  
+  # Currency Configuration
+  DEFAULT_CURRENCY: {{ .Values.paymentService.config.currency.default | default "USD" | quote }}
+  SUPPORTED_CURRENCIES: {{ .Values.paymentService.config.currency.supported | default "USD,EUR,GBP,EGP" | quote }}
+  
+  # Fee Configuration
+  PLATFORM_FEE_PERCENT: {{ .Values.paymentService.config.fees.platformFeePercent | default "2.5" | quote }}
+  TRAVELER_FEE_PERCENT: {{ .Values.paymentService.config.fees.travelerFeePercent | default "10" | quote }}
+{{- end }}

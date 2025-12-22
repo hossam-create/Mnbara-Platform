@@ -6,3 +6,14 @@ numpy
 scikit-learn
 asyncpg
 sqlalchemy
+aio-pika==9.3.0
+httpx==0.26.0
+
+# ML Serving Infrastructure
+mlflow==2.10.0
+torch>=2.0.0
+redis>=5.0.0
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0

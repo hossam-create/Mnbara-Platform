@@ -1,0 +1,300 @@
+# PCI-DSS Network Segmentation Configuration
+# Requirements: 19.1 - Configure network segmentation for payment services
+---
+# Dedicated namespace for payment services (CDE - Cardholder Data Environment)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+    security.mnbara.com/cde: "true"
+  annotations:
+    # Enforce strict security policies
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+
+---
+# Default deny all ingress and egress for CDE namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+# Payment service network policy - strict ingress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-ingress
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only allow traffic from API Gateway
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: mnbara
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: api-gateway
+      ports:
+        - protocol: TCP
+          port: 3004
+
+---
+# Payment service network policy - strict egress
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-egress
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow PostgreSQL (encrypted connection only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    # Allow Redis (encrypted connection only)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+    # Allow Stripe API (external)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+    # Allow Vault for secrets
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+
+---
+# API Gateway to Payment Service policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-gateway-to-payment
+  namespace: mnbara
+  labels:
+    app.kubernetes.io/name: api-gateway
+    security.mnbara.com/pci-dss: "true"
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api-gateway
+  policyTypes:
+    - Egress
+  egress:
+    # Allow traffic to payment service
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              security.mnbara.com/cde: "true"
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: payment-service
+      ports:
+        - protocol: TCP
+          port: 3004
+
+---
+# Istio AuthorizationPolicy for payment service
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: payment-service-authz
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-service
+    security.mnbara.com/pci-dss: "true"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service
+  action: ALLOW
+  rules:
+    # Only allow requests from API Gateway with valid JWT
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/mnbara/sa/api-gateway"
+      to:
+        - operation:
+            methods: ["POST", "GET"]
+            paths:
+              - "/api/payments/*"
+              - "/api/escrow/*"
+              - "/health"
+              - "/ready"
+      when:
+        - key: request.auth.claims[iss]
+          values: ["https://auth.mnbara.com"]
+
+---
+# Strict mTLS for payment namespace
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: payment-mtls-strict
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+spec:
+  mtls:
+    mode: STRICT
+
+---
+# Resource quota for CDE namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: payment-cde-quota
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+spec:
+  hard:
+    pods: "10"
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    persistentvolumeclaims: "5"
+    services: "5"
+    secrets: "20"
+    configmaps: "20"
+
+---
+# Limit ranges for CDE namespace
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: payment-cde-limits
+  namespace: payment-cde
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+spec:
+  limits:
+    - type: Pod
+      max:
+        cpu: "2"
+        memory: "4Gi"
+      min:
+        cpu: "100m"
+        memory: "128Mi"
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      max:
+        cpu: "2"
+        memory: "4Gi"
+      min:
+        cpu: "50m"
+        memory: "64Mi"
+
+---
+# Pod Security Policy for CDE (deprecated but included for older clusters)
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: payment-cde-restricted
+  labels:
+    app.kubernetes.io/name: payment-cde
+    security.mnbara.com/pci-dss: "true"
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: true

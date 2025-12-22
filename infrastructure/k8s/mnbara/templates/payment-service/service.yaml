@@ -1,0 +1,18 @@
+{{- if .Values.paymentService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.paymentService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+spec:
+  type: {{ .Values.paymentService.service.type }}
+  ports:
+    - port: {{ .Values.paymentService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mnbara.serviceSelectorLabels" (list . .Values.paymentService.name) | nindent 4 }}
+{{- end }}

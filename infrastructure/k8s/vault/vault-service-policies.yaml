@@ -1,0 +1,424 @@
+# Vault Service Policies Configuration
+# Defines granular access policies for each MNBARA service
+---
+# ConfigMap containing all service policies as HCL files
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-service-policies
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: policies
+data:
+  # API Gateway Policy
+  api-gateway.hcl: |
+    # API Gateway Service Policy
+    # Requires: database, jwt, redis credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read JWT secrets for token validation
+    path "secret/data/mnbara/jwt" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials for caching/rate limiting
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Auth Service Policy
+  auth-service.hcl: |
+    # Auth Service Policy
+    # Requires: database, jwt, oauth, redis, encryption credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read JWT secrets for token generation
+    path "secret/data/mnbara/jwt" {
+      capabilities = ["read"]
+    }
+    
+    # Read OAuth provider credentials
+    path "secret/data/mnbara/oauth" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials for session management
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read encryption keys for sensitive data
+    path "secret/data/mnbara/encryption" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Payment Service Policy
+  payment-service.hcl: |
+    # Payment Service Policy
+    # Requires: database, stripe, paypal, redis, rabbitmq, blockchain credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Stripe credentials
+    path "secret/data/mnbara/stripe" {
+      capabilities = ["read"]
+    }
+    
+    # Read PayPal credentials
+    path "secret/data/mnbara/paypal" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials for event publishing
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Read blockchain credentials for MNB token payments
+    path "secret/data/mnbara/blockchain" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Auction Service Policy
+  auction-service.hcl: |
+    # Auction Service Policy
+    # Requires: database, redis, rabbitmq credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials for real-time auction state
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials for bid events
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Listing Service Policy
+  listing-service.hcl: |
+    # Listing Service Policy
+    # Requires: database, minio, elasticsearch, redis credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read MinIO credentials for image storage
+    path "secret/data/mnbara/minio" {
+      capabilities = ["read"]
+    }
+    
+    # Read Elasticsearch credentials for search indexing
+    path "secret/data/mnbara/elasticsearch" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials for caching
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Notification Service Policy
+  notification-service.hcl: |
+    # Notification Service Policy
+    # Requires: database, notifications (FCM/APNs), rabbitmq, redis credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read FCM/APNs credentials
+    path "secret/data/mnbara/notifications" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials for event consumption
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Recommendation Service Policy
+  recommendation-service.hcl: |
+    # Recommendation Service Policy
+    # Requires: database, redis, rabbitmq credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials for caching recommendations
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials for event processing
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Matching Service Policy
+  matching-service.hcl: |
+    # Matching Service Policy
+    # Requires: database, redis credentials
+    
+    # Read database credentials (PostGIS for geo queries)
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Trips Service Policy
+  trips-service.hcl: |
+    # Trips Service Policy
+    # Requires: database, redis credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Orders Service Policy
+  orders-service.hcl: |
+    # Orders Service Policy
+    # Requires: database, redis, rabbitmq credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials for order events
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Rewards Service Policy
+  rewards-service.hcl: |
+    # Rewards Service Policy
+    # Requires: database, redis credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Admin Service Policy
+  admin-service.hcl: |
+    # Admin Service Policy
+    # Requires: full read access to all secrets
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read all MNBARA secrets (admin access)
+    path "secret/data/mnbara/*" {
+      capabilities = ["read", "list"]
+    }
+    
+    # List secret metadata
+    path "secret/metadata/mnbara/*" {
+      capabilities = ["list", "read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+  # Crowdship Service Policy
+  crowdship-service.hcl: |
+    # Crowdship Service Policy
+    # Requires: database, redis, rabbitmq credentials
+    
+    # Read database credentials
+    path "secret/data/mnbara/database" {
+      capabilities = ["read"]
+    }
+    
+    # Read Redis credentials
+    path "secret/data/mnbara/redis" {
+      capabilities = ["read"]
+    }
+    
+    # Read RabbitMQ credentials
+    path "secret/data/mnbara/rabbitmq" {
+      capabilities = ["read"]
+    }
+    
+    # Allow token renewal
+    path "auth/token/renew-self" {
+      capabilities = ["update"]
+    }
+
+---
+# Job to apply all service policies
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-apply-policies
+  namespace: vault
+  labels:
+    app.kubernetes.io/name: vault
+    app.kubernetes.io/component: policy-setup
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      serviceAccountName: vault
+      restartPolicy: OnFailure
+      containers:
+        - name: apply-policies
+          image: hashicorp/vault:1.15
+          command:
+            - /bin/sh
+            - -c
+            - |
+              # Wait for Vault to be ready
+              echo "Waiting for Vault to be ready..."
+              until vault status 2>/dev/null | grep -q "Sealed.*false"; do
+                echo "Waiting for Vault to be unsealed..."
+                sleep 5
+              done
+              
+              # Login with root token
+              vault login "${VAULT_ROOT_TOKEN}"
+              
+              echo "Applying service policies..."
+              
+              # Apply each policy from the ConfigMap
+              for policy_file in /policies/*.hcl; do
+                policy_name=$(basename "$policy_file" .hcl)
+                echo "Applying policy: $policy_name"
+                vault policy write "$policy_name" "$policy_file"
+              done
+              
+              echo "All policies applied successfully!"
+          env:
+            - name: VAULT_ADDR
+              value: "https://vault.vault:8200"
+            - name: VAULT_CACERT
+              value: "/vault/tls/ca.crt"
+            - name: VAULT_ROOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-root-token
+                  key: token
+          volumeMounts:
+            - name: policies
+              mountPath: /policies
+            - name: tls
+              mountPath: /vault/tls
+              readOnly: true
+      volumes:
+        - name: policies
+          configMap:
+            name: vault-service-policies
+        - name: tls
+          secret:
+            secretName: vault-tls

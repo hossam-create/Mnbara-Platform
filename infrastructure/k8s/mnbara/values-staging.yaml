@@ -1,0 +1,186 @@
+# Staging environment values
+# Usage: helm install mnbara ./mnbara -f values-staging.yaml
+
+global:
+  environment: staging
+
+namespace: mnbara-staging
+
+# Moderate replicas for staging
+apiGateway:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+authService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+listingService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+auctionService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+
+paymentService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+crowdshipService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+notificationService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+recommendationService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+rewardsService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+ordersService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+tripsService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+matchingService:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+adminService:
+  replicaCount: 2
+
+webFrontend:
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+
+adminDashboard:
+  replicaCount: 1
+
+# Moderate infrastructure for staging
+postgresql:
+  primary:
+    persistence:
+      size: 20Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+redis:
+  master:
+    persistence:
+      size: 5Gi
+  replica:
+    replicaCount: 1
+    persistence:
+      size: 5Gi
+
+rabbitmq:
+  persistence:
+    size: 5Gi
+
+elasticsearch:
+  master:
+    replicaCount: 2
+    persistence:
+      size: 20Gi
+  data:
+    replicaCount: 2
+    persistence:
+      size: 50Gi
+
+minio:
+  persistence:
+    size: 50Gi
+
+# Enable PDB for staging
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Enable network policies
+networkPolicy:
+  enabled: true
+
+# Enable monitoring
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# Staging ingress with TLS
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+  hosts:
+    - host: api.staging.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: staging.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web-frontend
+  tls:
+    - secretName: mnbara-staging-tls
+      hosts:
+        - api.staging.mnbara.com
+        - staging.mnbara.com

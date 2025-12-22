@@ -1,0 +1,239 @@
+# Vertical Pod Autoscaler Configuration for MNBARA Platform
+# VPA automatically adjusts CPU and memory requests based on actual usage
+
+{{- if .Values.autoscaling.vpa.enabled }}
+
+---
+# VPA for API Gateway
+{{- if .Values.apiGateway.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.apiGateway.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.apiGateway.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.apiGateway.name }}
+        minAllowed:
+          cpu: {{ .Values.autoscaling.vpa.minAllowed.cpu | default "50m" }}
+          memory: {{ .Values.autoscaling.vpa.minAllowed.memory | default "128Mi" }}
+        maxAllowed:
+          cpu: {{ .Values.autoscaling.vpa.maxAllowed.cpu | default "2" }}
+          memory: {{ .Values.autoscaling.vpa.maxAllowed.memory | default "4Gi" }}
+        controlledResources: ["cpu", "memory"]
+        controlledValues: RequestsAndLimits
+{{- end }}
+
+---
+# VPA for Auth Service
+{{- if .Values.authService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.authService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.authService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.authService.name }}
+        minAllowed:
+          cpu: "50m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "4Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Auction Service (Critical - higher limits)
+{{- if .Values.auctionService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.auctionService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.auctionService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.auctionService.name }}
+        minAllowed:
+          cpu: "100m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "4"
+          memory: "8Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Payment Service (Critical - higher limits)
+{{- if .Values.paymentService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.paymentService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.paymentService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.paymentService.name }}
+        minAllowed:
+          cpu: "100m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "4Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Listing Service
+{{- if .Values.listingService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.listingService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.listingService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.listingService.name }}
+        minAllowed:
+          cpu: "50m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "4Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Notification Service
+{{- if .Values.notificationService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.notificationService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.notificationService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.notificationService.name }}
+        minAllowed:
+          cpu: "50m"
+          memory: "128Mi"
+        maxAllowed:
+          cpu: "2"
+          memory: "4Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Matching Service (Geo-spatial - memory intensive)
+{{- if .Values.matchingService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.matchingService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.matchingService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.matchingService.name }}
+        minAllowed:
+          cpu: "100m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "4"
+          memory: "8Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+---
+# VPA for Recommendation Service (ML - CPU/memory intensive)
+{{- if .Values.recommendationService.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ .Values.recommendationService.name }}-vpa
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.recommendationService.name }}
+  updatePolicy:
+    updateMode: {{ .Values.autoscaling.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ .Values.recommendationService.name }}
+        minAllowed:
+          cpu: "100m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "4"
+          memory: "8Gi"
+        controlledResources: ["cpu", "memory"]
+{{- end }}
+
+{{- end }}

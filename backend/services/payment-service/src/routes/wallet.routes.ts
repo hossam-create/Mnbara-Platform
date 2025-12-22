@@ -4,16 +4,23 @@ import { WalletController } from '../controllers/wallet.controller';
 const router = Router();
 const walletController = new WalletController();
 
-// Get wallet balance
+// GET /api/wallet - wallet summary
 router.get('/', walletController.getBalance);
 
-// Get transaction history
-router.get('/transactions', walletController.getTransactions);
+// GET /api/wallet/payout-methods
+router.get('/payout-methods', walletController.getPayoutMethods);
 
-// Deposit funds (Top-up)
-router.post('/deposit', walletController.deposit);
+// POST /api/wallet/payout-methods
+router.post('/payout-methods', walletController.addPayoutMethod);
 
-// Withdraw funds
+// POST /api/wallet/withdraw - full balance withdraw
 router.post('/withdraw', walletController.withdraw);
+
+// GET /api/wallet/withdrawals
+router.get('/withdrawals', walletController.getWithdrawals);
+
+// Additional legacy/testing endpoints
+router.get('/transactions', walletController.getTransactions);
+router.post('/deposit', walletController.deposit);
 
 export default router;

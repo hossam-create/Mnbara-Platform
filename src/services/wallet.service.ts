@@ -1,7 +1,11 @@
 import { RedotPayService } from './redotpay.service';
-import { BlockchainService } from './blockchain.service';
+import { ContractsService } from './contracts.service';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
+// import { BiometricAuthService } from './biometric.service'; // TODO: Implement BiometricAuthService
+
+// Use require instead of import for ethers to avoid Jest issues
+const { ethers } = require('ethers');
 
 export interface WalletSecurityConfig {
     maxDailyWithdrawal: number;
@@ -18,14 +22,15 @@ export interface BiometricAuth {
 
 export class WalletService {
     private redotPayService: RedotPayService;
-    private blockchainService: BlockchainService;
+    private contractsService: ContractsService;
+    // private biometricService: BiometricAuthService; // TODO: Implement BiometricAuthService
     private encryptionKey: string;
     private securityConfig: WalletSecurityConfig;
 
-    constructor() {
+    constructor(contractsService: ContractsService) {
         this.redotPayService = new RedotPayService();
-        this.blockchainService = new BlockchainService();
-        this.biometricService = new BiometricAuthService();
+        this.contractsService = contractsService;
+        // this.biometricService = new BiometricAuthService(); // TODO: Implement BiometricAuthService
         this.encryptionKey = process.env.WALLET_ENCRYPTION_KEY!;
         this.securityConfig = {
             maxDailyWithdrawal: 10000,
@@ -64,11 +69,13 @@ export class WalletService {
         // This would typically call an external biometric verification service
         
         // For now, simulate successful verification
+        this.logger.warn('Biometric verification is currently disabled.');
         return true;
     }
 
     // إنشاء تحدي أمان للمصادقة الحيوية
     generateBiometricChallenge(userId: number): string {
+        this.logger.warn('Biometric challenge generation is currently disabled.');
         const challenge = {
             userId,
             timestamp: Date.now(),
@@ -80,6 +87,7 @@ export class WalletService {
 
     // التحقق من تحدي المصادقة الحيوية
     async verifyBiometricChallenge(challenge: string, signature: string): Promise<boolean> {
+        this.logger.warn('Biometric challenge verification is currently disabled.');
         try {
             const decryptedChallenge = JSON.parse(this.decryptData(challenge));
             
@@ -173,9 +181,16 @@ export class WalletService {
                 throw new Error('User blockchain address not found');
             }
 
-            // Get balance from blockchain
-            const balance = await this.blockchainService.getBalance(userAddress);
-            return parseFloat(balance);
+            // Get balance from MNBToken contract
+            const balanceResult = await this.contractsService.readContract('MNBToken', 'balanceOf', [userAddress]);
+
+            if (!balanceResult.success) {
+                throw new Error(balanceResult.error);
+            }
+
+            // The result from the contract is a BigNumber, so we need to format it.
+            // Assuming the token has 18 decimals, like most ERC20 tokens.
+            return parseFloat(ethers.formatUnits(balanceResult.result, 18));
         } catch (error) {
             console.error('Failed to get blockchain balance:', error);
             

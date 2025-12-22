@@ -1,0 +1,178 @@
+# TorchServe Model Serving Deployment
+# Requirements: 17.4 - Personalized recommendations based on browsing history
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: torchserve-config
+  namespace: ml-serving
+data:
+  config.properties: |
+    inference_address=http://0.0.0.0:8080
+    management_address=http://0.0.0.0:8081
+    metrics_address=http://0.0.0.0:8082
+    grpc_inference_port=7070
+    grpc_management_port=7071
+    enable_metrics_api=true
+    metrics_format=prometheus
+    number_of_netty_threads=4
+    job_queue_size=100
+    model_store=/models
+    load_models=all
+    max_request_size=6553500
+    max_response_size=6553500
+    default_response_timeout=120
+    enable_envvars_config=true
+    install_py_dep_per_model=true
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: torchserve-models-pvc
+  namespace: ml-serving
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torchserve
+  namespace: ml-serving
+  labels:
+    app: torchserve
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: torchserve
+  template:
+    metadata:
+      labels:
+        app: torchserve
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8082"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: torchserve
+          image: pytorch/torchserve:0.9.0-cpu
+          ports:
+            - containerPort: 8080
+              name: inference
+            - containerPort: 8081
+              name: management
+            - containerPort: 8082
+              name: metrics
+            - containerPort: 7070
+              name: grpc-inference
+          volumeMounts:
+            - name: config
+              mountPath: /home/model-server/config.properties
+              subPath: config.properties
+            - name: models
+              mountPath: /models
+          env:
+            - name: TS_CONFIG_FILE
+              value: "/home/model-server/config.properties"
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow-server:5000"
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "4Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 3
+      volumes:
+        - name: config
+          configMap:
+            name: torchserve-config
+        - name: models
+          persistentVolumeClaim:
+            claimName: torchserve-models-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: torchserve
+  namespace: ml-serving
+  labels:
+    app: torchserve
+spec:
+  selector:
+    app: torchserve
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: inference
+    - port: 8081
+      targetPort: 8081
+      name: management
+    - port: 8082
+      targetPort: 8082
+      name: metrics
+    - port: 7070
+      targetPort: 7070
+      name: grpc
+  type: ClusterIP
+---
+# Horizontal Pod Autoscaler for TorchServe
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: torchserve-hpa
+  namespace: ml-serving
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: torchserve
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120

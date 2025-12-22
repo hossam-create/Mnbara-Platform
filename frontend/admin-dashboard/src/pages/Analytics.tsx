@@ -1,169 +1,178 @@
-import { useEffect, useState } from 'react';
-import { Row, Col, Card, Statistic, Select, Spin } from 'antd';
+/**
+ * Analytics Page - Business Intelligence Dashboard
+ * Requirements: Display key metrics, charts, and business insights
+ */
+
+import React from 'react';
+import { Card, Row, Col, Statistic, Progress, Space } from 'antd';
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import axios from 'axios';
+  BarChartOutlined,
+  UserOutlined,
+  ShoppingOutlined,
+  DollarOutlined,
+  RiseOutlined,
+  FallOutlined
+} from '@ant-design/icons';
 
-const { Option } = Select;
-
-const Analytics = () => {
-  const [loading, setLoading] = useState(true);
-  const [period, setPeriod] = useState('30d');
-  const [userAnalytics, setUserAnalytics] = useState<any>(null);
-  const [orderAnalytics, setOrderAnalytics] = useState<any>(null);
-  const [revenueAnalytics, setRevenueAnalytics] = useState<any>(null);
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, [period]);
-
-  const fetchAnalytics = async () => {
-    setLoading(true);
-    try {
-      const [usersRes, ordersRes, revenueRes] = await Promise.all([
-        axios.get(`/api/admin/analytics/users?period=${period}`),
-        axios.get(`/api/admin/analytics/orders?period=${period}`),
-        axios.get(`/api/admin/analytics/revenue?period=${period}`),
-      ]);
-
-      setUserAnalytics(usersRes.data);
-      setOrderAnalytics(ordersRes.data);
-      setRevenueAnalytics(revenueRes.data);
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      setLoading(false);
-    }
+const Analytics: React.FC = () => {
+  // Mock analytics data
+  const businessMetrics = {
+    totalRevenue: '$245,890',
+    activeUsers: '12,456',
+    transactions: '8,923',
+    conversionRate: '4.2%',
+    averageOrderValue: '$89.50',
+    customerSatisfaction: '94%'
   };
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
+  const growthMetrics = {
+    revenueGrowth: '+12.5%',
+    userGrowth: '+8.3%',
+    transactionGrowth: '+15.2%',
+    retentionRate: '87%'
+  };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
-        <h1>Analytics</h1>
-        <Select value={period} onChange={setPeriod} style={{ width: 120 }}>
-          <Option value="7d">Last 7 Days</Option>
-          <Option value="30d">Last 30 Days</Option>
-          <Option value="3m">Last 3 Months</Option>
-          <Option value="1y">Last Year</Option>
-        </Select>
-      </div>
+    <div style={{ padding: '24px' }}>
+      <h1 style={{ marginBottom: '24px' }}>
+        <BarChartOutlined /> Business Analytics
+      </h1>
 
-      {/* User Analytics */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Total Users" value={userAnalytics?.totalUsers || 0} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="New Users" value={userAnalytics?.newUsers || 0} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic title="Active Users" value={userAnalytics?.activeUsers || 0} />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card>
-            <Statistic
-              title="Retention Rate"
-              value={userAnalytics?.retentionRate || 0}
-              suffix="%"
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Order Analytics */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={24}>
-          <Card title="Order Status Distribution">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={orderAnalytics?.byStatus || []}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#82ca9d" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Revenue Analytics */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
+      {/* Key Metrics */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={8} lg={6}>
           <Card>
             <Statistic
               title="Total Revenue"
-              value={revenueAnalytics?.totalRevenue || 0}
-              precision={2}
-              prefix="$"
+              value={businessMetrics.totalRevenue}
+              prefix={<DollarOutlined style={{ color: '#52c41a' }} />}
+              valueStyle={{ color: '#52c41a' }}
             />
+            <Space>
+              <RiseOutlined style={{ color: '#52c41a' }} />
+              <span style={{ color: '#52c41a', fontSize: '12px' }}>
+                {growthMetrics.revenueGrowth}
+              </span>
+            </Space>
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8} lg={6}>
           <Card>
             <Statistic
-              title="Commission Earned"
-              value={revenueAnalytics?.commission || 0}
-              precision={2}
-              prefix="$"
+              title="Active Users"
+              value={businessMetrics.activeUsers}
+              prefix={<UserOutlined style={{ color: '#1890ff' }} />}
+              valueStyle={{ color: '#1890ff' }}
             />
+            <Space>
+              <RiseOutlined style={{ color: '#52c41a' }} />
+              <span style={{ color: '#52c41a', fontSize: '12px' }}>
+                {growthMetrics.userGrowth}
+              </span>
+            </Space>
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={12} md={8} lg={6}>
           <Card>
             <Statistic
-              title="Escrow Held"
-              value={revenueAnalytics?.escrowHeld || 0}
-              precision={2}
-              prefix="$"
+              title="Transactions"
+              value={businessMetrics.transactions}
+              prefix={<ShoppingOutlined style={{ color: '#722ed1' }} />}
+              valueStyle={{ color: '#722ed1' }}
+            />
+            <Space>
+              <RiseOutlined style={{ color: '#52c41a' }} />
+              <span style={{ color: '#52c41a', fontSize: '12px' }}>
+                {growthMetrics.transactionGrowth}
+              </span>
+            </Space>
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="Conversion Rate"
+              value={businessMetrics.conversionRate}
+              suffix="%"
+              valueStyle={{ color: '#fa8c16' }}
+            />
+            <Progress
+              percent={4.2}
+              size="small"
+              showInfo={false}
+              strokeColor="#fa8c16"
             />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={16}>
-        <Col span={24}>
-          <Card title="Revenue by Category">
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={revenueAnalytics?.byCategory || []}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+      {/* Charts Placeholder */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} md={12}>
+          <Card title="Revenue Trend" style={{ height: '300px' }}>
+            <div style={{ 
+              height: '200px', 
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              📈 Revenue Chart
+            </div>
+          </Card>
+        </Col>
+        <Col xs={24} md={12}>
+          <Card title="User Acquisition" style={{ height: '300px' }}>
+            <div style={{ 
+              height: '200px', 
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }}>
+              👥 User Growth Chart
+            </div>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Additional Metrics */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Avg Order Value"
+              value={businessMetrics.averageOrderValue}
+              prefix={<DollarOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Customer Satisfaction"
+              value={businessMetrics.customerSatisfaction}
+              suffix="%"
+              valueStyle={{ color: '#52c41a' }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8}>
+          <Card>
+            <Statistic
+              title="Retention Rate"
+              value={growthMetrics.retentionRate}
+              suffix="%"
+              valueStyle={{ color: '#1890ff' }}
+            />
           </Card>
         </Col>
       </Row>

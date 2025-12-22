@@ -1,0 +1,972 @@
+# MNBARA Platform - Default Values
+# This is a YAML-formatted file.
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+  environment: development
+
+# Namespace
+namespace: mnbara
+
+# Common labels
+commonLabels:
+  app.kubernetes.io/part-of: mnbara-platform
+
+# Image settings
+image:
+  registry: docker.io
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Service account
+serviceAccount:
+  create: true
+  name: mnbara-sa
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api-gateway
+    - host: mnbara.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web-frontend
+  tls:
+    - secretName: mnbara-tls
+      hosts:
+        - api.mnbara.com
+        - mnbara.com
+
+# ============================================
+# Backend Services Configuration
+# ============================================
+
+# API Gateway
+apiGateway:
+  enabled: true
+  name: api-gateway
+  replicaCount: 2
+  image:
+    repository: mnbara/api-gateway
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 8080
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "8080"
+    LOG_LEVEL: "info"
+    CORS_ORIGINS: "https://mnbara.com,https://admin.mnbara.com"
+  config:
+    logLevel: "info"
+    logFormat: "json"
+    corsMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+    corsHeaders: "Content-Type,Authorization,X-Request-ID,X-Correlation-ID"
+    rateLimiting:
+      enabled: true
+      windowMs: 60000
+      maxRequests: 100
+      skipSuccessful: false
+    circuitBreaker:
+      enabled: true
+      threshold: 5
+      timeout: 30000
+      resetTimeout: 60000
+    requestTimeout: 30000
+    keepAliveTimeout: 65000
+    healthCheckPath: "/health"
+    metricsPath: "/metrics"
+    tracing:
+      enabled: true
+      sampleRate: "0.1"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+# Auth Service
+authService:
+  enabled: true
+  name: auth-service
+  replicaCount: 2
+  image:
+    repository: mnbara/auth-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3001
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3001"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Listing Service
+listingService:
+  enabled: true
+  name: listing-service
+  replicaCount: 2
+  image:
+    repository: mnbara/listing-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3002
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3002"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Auction Service
+auctionService:
+  enabled: true
+  name: auction-service
+  replicaCount: 3
+  image:
+    repository: mnbara/auction-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3003
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  env:
+    NODE_ENV: production
+    PORT: "3003"
+  config:
+    logLevel: "info"
+    websocket:
+      enabled: true
+      path: "/ws"
+      pingInterval: 30000
+      pingTimeout: 5000
+      maxConnections: 10000
+    auction:
+      minBidIncrementPercent: "1"
+      autoExtendEnabled: true
+      autoExtendThresholdSeconds: 120
+      autoExtendDurationSeconds: 300
+      maxExtensions: 10
+    proxyBid:
+      enabled: true
+      maxAmount: "1000000"
+    notifications:
+      outbidEnabled: true
+      endingSoonEnabled: true
+      endingSoonThresholdSeconds: 120
+    cache:
+      bidTtlSeconds: 300
+      auctionTtlSeconds: 60
+    performance:
+      bidProcessingBatchSize: 100
+      bidProcessingIntervalMs: 100
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 15
+    targetCPUUtilizationPercentage: 60
+
+# Payment Service
+paymentService:
+  enabled: true
+  name: payment-service
+  replicaCount: 2
+  image:
+    repository: mnbara/payment-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3004
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3004"
+  config:
+    logLevel: "info"
+    stripe:
+      enabled: true
+      apiVersion: "2023-10-16"
+      webhookToleranceSeconds: 300
+    paypal:
+      enabled: true
+      mode: "sandbox"
+    paymob:
+      enabled: false
+    escrow:
+      enabled: true
+      holdDurationDays: 14
+      autoReleaseEnabled: true
+      disputeWindowDays: 7
+    wallet:
+      enabled: true
+      minBalance: "0"
+      maxBalance: "100000"
+    transaction:
+      retryAttempts: 3
+      retryDelayMs: 1000
+      timeoutMs: 30000
+    currency:
+      default: "USD"
+      supported: "USD,EUR,GBP,EGP"
+    fees:
+      platformFeePercent: "2.5"
+      travelerFeePercent: "10"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# Crowdship Service
+crowdshipService:
+  enabled: true
+  name: crowdship-service
+  replicaCount: 2
+  image:
+    repository: mnbara/crowdship-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3005
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3005"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Notification Service
+notificationService:
+  enabled: true
+  name: notification-service
+  replicaCount: 2
+  image:
+    repository: mnbara/notification-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3006
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3006"
+  config:
+    logLevel: "info"
+    fcm:
+      enabled: true
+    apns:
+      enabled: true
+      production: false
+    email:
+      enabled: true
+      provider: "ses"
+      fromAddress: "noreply@mnbara.com"
+      fromName: "MNBARA"
+    sms:
+      enabled: false
+      provider: "twilio"
+    websocket:
+      enabled: true
+      path: "/notifications"
+    queue:
+      batchSize: 100
+      processingIntervalMs: 1000
+      retryAttempts: 3
+      retryDelayMs: 5000
+    rateLimit:
+      perUserPerHour: 100
+      perUserPerDay: 500
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+# Recommendation Service
+recommendationService:
+  enabled: true
+  name: recommendation-service
+  replicaCount: 2
+  image:
+    repository: mnbara/recommendation-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3007
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  env:
+    NODE_ENV: production
+    PORT: "3007"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# Rewards Service
+rewardsService:
+  enabled: true
+  name: rewards-service
+  replicaCount: 2
+  image:
+    repository: mnbara/rewards-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3008
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3008"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+# Orders Service
+ordersService:
+  enabled: true
+  name: orders-service
+  replicaCount: 2
+  image:
+    repository: mnbara/orders-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3009
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3009"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Trips Service
+tripsService:
+  enabled: true
+  name: trips-service
+  replicaCount: 2
+  image:
+    repository: mnbara/trips-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3010
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3010"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Matching Service
+matchingService:
+  enabled: true
+  name: matching-service
+  replicaCount: 2
+  image:
+    repository: mnbara/matching-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3011
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  env:
+    NODE_ENV: production
+    PORT: "3011"
+  config:
+    logLevel: "info"
+    geo:
+      defaultRadiusKm: "50"
+      maxRadiusKm: "500"
+      srid: "4326"
+    matching:
+      algorithm: "weighted"
+      distanceWeight: "0.4"
+      ratingWeight: "0.3"
+      capacityWeight: "0.2"
+      priceWeight: "0.1"
+    traveler:
+      minRating: "3.5"
+      minCompletedTrips: "0"
+      maxActiveDeliveries: "5"
+    request:
+      expiryHours: "72"
+      maxMatches: "10"
+    cache:
+      nearbyTtlSeconds: "60"
+      travelerTtlSeconds: "300"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+
+# Admin Service
+adminService:
+  enabled: true
+  name: admin-service
+  replicaCount: 2
+  image:
+    repository: mnbara/admin-service
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3012
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  env:
+    NODE_ENV: production
+    PORT: "3012"
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 70
+
+# ============================================
+# Frontend Services Configuration
+# ============================================
+
+# Web Frontend
+webFrontend:
+  enabled: true
+  name: web-frontend
+  replicaCount: 2
+  image:
+    repository: mnbara/web-frontend
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+# Admin Dashboard
+adminDashboard:
+  enabled: true
+  name: admin-dashboard
+  replicaCount: 1
+  image:
+    repository: mnbara/admin-dashboard
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+  autoscaling:
+    enabled: false
+
+# ============================================
+# Infrastructure Dependencies
+# ============================================
+
+# PostgreSQL (Bitnami subchart)
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: ""  # Set via secrets
+    username: mnbara_user
+    password: ""  # Set via secrets
+    database: mnbara_db
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    extendedConfiguration: |
+      shared_preload_libraries = 'pg_stat_statements'
+      max_connections = 200
+  image:
+    registry: docker.io
+    repository: postgis/postgis
+    tag: 15-3.4-alpine
+
+# Redis (Bitnami subchart)
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: ""  # Set via secrets
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# RabbitMQ (Bitnami subchart)
+rabbitmq:
+  enabled: true
+  auth:
+    username: mnbara_user
+    password: ""  # Set via secrets
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+
+# Elasticsearch (Bitnami subchart)
+elasticsearch:
+  enabled: true
+  master:
+    replicaCount: 3
+    persistence:
+      enabled: true
+      size: 30Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+  data:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 100Gi
+
+# MinIO (Bitnami subchart)
+minio:
+  enabled: true
+  auth:
+    rootUser: minioadmin
+    rootPassword: ""  # Set via secrets
+  persistence:
+    enabled: true
+    size: 100Gi
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# ============================================
+# Secrets Configuration
+# ============================================
+
+secrets:
+  # Database credentials
+  database:
+    existingSecret: ""
+    postgresPassword: ""
+    userPassword: ""
+  # Redis password
+  redis:
+    existingSecret: ""
+    password: ""
+  # RabbitMQ credentials
+  rabbitmq:
+    existingSecret: ""
+    password: ""
+  # MinIO credentials
+  minio:
+    existingSecret: ""
+    rootPassword: ""
+  # JWT secret for auth
+  jwt:
+    existingSecret: ""
+    secret: ""
+  # Stripe API keys
+  stripe:
+    existingSecret: ""
+    secretKey: ""
+    webhookSecret: ""
+  # PayPal credentials
+  paypal:
+    existingSecret: ""
+    clientId: ""
+    secret: ""
+  # OAuth providers
+  oauth:
+    existingSecret: ""
+    googleClientId: ""
+    googleClientSecret: ""
+    appleClientId: ""
+    appleClientSecret: ""
+
+# ============================================
+# External Secrets Operator Configuration
+# ============================================
+
+externalSecrets:
+  enabled: false
+  # Provider: aws, vault, azure, gcp
+  provider: "aws"
+  refreshInterval: "1h"
+  
+  # AWS Secrets Manager Configuration
+  aws:
+    region: "us-east-1"
+    role: ""
+    serviceAccountRef: "mnbara-sa"
+  
+  # HashiCorp Vault Configuration
+  vault:
+    server: "http://vault.vault:8200"
+    path: "secret"
+    version: "v2"
+    mountPath: "kubernetes"
+    role: "mnbara"
+  
+  # Secret paths in external provider
+  secretPaths:
+    database: "mnbara/database"
+    redis: "mnbara/redis"
+    rabbitmq: "mnbara/rabbitmq"
+    jwt: "mnbara/jwt"
+    stripe: "mnbara/stripe"
+    paypal: "mnbara/paypal"
+    oauth: "mnbara/oauth"
+    minio: "mnbara/minio"
+
+# ============================================
+# Service Mesh Configuration
+# ============================================
+
+serviceMesh:
+  enabled: false
+  # Provider: istio or linkerd
+  provider: "istio"
+  
+  # Istio Configuration
+  istio:
+    mtls:
+      mode: "STRICT"  # STRICT, PERMISSIVE, DISABLE
+    loadBalancer: "ROUND_ROBIN"  # ROUND_ROBIN, LEAST_REQUEST, RANDOM
+    timeout: "30s"
+    retries:
+      attempts: 3
+      perTryTimeout: "10s"
+      retryOn: "gateway-error,connect-failure,refused-stream"
+    connectionPool:
+      maxConnections: 100
+      connectTimeout: "10s"
+      http1MaxPendingRequests: 100
+      http2MaxRequests: 1000
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: "30s"
+      baseEjectionTime: "30s"
+      maxEjectionPercent: 50
+  
+  # Linkerd Configuration
+  linkerd:
+    timeout: "30s"
+    retryBudget:
+      retryRatio: 0.2
+      minRetriesPerSecond: 10
+      ttl: "10s"
+  
+  # Rate Limiting (Istio EnvoyFilter)
+  rateLimiting:
+    enabled: false
+    maxTokens: 1000
+    tokensPerFill: 100
+    fillInterval: "1s"
+
+# ============================================
+# Monitoring Configuration
+# ============================================
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+  grafana:
+    enabled: false  # Use external Grafana
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+# Network Policies
+networkPolicy:
+  enabled: true
+
+# ============================================
+# Autoscaling Configuration
+# ============================================
+
+autoscaling:
+  # Vertical Pod Autoscaler
+  vpa:
+    enabled: false
+    # Update mode: Off, Initial, Recreate, Auto
+    updateMode: "Auto"
+    minAllowed:
+      cpu: "50m"
+      memory: "128Mi"
+    maxAllowed:
+      cpu: "4"
+      memory: "8Gi"
+  
+  # Horizontal Pod Autoscaler enhancements
+  hpa:
+    enhanced: false
+    customMetrics:
+      enabled: false
+      # Requires Prometheus Adapter or custom metrics API
+  
+  # Cluster Autoscaler
+  clusterAutoscaler:
+    enabled: false
+    # Expander strategy: random, most-pods, least-waste, price, priority
+    expander: "least-waste"
+    balanceSimilarNodeGroups: true
+    skipNodesWithLocalStorage: false
+    skipNodesWithSystemPods: true
+    
+    scaleDown:
+      enabled: true
+      delayAfterAdd: "10m"
+      delayAfterDelete: "10s"
+      delayAfterFailure: "3m"
+      unneededTime: "10m"
+      utilizationThreshold: "0.5"
+    
+    scaleUp:
+      maxNodeProvisionTime: "15m"
+      maxGracefulTerminationSec: "600"
+    
+    # Node pool configurations
+    nodePools:
+      general:
+        minNodes: 2
+        maxNodes: 10
+        instanceTypes:
+          - "m5.large"
+          - "m5.xlarge"
+      highMemory:
+        minNodes: 1
+        maxNodes: 5
+        instanceTypes:
+          - "r5.large"
+          - "r5.xlarge"
+      highCpu:
+        minNodes: 1
+        maxNodes: 5
+        instanceTypes:
+          - "c5.large"
+          - "c5.xlarge"
+    
+    # Priority-based expander configuration
+    priorities:
+      - priority: 100
+        nodeGroups:
+          - ".*spot.*"
+      - priority: 50
+        nodeGroups:
+          - ".*on-demand.*"
+
+# ============================================
+# Resource Quota Configuration
+# ============================================
+
+resourceQuota:
+  enabled: false  # Enable in production
+  requests:
+    cpu: "50"
+    memory: "100Gi"
+  limits:
+    cpu: "100"
+    memory: "200Gi"
+  pods: "200"
+  services: "50"
+  secrets: "100"
+  configmaps: "100"
+  pvcs: "50"
+  storage: "1Ti"
+
+# ============================================
+# Limit Range Configuration
+# ============================================
+
+limitRange:
+  enabled: true
+  default:
+    cpu: "500m"
+    memory: "512Mi"
+  defaultRequest:
+    cpu: "100m"
+    memory: "256Mi"
+  max:
+    cpu: "4"
+    memory: "8Gi"
+  min:
+    cpu: "50m"
+    memory: "64Mi"
+  maxStorage: "500Gi"
+  minStorage: "1Gi"
+
+# ============================================
+# Priority Classes
+# ============================================
+
+priorityClasses:
+  enabled: true
+  critical:
+    value: 1000000
+    description: "Critical platform services (payment, auction)"
+  high:
+    value: 100000
+    description: "High priority services (auth, api-gateway)"
+  normal:
+    value: 10000
+    description: "Normal priority services"

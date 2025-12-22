@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, Min } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsEnum, IsArray, ValidateNested, Min, IsEmail } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -80,4 +80,26 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   currency?: string;
+
+  // Guest checkout fields
+  @ApiPropertyOptional({ example: 'guest@example.com' })
+  @IsOptional()
+  @IsString()
+  @IsEmail()
+  guestEmail?: string;
+
+  @ApiPropertyOptional({ example: 'John' })
+  @IsOptional()
+  @IsString()
+  guestFirstName?: string;
+
+  @ApiPropertyOptional({ example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  guestLastName?: string;
+
+  @ApiPropertyOptional({ example: '+1234567890' })
+  @IsOptional()
+  @IsString()
+  guestPhone?: string;
 }

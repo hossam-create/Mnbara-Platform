@@ -1,0 +1,123 @@
+# Cluster Autoscaler Configuration for MNBARA Platform
+# This configures cluster-level autoscaling for node pools
+
+{{- if .Values.autoscaling.clusterAutoscaler.enabled }}
+
+---
+# ConfigMap for Cluster Autoscaler settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mnbara.fullname" . }}-cluster-autoscaler-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+data:
+  # Cluster Autoscaler configuration
+  # These are passed as environment variables or command-line args
+  
+  # Scale down settings
+  SCALE_DOWN_ENABLED: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.enabled | default true | quote }}
+  SCALE_DOWN_DELAY_AFTER_ADD: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.delayAfterAdd | default "10m" | quote }}
+  SCALE_DOWN_DELAY_AFTER_DELETE: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.delayAfterDelete | default "10s" | quote }}
+  SCALE_DOWN_DELAY_AFTER_FAILURE: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.delayAfterFailure | default "3m" | quote }}
+  SCALE_DOWN_UNNEEDED_TIME: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.unneededTime | default "10m" | quote }}
+  SCALE_DOWN_UTILIZATION_THRESHOLD: {{ .Values.autoscaling.clusterAutoscaler.scaleDown.utilizationThreshold | default "0.5" | quote }}
+  
+  # Scale up settings
+  MAX_NODE_PROVISION_TIME: {{ .Values.autoscaling.clusterAutoscaler.scaleUp.maxNodeProvisionTime | default "15m" | quote }}
+  MAX_GRACEFUL_TERMINATION_SEC: {{ .Values.autoscaling.clusterAutoscaler.scaleUp.maxGracefulTerminationSec | default "600" | quote }}
+  
+  # Expander strategy: random, most-pods, least-waste, price, priority
+  EXPANDER: {{ .Values.autoscaling.clusterAutoscaler.expander | default "least-waste" | quote }}
+  
+  # Balance similar node groups
+  BALANCE_SIMILAR_NODE_GROUPS: {{ .Values.autoscaling.clusterAutoscaler.balanceSimilarNodeGroups | default true | quote }}
+  
+  # Skip nodes with local storage
+  SKIP_NODES_WITH_LOCAL_STORAGE: {{ .Values.autoscaling.clusterAutoscaler.skipNodesWithLocalStorage | default false | quote }}
+  
+  # Skip nodes with system pods
+  SKIP_NODES_WITH_SYSTEM_PODS: {{ .Values.autoscaling.clusterAutoscaler.skipNodesWithSystemPods | default true | quote }}
+
+---
+# Priority-based expander configuration
+{{- if eq .Values.autoscaling.clusterAutoscaler.expander "priority" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mnbara.fullname" . }}-cluster-autoscaler-priority
+  namespace: kube-system
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+data:
+  priorities: |-
+    {{- range .Values.autoscaling.clusterAutoscaler.priorities }}
+    {{ .priority }}:
+      {{- range .nodeGroups }}
+      - {{ . }}
+      {{- end }}
+    {{- end }}
+{{- end }}
+
+---
+# Node pool annotations for autoscaling behavior
+# Apply these to your node pools/node groups
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mnbara.fullname" . }}-node-pool-config
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+data:
+  # Example node pool configurations
+  # These should be applied to your cloud provider's node pool configuration
+  
+  node-pools.yaml: |
+    # General purpose node pool
+    generalPool:
+      minNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.general.minNodes | default 2 }}
+      maxNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.general.maxNodes | default 10 }}
+      instanceTypes:
+        {{- range .Values.autoscaling.clusterAutoscaler.nodePools.general.instanceTypes | default (list "m5.large" "m5.xlarge") }}
+        - {{ . }}
+        {{- end }}
+      labels:
+        node-pool: general
+        workload-type: general
+      taints: []
+    
+    # High-memory node pool for matching/recommendation services
+    highMemoryPool:
+      minNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.highMemory.minNodes | default 1 }}
+      maxNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.highMemory.maxNodes | default 5 }}
+      instanceTypes:
+        {{- range .Values.autoscaling.clusterAutoscaler.nodePools.highMemory.instanceTypes | default (list "r5.large" "r5.xlarge") }}
+        - {{ . }}
+        {{- end }}
+      labels:
+        node-pool: high-memory
+        workload-type: memory-intensive
+      taints:
+        - key: workload-type
+          value: memory-intensive
+          effect: NoSchedule
+    
+    # High-CPU node pool for auction service
+    highCpuPool:
+      minNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.highCpu.minNodes | default 1 }}
+      maxNodes: {{ .Values.autoscaling.clusterAutoscaler.nodePools.highCpu.maxNodes | default 5 }}
+      instanceTypes:
+        {{- range .Values.autoscaling.clusterAutoscaler.nodePools.highCpu.instanceTypes | default (list "c5.large" "c5.xlarge") }}
+        - {{ . }}
+        {{- end }}
+      labels:
+        node-pool: high-cpu
+        workload-type: cpu-intensive
+      taints:
+        - key: workload-type
+          value: cpu-intensive
+          effect: NoSchedule
+
+{{- end }}

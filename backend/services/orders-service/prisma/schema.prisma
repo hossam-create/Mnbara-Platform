@@ -1,0 +1,270 @@
+// Orders Service Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id              String @id @default(cuid())
+  orderNumber     String @unique
+  
+  // Parties
+  buyerId         String
+  sellerId        String
+  travelerId      String? // For crowdshipping
+  
+  // Order details
+  subtotal        Decimal @db.Decimal(15, 2)
+  taxAmount       Decimal @default(0) @db.Decimal(15, 2)
+  shippingAmount  Decimal @default(0) @db.Decimal(15, 2)
+  discountAmount  Decimal @default(0) @db.Decimal(15, 2)
+  totalAmount     Decimal @db.Decimal(15, 2)
+  currency        String @default("USD")
+  
+  // Status
+  status          OrderStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Shipping
+  shippingMethod  ShippingMethod?
+  trackingNumber  String?
+  
+  // Addresses
+  shippingAddress Json // Full address object
+  billingAddress  Json? // Full address object
+  
+  // Timestamps
+  estimatedDelivery DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+  notes           OrderNote[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String @id @default(cuid())
+  orderId         String
+  
+  // Product details
+  productId       String
+  variantId       String?
+  listingId       String?
+  
+  // Item details (snapshot at time of order)
+  title           String
+  description     String?
+  sku             String?
+  image           String?
+  
+  // Pricing
+  unitPrice       Decimal @db.Decimal(15, 2)
+  quantity        Int
+  totalPrice      Decimal @db.Decimal(15, 2)
+  
+  // Physical properties
+  weight          Decimal? @db.Decimal(8, 3)
+  dimensions      Json? // {length, width, height}
+  
+  // Status
+  status          OrderItemStatus @default(PENDING)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  order           Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("order_items")
+}
+
+model OrderStatusHistory {
+  id          String @id @default(cuid())
+  orderId     String
+  
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  reason      String?
+  notes       String?
+  changedBy   String? // User ID who made the change
+  
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  order       Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("order_status_history")
+}
+
+model OrderNote {
+  id        String @id @default(cuid())
+  orderId   String
+  
+  content   String
+  isInternal Boolean @default(false) // Internal notes vs customer-visible
+  authorId  String
+  authorType String // "customer", "seller", "admin", "system"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  order     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  @@map("order_notes")
+}
+
+model ShippingRate {
+  id            String @id @default(cuid())
+  
+  name          String
+  description   String?
+  method        ShippingMethod
+  
+  // Geographic constraints
+  fromCountry   String?
+  toCountry     String?
+  fromZone      String?
+  toZone        String?
+  
+  // Weight/size constraints
+  minWeight     Decimal? @db.Decimal(8, 3)
+  maxWeight     Decimal? @db.Decimal(8, 3)
+  minDimensions Json?
+  maxDimensions Json?
+  
+  // Pricing
+  baseRate      Decimal @db.Decimal(10, 2)
+  perKgRate     Decimal @default(0) @db.Decimal(10, 2)
+  currency      String @default("USD")
+  
+  // Delivery time
+  minDays       Int?
+  maxDays       Int?
+  
+  // Status
+  isActive      Boolean @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("shipping_rates")
+}
+
+model DeliveryTracking {
+  id            String @id @default(cuid())
+  orderId       String
+  trackingNumber String @unique
+  
+  carrier       String?
+  service       String?
+  
+  // Current status
+  status        DeliveryStatus @default(PENDING)
+  location      Json? // Current location
+  
+  // Timestamps
+  pickedUpAt    DateTime?
+  inTransitAt   DateTime?
+  outForDeliveryAt DateTime?
+  deliveredAt   DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  events        TrackingEvent[]
+  
+  @@map("delivery_tracking")
+}
+
+model TrackingEvent {
+  id          String @id @default(cuid())
+  trackingId  String
+  
+  status      DeliveryStatus
+  description String
+  location    Json? // {city, state, country, coordinates}
+  
+  occurredAt  DateTime
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  tracking    DeliveryTracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+  
+  @@map("tracking_events")
+}
+
+// Enums
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+  DISPUTED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  PARTIALLY_PAID
+  REFUNDED
+  PARTIALLY_REFUNDED
+  FAILED
+  CANCELLED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderItemStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum ShippingMethod {
+  STANDARD
+  EXPRESS
+  OVERNIGHT
+  CROWDSHIP
+  PICKUP
+  DIGITAL
+}
+
+enum DeliveryStatus {
+  PENDING
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED_DELIVERY
+  RETURNED
+  CANCELLED
+}

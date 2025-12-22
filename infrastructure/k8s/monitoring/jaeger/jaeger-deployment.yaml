@@ -1,0 +1,293 @@
+# Jaeger Distributed Tracing for MNBARA Platform
+# Deploys Jaeger collector, query, and agent components
+
+---
+# Jaeger Namespace (uses monitoring namespace)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jaeger
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/part-of: mnbara-monitoring
+---
+# Jaeger Collector Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-collector
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: collector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: collector
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "14269"
+    spec:
+      serviceAccountName: jaeger
+      containers:
+        - name: jaeger-collector
+          image: jaegertracing/jaeger-collector:1.52
+          args:
+            - "--collector.otlp.enabled=true"
+            - "--collector.zipkin.host-port=:9411"
+          ports:
+            - containerPort: 14268
+              name: http
+              protocol: TCP
+            - containerPort: 14250
+              name: grpc
+              protocol: TCP
+            - containerPort: 9411
+              name: zipkin
+              protocol: TCP
+            - containerPort: 4317
+              name: otlp-grpc
+              protocol: TCP
+            - containerPort: 4318
+              name: otlp-http
+              protocol: TCP
+            - containerPort: 14269
+              name: admin
+              protocol: TCP
+          env:
+            - name: SPAN_STORAGE_TYPE
+              value: elasticsearch
+            - name: ES_SERVER_URLS
+              value: http://elasticsearch-logs:9200
+            - name: ES_INDEX_PREFIX
+              value: jaeger
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 14269
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 14269
+            initialDelaySeconds: 1
+---
+# Jaeger Collector Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 14268
+      targetPort: 14268
+      name: http
+    - port: 14250
+      targetPort: 14250
+      name: grpc
+    - port: 9411
+      targetPort: 9411
+      name: zipkin
+    - port: 4317
+      targetPort: 4317
+      name: otlp-grpc
+    - port: 4318
+      targetPort: 4318
+      name: otlp-http
+  selector:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: collector
+---
+# Jaeger Query Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-query
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: query
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: query
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: query
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "16687"
+    spec:
+      serviceAccountName: jaeger
+      containers:
+        - name: jaeger-query
+          image: jaegertracing/jaeger-query:1.52
+          args:
+            - "--query.base-path=/jaeger"
+          ports:
+            - containerPort: 16686
+              name: http
+              protocol: TCP
+            - containerPort: 16687
+              name: admin
+              protocol: TCP
+          env:
+            - name: SPAN_STORAGE_TYPE
+              value: elasticsearch
+            - name: ES_SERVER_URLS
+              value: http://elasticsearch-logs:9200
+            - name: ES_INDEX_PREFIX
+              value: jaeger
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 16687
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 16687
+            initialDelaySeconds: 1
+---
+# Jaeger Query Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-query
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: query
+spec:
+  type: ClusterIP
+  ports:
+    - port: 16686
+      targetPort: 16686
+      name: http
+  selector:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: query
+---
+# Jaeger Agent DaemonSet (runs on each node)
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: jaeger-agent
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: jaeger
+      app.kubernetes.io/component: agent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: agent
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "14271"
+    spec:
+      serviceAccountName: jaeger
+      containers:
+        - name: jaeger-agent
+          image: jaegertracing/jaeger-agent:1.52
+          args:
+            - "--reporter.grpc.host-port=jaeger-collector:14250"
+          ports:
+            - containerPort: 5775
+              name: zk-compact-trft
+              protocol: UDP
+            - containerPort: 6831
+              name: jg-compact-trft
+              protocol: UDP
+            - containerPort: 6832
+              name: jg-binary-trft
+              protocol: UDP
+            - containerPort: 5778
+              name: config-rest
+              protocol: TCP
+            - containerPort: 14271
+              name: admin
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 14271
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 14271
+            initialDelaySeconds: 1
+---
+# Jaeger Agent Service (for service discovery)
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 6831
+      targetPort: 6831
+      name: jg-compact-trft
+      protocol: UDP
+    - port: 6832
+      targetPort: 6832
+      name: jg-binary-trft
+      protocol: UDP
+    - port: 5778
+      targetPort: 5778
+      name: config-rest
+  selector:
+    app.kubernetes.io/name: jaeger
+    app.kubernetes.io/component: agent

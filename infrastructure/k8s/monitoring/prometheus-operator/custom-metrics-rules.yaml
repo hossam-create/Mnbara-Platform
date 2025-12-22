@@ -1,0 +1,215 @@
+# Custom Metrics Recording Rules for Business KPIs
+# These create pre-computed metrics for dashboards and alerting
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mnbara-business-kpis
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus-rules
+    app.kubernetes.io/part-of: mnbara-monitoring
+spec:
+  groups:
+    # ============================================
+    # Auction Metrics
+    # ============================================
+    - name: auction.metrics
+      interval: 30s
+      rules:
+        # Active auctions count
+        - record: mnbara:auctions:active_total
+          expr: sum(auction_active_count) or vector(0)
+        
+        # Bids per minute
+        - record: mnbara:auctions:bids_per_minute
+          expr: sum(rate(auction_bids_total[1m])) * 60 or vector(0)
+        
+        # Average bid amount
+        - record: mnbara:auctions:avg_bid_amount
+          expr: |
+            sum(rate(auction_bid_amount_sum[5m])) / sum(rate(auction_bid_amount_count[5m])) or vector(0)
+        
+        # Auction completion rate
+        - record: mnbara:auctions:completion_rate
+          expr: |
+            sum(rate(auction_completed_total[1h])) / sum(rate(auction_created_total[1h])) or vector(0)
+        
+        # WebSocket connections for auctions
+        - record: mnbara:auctions:websocket_connections
+          expr: sum(auction_websocket_connections_active) or vector(0)
+        
+        # Auction timer drift (critical for real-time auctions)
+        - record: mnbara:auctions:timer_drift_seconds
+          expr: |
+            histogram_quantile(0.99, sum(rate(auction_timer_drift_seconds_bucket[5m])) by (le)) or vector(0)
+
+    # ============================================
+    # Payment Metrics
+    # ============================================
+    - name: payment.metrics
+      interval: 30s
+      rules:
+        # Total transaction volume (GMV)
+        - record: mnbara:payments:gmv_hourly
+          expr: sum(increase(payment_amount_total[1h])) or vector(0)
+        
+        # Payment success rate
+        - record: mnbara:payments:success_rate
+          expr: |
+            sum(rate(payment_transactions_total{status="success"}[5m])) 
+            / sum(rate(payment_transactions_total[5m])) or vector(0)
+        
+        # Payment failure rate
+        - record: mnbara:payments:failure_rate
+          expr: |
+            sum(rate(payment_transactions_total{status="failed"}[5m])) 
+            / sum(rate(payment_transactions_total[5m])) or vector(0)
+        
+        # Average transaction amount
+        - record: mnbara:payments:avg_transaction_amount
+          expr: |
+            sum(rate(payment_amount_total[5m])) / sum(rate(payment_transactions_total{status="success"}[5m])) or vector(0)
+        
+        # Escrow held amount
+        - record: mnbara:payments:escrow_held_total
+          expr: sum(escrow_held_amount_total) or vector(0)
+        
+        # Escrow release rate
+        - record: mnbara:payments:escrow_release_rate
+          expr: |
+            sum(rate(escrow_released_total[1h])) / sum(rate(escrow_created_total[1h])) or vector(0)
+        
+        # Payment processing latency (p99)
+        - record: mnbara:payments:latency_p99
+          expr: |
+            histogram_quantile(0.99, sum(rate(payment_processing_duration_seconds_bucket[5m])) by (le)) or vector(0)
+
+    # ============================================
+    # User Metrics
+    # ============================================
+    - name: user.metrics
+      interval: 60s
+      rules:
+        # Active users (last 5 minutes)
+        - record: mnbara:users:active_5m
+          expr: sum(increase(user_activity_total[5m])) or vector(0)
+        
+        # New registrations per hour
+        - record: mnbara:users:registrations_hourly
+          expr: sum(increase(user_registrations_total[1h])) or vector(0)
+        
+        # Login success rate
+        - record: mnbara:users:login_success_rate
+          expr: |
+            sum(rate(auth_login_total{status="success"}[5m])) 
+            / sum(rate(auth_login_total[5m])) or vector(0)
+        
+        # KYC approval rate
+        - record: mnbara:users:kyc_approval_rate
+          expr: |
+            sum(rate(kyc_approved_total[24h])) / sum(rate(kyc_submitted_total[24h])) or vector(0)
+
+    # ============================================
+    # Crowdship/Traveler Metrics
+    # ============================================
+    - name: crowdship.metrics
+      interval: 60s
+      rules:
+        # Active trips
+        - record: mnbara:crowdship:active_trips
+          expr: sum(trips_active_count) or vector(0)
+        
+        # Delivery completion rate
+        - record: mnbara:crowdship:delivery_completion_rate
+          expr: |
+            sum(rate(delivery_completed_total[24h])) / sum(rate(delivery_created_total[24h])) or vector(0)
+        
+        # Average delivery time (hours)
+        - record: mnbara:crowdship:avg_delivery_time_hours
+          expr: |
+            sum(rate(delivery_duration_hours_sum[24h])) / sum(rate(delivery_duration_hours_count[24h])) or vector(0)
+        
+        # Match success rate
+        - record: mnbara:crowdship:match_success_rate
+          expr: |
+            sum(rate(traveler_match_accepted_total[24h])) / sum(rate(traveler_match_proposed_total[24h])) or vector(0)
+        
+        # Active travelers
+        - record: mnbara:crowdship:active_travelers
+          expr: sum(travelers_active_count) or vector(0)
+
+    # ============================================
+    # Order Metrics
+    # ============================================
+    - name: order.metrics
+      interval: 60s
+      rules:
+        # Orders per hour
+        - record: mnbara:orders:per_hour
+          expr: sum(increase(orders_created_total[1h])) or vector(0)
+        
+        # Order fulfillment rate
+        - record: mnbara:orders:fulfillment_rate
+          expr: |
+            sum(rate(orders_fulfilled_total[24h])) / sum(rate(orders_created_total[24h])) or vector(0)
+        
+        # Average order value
+        - record: mnbara:orders:avg_value
+          expr: |
+            sum(rate(order_value_total[1h])) / sum(rate(orders_created_total[1h])) or vector(0)
+        
+        # Dispute rate
+        - record: mnbara:orders:dispute_rate
+          expr: |
+            sum(rate(disputes_created_total[24h])) / sum(rate(orders_created_total[24h])) or vector(0)
+
+    # ============================================
+    # API Performance Metrics
+    # ============================================
+    - name: api.performance
+      interval: 30s
+      rules:
+        # Request rate per service
+        - record: mnbara:api:request_rate
+          expr: sum by (service) (rate(http_requests_total[5m])) or vector(0)
+        
+        # Error rate per service
+        - record: mnbara:api:error_rate
+          expr: |
+            sum by (service) (rate(http_requests_total{status=~"5.."}[5m])) 
+            / sum by (service) (rate(http_requests_total[5m])) or vector(0)
+        
+        # P99 latency per service
+        - record: mnbara:api:latency_p99
+          expr: |
+            histogram_quantile(0.99, sum by (service, le) (rate(http_request_duration_seconds_bucket[5m]))) or vector(0)
+        
+        # P50 latency per service
+        - record: mnbara:api:latency_p50
+          expr: |
+            histogram_quantile(0.50, sum by (service, le) (rate(http_request_duration_seconds_bucket[5m]))) or vector(0)
+
+    # ============================================
+    # Infrastructure Metrics
+    # ============================================
+    - name: infrastructure.metrics
+      interval: 60s
+      rules:
+        # Database connection pool usage
+        - record: mnbara:db:connection_pool_usage
+          expr: |
+            sum(db_pool_active_connections) / sum(db_pool_max_connections) or vector(0)
+        
+        # Redis memory usage
+        - record: mnbara:redis:memory_usage_percent
+          expr: |
+            sum(redis_memory_used_bytes) / sum(redis_memory_max_bytes) * 100 or vector(0)
+        
+        # RabbitMQ queue depth
+        - record: mnbara:rabbitmq:queue_depth
+          expr: sum by (queue) (rabbitmq_queue_messages) or vector(0)
+        
+        # Elasticsearch cluster health
+        - record: mnbara:elasticsearch:cluster_status
+          expr: elasticsearch_cluster_health_status or vector(0)

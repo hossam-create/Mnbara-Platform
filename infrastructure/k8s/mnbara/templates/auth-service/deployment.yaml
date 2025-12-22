@@ -1,0 +1,81 @@
+{{- if .Values.authService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.authService.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
+spec:
+  {{- if not .Values.authService.autoscaling.enabled }}
+  replicas: {{ .Values.authService.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "mnbara.serviceSelectorLabels" (list . .Values.authService.name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "mnbara.serviceSelectorLabels" (list . .Values.authService.name) | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      containers:
+        - name: {{ .Values.authService.name }}
+          image: {{ include "mnbara.image" (dict "root" . "service" .Values.authService) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.authService.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: {{ .Values.authService.env.PORT | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.authService.env.NODE_ENV | quote }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-database" (include "mnbara.fullname" .)) .Values.secrets.database.existingSecret }}
+                  key: password
+            - name: DATABASE_URL
+              value: {{ include "mnbara.databaseUrl" . | quote }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-redis" (include "mnbara.fullname" .)) .Values.secrets.redis.existingSecret }}
+                  key: redis-password
+            - name: REDIS_URL
+              value: {{ include "mnbara.redisUrl" . | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-jwt" (include "mnbara.fullname" .)) .Values.secrets.jwt.existingSecret }}
+                  key: jwt-secret
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-oauth" (include "mnbara.fullname" .)) .Values.secrets.oauth.existingSecret }}
+                  key: google-client-id
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ default (printf "%s-oauth" (include "mnbara.fullname" .)) .Values.secrets.oauth.existingSecret }}
+                  key: google-client-secret
+          envFrom:
+            - configMapRef:
+                name: {{ include "mnbara.fullname" . }}-common
+          resources:
+            {{- toYaml .Values.authService.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}

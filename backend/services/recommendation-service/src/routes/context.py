@@ -5,23 +5,27 @@ from src import logic
 
 router = APIRouter()
 
+
 class Location(BaseModel):
     lat: float
     lon: float
     accuracy: Optional[float] = None
 
+
 class TravelerContext(BaseModel):
     traveler_id: str
     location: Location
-    activity: Optional[str] = None # e.g., "walking", "in_vehicle"
-    detected_objects: Optional[List[str]] = [] # From camera, e.g., ["iphone 15", "nike shoes"]
-    voice_transcript: Optional[str] = None # From mic, e.g., "I am at Dubai Mall"
+    activity: Optional[str] = None  # e.g., "walking", "in_vehicle"
+    detected_objects: Optional[List[str]] = []  # From camera, e.g., ["iphone 15", "nike shoes"]
+    voice_transcript: Optional[str] = None  # From mic, e.g., "I am at Dubai Mall"
+
 
 @router.post("/analyze")
 async def analyze_context(context: TravelerContext):
     """
     Analyze traveler context (Location, Camera, Voice) to recommend actions.
     """
+    recommendations = []  # Initialize recommendations list
     
     # 1. Location-Based Recommendations (Real Calc)
     nearby_reqs = logic.find_nearby_requests(context.location.lat, context.location.lon, radius_km=50.0)

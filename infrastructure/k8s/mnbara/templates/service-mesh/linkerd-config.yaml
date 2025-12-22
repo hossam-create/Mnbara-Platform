@@ -1,0 +1,240 @@
+# Linkerd Service Mesh Configuration for MNBARA Platform
+# Alternative to Istio - lighter weight service mesh
+
+{{- if .Values.serviceMesh.enabled }}
+{{- if eq .Values.serviceMesh.provider "linkerd" }}
+
+---
+# Server - mTLS configuration for API Gateway
+apiVersion: policy.linkerd.io/v1beta1
+kind: Server
+metadata:
+  name: {{ .Values.apiGateway.name }}-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.apiGateway.name }}
+  port: {{ .Values.apiGateway.service.port }}
+  proxyProtocol: HTTP/2
+
+---
+# ServerAuthorization - Allow traffic to API Gateway
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: {{ .Values.apiGateway.name }}-auth
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  server:
+    name: {{ .Values.apiGateway.name }}-server
+  client:
+    # Allow from ingress
+    unauthenticated: true
+    # Or restrict to specific namespaces
+    # meshTLS:
+    #   identities:
+    #     - "*.{{ .Values.namespace }}.serviceaccount.identity.linkerd.cluster.local"
+
+---
+# Server - Auth Service
+{{- if .Values.authService.enabled }}
+apiVersion: policy.linkerd.io/v1beta1
+kind: Server
+metadata:
+  name: {{ .Values.authService.name }}-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.authService.name }}
+  port: {{ .Values.authService.service.port }}
+  proxyProtocol: HTTP/2
+---
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: {{ .Values.authService.name }}-auth
+  namespace: {{ .Values.namespace }}
+spec:
+  server:
+    name: {{ .Values.authService.name }}-server
+  client:
+    meshTLS:
+      serviceAccounts:
+        - name: {{ include "mnbara.serviceAccountName" . }}
+{{- end }}
+
+---
+# Server - Auction Service
+{{- if .Values.auctionService.enabled }}
+apiVersion: policy.linkerd.io/v1beta1
+kind: Server
+metadata:
+  name: {{ .Values.auctionService.name }}-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.auctionService.name }}
+  port: {{ .Values.auctionService.service.port }}
+  proxyProtocol: HTTP/2
+---
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: {{ .Values.auctionService.name }}-auth
+  namespace: {{ .Values.namespace }}
+spec:
+  server:
+    name: {{ .Values.auctionService.name }}-server
+  client:
+    meshTLS:
+      serviceAccounts:
+        - name: {{ include "mnbara.serviceAccountName" . }}
+{{- end }}
+
+---
+# Server - Payment Service
+{{- if .Values.paymentService.enabled }}
+apiVersion: policy.linkerd.io/v1beta1
+kind: Server
+metadata:
+  name: {{ .Values.paymentService.name }}-server
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.paymentService.name }}
+  port: {{ .Values.paymentService.service.port }}
+  proxyProtocol: HTTP/2
+---
+apiVersion: policy.linkerd.io/v1beta1
+kind: ServerAuthorization
+metadata:
+  name: {{ .Values.paymentService.name }}-auth
+  namespace: {{ .Values.namespace }}
+spec:
+  server:
+    name: {{ .Values.paymentService.name }}-server
+  client:
+    meshTLS:
+      serviceAccounts:
+        - name: {{ include "mnbara.serviceAccountName" . }}
+{{- end }}
+
+---
+# ServiceProfile - API Gateway with retries and timeouts
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: {{ .Values.apiGateway.name }}.{{ .Values.namespace }}.svc.cluster.local
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  routes:
+    - name: health
+      condition:
+        method: GET
+        pathRegex: /health
+      isRetryable: true
+      timeout: 5s
+    - name: metrics
+      condition:
+        method: GET
+        pathRegex: /metrics
+      isRetryable: true
+      timeout: 5s
+    - name: default
+      condition:
+        pathRegex: /.*
+      isRetryable: true
+      timeout: {{ .Values.serviceMesh.linkerd.timeout | default "30s" }}
+  retryBudget:
+    retryRatio: {{ .Values.serviceMesh.linkerd.retryBudget.retryRatio | default 0.2 }}
+    minRetriesPerSecond: {{ .Values.serviceMesh.linkerd.retryBudget.minRetriesPerSecond | default 10 }}
+    ttl: {{ .Values.serviceMesh.linkerd.retryBudget.ttl | default "10s" }}
+
+---
+# ServiceProfile - Auction Service
+{{- if .Values.auctionService.enabled }}
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: {{ .Values.auctionService.name }}.{{ .Values.namespace }}.svc.cluster.local
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  routes:
+    - name: websocket
+      condition:
+        method: GET
+        pathRegex: /ws.*
+      isRetryable: false
+      timeout: 0s  # No timeout for WebSocket
+    - name: bids
+      condition:
+        method: POST
+        pathRegex: /api/auctions/.*/bids
+      isRetryable: false  # Bids should not be retried
+      timeout: 5s
+    - name: default
+      condition:
+        pathRegex: /.*
+      isRetryable: true
+      timeout: 10s
+  retryBudget:
+    retryRatio: 0.1
+    minRetriesPerSecond: 5
+    ttl: 5s
+{{- end }}
+
+---
+# ServiceProfile - Payment Service
+{{- if .Values.paymentService.enabled }}
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  name: {{ .Values.paymentService.name }}.{{ .Values.namespace }}.svc.cluster.local
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "mnbara.labels" . | nindent 4 }}
+spec:
+  routes:
+    - name: webhooks
+      condition:
+        method: POST
+        pathRegex: /webhooks/.*
+      isRetryable: false
+      timeout: 60s
+    - name: payments
+      condition:
+        method: POST
+        pathRegex: /api/payments.*
+      isRetryable: false  # Payment operations should not be retried
+      timeout: 30s
+    - name: default
+      condition:
+        pathRegex: /.*
+      isRetryable: true
+      timeout: 30s
+  retryBudget:
+    retryRatio: 0.1
+    minRetriesPerSecond: 5
+    ttl: 10s
+{{- end }}
+
+{{- end }}
+{{- end }}
