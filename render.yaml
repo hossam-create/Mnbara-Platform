@@ -20,7 +20,7 @@ services:
     name: mnbara-api
     env: node
     plan: starter
-    buildCommand: cd backend/services/api-gateway && npm install && npm run build
+    buildCommand: cd backend/services/api-gateway && npm install
     startCommand: cd backend/services/api-gateway && npm start
     envVars:
       - key: NODE_ENV

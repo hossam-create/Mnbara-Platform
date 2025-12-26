@@ -21,6 +21,7 @@
 ## 🎯 Deployment Overview
 
 We're deploying:
+
 1. **PostgreSQL Database** - Data persistence
 2. **Redis Cache** - Session & caching
 3. **API Gateway** - Backend service (Node.js)
@@ -47,6 +48,7 @@ We're deploying:
 ```
 
 **Expected URL format:**
+
 ```
 postgresql://mnbara_user:PASSWORD@dpg-xxxxx.render.internal:5432/mnbara_prod
 ```
@@ -67,6 +69,7 @@ postgresql://mnbara_user:PASSWORD@dpg-xxxxx.render.internal:5432/mnbara_prod
 ```
 
 **Expected URL format:**
+
 ```
 redis://default:PASSWORD@dpg-xxxxx.render.internal:6379
 ```
@@ -85,7 +88,7 @@ redis://default:PASSWORD@dpg-xxxxx.render.internal:6379
 5. Fill in Service Details:
    - Name: mnbara-api
    - Environment: Node
-   - Build Command: cd backend/services/api-gateway && npm install && npm run build
+   - Build Command: cd backend/services/api-gateway && npm install
    - Start Command: cd backend/services/api-gateway && npm start
    - Plan: Pro (minimum for production)
 6. Click: Advanced
@@ -100,6 +103,7 @@ redis://default:PASSWORD@dpg-xxxxx.render.internal:6379
 ```
 
 **Monitor the deployment:**
+
 - Watch the build logs in real-time
 - Check for any errors
 - Verify the service is "Running" (green status)
@@ -117,8 +121,8 @@ redis://default:PASSWORD@dpg-xxxxx.render.internal:6379
 4. Fill in Service Details:
    - Name: mnbara-web
    - Environment: Node
-   - Build Command: cd frontend/web-app && npm install && npm run build
-   - Start Command: cd frontend/web-app && npm run preview
+   - Build Command: cd frontend/web && npm install && npm run build
+   - Start Command: cd frontend/web && npm run preview
    - Plan: Pro (minimum for production)
 5. Click: Advanced
 6. Add Environment Variables:
@@ -148,6 +152,7 @@ curl https://mnbara-api.onrender.com/health
 ## 🖥️ OPTION 2: Render CLI Deployment (Faster)
 
 ### Prerequisites
+
 ```bash
 # Install Render CLI (if not already installed)
 npm install -g @render-oss/render-cli
@@ -208,28 +213,36 @@ render logs mnbara-web
 ## 🔍 Troubleshooting
 
 ### Build Fails with "npm ERR! notarget"
+
 **Solution:** Check package.json for typos in package names
+
 ```bash
 # Search for typos
 grep -r "jsonwebtokena" backend/services/*/package.json
 ```
 
 ### Database Connection Error
+
 **Solution:** Verify DATABASE_URL is correct
+
 ```bash
 # Test connection
 psql "postgresql://mnbara_user:PASSWORD@dpg-xxxxx.render.internal:5432/mnbara_prod"
 ```
 
 ### Redis Connection Error
+
 **Solution:** Verify REDIS_URL is correct
+
 ```bash
 # Test connection
 redis-cli -u "redis://default:PASSWORD@dpg-xxxxx.render.internal:6379"
 ```
 
 ### Service Won't Start
+
 **Solution:** Check logs
+
 ```bash
 # View logs
 render logs mnbara-api --tail 100
@@ -239,25 +252,27 @@ render logs mnbara-api --tail 100
 
 ## 📊 Environment Variables Reference
 
-| Variable | Value | Notes |
-|----------|-------|-------|
-| NODE_ENV | production | Required |
-| PORT | 3001 (API), 5173 (Web) | Service-specific |
-| DATABASE_URL | postgresql://... | From Render PostgreSQL |
-| REDIS_URL | redis://... | From Render Redis |
-| JWT_SECRET | a7f3e9c2b1d4f6a8e5c3b9d2f7a4e1c6b8d3f5a2e7c4b1d6f3a8e5c2b9d4f7 | Pre-generated |
+| Variable     | Value                                                          | Notes                  |
+| ------------ | -------------------------------------------------------------- | ---------------------- |
+| NODE_ENV     | production                                                     | Required               |
+| PORT         | 3001 (API), 5173 (Web)                                         | Service-specific       |
+| DATABASE_URL | postgresql://...                                               | From Render PostgreSQL |
+| REDIS_URL    | redis://...                                                    | From Render Redis      |
+| JWT_SECRET   | a7f3e9c2b1d4f6a8e5c3b9d2f7a4e1c6b8d3f5a2e7c4b1d6f3a8e5c2b9d4f7 | Pre-generated          |
 
 ---
 
 ## ✅ Post-Deployment Verification
 
 ### 1. Check Service Status
+
 ```bash
 # All services should show "Running" (green)
 render services
 ```
 
 ### 2. Test API Endpoints
+
 ```bash
 # Health check
 curl https://mnbara-api.onrender.com/health
@@ -267,12 +282,14 @@ curl https://mnbara-api.onrender.com/health
 ```
 
 ### 3. Test Web Frontend
+
 ```
 Open in browser: https://mnbara-web.onrender.com
 Should load the Mnbara homepage
 ```
 
 ### 4. Check Database
+
 ```bash
 # Connect to database
 psql "postgresql://mnbara_user:PASSWORD@dpg-xxxxx.render.internal:5432/mnbara_prod"
@@ -282,6 +299,7 @@ psql "postgresql://mnbara_user:PASSWORD@dpg-xxxxx.render.internal:5432/mnbara_pr
 ```
 
 ### 5. Check Redis
+
 ```bash
 # Connect to Redis
 redis-cli -u "redis://default:PASSWORD@dpg-xxxxx.render.internal:6379"
@@ -334,9 +352,8 @@ PING
 ✅ Web frontend loads without errors  
 ✅ Database connection successful  
 ✅ Redis connection successful  
-✅ No errors in service logs  
+✅ No errors in service logs
 
 ---
 
 **Ready to deploy? Start with Option 1 (Web UI) if this is your first time!**
-
