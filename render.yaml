@@ -1,206 +1,65 @@
+# Render Blueprint Configuration
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: mnbara-postgres
-    env: docker
-    plan: free
-    
-
-  # Redis Cache
-  - type: redis
-    name: mnbara-redis
-    plan: free
-    maxmemoryPolicy: noeviction
-    ipAllowList: [] # Allow internal connections only
+  # Main Web Service (Frontend)
   - type: web
-    name: mnbara-auth
+    name: mnbara-web
     env: node
-    plan: free
-    buildCommand: cd backend/services/auth-service && npm install && npx prisma generate && npm run build
-    startCommand: cd backend/services/auth-service && npm start
+    plan: starter
+    buildCommand: cd frontend/web && npm install && npm run build
+    startCommand: cd frontend/web && npm run preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5173
+    healthCheckPath: /
+    autoDeploy: true
+
+  # API Service (Backend)
+  - type: web
+    name: mnbara-api
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/api-gateway && npm install && npm run build
+    startCommand: cd backend/services/api-gateway && npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3001
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
     healthCheckPath: /health
+    autoDeploy: true
 
-  # Listing Service
-  - type: web
-    name: mnbara-listing
-    env: node
-    plan: free
-    buildCommand: cd backend/services/listing-service && npm install && npx prisma generate && npm run build
-    startCommand: cd backend/services/listing-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3002
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
+  # PostgreSQL Database
+  - type: pg
+    name: mnbara-db
+    plan: starter
+    ipAllowList: []
+    autoDeploy: true
 
-  # Auction Service
-  - type: web
-    name: mnbara-auction
-    env: node
-    plan: free
-    buildCommand: cd backend/services/auction-service && npm install && npx prisma generate && npm run build
-    startCommand: cd backend/services/auction-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3003
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
+  # Redis Cache
+  - type: redis
+    name: mnbara-redis
+    plan: starter
+    ipAllowList: []
+    autoDeploy: true
 
-  # Payment Service
-  - type: web
-    name: mnbara-payment
-    env: node
-    plan: free
-    buildCommand: cd backend/services/payment-service && npm install && npx prisma generate && npm run build
-    startCommand: cd backend/services/payment-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3004
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-      - key: STRIPE_SECRET_KEY
-        sync: false
-      - key: PAYPAL_CLIENT_ID
-        sync: false
-      - key: PAYPAL_SECRET
-        sync: false
-    healthCheckPath: /health
+# Environment Variables (Shared across services)
+envVars:
+  - key: DATABASE_URL
+    fromService:
+      type: pg
+      name: mnbara-db
+      property: connectionString
 
-  # Crowdship Service
-  - type: web
-    name: mnbara-crowdship
-    env: node
-    plan: free
-    buildCommand: cd backend/services/crowdship-service && npm install && npx prisma generate && npm run build
-    startCommand: cd backend/services/crowdship-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3005
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
+  - key: REDIS_URL
+    fromService:
+      type: redis
+      name: mnbara-redis
+      property: connectionString
 
-  # Notification Service
-  - type: web
-    name: mnbara-notification
-    env: node
-    plan: free
-    buildCommand: cd backend/services/notification-service && npm install && npm run build
-    startCommand: cd backend/services/notification-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3006
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
+  - key: JWT_SECRET
+    generateValue: true
 
-  # Recommendation Service
-  - type: web
-    name: mnbara-recommendation
-    env: python
-    plan: free
-    buildCommand: cd backend/services/recommendation-service && pip install -r requirements.txt
-    startCommand: cd backend/services/recommendation-service && uvicorn src.main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: PORT
-        value: 3007
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
-
-  # Rewards Service
-  - type: web
-    name: mnbara-rewards
-    env: node
-    plan: free
-    buildCommand: cd backend/services/rewards-service && npm install && npx prisma generate && npm start
-    startCommand: cd backend/services/rewards-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3008
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbara-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbara-redis
-          property: connectionString
-    healthCheckPath: /health
-
-databases:
-  - name: mnbara-postgres
-    databaseName: mnbara_db
-    user: mnbara_user
-    plan: free
+  - key: NODE_ENV
+    value: production
