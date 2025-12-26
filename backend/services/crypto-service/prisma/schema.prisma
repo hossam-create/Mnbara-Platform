@@ -1,0 +1,242 @@
+// Crypto Service - Prisma Schema
+// Supports: Bitcoin, Ethereum, USDC, USDT
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// المحفظة الرقمية - Crypto Wallet
+model CryptoWallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  
+  // Bitcoin
+  btcAddress    String?
+  btcBalance    Decimal  @default(0) @db.Decimal(18, 8)
+  
+  // Ethereum
+  ethAddress    String?
+  ethBalance    Decimal  @default(0) @db.Decimal(18, 8)
+  
+  // USDC (Stablecoin)
+  usdcAddress   String?
+  usdcBalance   Decimal  @default(0) @db.Decimal(18, 6)
+  
+  // USDT (Stablecoin)
+  usdtAddress   String?
+  usdtBalance   Decimal  @default(0) @db.Decimal(18, 6)
+  
+  // Fiat Balance (for conversion)
+  fiatBalance   Decimal  @default(0) @db.Decimal(18, 2)
+  fiatCurrency  String   @default("USD")
+  
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  transactions  CryptoTransaction[]
+  deposits      CryptoDeposit[]
+  withdrawals   CryptoWithdrawal[]
+}
+
+// معاملة العملات الرقمية - Crypto Transaction
+model CryptoTransaction {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          CryptoWallet @relation(fields: [walletId], references: [id])
+  
+  type            TransactionType
+  currency        CryptoCurrency
+  amount          Decimal  @db.Decimal(18, 8)
+  amountUsd       Decimal  @db.Decimal(18, 2)
+  
+  // Transaction Details
+  txHash          String?  @unique
+  fromAddress     String?
+  toAddress       String?
+  
+  // Order Reference (if payment)
+  orderId         String?
+  
+  // Fees
+  networkFee      Decimal  @default(0) @db.Decimal(18, 8)
+  platformFee     Decimal  @default(0) @db.Decimal(18, 8)
+  
+  // Exchange Rate at time of transaction
+  exchangeRate    Decimal  @db.Decimal(18, 8)
+  
+  status          TransactionStatus @default(PENDING)
+  confirmations   Int      @default(0)
+  requiredConfirmations Int @default(3)
+  
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  confirmedAt     DateTime?
+}
+
+// إيداع العملات الرقمية - Crypto Deposit
+model CryptoDeposit {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          CryptoWallet @relation(fields: [walletId], references: [id])
+  
+  currency        CryptoCurrency
+  amount          Decimal  @db.Decimal(18, 8)
+  amountUsd       Decimal  @db.Decimal(18, 2)
+  
+  depositAddress  String
+  txHash          String?  @unique
+  
+  exchangeRate    Decimal  @db.Decimal(18, 8)
+  networkFee      Decimal  @default(0) @db.Decimal(18, 8)
+  
+  status          DepositStatus @default(PENDING)
+  confirmations   Int      @default(0)
+  
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+}
+
+// سحب العملات الرقمية - Crypto Withdrawal
+model CryptoWithdrawal {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          CryptoWallet @relation(fields: [walletId], references: [id])
+  
+  currency        CryptoCurrency
+  amount          Decimal  @db.Decimal(18, 8)
+  amountUsd       Decimal  @db.Decimal(18, 2)
+  
+  toAddress       String
+  txHash          String?  @unique
+  
+  exchangeRate    Decimal  @db.Decimal(18, 8)
+  networkFee      Decimal  @db.Decimal(18, 8)
+  platformFee     Decimal  @default(0) @db.Decimal(18, 8)
+  
+  status          WithdrawalStatus @default(PENDING)
+  
+  // Security
+  twoFactorVerified Boolean @default(false)
+  ipAddress       String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  processedAt     DateTime?
+}
+
+// أسعار الصرف - Exchange Rates
+model ExchangeRate {
+  id            String   @id @default(uuid())
+  currency      CryptoCurrency
+  
+  priceUsd      Decimal  @db.Decimal(18, 8)
+  priceSar      Decimal  @db.Decimal(18, 8)
+  priceAed      Decimal  @db.Decimal(18, 8)
+  priceEgp      Decimal  @db.Decimal(18, 8)
+  
+  change24h     Decimal  @db.Decimal(10, 4)
+  volume24h     Decimal  @db.Decimal(18, 2)
+  marketCap     Decimal  @db.Decimal(18, 2)
+  
+  source        String   @default("coinbase")
+  createdAt     DateTime @default(now())
+  
+  @@index([currency, createdAt])
+}
+
+// دفع بالعملات الرقمية - Crypto Payment
+model CryptoPayment {
+  id              String   @id @default(uuid())
+  
+  // Order Details
+  orderId         String   @unique
+  merchantId      String
+  
+  // Payment Details
+  currency        CryptoCurrency
+  amount          Decimal  @db.Decimal(18, 8)
+  amountUsd       Decimal  @db.Decimal(18, 2)
+  
+  // Payment Address (generated for this payment)
+  paymentAddress  String
+  
+  // Exchange Rate locked at creation
+  exchangeRate    Decimal  @db.Decimal(18, 8)
+  
+  // Received
+  receivedAmount  Decimal  @default(0) @db.Decimal(18, 8)
+  txHash          String?
+  
+  status          PaymentStatus @default(PENDING)
+  
+  // Expiry (15 minutes default)
+  expiresAt       DateTime
+  
+  // Callbacks
+  callbackUrl     String?
+  webhookSent     Boolean  @default(false)
+  
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+}
+
+// Enums
+enum CryptoCurrency {
+  BTC
+  ETH
+  USDC
+  USDT
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PAYMENT
+  REFUND
+  CONVERSION
+  TRANSFER
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMING
+  CONFIRMED
+  FAILED
+  CANCELLED
+}
+
+enum DepositStatus {
+  PENDING
+  CONFIRMING
+  COMPLETED
+  EXPIRED
+  FAILED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  COMPLETED
+  EXPIRED
+  REFUNDED
+  FAILED
+}

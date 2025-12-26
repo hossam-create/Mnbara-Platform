@@ -1,0 +1,69 @@
+// Matching Service Database Schema
+// Responsible for geospatial optimization and pairing orders with travelers
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MatchCandidate {
+  id                String   @id @default(cuid())
+  orderId           String
+  tripId            String
+  score             Float    // AI context/matching score
+  status            MatchStatus @default(PENDING)
+  frictionSignals   Json?    // Trust/Fraud signals at time of matching
+  
+  // Geospatial data
+  pickupDeviation   Float?   // Extra distance for traveler in km
+  dropoffDeviation  Float?   // Extra distance for traveler in km
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([orderId, tripId])
+  @@map("match_candidates")
+}
+
+model Geofence {
+  id          String   @id @default(cuid())
+  name        String
+  polygon     Json     // GeoJSON structure
+  type        FenceType @default(CORRIDOR)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("geofences")
+}
+
+model MatchingOptimization {
+  id              String   @id @default(cuid())
+  algorithm       String   // e.g., 'GEOSPATIAL_V1', 'NEURAL_MATCH_V2'
+  parameters      Json     // Hyperparameters used
+  executionTime   Int      // in ms
+  resultsCount    Int
+  
+  timestamp       DateTime @default(now())
+
+  @@map("matching_optimizations")
+}
+
+enum MatchStatus {
+  PENDING
+  PROPOSED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum FenceType {
+  CORRIDOR
+  RESTRICTED_ZONE
+  PICKUP_HUB
+}

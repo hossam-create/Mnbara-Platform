@@ -6,7 +6,8 @@
     "workspaces": [
         "backend/services/*",
         "frontend/mobile/*",
-        "frontend/web/*"
+        "frontend/web/*",
+        "frontend/admin-dashboard"
     ],
     "scripts": {
         "dev": "docker-compose up",

@@ -1,0 +1,358 @@
+// AI Assistant Service - Prisma Schema
+// Gen 10 AI - Advanced Intelligence for Human Service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// محادثة AI - AI Conversation
+model AIConversation {
+  id              String   @id @default(uuid())
+  userId          String
+  
+  // Conversation Type
+  type            ConversationType @default(GENERAL)
+  
+  // Context
+  context         Json?    // Shopping context, order context, etc.
+  language        String   @default("ar")
+  
+  // Status
+  status          ConversationStatus @default(ACTIVE)
+  
+  // Sentiment Analysis
+  overallSentiment Float?  @default(0)
+  
+  // Resolution
+  resolved        Boolean  @default(false)
+  resolvedBy      String?  // AI or HUMAN
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endedAt         DateTime?
+  
+  messages        AIMessage[]
+  feedback        AIFeedback[]
+}
+
+// رسالة AI - AI Message
+model AIMessage {
+  id              String   @id @default(uuid())
+  conversationId  String
+  conversation    AIConversation @relation(fields: [conversationId], references: [id])
+  
+  // Message
+  role            MessageRole
+  content         String   @db.Text
+  contentAr       String?  @db.Text
+  
+  // AI Analysis
+  intent          String?
+  entities        Json?
+  sentiment       Float?
+  confidence      Float?
+  
+  // Actions
+  suggestedActions Json?
+  executedActions Json?
+  
+  // Metadata
+  tokens          Int?
+  processingTime  Int?     // milliseconds
+  model           String?
+  
+  createdAt       DateTime @default(now())
+}
+
+// توصية AI - AI Recommendation
+model AIRecommendation {
+  id              String   @id @default(uuid())
+  userId          String
+  
+  // Recommendation Type
+  type            RecommendationType
+  
+  // Items
+  items           Json     // Array of recommended items
+  
+  // Reasoning
+  reason          String?
+  reasonAr        String?
+  
+  // Scoring
+  relevanceScore  Float
+  personalScore   Float
+  trendScore      Float
+  
+  // Context
+  context         Json?
+  
+  // Interaction
+  viewed          Boolean  @default(false)
+  clicked         Boolean  @default(false)
+  purchased       Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  viewedAt        DateTime?
+  clickedAt       DateTime?
+  purchasedAt     DateTime?
+}
+
+// تحليل المشاعر - Sentiment Analysis
+model SentimentAnalysis {
+  id              String   @id @default(uuid())
+  
+  // Source
+  sourceType      SentimentSource
+  sourceId        String
+  userId          String?
+  
+  // Text
+  text            String   @db.Text
+  language        String
+  
+  // Analysis
+  sentiment       SentimentType
+  score           Float    // -1 to 1
+  magnitude       Float    // 0 to infinity
+  
+  // Emotions
+  emotions        Json?    // joy, anger, sadness, fear, surprise
+  
+  // Keywords
+  keywords        String[]
+  topics          String[]
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([sourceType, sourceId])
+}
+
+// كشف الاحتيال - Fraud Detection
+model FraudDetection {
+  id              String   @id @default(uuid())
+  
+  // Target
+  targetType      FraudTargetType
+  targetId        String
+  userId          String?
+  
+  // Risk Assessment
+  riskScore       Float    // 0 to 100
+  riskLevel       RiskLevel
+  
+  // Signals
+  signals         Json     // Array of fraud signals
+  
+  // Decision
+  decision        FraudDecision
+  reason          String?
+  
+  // Review
+  reviewed        Boolean  @default(false)
+  reviewedBy      String?
+  reviewDecision  FraudDecision?
+  reviewNote      String?
+  
+  createdAt       DateTime @default(now())
+  reviewedAt      DateTime?
+  
+  @@index([targetType, targetId])
+}
+
+// توقع الطلب - Demand Forecasting
+model DemandForecast {
+  id              String   @id @default(uuid())
+  
+  // Product/Category
+  productId       String?
+  categoryId      String?
+  
+  // Location
+  region          String?
+  country         String?
+  
+  // Forecast
+  forecastDate    DateTime
+  predictedDemand Int
+  confidenceLevel Float
+  
+  // Factors
+  seasonalFactor  Float?
+  trendFactor     Float?
+  eventFactor     Float?
+  
+  // Actual (for accuracy tracking)
+  actualDemand    Int?
+  accuracy        Float?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([productId, forecastDate])
+  @@index([categoryId, forecastDate])
+}
+
+// تحسين الأسعار - Price Optimization
+model PriceOptimization {
+  id              String   @id @default(uuid())
+  productId       String
+  
+  // Current Price
+  currentPrice    Decimal  @db.Decimal(18, 2)
+  
+  // Suggested Price
+  suggestedPrice  Decimal  @db.Decimal(18, 2)
+  
+  // Analysis
+  demandElasticity Float
+  competitorPrices Json?
+  marketTrend     String?
+  
+  // Expected Impact
+  expectedRevenue Float
+  expectedSales   Int
+  
+  // Status
+  applied         Boolean  @default(false)
+  appliedAt       DateTime?
+  
+  createdAt       DateTime @default(now())
+}
+
+// ملف المستخدم AI - AI User Profile
+model AIUserProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Preferences
+  preferences     Json     // Categories, brands, price range
+  
+  // Behavior
+  browsingPattern Json?
+  purchasePattern Json?
+  searchHistory   String[]
+  
+  // Segments
+  segments        String[]
+  
+  // Scores
+  engagementScore Float    @default(0)
+  loyaltyScore    Float    @default(0)
+  lifetimeValue   Float    @default(0)
+  
+  // Predictions
+  churnRisk       Float    @default(0)
+  nextPurchase    DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// تعليقات AI - AI Feedback
+model AIFeedback {
+  id              String   @id @default(uuid())
+  conversationId  String?
+  conversation    AIConversation? @relation(fields: [conversationId], references: [id])
+  
+  userId          String
+  
+  // Rating
+  rating          Int      // 1-5
+  helpful         Boolean?
+  
+  // Feedback
+  feedback        String?
+  category        FeedbackCategory?
+  
+  createdAt       DateTime @default(now())
+}
+
+// Enums
+enum ConversationType {
+  GENERAL
+  SHOPPING
+  SUPPORT
+  ORDER
+  PAYMENT
+  SHIPPING
+  RETURNS
+  PRODUCT_INQUIRY
+  PRICE_NEGOTIATION
+  COMPLAINT
+}
+
+enum ConversationStatus {
+  ACTIVE
+  WAITING
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum RecommendationType {
+  PRODUCT
+  CATEGORY
+  SELLER
+  DEAL
+  SIMILAR
+  COMPLEMENTARY
+  TRENDING
+  PERSONALIZED
+}
+
+enum SentimentSource {
+  REVIEW
+  MESSAGE
+  FEEDBACK
+  SOCIAL
+  SUPPORT
+}
+
+enum SentimentType {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+  MIXED
+}
+
+enum FraudTargetType {
+  USER
+  ORDER
+  PAYMENT
+  LISTING
+  REVIEW
+  MESSAGE
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum FraudDecision {
+  APPROVE
+  REVIEW
+  BLOCK
+  FLAG
+}
+
+enum FeedbackCategory {
+  ACCURACY
+  HELPFULNESS
+  SPEED
+  LANGUAGE
+  OTHER
+}

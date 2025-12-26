@@ -33,13 +33,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Check if user is already logged in (e.g., from localStorage)
-        const currentUser = authService.getCurrentUser();
-        if (currentUser) {
-          setUser(currentUser);
+        // Check for existing session
+        const token = localStorage.getItem('admin_token');
+        const userData = localStorage.getItem('admin_user');
+        
+        if (token && userData) {
+          // Verify token with backend
+          const response = await fetch('/api/admin-auth/verify', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setUser(data.user);
+          } else {
+            // Token invalid, clear storage
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_user');
+          }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
+        // Clear invalid session data
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
       } finally {
         setIsLoading(false);
       }

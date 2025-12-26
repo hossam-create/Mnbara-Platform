@@ -1,0 +1,19 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "MNBARH",
+  "url": "https://mnbarh.com",
+  "description": "منصة MNBARH للتجارة عبر الحدود - ربط المشترين والمسافرين حول العالم",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://mnbarh.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "inLanguage": ["ar", "en"],
+  "keywords": "تسوق دولي, مسافرين, توصيل, منتجات عالمية, cross-border shopping",
+  "sameAs": [
+    "https://facebook.com/mnbarh",
+    "https://twitter.com/mnbarh",
+    "https://youtube.com/mnbarh"
+  ]
+}

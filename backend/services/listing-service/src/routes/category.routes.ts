@@ -1,19 +1,31 @@
 import { Router } from 'express';
-import { CategoryController } from '../controllers/category.controller';
+import { OptimizedCategoryController } from '../controllers/category.controller.optimized';
 
 const router = Router();
-const categoryController = new CategoryController();
+const categoryController = new OptimizedCategoryController();
 
-// Get all categories
+// Get all categories with filtering and pagination
 router.get('/', categoryController.getCategories);
 
-// Get category tree (hierarchical)
+// Get category tree (hierarchical) with performance optimization
 router.get('/tree', categoryController.getCategoryTree);
 
-// Get single category
+// Get popular categories
+router.get('/popular', categoryController.getPopularCategories);
+
+// Search categories with full-text search
+router.get('/search', categoryController.searchCategories);
+
+// Get single category with full details
 router.get('/:id', categoryController.getCategory);
 
-// Get category with listings count
+// Get category path (breadcrumb)
+router.get('/:id/path', categoryController.getCategoryPath);
+
+// Get category statistics with real-time data
 router.get('/:id/stats', categoryController.getCategoryStats);
+
+// Refresh category statistics (admin endpoint)
+router.post('/:id/refresh-stats', categoryController.refreshCategoryStats);
 
 export default router;

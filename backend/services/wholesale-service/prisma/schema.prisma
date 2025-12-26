@@ -1,0 +1,427 @@
+// Wholesale Service - B2B Marketplace Schema
+// خدمة البيع بالجملة - سوق B2B
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🏢 SUPPLIER MODELS
+// ==========================================
+
+model Supplier {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  businessName      String
+  businessNameAr    String?
+  businessType      BusinessType
+  registrationNumber String?
+  taxId             String?
+  
+  // Contact Info
+  email             String
+  phone             String
+  website           String?
+  
+  // Address
+  country           String
+  city              String
+  address           String
+  postalCode        String?
+  
+  // Verification
+  isVerified        Boolean  @default(false)
+  verificationDate  DateTime?
+  verificationDocs  Json?    // Array of document URLs
+  
+  // Rating & Stats
+  rating            Float    @default(0)
+  totalOrders       Int      @default(0)
+  totalRevenue      Float    @default(0)
+  responseRate      Float    @default(0)
+  onTimeDelivery    Float    @default(0)
+  
+  // Settings
+  minOrderValue     Float    @default(0)
+  acceptedPayments  String[] // ['bank_transfer', 'credit', 'escrow']
+  shippingCountries String[]
+  
+  // Status
+  status            SupplierStatus @default(PENDING)
+  
+  // Relations
+  products          WholesaleProduct[]
+  orders            BulkOrder[]
+  pricingTiers      PricingTier[]
+  reviews           SupplierReview[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([country, status])
+  @@index([businessType])
+}
+
+enum BusinessType {
+  MANUFACTURER
+  DISTRIBUTOR
+  WHOLESALER
+  IMPORTER
+  EXPORTER
+}
+
+enum SupplierStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+// ==========================================
+// 📦 PRODUCT MODELS
+// ==========================================
+
+model WholesaleProduct {
+  id                String   @id @default(uuid())
+  supplierId        String
+  supplier          Supplier @relation(fields: [supplierId], references: [id])
+  
+  // Basic Info
+  sku               String   @unique
+  name              String
+  nameAr            String?
+  description       String
+  descriptionAr     String?
+  category          String
+  subcategory       String?
+  brand             String?
+  
+  // Pricing
+  basePrice         Float    // Price per unit
+  currency          String   @default("USD")
+  
+  // Inventory
+  stockQuantity     Int
+  minOrderQuantity  Int      @default(1)
+  maxOrderQuantity  Int?
+  unitType          String   @default("piece") // piece, box, pallet, container
+  unitsPerPackage   Int      @default(1)
+  
+  // Specifications
+  weight            Float?   // in kg
+  dimensions        Json?    // {length, width, height}
+  specifications    Json?    // Custom specs
+  
+  // Media
+  images            String[]
+  videos            String[]
+  documents         String[] // Spec sheets, certificates
+  
+  // Origin & Compliance
+  countryOfOrigin   String?
+  hsCode            String?  // Harmonized System Code
+  certifications    String[]
+  
+  // Status
+  status            ProductStatus @default(DRAFT)
+  isActive          Boolean  @default(true)
+  
+  // Relations
+  pricingTiers      ProductPricingTier[]
+  orderItems        BulkOrderItem[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([supplierId, status])
+  @@index([category, subcategory])
+  @@index([countryOfOrigin])
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+// ==========================================
+// 💰 PRICING MODELS
+// ==========================================
+
+model PricingTier {
+  id                String   @id @default(uuid())
+  supplierId        String
+  supplier          Supplier @relation(fields: [supplierId], references: [id])
+  
+  name              String   // "Bronze", "Silver", "Gold", "Platinum"
+  nameAr            String?
+  
+  // Requirements
+  minAnnualVolume   Float?   // Minimum annual purchase
+  minOrderValue     Float?   // Minimum per order
+  
+  // Discounts
+  discountPercent   Float    // e.g., 10 for 10%
+  
+  // Benefits
+  benefits          String[]
+  benefitsAr        String[]
+  
+  // Priority
+  priority          Int      @default(0)
+  
+  isActive          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([supplierId])
+}
+
+model ProductPricingTier {
+  id                String   @id @default(uuid())
+  productId         String
+  product           WholesaleProduct @relation(fields: [productId], references: [id])
+  
+  // Quantity Range
+  minQuantity       Int
+  maxQuantity       Int?
+  
+  // Price
+  pricePerUnit      Float
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([productId])
+}
+
+// ==========================================
+// 🛒 ORDER MODELS
+// ==========================================
+
+model BulkOrder {
+  id                String   @id @default(uuid())
+  orderNumber       String   @unique
+  
+  // Parties
+  buyerId           String
+  supplierId        String
+  supplier          Supplier @relation(fields: [supplierId], references: [id])
+  
+  // Amounts
+  subtotal          Float
+  discount          Float    @default(0)
+  shippingCost      Float    @default(0)
+  taxAmount         Float    @default(0)
+  totalAmount       Float
+  currency          String   @default("USD")
+  
+  // Shipping
+  shippingMethod    String?
+  shippingAddress   Json     // Full address object
+  estimatedDelivery DateTime?
+  trackingNumber    String?
+  
+  // Payment
+  paymentMethod     String   // bank_transfer, credit, escrow
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentDueDate    DateTime?
+  paidAt            DateTime?
+  
+  // Status
+  status            OrderStatus @default(PENDING)
+  
+  // Notes
+  buyerNotes        String?
+  supplierNotes     String?
+  internalNotes     String?
+  
+  // Relations
+  items             BulkOrderItem[]
+  timeline          OrderTimeline[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([buyerId, status])
+  @@index([supplierId, status])
+  @@index([orderNumber])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+  REFUNDED
+}
+
+model BulkOrderItem {
+  id                String   @id @default(uuid())
+  orderId           String
+  order             BulkOrder @relation(fields: [orderId], references: [id])
+  productId         String
+  product           WholesaleProduct @relation(fields: [productId], references: [id])
+  
+  // Quantity & Price
+  quantity          Int
+  unitPrice         Float
+  discount          Float    @default(0)
+  totalPrice        Float
+  
+  // Status
+  status            ItemStatus @default(PENDING)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum ItemStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  RETURNED
+}
+
+model OrderTimeline {
+  id                String   @id @default(uuid())
+  orderId           String
+  order             BulkOrder @relation(fields: [orderId], references: [id])
+  
+  status            String
+  description       String
+  descriptionAr     String?
+  
+  createdBy         String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([orderId])
+}
+
+// ==========================================
+// ⭐ REVIEW MODELS
+// ==========================================
+
+model SupplierReview {
+  id                String   @id @default(uuid())
+  supplierId        String
+  supplier          Supplier @relation(fields: [supplierId], references: [id])
+  buyerId           String
+  orderId           String?
+  
+  // Ratings (1-5)
+  overallRating     Int
+  qualityRating     Int
+  communicationRating Int
+  deliveryRating    Int
+  valueRating       Int
+  
+  // Review
+  title             String?
+  comment           String?
+  
+  // Response
+  supplierResponse  String?
+  respondedAt       DateTime?
+  
+  isVerified        Boolean  @default(false)
+  isPublic          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([supplierId])
+  @@index([buyerId])
+}
+
+// ==========================================
+// 📊 ANALYTICS MODELS
+// ==========================================
+
+model WholesaleAnalytics {
+  id                String   @id @default(uuid())
+  supplierId        String
+  date              DateTime @db.Date
+  
+  // Orders
+  totalOrders       Int      @default(0)
+  completedOrders   Int      @default(0)
+  cancelledOrders   Int      @default(0)
+  
+  // Revenue
+  totalRevenue      Float    @default(0)
+  avgOrderValue     Float    @default(0)
+  
+  // Products
+  productViews      Int      @default(0)
+  productInquiries  Int      @default(0)
+  
+  // Performance
+  responseTime      Float?   // in hours
+  fulfillmentRate   Float?   // percentage
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([supplierId, date])
+  @@index([supplierId, date])
+}
+
+// ==========================================
+// 💬 INQUIRY MODELS
+// ==========================================
+
+model ProductInquiry {
+  id                String   @id @default(uuid())
+  productId         String
+  supplierId        String
+  buyerId           String
+  
+  // Inquiry Details
+  quantity          Int
+  targetPrice       Float?
+  message           String
+  
+  // Response
+  supplierResponse  String?
+  quotedPrice       Float?
+  respondedAt       DateTime?
+  
+  status            InquiryStatus @default(PENDING)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([supplierId, status])
+  @@index([buyerId])
+}
+
+enum InquiryStatus {
+  PENDING
+  RESPONDED
+  NEGOTIATING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}

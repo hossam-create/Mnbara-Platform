@@ -1,0 +1,633 @@
+/* Central Control Cockpit Styles */
+.central-control {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.central-control.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+}
+
+/* Header Styles */
+.control-header {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.control-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+/* Content Area */
+.control-content {
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+}
+
+/* Cockpit View Styles */
+.cockpit-view {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.control-panel-top {
+  margin-bottom: 24px;
+}
+
+.system-status-card,
+.ai-status-card,
+.emergency-controls,
+.system-controls {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-indicator,
+.ai-indicator {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.status-info,
+.ai-info {
+  flex: 1;
+}
+
+.status-info h4,
+.ai-info h4 {
+  margin: 0;
+  color: #fff;
+}
+
+.status-info .ant-typography,
+.ai-info .ant-typography {
+  color: #fff;
+}
+
+.ai-metrics {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+/* Main Cockpit Area */
+.main-cockpit {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Department Gates */
+.department-gates {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  height: 100%;
+}
+
+.department-gates .ant-card-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.department-gates .ant-card-head-title {
+  color: #fff;
+}
+
+.department-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.department-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.department-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.department-item.selected {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: #1890ff;
+}
+
+.department-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.department-info {
+  flex: 1;
+}
+
+.department-metrics {
+  margin-top: 8px;
+}
+
+.metrics-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* Center Dashboard */
+.center-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.performance-chart,
+.ai-insights,
+.problem-tracking {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.performance-chart .ant-card-head,
+.ai-insights .ant-card-head,
+.problem-tracking .ant-card-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.performance-chart .ant-card-head-title,
+.ai-insights .ant-card-head-title,
+.problem-tracking .ant-card-head-title {
+  color: #fff;
+}
+
+.insight-item {
+  color: #fff;
+}
+
+.problem-item {
+  color: #fff;
+}
+
+.problem-actions {
+  margin-top: 8px;
+}
+
+/* System Metrics */
+.system-metrics {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  height: 100%;
+}
+
+.system-metrics .ant-card-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.system-metrics .ant-card-head-title {
+  color: #fff;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.metric-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.metric-card.selected {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: #1890ff;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.metric-value {
+  text-align: center;
+  margin: 8px 0;
+}
+
+.metric-value h2 {
+  margin: 0;
+}
+
+/* Quick Actions */
+.quick-actions {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.quick-actions .ant-card-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.quick-actions .ant-card-head-title {
+  color: #fff;
+}
+
+/* Bridge View Styles */
+.bridge-view {
+  padding: 24px;
+}
+
+.bridge-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.navigation-chart,
+.command-deck {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.navigation-chart h4,
+.command-deck h4 {
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.command-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.command-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.command-card.online {
+  border-color: #52c41a;
+}
+
+.command-card.maintenance {
+  border-color: #fa8c16;
+}
+
+.command-card.offline {
+  border-color: #f5222d;
+}
+
+.command-card-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.command-info {
+  flex: 1;
+}
+
+.command-info h5 {
+  color: #fff;
+  margin: 0;
+}
+
+/* Command View Styles */
+.command-view {
+  padding: 24px;
+}
+
+.command-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.strategic-view,
+.tactical-view {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.strategic-view h4,
+.tactical-view h4 {
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+/* AI Assistant Drawer */
+.ai-assistant {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(19, 194, 194, 0.1);
+  border-radius: 8px;
+}
+
+.ai-info h4 {
+  margin: 0;
+}
+
+.ai-insights,
+.ai-recommendations {
+  color: #000;
+}
+
+.ai-insights h5,
+.ai-recommendations h5 {
+  color: #000;
+  margin-bottom: 12px;
+}
+
+/* Custom Scrollbar */
+.department-list::-webkit-scrollbar,
+.metrics-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.department-list::-webkit-scrollbar-track,
+.metrics-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.department-list::-webkit-scrollbar-thumb,
+.metrics-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.department-list::-webkit-scrollbar-thumb:hover,
+.metrics-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Animation Classes */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(24, 144, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+  }
+}
+
+.glow {
+  animation: glow 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .bridge-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .command-overview {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .control-header {
+    padding: 12px 16px;
+  }
+  
+  .control-content {
+    padding: 16px;
+  }
+  
+  .main-cockpit .ant-row {
+    flex-direction: column;
+  }
+  
+  .department-gates,
+  .system-metrics {
+    height: auto;
+  }
+}
+
+/* Dark Theme Overrides */
+.ant-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-card-head {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-card-head-title {
+  color: #fff !important;
+}
+
+.ant-typography {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-typography strong {
+  color: #fff !important;
+}
+
+.ant-progress-bg {
+  background: #1890ff !important;
+}
+
+.ant-badge-status-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-timeline-item-content {
+  color: #fff !important;
+}
+
+.ant-list-item {
+  color: #fff !important;
+}
+
+.ant-list-item-meta-title {
+  color: #fff !important;
+}
+
+.ant-list-item-meta-description {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.ant-tag {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.ant-btn {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+
+.ant-btn:hover {
+  border-color: #1890ff !important;
+  color: #1890ff !important;
+}
+
+.ant-btn-primary {
+  background: #1890ff !important;
+  border-color: #1890ff !important;
+  color: #fff !important;
+}
+
+.ant-btn-primary:hover {
+  background: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+.ant-btn-danger {
+  background: #f5222d !important;
+  border-color: #f5222d !important;
+  color: #fff !important;
+}
+
+.ant-btn-danger:hover {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+}
+
+.ant-switch {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.ant-switch-checked {
+  background: #1890ff !important;
+}
+
+.ant-select-selector {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #fff !important;
+}
+
+.ant-select-arrow {
+  color: #fff !important;
+}
+
+.ant-drawer-content {
+  background: #1a1f3a !important;
+}
+
+.ant-drawer-header {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-drawer-title {
+  color: #fff !important;
+}
+
+.ant-modal-content {
+  background: #1a1f3a !important;
+}
+
+.ant-modal-header {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-modal-title {
+  color: #fff !important;
+}
+
+.ant-alert {
+  background: rgba(250, 140, 22, 0.1) !important;
+  border-color: rgba(250, 140, 22, 0.3) !important;
+}
+
+.ant-alert-message {
+  color: #fff !important;
+}
+
+.ant-alert-description {
+  color: rgba(255, 255, 255, 0.8) !important;
+}

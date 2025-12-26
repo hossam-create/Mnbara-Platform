@@ -1,0 +1,312 @@
+// Mnbara AI Engine - Custom AI Model Schema
+// محرك منبرة للذكاء الاصطناعي - نموذج خاص
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// نموذج AI - AI Model
+model AIModel {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  version         String
+  baseModel       String   // e.g., "mistral-7b", "llama-2-7b", "falcon-7b"
+  
+  // Model Configuration
+  parameters      BigInt   // Number of parameters
+  contextLength   Int      @default(4096)
+  
+  // Training Status
+  status          ModelStatus @default(INITIALIZING)
+  trainingProgress Float    @default(0)
+  
+  // Performance Metrics
+  accuracy        Float?
+  f1Score         Float?
+  latency         Int?     // ms
+  
+  // Storage
+  modelPath       String?
+  weightsPath     String?
+  tokenizerPath   String?
+  
+  // Metadata
+  description     String?
+  descriptionAr   String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  trainedAt       DateTime?
+  
+  trainingJobs    TrainingJob[]
+  inferences      AIInference[]
+}
+
+// وظيفة التدريب - Training Job
+model TrainingJob {
+  id              String   @id @default(uuid())
+  modelId         String
+  model           AIModel  @relation(fields: [modelId], references: [id])
+  
+  // Job Type
+  type            TrainingType
+  
+  // Dataset
+  datasetName     String
+  datasetSize     Int
+  trainSplit      Float    @default(0.8)
+  validationSplit Float    @default(0.1)
+  testSplit       Float    @default(0.1)
+  
+  // Hyperparameters
+  epochs          Int      @default(3)
+  batchSize       Int      @default(8)
+  learningRate    Float    @default(0.0001)
+  warmupSteps     Int      @default(100)
+  
+  // LoRA Config (for fine-tuning)
+  loraRank        Int?     @default(8)
+  loraAlpha       Int?     @default(16)
+  loraDropout     Float?   @default(0.1)
+  
+  // Status
+  status          JobStatus @default(PENDING)
+  progress        Float    @default(0)
+  currentEpoch    Int      @default(0)
+  
+  // Metrics
+  trainLoss       Float?
+  validationLoss  Float?
+  
+  // Logs
+  logs            String[] @default([])
+  errorMessage    String?
+  
+  createdAt       DateTime @default(now())
+  startedAt       DateTime?
+  completedAt     DateTime?
+}
+
+// استدلال AI - AI Inference
+model AIInference {
+  id              String   @id @default(uuid())
+  modelId         String
+  model           AIModel  @relation(fields: [modelId], references: [id])
+  
+  userId          String?
+  sessionId       String?
+  
+  // Input
+  inputType       InputType
+  inputText       String?  @db.Text
+  inputAudio      String?  // Path to audio file
+  inputImage      String?  // Path to image file
+  
+  // Output
+  outputText      String   @db.Text
+  outputAudio     String?
+  
+  // Context
+  context         Json?
+  conversationHistory Json?
+  
+  // Performance
+  latency         Int      // ms
+  tokensUsed      Int
+  
+  // Quality
+  userRating      Int?     // 1-5
+  feedback        String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([sessionId])
+}
+
+// بيانات التدريب - Training Data
+model TrainingData {
+  id              String   @id @default(uuid())
+  
+  // Category
+  category        DataCategory
+  subcategory     String?
+  
+  // Content
+  inputText       String   @db.Text
+  inputTextAr     String?  @db.Text
+  outputText      String   @db.Text
+  outputTextAr    String?  @db.Text
+  
+  // Context
+  context         Json?
+  
+  // Quality
+  quality         DataQuality @default(UNVERIFIED)
+  verifiedBy      String?
+  
+  // Source
+  source          String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([category])
+}
+
+// معرفة المنتجات - Product Knowledge
+model ProductKnowledge {
+  id              String   @id @default(uuid())
+  
+  // Product Info
+  productId       String?
+  categoryId      String?
+  
+  // Knowledge
+  name            String
+  nameAr          String?
+  description     String   @db.Text
+  descriptionAr   String?  @db.Text
+  
+  // Attributes
+  attributes      Json
+  specifications  Json?
+  
+  // Embeddings
+  embedding       Float[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([productId])
+  @@index([categoryId])
+}
+
+// معرفة السفر - Travel Knowledge
+model TravelKnowledge {
+  id              String   @id @default(uuid())
+  
+  // Location
+  country         String
+  city            String?
+  
+  // Knowledge Type
+  type            TravelKnowledgeType
+  
+  // Content
+  title           String
+  titleAr         String?
+  content         String   @db.Text
+  contentAr       String?  @db.Text
+  
+  // Metadata
+  tags            String[]
+  
+  // Embeddings
+  embedding       Float[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([country])
+  @@index([type])
+}
+
+// ملف المستخدم AI - AI User Profile
+model AIUserLearning {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Preferences learned
+  preferredLanguage String @default("ar")
+  communicationStyle String @default("friendly")
+  
+  // Shopping Preferences
+  favoriteCategories String[]
+  pricePreference   String?  // budget, mid-range, premium
+  brandPreferences  String[]
+  
+  // Travel Preferences
+  travelStyle       String?  // adventure, luxury, budget, family
+  preferredDestinations String[]
+  
+  // Interaction History Summary
+  totalInteractions Int     @default(0)
+  avgSatisfaction   Float   @default(0)
+  
+  // Learning Data
+  learnedPatterns   Json?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Enums
+enum ModelStatus {
+  INITIALIZING
+  DOWNLOADING
+  TRAINING
+  FINE_TUNING
+  READY
+  DEPRECATED
+  ERROR
+}
+
+enum TrainingType {
+  FULL_TRAINING
+  FINE_TUNING
+  LORA
+  QLORA
+  RLHF
+}
+
+enum JobStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum InputType {
+  TEXT
+  VOICE
+  IMAGE
+  MULTIMODAL
+}
+
+enum DataCategory {
+  SHOPPING_ASSISTANT
+  PRODUCT_SEARCH
+  PRICE_NEGOTIATION
+  ORDER_TRACKING
+  TRAVEL_PLANNING
+  CUSTOMS_INFO
+  SHIPPING_HELP
+  PAYMENT_HELP
+  GENERAL_CHAT
+  COMPLAINT_HANDLING
+}
+
+enum DataQuality {
+  UNVERIFIED
+  VERIFIED
+  HIGH_QUALITY
+  EXPERT_REVIEWED
+}
+
+enum TravelKnowledgeType {
+  CUSTOMS_REGULATIONS
+  PROHIBITED_ITEMS
+  TAX_INFO
+  SHOPPING_TIPS
+  LOCAL_MARKETS
+  CURRENCY_INFO
+  SAFETY_TIPS
+  CULTURAL_INFO
+}

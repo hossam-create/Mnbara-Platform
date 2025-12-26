@@ -1,0 +1,836 @@
+# Auth Service Deployment (Java/Spring Boot)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: mnbara-production
+  labels:
+    app: auth-service
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        tier: backend
+    spec:
+      containers:
+      - name: auth-service
+        image: mnbara/auth-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "production"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres-service:5432/mnbara_production"
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: SPRING_DATASOURCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: SPRING_REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: REDIS_HOST
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: GOOGLE_CLIENT_SECRET
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: mnbara-production
+  labels:
+    app: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+
+---
+# Listing Service Deployment (Node.js + Elasticsearch)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: listing-service
+  namespace: mnbara-production
+  labels:
+    app: listing-service
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: listing-service
+  template:
+    metadata:
+      labels:
+        app: listing-service
+        tier: backend
+    spec:
+      containers:
+      - name: listing-service
+        image: mnbara/listing-service:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: ELASTICSEARCH_URL
+          value: "http://elasticsearch-service:9200"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: listing-service
+  namespace: mnbara-production
+  labels:
+    app: listing-service
+spec:
+  selector:
+    app: listing-service
+  ports:
+  - port: 3001
+    targetPort: 3001
+  type: ClusterIP
+
+---
+# Payment Service Deployment (Node.js + Stripe)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: mnbara-production
+  labels:
+    app: payment-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        tier: backend
+    spec:
+      containers:
+      - name: payment-service
+        image: mnbara/payment-service:latest
+        ports:
+        - containerPort: 3002
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: STRIPE_SECRET_KEY
+        - name: STRIPE_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: STRIPE_WEBHOOK_SECRET
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: mnbara-production
+  labels:
+    app: payment-service
+spec:
+  selector:
+    app: payment-service
+  ports:
+  - port: 3002
+    targetPort: 3002
+  type: ClusterIP
+
+---
+# Order Service Deployment (Node.js)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: mnbara-production
+  labels:
+    app: order-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+        tier: backend
+    spec:
+      containers:
+      - name: order-service
+        image: mnbara/order-service:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: AUTH_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: AUTH_SERVICE_URL
+        - name: PAYMENT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: PAYMENT_SERVICE_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+# Notification Service Deployment (Node.js + WebSocket + Email)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: mnbara-production
+  labels:
+    app: notification-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        tier: backend
+    spec:
+      containers:
+      - name: notification-service
+        image: mnbara/notification-service:latest
+        ports:
+        - containerPort: 3004
+        - containerPort: 8080
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: CORS_ORIGIN
+        - name: SMTP_HOST
+          value: "smtp.gmail.com"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: SMTP_USER
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: SMTP_PASSWORD
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: mnbara-production
+  labels:
+    app: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+  - name: http
+    port: 3004
+    targetPort: 3004
+  - name: websocket
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+
+---
+# API Gateway Deployment (Node.js)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: mnbara-production
+  labels:
+    app: api-gateway
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        tier: backend
+    spec:
+      containers:
+      - name: api-gateway
+        image: mnbara/api-gateway:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        - name: AUTH_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: AUTH_SERVICE_URL
+        - name: LISTING_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: LISTING_SERVICE_URL
+        - name: PAYMENT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: PAYMENT_SERVICE_URL
+        - name: ORDER_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: ORDER_SERVICE_URL
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-service
+  namespace: mnbara-production
+  labels:
+    app: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+
+---
+# P2P Swap Service Deployment (Node.js + Blockchain)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: p2p-swap-service
+  namespace: mnbara-production
+  labels:
+    app: p2p-swap-service
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: p2p-swap-service
+  template:
+    metadata:
+      labels:
+        app: p2p-swap-service
+        tier: backend
+    spec:
+      containers:
+      - name: p2p-swap-service
+        image: mnbara/p2p-swap-service:latest
+        ports:
+        - containerPort: 3005
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/swap_db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: RABBITMQ_URL
+          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbara"
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: RABBITMQ_PASSWORD
+        - name: BLOCKCHAIN_RPC_URL
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: BLOCKCHAIN_RPC_URL
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: p2p-swap-service
+  namespace: mnbara-production
+  labels:
+    app: p2p-swap-service
+spec:
+  selector:
+    app: p2p-swap-service
+  ports:
+  - port: 3005
+    targetPort: 3005
+  type: ClusterIP
+
+---
+# Real-time Matching Service Deployment (Node.js + Redis)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: real-time-matcher
+  namespace: mnbara-production
+  labels:
+    app: real-time-matcher
+    tier: backend
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: real-time-matcher
+  template:
+    metadata:
+      labels:
+        app: real-time-matcher
+        tier: backend
+    spec:
+      containers:
+      - name: real-time-matcher
+        image: mnbara/real-time-matcher:latest
+        ports:
+        - containerPort: 3006
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/matching_db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: WEBSOCKET_PORT
+          value: "3001"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: JWT_SECRET
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: real-time-matcher-service
+  namespace: mnbara-production
+  labels:
+    app: real-time-matcher
+spec:
+  selector:
+    app: real-time-matcher
+  ports:
+  - name: http
+    port: 3006
+    targetPort: 3006
+  - name: websocket
+    port: 3001
+    targetPort: 3001
+  type: ClusterIP
+
+---
+# AI Core Service Deployment (Python/Node.js)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-core
+  namespace: mnbara-production
+  labels:
+    app: ai-core
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-core
+  template:
+    metadata:
+      labels:
+        app: ai-core
+        tier: backend
+    spec:
+      containers:
+      - name: ai-core
+        image: mnbara/ai-core:latest
+        ports:
+        - containerPort: 3007
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: mnbara-config
+              key: NODE_ENV
+        - name: DATABASE_URL
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/ai_db"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mnbara-secrets
+              key: POSTGRES_PASSWORD
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        - name: ML_MODEL_PATH
+          value: "/app/models/p2p-matching-v1"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-core-service
+  namespace: mnbara-production
+  labels:
+    app: ai-core
+spec:
+  selector:
+    app: ai-core
+  ports:
+  - port: 3007
+    targetPort: 3007
+  type: ClusterIP

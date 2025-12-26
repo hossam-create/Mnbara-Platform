@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: mnbara-production
+data:
+  01-init-databases.sql: |
+    -- Create databases for each service
+    CREATE DATABASE mnbara_auth;
+    CREATE DATABASE mnbara_listing;
+    CREATE DATABASE mnbara_payment;
+    CREATE DATABASE mnbara_orders;
+    
+    -- Create users for each service
+    CREATE USER auth_user WITH PASSWORD 'auth_pass_2026';
+    CREATE USER listing_user WITH PASSWORD 'listing_pass_2026';
+    CREATE USER payment_user WITH PASSWORD 'payment_pass_2026';
+    CREATE USER orders_user WITH PASSWORD 'orders_pass_2026';
+    
+    -- Grant privileges
+    GRANT ALL PRIVILEGES ON DATABASE mnbara_auth TO auth_user;
+    GRANT ALL PRIVILEGES ON DATABASE mnbara_listing TO listing_user;
+    GRANT ALL PRIVILEGES ON DATABASE mnbara_payment TO payment_user;
+    GRANT ALL PRIVILEGES ON DATABASE mnbara_orders TO orders_user;
+    
+    -- Enable extensions
+    \c mnbara_auth;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    
+    \c mnbara_listing;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+    CREATE EXTENSION IF NOT EXISTS "unaccent";
+    
+    \c mnbara_payment;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+    
+    \c mnbara_orders;
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+  02-seed-data.sql: |
+    -- Seed data for production launch
+    \c mnbara_listing;
+    
+    -- Insert sample categories
+    INSERT INTO categories (id, name, slug, description, parent_id, is_active, created_at, updated_at) VALUES
+    ('550e8400-e29b-41d4-a716-446655440001', 'Electronics', 'electronics', 'Electronic devices and gadgets', NULL, true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440002', 'Fashion', 'fashion', 'Clothing and accessories', NULL, true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440003', 'Home & Garden', 'home-garden', 'Home improvement and garden supplies', NULL, true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440004', 'Sports', 'sports', 'Sports equipment and accessories', NULL, true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440005', 'Books', 'books', 'Books and educational materials', NULL, true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440006', 'Smartphones', 'smartphones', 'Mobile phones and accessories', '550e8400-e29b-41d4-a716-446655440001', true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440007', 'Laptops', 'laptops', 'Laptop computers and accessories', '550e8400-e29b-41d4-a716-446655440001', true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440008', 'Men''s Clothing', 'mens-clothing', 'Clothing for men', '550e8400-e29b-41d4-a716-446655440002', true, NOW(), NOW()),
+    ('550e8400-e29b-41d4-a716-446655440009', 'Women''s Clothing', 'womens-clothing', 'Clothing for women', '550e8400-e29b-41d4-a716-446655440002', true, NOW(), NOW());
+    
+    -- Insert sample products for launch
+    INSERT INTO products (id, title, description, price, currency, condition, category_id, seller_id, status, created_at, updated_at) VALUES
+    ('650e8400-e29b-41d4-a716-446655440001', 'iPhone 15 Pro Max', 'Latest iPhone with advanced camera system', 1199.99, 'USD', 'NEW', '550e8400-e29b-41d4-a716-446655440006', '750e8400-e29b-41d4-a716-446655440001', 'ACTIVE', NOW(), NOW()),
+    ('650e8400-e29b-41d4-a716-446655440002', 'MacBook Pro 16"', 'Powerful laptop for professionals', 2499.99, 'USD', 'NEW', '550e8400-e29b-41d4-a716-446655440007', '750e8400-e29b-41d4-a716-446655440001', 'ACTIVE', NOW(), NOW()),
+    ('650e8400-e29b-41d4-a716-446655440003', 'Samsung Galaxy S24', 'Android smartphone with AI features', 899.99, 'USD', 'NEW', '550e8400-e29b-41d4-a716-446655440006', '750e8400-e29b-41d4-a716-446655440002', 'ACTIVE', NOW(), NOW()),
+    ('650e8400-e29b-41d4-a716-446655440004', 'Nike Air Jordan 1', 'Classic basketball sneakers', 170.00, 'USD', 'NEW', '550e8400-e29b-41d4-a716-446655440004', '750e8400-e29b-41d4-a716-446655440003', 'ACTIVE', NOW(), NOW()),
+    ('650e8400-e29b-41d4-a716-446655440005', 'Vintage Leather Jacket', 'Genuine leather jacket in excellent condition', 89.99, 'USD', 'USED', '550e8400-e29b-41d4-a716-446655440008', '750e8400-e29b-41d4-a716-446655440004', 'ACTIVE', NOW(), NOW());
+    
+    -- Insert sample product images
+    INSERT INTO product_images (id, product_id, url, alt_text, is_primary, sort_order, created_at) VALUES
+    ('850e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440001', 'https://cdn.mnbara.com/products/iphone15pro.jpg', 'iPhone 15 Pro Max', true, 1, NOW()),
+    ('850e8400-e29b-41d4-a716-446655440002', '650e8400-e29b-41d4-a716-446655440002', 'https://cdn.mnbara.com/products/macbookpro16.jpg', 'MacBook Pro 16 inch', true, 1, NOW()),
+    ('850e8400-e29b-41d4-a716-446655440003', '650e8400-e29b-41d4-a716-446655440003', 'https://cdn.mnbara.com/products/galaxys24.jpg', 'Samsung Galaxy S24', true, 1, NOW()),
+    ('850e8400-e29b-41d4-a716-446655440004', '650e8400-e29b-41d4-a716-446655440004', 'https://cdn.mnbara.com/products/airjordan1.jpg', 'Nike Air Jordan 1', true, 1, NOW()),
+    ('850e8400-e29b-41d4-a716-446655440005', '650e8400-e29b-41d4-a716-446655440005', 'https://cdn.mnbara.com/products/leatherjacket.jpg', 'Vintage Leather Jacket', true, 1, NOW());
+
+  03-create-indexes.sql: |
+    -- Performance indexes for production
+    \c mnbara_listing;
+    
+    -- Product search indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_title_search ON products USING gin(to_tsvector('english', title));
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_description_search ON products USING gin(to_tsvector('english', description));
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_category_status ON products(category_id, status);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_price ON products(price);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_seller_status ON products(seller_id, status);
+    
+    -- Category indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_categories_parent_active ON categories(parent_id, is_active);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_categories_slug ON categories(slug);
+    
+    -- Review indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reviews_product_rating ON reviews(product_id, rating);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_reviews_user_created ON reviews(user_id, created_at DESC);
+    
+    -- Watchlist indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_watchlist_user_created ON watchlist(user_id, created_at DESC);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_watchlist_product_user ON watchlist(product_id, user_id);
+    
+    \c mnbara_auth;
+    
+    -- User indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_status ON users(status);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
+    
+    -- Session indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_user_sessions_user_active ON user_sessions(user_id, is_active);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_user_sessions_token ON user_sessions(session_token);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at);
+    
+    \c mnbara_payment;
+    
+    -- Payment indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_payments_user_status ON payments(user_id, status);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_payments_stripe_id ON payments(stripe_payment_intent_id);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_payments_created_at ON payments(created_at DESC);
+    
+    \c mnbara_orders;
+    
+    -- Order indexes
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_user_status ON orders(user_id, status);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_seller_status ON orders(seller_id, status);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_order_items_product_id ON order_items(product_id);

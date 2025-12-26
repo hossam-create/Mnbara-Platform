@@ -1,27 +1,45 @@
-# Grafana Dashboard Configuration for Mnbara Blockchain
-
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
-  # Mnbara Backend Metrics
-  - job_name: 'mnbara-backend'
+  - job_name: 'api-gateway'
     static_configs:
-      - targets: ['localhost:3000']
-    metrics_path: '/metrics'
-    
-  # Node.js Default Metrics
-  - job_name: 'nodejs'
+      - targets: ['api-gateway:8080']
+
+  - job_name: 'auth-service'
     static_configs:
-      - targets: ['localhost:3000']
-    metrics_path: '/metrics'
+      - targets: ['auth-service:3001']
 
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: ['localhost:9093']
+  - job_name: 'listing-service'
+    static_configs:
+      - targets: ['listing-service:3002']
 
-# Alert Rules
-rule_files:
-  - 'blockchain_alerts.yml'
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:3003']
+
+  - job_name: 'orders-service'
+    static_configs:
+      - targets: ['orders-service:3004']
+
+  - job_name: 'matching-service'
+    static_configs:
+      - targets: ['matching-service:3010']
+
+  - job_name: 'trips-service'
+    static_configs:
+      - targets: ['trips-service:3011']
+
+  - job_name: 'signal-aggregation'
+    static_configs:
+      - targets: ['signal-aggregation-service:3014']
+
+  - job_name: 'ai-core'
+    static_configs:
+      - targets: ['ai-core:3007']
+
+  - job_name: 'infrastructure'
+    static_configs:
+      - targets: ['postgres:5432', 'redis:6379', 'rabbitmq:15672']
+

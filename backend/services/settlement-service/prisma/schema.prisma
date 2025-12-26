@@ -1,0 +1,258 @@
+// Settlement Service Database Schema
+// نظام التسوية المحلية اللحظية - Local Settlement Matching
+// منافس لـ Western Union و TransferWise
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// طلبات التحويل
+model TransferRequest {
+  id              String   @id @default(cuid())
+  
+  // المرسل
+  senderId        String
+  senderCountry   String
+  senderCurrency  String
+  sendAmount      Decimal  @db.Decimal(15, 2)
+  
+  // المستلم
+  recipientId     String?
+  recipientCountry String
+  recipientCurrency String
+  receiveAmount   Decimal  @db.Decimal(15, 2)
+  
+  // سعر الصرف
+  exchangeRate    Decimal  @db.Decimal(12, 6)
+  marketRate      Decimal  @db.Decimal(12, 6)
+  spreadPercent   Decimal  @db.Decimal(5, 4) @default(0.005) // 0.5%
+  
+  // الرسوم
+  platformFee     Decimal  @db.Decimal(10, 2) @default(0)
+  totalCost       Decimal  @db.Decimal(15, 2)
+  
+  // الحالة
+  status          TransferStatus @default(PENDING)
+  matchedWith     String?  // ID of matched request
+  
+  // التوقيت
+  expiresAt       DateTime
+  matchedAt       DateTime?
+  completedAt     DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  matches         SettlementMatch[] @relation("RequestMatches")
+  counterMatches  SettlementMatch[] @relation("CounterMatches")
+  
+  @@index([senderId])
+  @@index([senderCountry, recipientCountry])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("transfer_requests")
+}
+
+// المطابقات بين الطلبات
+model SettlementMatch {
+  id              String   @id @default(cuid())
+  
+  // الطلبين المتطابقين
+  requestId       String
+  counterRequestId String
+  
+  // تفاصيل المطابقة
+  matchScore      Int      // 0-100 نسبة التطابق
+  matchType       MatchType
+  
+  // المبالغ المتطابقة
+  matchedAmount   Decimal  @db.Decimal(15, 2)
+  remainingAmount Decimal  @db.Decimal(15, 2) @default(0)
+  
+  // الحالة
+  status          MatchStatus @default(PROPOSED)
+  
+  // القبول
+  requestAccepted Boolean  @default(false)
+  counterAccepted Boolean  @default(false)
+  
+  // التوقيت
+  proposedAt      DateTime @default(now())
+  acceptedAt      DateTime?
+  executedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  request         TransferRequest @relation("RequestMatches", fields: [requestId], references: [id])
+  counterRequest  TransferRequest @relation("CounterMatches", fields: [counterRequestId], references: [id])
+  
+  @@unique([requestId, counterRequestId])
+  @@index([status])
+  @@map("settlement_matches")
+}
+
+// أسعار الصرف
+model ExchangeRate {
+  id              String   @id @default(cuid())
+  
+  fromCurrency    String
+  toCurrency      String
+  
+  // الأسعار
+  midRate         Decimal  @db.Decimal(12, 6)
+  buyRate         Decimal  @db.Decimal(12, 6)
+  sellRate        Decimal  @db.Decimal(12, 6)
+  
+  // المصدر
+  source          String   @default("market")
+  
+  // التوقيت
+  validFrom       DateTime @default(now())
+  validUntil      DateTime
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([fromCurrency, toCurrency, validFrom])
+  @@index([fromCurrency, toCurrency])
+  @@map("exchange_rates")
+}
+
+// سجل التحويلات المكتملة
+model SettlementLedger {
+  id              String   @id @default(cuid())
+  
+  // المرجع
+  matchId         String
+  
+  // الأطراف
+  senderId        String
+  recipientId     String
+  
+  // المبالغ
+  sentAmount      Decimal  @db.Decimal(15, 2)
+  sentCurrency    String
+  receivedAmount  Decimal  @db.Decimal(15, 2)
+  receivedCurrency String
+  
+  // سعر الصرف المستخدم
+  exchangeRate    Decimal  @db.Decimal(12, 6)
+  
+  // الرسوم
+  platformFee     Decimal  @db.Decimal(10, 2)
+  
+  // الحالة
+  status          LedgerStatus @default(PENDING)
+  
+  // التوقيت
+  executedAt      DateTime?
+  settledAt       DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([status])
+  @@map("settlement_ledger")
+}
+
+// حدود التحويل
+model TransferLimit {
+  id              String   @id @default(cuid())
+  
+  // النطاق
+  country         String?
+  currency        String?
+  userTier        String?  // BASIC, VERIFIED, PREMIUM
+  
+  // الحدود
+  minAmount       Decimal  @db.Decimal(15, 2)
+  maxAmount       Decimal  @db.Decimal(15, 2)
+  dailyLimit      Decimal  @db.Decimal(15, 2)
+  monthlyLimit    Decimal  @db.Decimal(15, 2)
+  
+  // الرسوم
+  feePercent      Decimal  @db.Decimal(5, 4)
+  minFee          Decimal  @db.Decimal(10, 2)
+  maxFee          Decimal  @db.Decimal(10, 2)
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("transfer_limits")
+}
+
+// ممرات التحويل (Corridors)
+model TransferCorridor {
+  id              String   @id @default(cuid())
+  
+  fromCountry     String
+  toCountry       String
+  fromCurrency    String
+  toCurrency      String
+  
+  // الإعدادات
+  isActive        Boolean  @default(true)
+  avgMatchTime    Int?     // بالدقائق
+  successRate     Decimal? @db.Decimal(5, 2) // نسبة النجاح
+  
+  // الرسوم الخاصة بالممر
+  corridorFee     Decimal  @db.Decimal(10, 2) @default(0)
+  spreadOverride  Decimal? @db.Decimal(5, 4)
+  
+  // الإحصائيات
+  totalVolume     Decimal  @db.Decimal(20, 2) @default(0)
+  totalTransfers  Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([fromCountry, toCountry])
+  @@map("transfer_corridors")
+}
+
+// Enums
+enum TransferStatus {
+  PENDING         // في انتظار المطابقة
+  MATCHING        // جاري البحث عن مطابقة
+  MATCHED         // تم المطابقة
+  ACCEPTED        // تم القبول
+  PROCESSING      // جاري التنفيذ
+  COMPLETED       // مكتمل
+  CANCELLED       // ملغي
+  EXPIRED         // منتهي الصلاحية
+  FAILED          // فشل
+}
+
+enum MatchType {
+  EXACT           // مطابقة تامة
+  PARTIAL         // مطابقة جزئية
+  SPLIT           // تقسيم على عدة طلبات
+}
+
+enum MatchStatus {
+  PROPOSED        // مقترح
+  PENDING_ACCEPT  // في انتظار القبول
+  ACCEPTED        // مقبول
+  EXECUTING       // جاري التنفيذ
+  COMPLETED       // مكتمل
+  REJECTED        // مرفوض
+  EXPIRED         // منتهي
+}
+
+enum LedgerStatus {
+  PENDING         // معلق
+  PROCESSING      // جاري المعالجة
+  SETTLED         // تمت التسوية
+  FAILED          // فشل
+  REVERSED        // معكوس
+}

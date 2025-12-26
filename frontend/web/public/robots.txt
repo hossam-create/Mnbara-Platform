@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /private
+
+Sitemap: https://mnbarh.com/sitemap.xml
+
+# MNBARH - Cross-Border Shopping Platform
+# Contact: info@mnbarh.com

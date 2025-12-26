@@ -1,39 +1,66 @@
 import amqp from 'amqplib';
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbara_user:mnbara_pass@rabbitmq:5672';
-
-let connection: amqp.Connection | null = null;
-let channel: amqp.Channel | null = null;
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbara:mnbara_dev_password@rabbitmq:5672';
 
 /**
  * RabbitMQ Helper Service
- * Handles connection, publishing, and consuming messages
+ * Handles connection, publishing, and consuming messages with auto-recovery
  */
 export class RabbitMQService {
-    
+    private static connection: any = null;
+    private static channel: any = null;
+    private static isConnecting = false;
+
     /**
-     * Connect to RabbitMQ
+     * Connect to RabbitMQ with retry logic
      */
-    static async connect(): Promise<void> {
+    static async connect(): Promise<any> {
+        if (this.channel) return this.channel;
+        if (this.isConnecting) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return this.connect();
+        }
+
+        this.isConnecting = true;
         try {
-            connection = await amqp.connect(RABBITMQ_URL);
-            channel = await connection.createChannel();
+            this.connection = await amqp.connect(RABBITMQ_URL);
+            this.channel = await this.connection.createChannel();
             
-            // Create exchanges
-            await channel.assertExchange('mnbara.events', 'topic', { durable: true });
+            this.connection.on('error', (err: any) => {
+                console.error('❌ RabbitMQ Connection Error:', err);
+                this.reconnect();
+            });
+
+            this.connection.on('close', () => {
+                console.warn('⚠️ RabbitMQ Connection Closed');
+                this.reconnect();
+            });
+
+            // Standard Exchanges
+            await this.channel.assertExchange('mnbara.events', 'topic', { durable: true });
             
-            // Create queues
-            await channel.assertQueue('notifications', { durable: true });
-            await channel.assertQueue('escrow', { durable: true });
-            await channel.assertQueue('rewards', { durable: true });
-            await channel.assertQueue('location-updates', { durable: true });
-            await channel.assertQueue('matching', { durable: true });
+            // Standard Queues
+            const queues = ['notifications', 'escrow', 'rewards', 'location-updates', 'matching', 'trips'];
+            for (const queue of queues) {
+                await this.channel.assertQueue(queue, { durable: true });
+            }
             
             console.log('✅ RabbitMQ connected successfully');
+            this.isConnecting = false;
+            return this.channel;
         } catch (error) {
-            console.error('❌ RabbitMQ connection failed:', error);
-            throw error;
+            this.isConnecting = false;
+            console.error('❌ RabbitMQ connection failed, retrying in 5s...', error);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            return this.connect();
         }
+    }
+
+
+    private static async reconnect() {
+        this.channel = null;
+        this.connection = null;
+        await this.connect();
     }
 
     /**
@@ -41,14 +68,10 @@ export class RabbitMQService {
      */
     static async publish(queue: string, message: any): Promise<void> {
         try {
-            if (!channel) {
-                await this.connect();
-            }
-
+            const channel = await this.connect();
             const msgBuffer = Buffer.from(JSON.stringify(message));
-            channel!.sendToQueue(queue, msgBuffer, { persistent: true });
-
-            console.log(`[RabbitMQ] Published to ${queue}:`, message);
+            channel.sendToQueue(queue, msgBuffer, { persistent: true });
+            console.log(`[RabbitMQ] Published to ${queue}`);
         } catch (error) {
             console.error('[RabbitMQ] Publish error:', error);
         }
@@ -59,14 +82,10 @@ export class RabbitMQService {
      */
     static async publishEvent(routingKey: string, message: any): Promise<void> {
         try {
-            if (!channel) {
-                await this.connect();
-            }
-
+            const channel = await this.connect();
             const msgBuffer = Buffer.from(JSON.stringify(message));
-            channel!.publish('mnbara.events', routingKey, msgBuffer, { persistent: true });
-
-            console.log(`[RabbitMQ] Published event ${routingKey}:`, message);
+            channel.publish('mnbara.events', routingKey, msgBuffer, { persistent: true });
+            console.log(`[RabbitMQ] Published event ${routingKey}`);
         } catch (error) {
             console.error('[RabbitMQ] Publish event error:', error);
         }
@@ -80,24 +99,21 @@ export class RabbitMQService {
         callback: (message: any) => Promise<void>
     ): Promise<void> {
         try {
-            if (!channel) {
-                await this.connect();
-            }
-
-            channel!.consume(queue, async (msg) => {
+            const channel = await this.connect();
+            await channel.consume(queue, async (msg) => {
                 if (msg) {
                     try {
                         const content = JSON.parse(msg.content.toString());
                         await callback(content);
-                        channel!.ack(msg);
+                        channel.ack(msg);
                     } catch (error) {
                         console.error(`[RabbitMQ] Error processing message from ${queue}:`, error);
-                        channel!.nack(msg, false, false); // Don't requeue
+                        // Optional: Move to Dead Letter Queue instead of just NACK
+                        channel.nack(msg, false, false);
                     }
                 }
             });
-
-            console.log(`[RabbitMQ] Consuming from queue: ${queue}`);
+            console.log(`[RabbitMQ] Consuming from: ${queue}`);
         } catch (error) {
             console.error('[RabbitMQ] Consume error:', error);
         }
@@ -108,8 +124,10 @@ export class RabbitMQService {
      */
     static async close(): Promise<void> {
         try {
-            if (channel) await channel.close();
-            if (connection) await connection.close();
+            if (this.channel) await this.channel.close();
+            if (this.connection) await this.connection.close();
+            this.channel = null;
+            this.connection = null;
             console.log('✅ RabbitMQ connection closed');
         } catch (error) {
             console.error('❌ RabbitMQ close error:', error);
@@ -117,11 +135,8 @@ export class RabbitMQService {
     }
 }
 
-// Auto-connect on module load
-RabbitMQService.connect().catch(console.error);
-
 // Graceful shutdown
-process.on('SIGINT', async () => {
+process.on('SIGTERM', async () => {
     await RabbitMQService.close();
-    process.exit(0);
 });
+

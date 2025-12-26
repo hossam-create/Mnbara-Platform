@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// BNPL Plans - تخطيط الدفع المقسط
+model BNPLPlan {
+  id                String   @id @default(cuid())
+  name              String
+  nameAr            String
+  description       String?
+  descriptionAr     String?
+  
+  // Installment Details
+  installmentCount  Int      // 3, 6, 12 months
+  interestRate      Float    @default(0) // 0% for promotional
+  monthlyFee        Float    @default(0)
+  
+  // Limits
+  minAmount         Float    @default(100)
+  maxAmount         Float    @default(10000)
+  
+  // Status
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  installments      Installment[]
+  
+  @@map("bnpl_plans")
+}
+
+// Installments - الأقساط
+model Installment {
+  id                String   @id @default(cuid())
+  
+  // User & Order
+  userId            String
+  orderId           String
+  
+  // Plan Details
+  planId            String
+  plan              BNPLPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  // Amount
+  totalAmount       Float
+  installmentAmount Float
+  interestAmount    Float    @default(0)
+  
+  // Status
+  status            String   @default("pending") // pending, active, completed, defaulted
+  
+  // Dates
+  startDate         DateTime
+  endDate           DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  payments          Payment[]
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+  @@map("installments")
+}
+
+// Payments - المدفوعات
+model Payment {
+  id                String   @id @default(cuid())
+  
+  // Installment
+  installmentId     String
+  installment       Installment @relation(fields: [installmentId], references: [id], onDelete: Cascade)
+  
+  // Payment Details
+  amount            Float
+  dueDate           DateTime
+  paidDate          DateTime?
+  
+  // Status
+  status            String   @default("pending") // pending, completed, failed, overdue
+  
+  // Stripe
+  stripePaymentId   String?
+  stripeChargeId    String?
+  
+  // Dates
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([installmentId])
+  @@index([status])
+  @@map("payments")
+}
+
+// Credit Score - درجة الائتمان
+model CreditScore {
+  id                String   @id @default(cuid())
+  
+  // User
+  userId            String   @unique
+  
+  // Score
+  score             Int      @default(500) // 300-850
+  
+  // History
+  totalOrders       Int      @default(0)
+  completedOrders   Int      @default(0)
+  defaultedOrders   Int      @default(0)
+  latePayments      Int      @default(0)
+  
+  // Dates
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("credit_scores")
+}
+
+// Payment Schedule - جدول الدفع
+model PaymentSchedule {
+  id                String   @id @default(cuid())
+  
+  // Installment
+  installmentId     String
+  
+  // Schedule Details
+  dueDate           DateTime
+  amount            Float
+  status            String   @default("pending")
+  
+  // Dates
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([installmentId])
+  @@map("payment_schedules")
+}

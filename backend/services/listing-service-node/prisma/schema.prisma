@@ -1,0 +1,457 @@
+// Mnbara Listing Service - eBay-Level Product Catalog Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Product Categories - Hierarchical structure like eBay
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  imageUrl    String?
+  
+  // Hierarchy
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  // SEO & Display
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  displayOrder    Int      @default(0)
+  isActive        Boolean  @default(true)
+  isFeatured      Boolean  @default(false)
+  
+  // eBay-style category attributes
+  allowsAuctions  Boolean  @default(true)
+  allowsFixedPrice Boolean @default(true)
+  requiresBrand   Boolean  @default(false)
+  requiresCondition Boolean @default(true)
+  
+  // Commission settings
+  commissionRate  Float    @default(0.10) // 10% default
+  minCommission   Float    @default(0.50)
+  maxCommission   Float?
+  
+  // Relationships
+  products        Product[]
+  attributes      CategoryAttribute[]
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  @@map("categories")
+  @@index([parentId])
+  @@index([slug])
+  @@index([isActive])
+  @@index([isFeatured])
+}
+
+// Category-specific attributes (like eBay's item specifics)
+model CategoryAttribute {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  name        String   // e.g., "Brand", "Size", "Color"
+  type        AttributeType
+  isRequired  Boolean  @default(false)
+  isFilterable Boolean @default(true)
+  isSearchable Boolean @default(true)
+  
+  // For dropdown/select attributes
+  options     String[] // e.g., ["Small", "Medium", "Large"]
+  
+  displayOrder Int     @default(0)
+  isActive    Boolean  @default(true)
+  
+  // Audit fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("category_attributes")
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+enum AttributeType {
+  TEXT
+  NUMBER
+  BOOLEAN
+  SELECT
+  MULTI_SELECT
+  DATE
+  URL
+}
+
+// Main Product/Listing model - eBay-style
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  shortDescription String?
+  
+  // Category & Classification
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  // Seller information
+  sellerId    String   // User ID from auth service
+  sellerType  SellerType @default(INDIVIDUAL)
+  
+  // Product details
+  brand       String?
+  model       String?
+  condition   ProductCondition
+  sku         String?  @unique
+  upc         String?
+  isbn        String?
+  mpn         String?  // Manufacturer Part Number
+  
+  // Pricing - eBay-style
+  listingType ListingType
+  startingPrice Float?   // For auctions
+  fixedPrice    Float?   // For Buy It Now
+  reservePrice  Float?   // For auctions with reserve
+  currentPrice  Float?   // Current highest bid or fixed price
+  
+  // Auction settings
+  auctionDuration Int?    // in hours
+  auctionEndTime  DateTime?
+  allowsBuyItNow  Boolean @default(false)
+  buyItNowPrice   Float?
+  
+  // Inventory & Shipping
+  quantity        Int      @default(1)
+  quantitySold    Int      @default(0)
+  quantityAvailable Int    @default(1)
+  
+  // Shipping
+  weight          Float?   // in kg
+  dimensions      Json?    // {length, width, height} in cm
+  shippingCost    Float?
+  freeShipping    Boolean  @default(false)
+  shippingMethods String[] // ["standard", "express", "overnight"]
+  
+  // Location
+  location        String?
+  country         String   @default("US")
+  zipCode         String?
+  
+  // Media
+  images          ProductImage[]
+  videos          ProductVideo[]
+  
+  // SEO & Search
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  tags            String[]
+  
+  // Status & Visibility
+  status          ProductStatus @default(DRAFT)
+  isActive        Boolean       @default(true)
+  isFeatured      Boolean       @default(false)
+  isPromoted      Boolean       @default(false)
+  
+  // eBay-style features
+  hasReturns      Boolean       @default(true)
+  returnPolicy    String?
+  hasWarranty     Boolean       @default(false)
+  warrantyPeriod  Int?          // in months
+  
+  // Analytics
+  viewCount       Int           @default(0)
+  watchCount      Int           @default(0)
+  shareCount      Int           @default(0)
+  
+  // Relationships
+  attributes      ProductAttribute[]
+  bids            Bid[]
+  orders          OrderItem[]
+  reviews         Review[]
+  watchers        ProductWatcher[]
+  
+  // Audit fields
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publishedAt     DateTime?
+  endedAt         DateTime?
+  createdBy       String?
+  updatedBy       String?
+
+  @@map("products")
+  @@index([categoryId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([listingType])
+  @@index([condition])
+  @@index([createdAt])
+  @@index([publishedAt])
+  @@index([auctionEndTime])
+  @@index([slug])
+}
+
+enum SellerType {
+  INDIVIDUAL
+  BUSINESS
+  POWER_SELLER
+  TOP_RATED
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  EXCELLENT
+  VERY_GOOD
+  GOOD
+  ACCEPTABLE
+  FOR_PARTS
+}
+
+enum ListingType {
+  AUCTION
+  FIXED_PRICE
+  CLASSIFIED_AD
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ACTIVE
+  SOLD
+  ENDED
+  CANCELLED
+  SUSPENDED
+}
+
+// Product Images - eBay-style gallery
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  url       String
+  altText   String?
+  caption   String?
+  
+  // Image properties
+  width     Int?
+  height    Int?
+  size      Int?    // in bytes
+  format    String? // jpg, png, webp
+  
+  // Display settings
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_images")
+  @@index([productId])
+  @@index([isPrimary])
+}
+
+// Product Videos
+model ProductVideo {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  url       String
+  title     String?
+  description String?
+  
+  // Video properties
+  duration  Int?    // in seconds
+  size      Int?    // in bytes
+  format    String? // mp4, webm
+  
+  // Display settings
+  sortOrder Int     @default(0)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_videos")
+  @@index([productId])
+}
+
+// Product Attributes - Dynamic key-value pairs
+model ProductAttribute {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  name      String  // e.g., "Brand", "Size", "Color"
+  value     String  // e.g., "Nike", "Large", "Red"
+  type      AttributeType @default(TEXT)
+  
+  // Display settings
+  isVisible Boolean @default(true)
+  sortOrder Int     @default(0)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_attributes")
+  @@index([productId])
+  @@index([name])
+  @@unique([productId, name])
+}
+
+// Bidding system - eBay-style auctions
+model Bid {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  bidderId  String  // User ID from auth service
+  amount    Float
+  
+  // Bid details
+  isWinning Boolean @default(false)
+  isRetracted Boolean @default(false)
+  retractReason String?
+  
+  // Proxy bidding (like eBay)
+  maxAmount Float?  // Maximum amount bidder is willing to pay
+  isProxy   Boolean @default(false)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bids")
+  @@index([productId])
+  @@index([bidderId])
+  @@index([isWinning])
+  @@index([createdAt])
+}
+
+// Product Watchers - eBay-style watchlist
+model ProductWatcher {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  userId    String  // User ID from auth service
+  
+  // Notification preferences
+  notifyOnBid      Boolean @default(true)
+  notifyOnPriceChange Boolean @default(true)
+  notifyOnEnding   Boolean @default(true)
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_watchers")
+  @@index([productId])
+  @@index([userId])
+  @@unique([productId, userId])
+}
+
+// Order Items - Integration with orders service
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String  // Order ID from orders service
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Float   // Price at time of purchase
+  
+  // Auction details if applicable
+  bidId     String? // Reference to winning bid
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("order_items")
+  @@index([orderId])
+  @@index([productId])
+}
+
+// Product Reviews - eBay-style feedback
+model Review {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  reviewerId String  // User ID from auth service
+  orderId    String? // Order ID if verified purchase
+  
+  // Review content
+  rating     Int     // 1-5 stars
+  title      String?
+  comment    String?
+  
+  // Review status
+  isVerifiedPurchase Boolean @default(false)
+  isHelpful         Int     @default(0) // Helpful votes
+  isReported        Boolean @default(false)
+  
+  // Seller response
+  sellerResponse    String?
+  sellerResponseAt  DateTime?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+  @@index([productId])
+  @@index([reviewerId])
+  @@index([rating])
+  @@index([isVerifiedPurchase])
+}
+
+// Search Analytics - Track search behavior
+model SearchQuery {
+  id        String   @id @default(cuid())
+  query     String
+  userId    String?  // Optional user ID
+  
+  // Search context
+  categoryId String?
+  filters    Json?    // Applied filters
+  sortBy     String?
+  
+  // Results
+  resultCount Int
+  clickedProductId String?
+  clickPosition    Int?
+  
+  // Session info
+  sessionId String?
+  ipAddress String?
+  userAgent String?
+  
+  // Audit fields
+  createdAt DateTime @default(now())
+
+  @@map("search_queries")
+  @@index([query])
+  @@index([userId])
+  @@index([categoryId])
+  @@index([createdAt])
+}

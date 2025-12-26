@@ -1,0 +1,303 @@
+// VR Showroom Service - خدمة صالة العرض الافتراضية
+// Virtual Reality shopping experience
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🏪 VIRTUAL SHOWROOMS
+// ==========================================
+
+model VirtualShowroom {
+  id              String   @id @default(uuid())
+  
+  // Showroom Info
+  name            String
+  nameAr          String
+  description     String?
+  descriptionAr   String?
+  
+  // Owner
+  ownerId         String   // sellerId or brandId
+  ownerType       OwnerType
+  
+  // Environment
+  environmentType EnvironmentType @default(MODERN_STORE)
+  customSceneUrl  String?  // Custom 3D scene
+  skyboxUrl       String?
+  
+  // Layout
+  layout          Json     // Product placement positions
+  
+  // Settings
+  maxConcurrentUsers Int   @default(50)
+  isPublic        Boolean  @default(true)
+  
+  // Status
+  status          ShowroomStatus @default(DRAFT)
+  
+  // Stats
+  totalVisits     Int      @default(0)
+  avgSessionTime  Float?   // seconds
+  
+  products        ShowroomProduct[]
+  sessions        VRSession[]
+  events          VREvent[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([ownerId, ownerType])
+  @@index([status])
+}
+
+enum OwnerType {
+  SELLER
+  BRAND
+  PLATFORM
+}
+
+enum EnvironmentType {
+  MODERN_STORE
+  LUXURY_BOUTIQUE
+  WAREHOUSE
+  OUTDOOR_MARKET
+  GALLERY
+  CUSTOM
+}
+
+enum ShowroomStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ==========================================
+// 📦 SHOWROOM PRODUCTS
+// ==========================================
+
+model ShowroomProduct {
+  id              String   @id @default(uuid())
+  showroomId      String
+  showroom        VirtualShowroom @relation(fields: [showroomId], references: [id])
+  productId       String
+  
+  // 3D Model
+  modelUrl        String   // GLB/GLTF
+  thumbnailUrl    String?
+  
+  // Position in showroom
+  positionX       Float
+  positionY       Float
+  positionZ       Float
+  rotationY       Float    @default(0)
+  scale           Float    @default(1)
+  
+  // Display
+  displayType     DisplayType @default(PEDESTAL)
+  spotlightEnabled Boolean @default(false)
+  
+  // Interaction
+  isInteractive   Boolean  @default(true)
+  infoPopupEnabled Boolean @default(true)
+  
+  // Stats
+  viewCount       Int      @default(0)
+  pickupCount     Int      @default(0)
+  addToCartCount  Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([showroomId])
+  @@index([productId])
+}
+
+enum DisplayType {
+  PEDESTAL
+  SHELF
+  WALL_MOUNT
+  FLOOR
+  HANGING
+  MANNEQUIN
+}
+
+// ==========================================
+// 👤 VR SESSIONS
+// ==========================================
+
+model VRSession {
+  id              String   @id @default(uuid())
+  showroomId      String
+  showroom        VirtualShowroom @relation(fields: [showroomId], references: [id])
+  userId          String?
+  
+  // Device Info
+  deviceType      String?  // Quest, PCVR, WebVR
+  headsetModel    String?
+  
+  // Session Data
+  duration        Int?     // seconds
+  
+  // Movement
+  distanceTraveled Float?  // meters
+  roomsVisited    Int      @default(0)
+  
+  // Interactions
+  productsViewed  Int      @default(0)
+  productsPickedUp Int     @default(0)
+  addedToCart     Int      @default(0)
+  
+  // Social
+  usersInteracted Int      @default(0)
+  
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+  
+  @@index([showroomId, startedAt])
+  @@index([userId])
+}
+
+// ==========================================
+// 🎉 VR EVENTS
+// ==========================================
+
+model VREvent {
+  id              String   @id @default(uuid())
+  showroomId      String
+  showroom        VirtualShowroom @relation(fields: [showroomId], references: [id])
+  
+  // Event Info
+  name            String
+  nameAr          String
+  description     String?
+  descriptionAr   String?
+  
+  // Type
+  eventType       EventType
+  
+  // Schedule
+  startTime       DateTime
+  endTime         DateTime
+  
+  // Capacity
+  maxAttendees    Int      @default(100)
+  currentAttendees Int     @default(0)
+  
+  // Features
+  hasLiveHost     Boolean  @default(false)
+  hasExclusiveDeals Boolean @default(false)
+  
+  // Status
+  status          EventStatus @default(SCHEDULED)
+  
+  registrations   EventRegistration[]
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([showroomId, startTime])
+  @@index([status])
+}
+
+enum EventType {
+  PRODUCT_LAUNCH
+  FLASH_SALE
+  LIVE_SHOPPING
+  BRAND_SHOWCASE
+  AUCTION
+}
+
+enum EventStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+model EventRegistration {
+  id              String   @id @default(uuid())
+  eventId         String
+  event           VREvent  @relation(fields: [eventId], references: [id])
+  userId          String
+  
+  // Status
+  attended        Boolean  @default(false)
+  
+  // Reminder
+  reminderSent    Boolean  @default(false)
+  
+  registeredAt    DateTime @default(now())
+  
+  @@unique([eventId, userId])
+}
+
+// ==========================================
+// 🎨 VR AVATARS
+// ==========================================
+
+model VRAvatar {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Avatar Model
+  avatarUrl       String?
+  avatarType      AvatarType @default(DEFAULT)
+  
+  // Customization
+  skinTone        String?
+  hairStyle       String?
+  hairColor       String?
+  outfit          String?
+  
+  // Accessories
+  accessories     String[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum AvatarType {
+  DEFAULT
+  REALISTIC
+  CARTOON
+  CUSTOM
+}
+
+// ==========================================
+// 📊 VR ANALYTICS
+// ==========================================
+
+model VRAnalytics {
+  id              String   @id @default(uuid())
+  date            DateTime @db.Date
+  showroomId      String?
+  
+  // Sessions
+  totalSessions   Int      @default(0)
+  uniqueUsers     Int      @default(0)
+  avgDuration     Float?
+  
+  // Device Breakdown
+  questSessions   Int      @default(0)
+  pcvrSessions    Int      @default(0)
+  webvrSessions   Int      @default(0)
+  
+  // Engagement
+  productsViewed  Int      @default(0)
+  productsPickedUp Int     @default(0)
+  addToCartCount  Int      @default(0)
+  purchaseCount   Int      @default(0)
+  
+  // Revenue
+  revenue         Float    @default(0)
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([date, showroomId])
+  @@index([date])
+}

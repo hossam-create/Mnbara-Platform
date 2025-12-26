@@ -1,0 +1,352 @@
+/* System Control Login Styles */
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* Background Effects */
+.login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+}
+
+.grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(24, 144, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 144, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+.security-indicators {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.security-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #52c41a;
+  animation: pulse 2s infinite;
+}
+
+.security-dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.security-dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+/* Login Card */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+  position: relative;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(24, 144, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(19, 194, 194, 0.1) 100%
+  );
+  border-radius: 16px;
+  z-index: -1;
+}
+
+.login-card .ant-card-body {
+  padding: 32px;
+}
+
+/* Login Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.system-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: rgba(24, 144, 255, 0.1);
+  border: 2px solid rgba(24, 144, 255, 0.3);
+  border-radius: 50%;
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(24, 144, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(24, 144, 255, 0.6);
+  }
+}
+
+/* Form Styling */
+.login-card .ant-form-item-label > label {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.login-card .ant-input,
+.login-card .ant-input-password {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  height: 44px;
+  font-size: 14px;
+}
+
+.login-card .ant-input:hover,
+.login-card .ant-input-password:hover {
+  border-color: rgba(24, 144, 255, 0.5) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.login-card .ant-input:focus,
+.login-card .ant-input-password:focus {
+  border-color: #1890ff !important;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.login-card .ant-input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.login-card .ant-input-prefix {
+  color: rgba(255, 255, 255, 0.6) !important;
+  margin-right: 8px;
+}
+
+.login-card .ant-input-suffix {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Button Styling */
+.login-card .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
+  border: none !important;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.login-card .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #69c0ff 100%) !important;
+  box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.login-card .ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Alert Styling */
+.login-card .ant-alert {
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.login-card .ant-alert-warning {
+  background: rgba(250, 140, 22, 0.1) !important;
+  border: 1px solid rgba(250, 140, 22, 0.3) !important;
+}
+
+.login-card .ant-alert-warning .ant-alert-message {
+  color: #fa8c16 !important;
+  font-weight: 600;
+}
+
+.login-card .ant-alert-warning .ant-alert-description {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.login-card .ant-alert-error {
+  background: rgba(245, 34, 45, 0.1) !important;
+  border: 1px solid rgba(245, 34, 45, 0.3) !important;
+}
+
+.login-card .ant-alert-error .ant-alert-message {
+  color: #f5222d !important;
+  font-weight: 600;
+}
+
+.login-card .ant-alert-error .ant-alert-description {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Divider Styling */
+.login-card .ant-divider {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Security Information */
+.security-info {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.emergency-contact {
+  text-align: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* System Status */
+.system-status {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.online {
+  background: #52c41a;
+  box-shadow: 0 0 10px rgba(82, 196, 26, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 16px;
+  }
+  
+  .login-card {
+    max-width: 100%;
+  }
+  
+  .login-card .ant-card-body {
+    padding: 24px 20px;
+  }
+  
+  .system-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .system-logo .anticon {
+    font-size: 32px !important;
+  }
+  
+  .security-indicators {
+    top: 16px;
+    right: 16px;
+  }
+  
+  .system-status {
+    bottom: 16px;
+    left: 16px;
+  }
+}
+
+/* Loading State */
+.login-card .ant-btn-loading {
+  pointer-events: none;
+}
+
+.login-card .ant-btn-loading .ant-btn-loading-icon {
+  color: #ffffff !important;
+}
+
+/* Form Validation */
+.login-card .ant-form-item-has-error .ant-input,
+.login-card .ant-form-item-has-error .ant-input-password {
+  border-color: #f5222d !important;
+  box-shadow: 0 0 0 2px rgba(245, 34, 45, 0.2) !important;
+}
+
+.login-card .ant-form-item-explain-error {
+  color: #f5222d !important;
+  font-size: 12px;
+}
+
+/* Animation for form appearance */
+.login-card {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

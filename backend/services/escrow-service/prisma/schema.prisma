@@ -1,0 +1,281 @@
+// Escrow Service - Prisma Schema
+// Secure Payment Protection for Buyer/Seller Transactions
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// معاملة الضمان - Escrow Transaction
+model EscrowTransaction {
+  id              String   @id @default(uuid())
+  
+  // Order Reference
+  orderId         String   @unique
+  
+  // Parties
+  buyerId         String
+  sellerId        String
+  
+  // Amount Details
+  amount          Decimal  @db.Decimal(18, 2)
+  currency        String   @default("USD")
+  
+  // Fees
+  escrowFee       Decimal  @db.Decimal(18, 2)
+  platformFee     Decimal  @db.Decimal(18, 2)
+  
+  // Net amounts
+  sellerReceives  Decimal  @db.Decimal(18, 2)
+  
+  // Status
+  status          EscrowStatus @default(PENDING)
+  
+  // Payment Method
+  paymentMethod   PaymentMethod
+  paymentReference String?
+  
+  // Timeline
+  fundedAt        DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  releasedAt      DateTime?
+  refundedAt      DateTime?
+  
+  // Inspection Period (days)
+  inspectionDays  Int      @default(3)
+  inspectionEndsAt DateTime?
+  
+  // Dispute
+  disputeId       String?
+  dispute         EscrowDispute? @relation(fields: [disputeId], references: [id])
+  
+  // Metadata
+  description     String?
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  milestones      EscrowMilestone[]
+  timeline        EscrowTimeline[]
+}
+
+// مراحل الضمان - Escrow Milestones (for large transactions)
+model EscrowMilestone {
+  id              String   @id @default(uuid())
+  escrowId        String
+  escrow          EscrowTransaction @relation(fields: [escrowId], references: [id])
+  
+  title           String
+  titleAr         String?
+  description     String?
+  
+  amount          Decimal  @db.Decimal(18, 2)
+  percentage      Decimal  @db.Decimal(5, 2)
+  
+  // Conditions
+  conditions      String[]
+  
+  // Status
+  status          MilestoneStatus @default(PENDING)
+  
+  // Timeline
+  dueDate         DateTime?
+  completedAt     DateTime?
+  releasedAt      DateTime?
+  
+  order           Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// نزاع الضمان - Escrow Dispute
+model EscrowDispute {
+  id              String   @id @default(uuid())
+  
+  // Initiator
+  initiatedBy     String   // buyerId or sellerId
+  initiatorRole   DisputeRole
+  
+  // Reason
+  reason          DisputeReason
+  description     String
+  
+  // Evidence
+  evidence        Json[]   @default([])
+  
+  // Resolution
+  status          DisputeStatus @default(OPEN)
+  resolution      DisputeResolution?
+  resolvedBy      String?
+  resolutionNote  String?
+  
+  // Amounts
+  buyerRefund     Decimal? @db.Decimal(18, 2)
+  sellerPayout    Decimal? @db.Decimal(18, 2)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  resolvedAt      DateTime?
+  
+  escrows         EscrowTransaction[]
+  messages        DisputeMessage[]
+}
+
+// رسائل النزاع - Dispute Messages
+model DisputeMessage {
+  id              String   @id @default(uuid())
+  disputeId       String
+  dispute         EscrowDispute @relation(fields: [disputeId], references: [id])
+  
+  senderId        String
+  senderRole      DisputeRole
+  
+  message         String
+  attachments     String[]
+  
+  isInternal      Boolean  @default(false) // Admin only
+  
+  createdAt       DateTime @default(now())
+}
+
+// سجل الضمان - Escrow Timeline
+model EscrowTimeline {
+  id              String   @id @default(uuid())
+  escrowId        String
+  escrow          EscrowTransaction @relation(fields: [escrowId], references: [id])
+  
+  event           TimelineEvent
+  description     String
+  descriptionAr   String?
+  
+  actor           String?
+  actorRole       String?
+  
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())
+}
+
+// إعدادات الضمان - Escrow Settings
+model EscrowSettings {
+  id              String   @id @default(uuid())
+  
+  // Fee Structure
+  escrowFeePercentage Decimal @db.Decimal(5, 2) @default(2.5)
+  minEscrowFee    Decimal  @db.Decimal(18, 2) @default(5)
+  maxEscrowFee    Decimal  @db.Decimal(18, 2) @default(500)
+  
+  // Inspection Period
+  defaultInspectionDays Int @default(3)
+  maxInspectionDays Int @default(14)
+  
+  // Auto-release
+  autoReleaseEnabled Boolean @default(true)
+  autoReleaseDays Int @default(7)
+  
+  // Dispute
+  disputeWindowDays Int @default(30)
+  
+  // Limits
+  minTransactionAmount Decimal @db.Decimal(18, 2) @default(10)
+  maxTransactionAmount Decimal @db.Decimal(18, 2) @default(100000)
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Enums
+enum EscrowStatus {
+  PENDING           // Waiting for buyer payment
+  FUNDED            // Buyer paid, funds held
+  SHIPPED           // Seller shipped item
+  DELIVERED         // Item delivered
+  INSPECTION        // Buyer inspecting
+  APPROVED          // Buyer approved
+  RELEASED          // Funds released to seller
+  DISPUTED          // Under dispute
+  REFUNDED          // Refunded to buyer
+  CANCELLED         // Transaction cancelled
+  EXPIRED           // Transaction expired
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  APPROVED
+  RELEASED
+  DISPUTED
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  CRYPTO
+  WALLET
+  BANK_TRANSFER
+}
+
+enum DisputeRole {
+  BUYER
+  SELLER
+  ADMIN
+  SYSTEM
+}
+
+enum DisputeReason {
+  ITEM_NOT_RECEIVED
+  ITEM_NOT_AS_DESCRIBED
+  ITEM_DAMAGED
+  WRONG_ITEM
+  COUNTERFEIT
+  SELLER_NOT_SHIPPING
+  BUYER_NOT_PAYING
+  COMMUNICATION_ISSUE
+  OTHER
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  AWAITING_RESPONSE
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum DisputeResolution {
+  FULL_REFUND_BUYER
+  PARTIAL_REFUND_BUYER
+  RELEASE_TO_SELLER
+  SPLIT_FUNDS
+  CANCELLED
+}
+
+enum TimelineEvent {
+  CREATED
+  FUNDED
+  PAYMENT_CONFIRMED
+  SHIPPED
+  TRACKING_UPDATED
+  DELIVERED
+  INSPECTION_STARTED
+  INSPECTION_EXTENDED
+  APPROVED
+  RELEASED
+  DISPUTE_OPENED
+  DISPUTE_MESSAGE
+  DISPUTE_RESOLVED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}

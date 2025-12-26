@@ -1,0 +1,254 @@
+# SSL Certificates Configuration
+# Mnbara Platform - Production SSL Setup
+# Status: FINAL 5% COMPLETION
+
+# Let's Encrypt ClusterIssuer for Production
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # ACME server URL for Let's Encrypt production
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # Email address for ACME registration
+    email: admin@mnbara.com
+    # Secret to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    # Enable HTTP-01 challenge provider
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+    # Enable DNS-01 challenge provider (optional)
+    - dns01:
+        cloudflare:
+          email: admin@mnbara.com
+          apiKeySecretRef:
+            name: cloudflare-api-key
+            key: api-key
+
+---
+# Main Domain Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mnbara-tls
+  namespace: mnbara-production
+spec:
+  secretName: mnbara-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - mnbara.com
+  - www.mnbara.com
+
+---
+# API Domain Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: api-mnbara-tls
+  namespace: mnbara-production
+spec:
+  secretName: api-mnbara-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - api.mnbara.com
+
+---
+# Monitoring Domain Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: monitoring-mnbara-tls
+  namespace: mnbara-monitoring
+spec:
+  secretName: monitoring-mnbara-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - monitoring.mnbara.com
+
+---
+# Status Page Certificate
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: status-mnbara-tls
+  namespace: mnbara-production
+spec:
+  secretName: status-mnbara-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - status.mnbara.com
+
+---
+# Wildcard Certificate (Alternative approach)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-mnbara-tls
+  namespace: mnbara-production
+spec:
+  secretName: wildcard-mnbara-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+  - "*.mnbara.com"
+  - mnbara.com
+
+---
+# SSL Configuration for Nginx Ingress
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-ssl-config
+  namespace: mnbara-production
+data:
+  ssl-protocols: "TLSv1.2 TLSv1.3"
+  ssl-ciphers: "ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384"
+  ssl-prefer-server-ciphers: "off"
+  ssl-session-cache: "shared:SSL:10m"
+  ssl-session-timeout: "10m"
+  ssl-buffer-size: "4k"
+  
+  # Security Headers
+  add-headers: |
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    X-Frame-Options DENY always;
+    X-Content-Type-Options nosniff always;
+    X-XSS-Protection "1; mode=block" always;
+    Referrer-Policy "strict-origin-when-cross-origin" always;
+    Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mnbara.com wss://mnbara.com; frame-src https://www.google.com https://www.facebook.com;" always;
+
+---
+# Certificate Renewal Job
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cert-renewal-check
+  namespace: mnbara-production
+spec:
+  schedule: "0 2 * * *" # Daily at 2 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cert-check
+            image: alpine/curl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Checking SSL certificate expiration..."
+              
+              # Check main domain
+              EXPIRY=$(echo | openssl s_client -servername mnbara.com -connect mnbara.com:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
+              EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+              CURRENT_EPOCH=$(date +%s)
+              DAYS_LEFT=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
+              
+              echo "Certificate expires in $DAYS_LEFT days"
+              
+              if [ $DAYS_LEFT -lt 30 ]; then
+                echo "Certificate expires in less than 30 days, triggering renewal..."
+                # Trigger cert-manager renewal
+                kubectl annotate certificate mnbara-tls cert-manager.io/force-renewal=$(date +%s) -n mnbara-production
+              else
+                echo "Certificate is valid for $DAYS_LEFT more days"
+              fi
+          restartPolicy: OnFailure
+
+---
+# SSL Certificate Monitoring
+apiVersion: v1
+kind: Service
+metadata:
+  name: ssl-monitor
+  namespace: mnbara-production
+  labels:
+    app: ssl-monitor
+spec:
+  ports:
+  - port: 9117
+    name: metrics
+  selector:
+    app: ssl-monitor
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssl-monitor
+  namespace: mnbara-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssl-monitor
+  template:
+    metadata:
+      labels:
+        app: ssl-monitor
+    spec:
+      containers:
+      - name: ssl-exporter
+        image: ribbybibby/ssl-exporter:latest
+        ports:
+        - containerPort: 9117
+        args:
+        - --web.listen-address=:9117
+        - --config.file=/etc/ssl-exporter/config.yaml
+        volumeMounts:
+        - name: config
+          mountPath: /etc/ssl-exporter
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      volumes:
+      - name: config
+        configMap:
+          name: ssl-exporter-config
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ssl-exporter-config
+  namespace: mnbara-production
+data:
+  config.yaml: |
+    modules:
+      https:
+        prober: https
+        timeout: 10s
+        https:
+          valid_status_codes: [200, 301, 302]
+          method: GET
+          no_follow_redirects: false
+          fail_if_ssl: false
+          fail_if_not_ssl: true
+          
+    targets:
+      - name: mnbara-main
+        url: https://mnbara.com
+      - name: mnbara-api
+        url: https://api.mnbara.com
+      - name: mnbara-monitoring
+        url: https://monitoring.mnbara.com
+      - name: mnbara-status
+        url: https://status.mnbara.com

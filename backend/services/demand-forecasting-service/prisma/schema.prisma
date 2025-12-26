@@ -1,0 +1,346 @@
+// Demand Forecasting Service - خدمة التنبؤ بالطلب
+// Predict demand, optimize inventory, price optimization
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 📊 DEMAND FORECASTS
+// ==========================================
+
+model DemandForecast {
+  id              String   @id @default(uuid())
+  
+  // Target
+  targetType      ForecastTarget
+  targetId        String   // productId, categoryId, etc.
+  
+  // Time Period
+  periodType      PeriodType
+  periodStart     DateTime
+  periodEnd       DateTime
+  
+  // Forecast Values
+  predictedDemand Float
+  lowerBound      Float    // 95% confidence interval
+  upperBound      Float
+  confidence      Float    // 0-1
+  
+  // Actual (filled after period ends)
+  actualDemand    Float?
+  accuracy        Float?   // MAPE
+  
+  // Model Info
+  modelVersion    String
+  features        Json     // Features used
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([targetType, targetId, periodType, periodStart])
+  @@index([targetType, targetId])
+  @@index([periodStart])
+}
+
+enum ForecastTarget {
+  PRODUCT
+  CATEGORY
+  BRAND
+  REGION
+  STORE
+  OVERALL
+}
+
+enum PeriodType {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+// ==========================================
+// 📈 HISTORICAL DATA
+// ==========================================
+
+model SalesHistory {
+  id              String   @id @default(uuid())
+  
+  // Product Info
+  productId       String
+  categoryId      String?
+  brandId         String?
+  
+  // Time
+  date            DateTime @db.Date
+  hour            Int?     // 0-23 for hourly data
+  
+  // Sales Data
+  quantity        Int
+  revenue         Float
+  avgPrice        Float
+  
+  // Context
+  region          String?
+  channel         String?  // web, mobile, store
+  
+  // External Factors
+  isHoliday       Boolean  @default(false)
+  isWeekend       Boolean  @default(false)
+  weatherCondition String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([productId, date, hour])
+  @@index([productId, date])
+  @@index([categoryId, date])
+}
+
+// ==========================================
+// 🏷️ PRICE OPTIMIZATION
+// ==========================================
+
+model PriceOptimization {
+  id              String   @id @default(uuid())
+  productId       String
+  
+  // Current State
+  currentPrice    Float
+  currentDemand   Float
+  
+  // Optimization
+  optimalPrice    Float
+  expectedDemand  Float
+  expectedRevenue Float
+  
+  // Price Elasticity
+  elasticity      Float    // Price elasticity of demand
+  
+  // Recommendations
+  recommendation  PriceAction
+  priceChange     Float    // Percentage change
+  
+  // Confidence
+  confidence      Float
+  
+  // Status
+  status          OptimizationStatus @default(PENDING)
+  appliedAt       DateTime?
+  
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+  
+  @@index([productId])
+  @@index([status])
+}
+
+enum PriceAction {
+  INCREASE
+  DECREASE
+  MAINTAIN
+  DISCOUNT
+  PREMIUM
+}
+
+enum OptimizationStatus {
+  PENDING
+  APPROVED
+  APPLIED
+  REJECTED
+  EXPIRED
+}
+
+// ==========================================
+// 📦 INVENTORY RECOMMENDATIONS
+// ==========================================
+
+model InventoryRecommendation {
+  id              String   @id @default(uuid())
+  productId       String
+  warehouseId     String?
+  
+  // Current State
+  currentStock    Int
+  avgDailySales   Float
+  daysOfStock     Float
+  
+  // Forecast
+  forecastedDemand Float   // Next 30 days
+  
+  // Recommendations
+  reorderPoint    Int
+  reorderQuantity Int
+  safetyStock     Int
+  
+  // Risk Assessment
+  stockoutRisk    StockoutRisk
+  overstockRisk   OverstockRisk
+  
+  // Action
+  action          InventoryAction
+  urgency         Urgency
+  
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+  
+  @@index([productId])
+  @@index([urgency])
+}
+
+enum StockoutRisk {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum OverstockRisk {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum InventoryAction {
+  REORDER_NOW
+  REORDER_SOON
+  MAINTAIN
+  REDUCE_STOCK
+  CLEARANCE
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ==========================================
+// 🎯 SEASONAL PATTERNS
+// ==========================================
+
+model SeasonalPattern {
+  id              String   @id @default(uuid())
+  
+  // Target
+  targetType      ForecastTarget
+  targetId        String
+  
+  // Pattern Type
+  patternType     PatternType
+  
+  // Pattern Data
+  pattern         Json     // Array of multipliers
+  
+  // Validity
+  validFrom       DateTime?
+  validTo         DateTime?
+  
+  // Stats
+  strength        Float    // How strong the pattern is
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([targetType, targetId, patternType])
+}
+
+enum PatternType {
+  HOURLY      // 24 values
+  DAILY       // 7 values (day of week)
+  MONTHLY     // 12 values
+  YEARLY      // 365/366 values
+}
+
+// ==========================================
+// 📊 MODEL PERFORMANCE
+// ==========================================
+
+model ModelPerformance {
+  id              String   @id @default(uuid())
+  modelVersion    String
+  
+  // Evaluation Period
+  evaluationDate  DateTime @db.Date
+  
+  // Metrics
+  mape            Float    // Mean Absolute Percentage Error
+  rmse            Float    // Root Mean Square Error
+  mae             Float    // Mean Absolute Error
+  r2              Float    // R-squared
+  
+  // Sample Size
+  sampleSize      Int
+  
+  // By Target Type
+  targetType      ForecastTarget?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([modelVersion, evaluationDate])
+}
+
+// ==========================================
+// 🔔 ALERTS
+// ==========================================
+
+model ForecastAlert {
+  id              String   @id @default(uuid())
+  
+  // Alert Info
+  alertType       AlertType
+  severity        AlertSeverity
+  
+  // Target
+  targetType      ForecastTarget
+  targetId        String
+  
+  // Message
+  title           String
+  titleAr         String
+  message         String
+  messageAr       String
+  
+  // Data
+  data            Json?
+  
+  // Status
+  status          AlertStatus @default(ACTIVE)
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([status, severity])
+  @@index([targetType, targetId])
+}
+
+enum AlertType {
+  DEMAND_SPIKE
+  DEMAND_DROP
+  STOCKOUT_WARNING
+  OVERSTOCK_WARNING
+  PRICE_OPPORTUNITY
+  TREND_CHANGE
+  ANOMALY_DETECTED
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}

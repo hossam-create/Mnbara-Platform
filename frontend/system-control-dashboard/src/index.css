@@ -1,0 +1,379 @@
+/* System Control Dashboard - Cockpit Styles */
+
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cockpit-specific styles */
+.cockpit-interface {
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Glass morphism effect */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* Cockpit controls */
+.cockpit-control {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cockpit-control:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #1890ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(24, 144, 255, 0.3);
+}
+
+.cockpit-control.active {
+  background: rgba(24, 144, 255, 0.2);
+  border-color: #1890ff;
+  box-shadow: 0 0 20px rgba(24, 144, 255, 0.5);
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.online {
+  background: #52c41a;
+  box-shadow: 0 0 10px rgba(82, 196, 26, 0.5);
+}
+
+.status-indicator.warning {
+  background: #fa8c16;
+  box-shadow: 0 0 10px rgba(250, 140, 22, 0.5);
+}
+
+.status-indicator.offline {
+  background: #f5222d;
+  box-shadow: 0 0 10px rgba(245, 34, 45, 0.5);
+}
+
+.status-indicator.maintenance {
+  background: #722ed1;
+  box-shadow: 0 0 10px rgba(114, 46, 209, 0.5);
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(24, 144, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(24, 144, 255, 0.5);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility classes */
+.glow {
+  animation: glow 2s infinite;
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+}
+
+/* Cockpit grid layout */
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr 300px;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  height: 100vh;
+  padding: 16px;
+}
+
+.cockpit-header {
+  grid-column: 1 / -1;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cockpit-left-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.cockpit-main-display {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.cockpit-right-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.cockpit-footer {
+  grid-column: 1 / -1;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .cockpit-grid {
+    grid-template-columns: 250px 1fr 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cockpit-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto auto;
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  .cockpit-header {
+    grid-column: 1;
+    padding: 12px 16px;
+  }
+  
+  .cockpit-left-panel,
+  .cockpit-right-panel {
+    height: 200px;
+  }
+  
+  .cockpit-footer {
+    grid-column: 1;
+    padding: 8px 16px;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(24, 144, 255, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(24, 144, 255, 0.8);
+}
+
+/* Ant Design overrides for cockpit theme */
+.ant-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-card-head {
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.ant-card-head-title {
+  color: #ffffff !important;
+}
+
+.ant-typography {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.ant-typography-title {
+  color: #ffffff !important;
+}
+
+.ant-btn {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+.ant-btn:hover {
+  border-color: #1890ff !important;
+  color: #1890ff !important;
+}
+
+.ant-btn-primary {
+  background: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+.ant-btn-primary:hover {
+  background: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+.ant-progress-text {
+  color: #ffffff !important;
+}
+
+.ant-statistic-title {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.ant-statistic-content {
+  color: #ffffff !important;
+}
+
+/* Loading states */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 14, 39, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(24, 144, 255, 0.3);
+  border-top: 3px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Emergency mode styles */
+.emergency-mode {
+  background: linear-gradient(135deg, #2d0a0a 0%, #4a1a1a 100%) !important;
+}
+
+.emergency-mode .glass-panel {
+  background: rgba(245, 34, 45, 0.1) !important;
+  border-color: rgba(245, 34, 45, 0.3) !important;
+}
+
+.emergency-mode .cockpit-control:hover {
+  border-color: #f5222d !important;
+  box-shadow: 0 4px 20px rgba(245, 34, 45, 0.3) !important;
+}
+
+/* Fullscreen mode */
+.fullscreen-mode {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%) !important;
+}
+
+/* Print styles */
+@media print {
+  .cockpit-interface {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .glass-panel {
+    background: white !important;
+    border: 1px solid #ccc !important;
+  }
+}

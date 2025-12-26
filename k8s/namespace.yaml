@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mnbara-production
+  labels:
+    name: mnbara-production
+    environment: production
+    project: mnbara-platform
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mnbara-monitoring
+  labels:
+    name: mnbara-monitoring
+    environment: production
+    project: mnbara-platform

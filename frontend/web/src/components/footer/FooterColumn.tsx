@@ -3,6 +3,7 @@ import React from 'react';
 interface FooterLink {
   label: string;
   path: string;
+  icon?: string;
 }
 
 interface FooterColumnProps {
@@ -23,7 +24,7 @@ const FooterColumn: React.FC<FooterColumnProps> = ({ title, links, onLinkClick }
           <li key={index}>
             <a
               href={link.path}
-              className="text-base text-gray-400 hover:text-white transition-colors block"
+              className="text-base text-gray-400 hover:text-white transition-colors flex items-center gap-2"
               onClick={(e) => {
                 if (onLinkClick) {
                   e.preventDefault();
@@ -35,6 +36,7 @@ const FooterColumn: React.FC<FooterColumnProps> = ({ title, links, onLinkClick }
                 }
               }}
             >
+              {link.icon && <span className="text-sm">{link.icon}</span>}
               {link.label}
             </a>
           </li>

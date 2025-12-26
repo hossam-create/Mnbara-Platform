@@ -1,0 +1,83 @@
+// Trips Service Database Schema
+// Manages traveler journeys, schedules, and cargo capacity
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Trip {
+  id              String   @id @default(cuid())
+  travelerId      String
+  origin          String
+  destination     String
+  departureDate   DateTime
+  arrivalDate     DateTime
+  status          TripStatus @default(SCHEDULED)
+  
+  // Capacity
+  totalCapacity   Float    // in kg
+  usedCapacity    Float    @default(0)
+  remainingCapacity Float
+  
+  // Real-time tracking
+  currentLat      Float?
+  currentLng      Float?
+  lastUpdate      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  stopovers       Stopover[]
+  manifests       TripManifest[]
+
+  @@map("trips")
+}
+
+model Stopover {
+  id          String   @id @default(cuid())
+  tripId      String
+  location    String
+  arrivalAt   DateTime
+  departureAt DateTime
+  order       Int
+  
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("stopovers")
+}
+
+model TripManifest {
+  id          String   @id @default(cuid())
+  tripId      String
+  orderId     String
+  itemId      String
+  weight      Float
+  status      ManifestItemStatus @default(PENDING_PICKUP)
+  
+  trip        Trip     @relation(fields: [tripId], references: [id])
+
+  @@unique([tripId, orderId])
+  @@map("trip_manifests")
+}
+
+enum TripStatus {
+  SCHEDULED
+  BOARDING
+  IN_TRANSIT
+  ARRIVED
+  COMPLETED
+  CANCELLED
+}
+
+enum ManifestItemStatus {
+  PENDING_PICKUP
+  IN_POSSESSION
+  CUSTOMS_HOLD
+  DELIVERED
+  PROBLEM
+}

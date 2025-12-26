@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Mnbara - Your eBay-Level Marketplace for Everything</title>
+    <meta name="title" content="Mnbara - Your eBay-Level Marketplace for Everything" />
+    <meta name="description" content="Discover millions of products on Mnbara. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." />
+    <meta name="keywords" content="marketplace, buy, sell, electronics, fashion, home, garden, collectibles, auction, shopping" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="author" content="Mnbara Platform Team" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mnbara.com/" />
+    <meta property="og:title" content="Mnbara - Your eBay-Level Marketplace for Everything" />
+    <meta property="og:description" content="Discover millions of products on Mnbara. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." />
+    <meta property="og:image" content="https://mnbara.com/og-image.jpg" />
+    <meta property="og:site_name" content="Mnbara" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://mnbara.com/" />
+    <meta property="twitter:title" content="Mnbara - Your eBay-Level Marketplace for Everything" />
+    <meta property="twitter:description" content="Discover millions of products on Mnbara. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." />
+    <meta property="twitter:image" content="https://mnbara.com/twitter-image.jpg" />
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#3b82f6" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="theme-color" content="#ffffff" />
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Mnbara",
+      "url": "https://mnbara.com",
+      "description": "Your eBay-Level Marketplace for Everything",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://mnbara.com/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    
+    <!-- Performance Hints -->
+    <link rel="dns-prefetch" href="//api.mnbara.com" />
+    <link rel="dns-prefetch" href="//cdn.mnbara.com" />
+    
+    <!-- PWA Support -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Mnbara" />
+    
+    <!-- Environment Variables -->
+    <script>
+      window.ENV = {
+        NODE_ENV: '%NODE_ENV%',
+        VITE_API_BASE_URL: '%VITE_API_BASE_URL%',
+        VITE_SOCKET_URL: '%VITE_SOCKET_URL%'
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Loading fallback -->
+    <noscript>
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, sans-serif;
+        background-color: #f9fafb;
+        color: #374151;
+        text-align: center;
+        padding: 2rem;
+      ">
+        <div>
+          <h1 style="font-size: 2rem; font-weight: bold; margin-bottom: 1rem;">
+            Mnbara
+          </h1>
+          <p style="margin-bottom: 1rem;">
+            JavaScript is required to run this application.
+          </p>
+          <p style="font-size: 0.875rem; color: #6b7280;">
+            Please enable JavaScript in your browser and refresh the page.
+          </p>
+        </div>
+      </div>
+    </noscript>
+    
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

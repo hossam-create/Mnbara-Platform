@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SignalSnapshot {
+  id                      String   @id @default(uuid())
+  timestamp               DateTime @default(now())
+  timeBucket              String   // hour, day
+  corridor                String
+  
+  // Intent volume
+  requestCount            Int
+  requestGrowthRate       Float
+  
+  // Drop-off points
+  requestCreationStarted  Int
+  requestCreationCompleted Int
+  requestAbandonmentRate  Float
+  
+  offerReviewCount        Int
+  offerResponseRate       Float
+  
+  negotiationStarted      Int
+  negotiationCompleted    Int
+  negotiationAbandonmentRate Float
+  
+  travelApprovalSubmitted Int
+  travelApprovalApproved  Int
+  travelApprovalRejectionRate Float
+  
+  // Trust friction indicators
+  kycStarted              Int
+  kycCompleted            Int
+  kycAbandonmentRate      Float
+  
+  verifiedTravelers       Int
+  credibilityQuestions    Int
+  
+  paymentIntentCreated    Int
+  paymentCompleted        Int
+  paymentAbandonmentRate  Float
+  
+  // Confirmation abandonment
+  offerAccepted           Int
+  finalAbandonmentRate    Float
+  
+  // Abandonment reasons (Stored as JSON for flexibility)
+  abandonmentReasons      Json
+  
+  // Manual override frequency
+  manualOverrides         Int
+  humanArbitrationCases   Int
+  
+  // Threshold status
+  status                  String   // GREEN, YELLOW, RED
+  statusExplanation       String?
+
+  @@index([corridor, timestamp])
+  @@index([status])
+}
+
+model AdvisoryThreshold {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  value       Float
+  category    String   // abandonment, kyc, conversion, error
+  severity    String   // yellow, red
+  description String?
+  updatedAt   DateTime @updatedAt
+}

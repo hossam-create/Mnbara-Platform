@@ -1,0 +1,145 @@
+# Production Configuration Maps
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mnbara-config
+  namespace: mnbara-production
+data:
+  # Database Configuration
+  POSTGRES_HOST: "postgres-service"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "mnbara_production"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  ELASTICSEARCH_HOST: "elasticsearch-service"
+  ELASTICSEARCH_PORT: "9200"
+  RABBITMQ_HOST: "rabbitmq-service"
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_MANAGEMENT_PORT: "15672"
+  
+  # Application Configuration
+  NODE_ENV: "production"
+  API_VERSION: "v1"
+  CORS_ORIGIN: "https://mnbara.com"
+  
+  # Service URLs
+  AUTH_SERVICE_URL: "http://auth-service:8080"
+  LISTING_SERVICE_URL: "http://listing-service:3001"
+  PAYMENT_SERVICE_URL: "http://payment-service:3002"
+  ORDER_SERVICE_URL: "http://order-service:3003"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3004"
+  API_GATEWAY_URL: "http://api-gateway-service:8080"
+  P2P_SWAP_SERVICE_URL: "http://p2p-swap-service:3005"
+  REALTIME_MATCHER_SERVICE_URL: "http://real-time-matcher-service:3006"
+  AI_CORE_SERVICE_URL: "http://ai-core-service:3007"
+  
+  # External Services
+  STRIPE_WEBHOOK_ENDPOINT: "/api/webhooks/stripe"
+  
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: mnbara-production
+data:
+  nginx.conf: |
+    upstream auth_backend {
+        server auth-service:8080;
+    }
+    
+    upstream listing_backend {
+        server listing-service:3001;
+    }
+    
+    upstream payment_backend {
+        server payment-service:3002;
+    }
+    
+    upstream order_backend {
+        server order-service:3003;
+    }
+    
+    upstream frontend {
+        server frontend-service:3000;
+    }
+    
+    server {
+        listen 80;
+        server_name mnbara.com www.mnbara.com;
+        return 301 https://$server_name$request_uri;
+    }
+    
+    server {
+        listen 443 ssl http2;
+        server_name mnbara.com www.mnbara.com;
+        
+        ssl_certificate /etc/ssl/certs/mnbara.crt;
+        ssl_certificate_key /etc/ssl/private/mnbara.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers off;
+        
+        # Security Headers
+        add_header X-Frame-Options DENY;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+        
+        # API Routes
+        location /api/auth/ {
+            proxy_pass http://auth_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /api/products/ {
+            proxy_pass http://listing_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /api/search/ {
+            proxy_pass http://listing_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /api/payments/ {
+            proxy_pass http://payment_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        location /api/orders/ {
+            proxy_pass http://order_backend/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # Frontend
+        location / {
+            proxy_pass http://frontend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # Health Check
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }

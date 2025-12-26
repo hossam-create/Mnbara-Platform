@@ -12,7 +12,7 @@ function App() {
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-indigo-500 flex items-center justify-center">
                 <span className="text-white font-bold text-xl">M</span>
               </div>
-              <span className="text-2xl font-display font-bold gradient-text">Mnbara</span>
+              <span className="text-2xl font-display font-bold gradient-text">MNBARH</span>
             </div>
 
             {/* Search Bar */}

@@ -112,8 +112,7 @@ The `services/` folder needs to be moved to `backend/services/` but is currently
 2. Run: `Move-Item -Force services backend\`
 
 ### Legacy Frontend Archive (Pending)
-The `web/mnbara-web-legacy/` folder should be archived:
-1. Run: `Move-Item -Force frontend\web\mnbara-web-legacy archive\`
+The `web/mnbara-web-legacy/` folder has been archived to `archive/mnbara-web-legacy/`
 
 ## ✅ Completed Moves
 

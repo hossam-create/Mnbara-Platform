@@ -4,13 +4,21 @@ import Footer from '../components/footer/Footer';
 import SearchBar from '../components/search/SearchBar';
 import CategoryGrid from '../components/categories/CategoryGrid';
 import FeaturedListings from '../components/listings/FeaturedListings';
+import MainSlider from '../components/home/MainSlider';
+import FeaturedProductsSlider from '../components/products/FeaturedProductsSlider';
 
 const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Main Slider Section */}
+        <div className="mb-8 sm:mb-12 lg:mb-16">
+          <MainSlider />
+        </div>
+
+        {/* Search Section */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
             Find exactly what you're looking for
@@ -25,10 +33,17 @@ const HomePage: React.FC = () => {
           </p>
         </div>
 
+        {/* Categories Section */}
         <div className="mb-8 sm:mb-12 lg:mb-16">
           <CategoryGrid />
         </div>
 
+        {/* Featured Products Slider */}
+        <div className="mb-8 sm:mb-12 lg:mb-16">
+          <FeaturedProductsSlider />
+        </div>
+
+        {/* Featured Listings */}
         <FeaturedListings />
       </main>
       

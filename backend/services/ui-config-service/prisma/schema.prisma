@@ -1,0 +1,317 @@
+// Mnbara Dynamic UI Configuration Service
+// Allows real-time UI changes without app store updates
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// UI COMPONENT TYPES (Templates)
+// ==========================================
+model ComponentType {
+  id          String   @id @default(uuid())
+  slug        String   @unique // e.g., "featured_services", "horizontal_slider"
+  name_ar     String
+  name_en     String
+  description_ar String?
+  description_en String?
+  icon        String?  // Icon name for dashboard
+  schema      Json     // JSON Schema for component configuration
+  preview_image String?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  sections    UISection[]
+
+  @@map("component_types")
+}
+
+// ==========================================
+// UI SECTIONS (Instances of Components)
+// ==========================================
+model UISection {
+  id              String   @id @default(uuid())
+  component_type_id String
+  component_type  ComponentType @relation(fields: [component_type_id], references: [id])
+  
+  // Display order
+  sort_order      Int      @default(0)
+  
+  // Visibility
+  is_active       Boolean  @default(true)
+  is_visible      Boolean  @default(true)
+  
+  // Scheduling
+  start_date      DateTime?
+  end_date        DateTime?
+  
+  // Targeting
+  target_platforms String[] @default(["ios", "android", "web"]) // ios, android, web
+  target_user_types String[] @default(["all"]) // all, guest, registered, premium
+  target_countries String[] @default([]) // Empty = all countries
+  
+  // Content (Multilingual)
+  title_ar        String?
+  title_en        String?
+  subtitle_ar     String?
+  subtitle_en     String?
+  
+  // Configuration
+  config          Json     @default("{}") // Component-specific config
+  
+  // Styling
+  background_color String?
+  text_color      String?
+  padding         Json?    // { top, bottom, left, right }
+  margin          Json?    // { top, bottom, left, right }
+  
+  // Analytics
+  view_count      Int      @default(0)
+  click_count     Int      @default(0)
+  
+  // Metadata
+  created_by      String?
+  updated_by      String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  // Relations
+  items           UISectionItem[]
+  
+  @@index([sort_order])
+  @@index([is_active, is_visible])
+  @@map("ui_sections")
+}
+
+// ==========================================
+// UI SECTION ITEMS (Content within sections)
+// ==========================================
+model UISectionItem {
+  id              String   @id @default(uuid())
+  section_id      String
+  section         UISection @relation(fields: [section_id], references: [id], onDelete: Cascade)
+  
+  // Display order
+  sort_order      Int      @default(0)
+  
+  // Visibility
+  is_active       Boolean  @default(true)
+  
+  // Content (Multilingual)
+  title_ar        String?
+  title_en        String?
+  subtitle_ar     String?
+  subtitle_en     String?
+  description_ar  String?
+  description_en  String?
+  
+  // Media
+  image_url       String?
+  image_url_ar    String?  // Arabic-specific image
+  icon            String?
+  video_url       String?
+  
+  // Action/Link
+  action_type     String?  // internal, external, deeplink, none
+  action_url      String?
+  action_params   Json?    // Additional params for internal navigation
+  
+  // Badge/Label
+  badge_text_ar   String?
+  badge_text_en   String?
+  badge_color     String?
+  
+  // Pricing (for product items)
+  price           Decimal? @db.Decimal(10, 2)
+  original_price  Decimal? @db.Decimal(10, 2)
+  currency        String?  @default("SAR")
+  
+  // Reference to actual data
+  reference_type  String?  // product, category, service, blog, custom
+  reference_id    String?
+  
+  // Custom data
+  custom_data     Json?
+  
+  // Analytics
+  view_count      Int      @default(0)
+  click_count     Int      @default(0)
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([section_id, sort_order])
+  @@map("ui_section_items")
+}
+
+// ==========================================
+// UI CONFIGURATION VERSIONS (For rollback)
+// ==========================================
+model UIConfigVersion {
+  id              String   @id @default(uuid())
+  version_number  Int
+  name            String?
+  description     String?
+  
+  // Snapshot of all sections
+  config_snapshot Json
+  
+  // Status
+  is_published    Boolean  @default(false)
+  published_at    DateTime?
+  published_by    String?
+  
+  // Rollback info
+  is_rollback     Boolean  @default(false)
+  rollback_from   String?
+  
+  created_by      String?
+  created_at      DateTime @default(now())
+
+  @@index([version_number])
+  @@index([is_published])
+  @@map("ui_config_versions")
+}
+
+// ==========================================
+// UI THEMES (App-wide styling)
+// ==========================================
+model UITheme {
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+  
+  // Colors
+  primary_color   String   @default("#2563EB")
+  secondary_color String   @default("#7C3AED")
+  accent_color    String   @default("#F59E0B")
+  background_color String  @default("#FFFFFF")
+  surface_color   String   @default("#F3F4F6")
+  text_primary    String   @default("#111827")
+  text_secondary  String   @default("#6B7280")
+  error_color     String   @default("#EF4444")
+  success_color   String   @default("#10B981")
+  
+  // Typography
+  font_family_ar  String   @default("Cairo")
+  font_family_en  String   @default("Inter")
+  
+  // Borders & Shadows
+  border_radius   String   @default("8px")
+  shadow_config   Json?
+  
+  // Status
+  is_active       Boolean  @default(false)
+  is_default      Boolean  @default(false)
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@map("ui_themes")
+}
+
+// ==========================================
+// BANNERS (Special promotional content)
+// ==========================================
+model Banner {
+  id              String   @id @default(uuid())
+  
+  // Content
+  title_ar        String?
+  title_en        String?
+  subtitle_ar     String?
+  subtitle_en     String?
+  
+  // Media
+  image_url       String
+  image_url_ar    String?
+  mobile_image_url String?
+  
+  // Action
+  action_type     String?  // internal, external, deeplink, none
+  action_url      String?
+  
+  // Display
+  position        String   @default("home_top") // home_top, home_middle, category, etc.
+  sort_order      Int      @default(0)
+  
+  // Scheduling
+  is_active       Boolean  @default(true)
+  start_date      DateTime?
+  end_date        DateTime?
+  
+  // Targeting
+  target_platforms String[] @default(["ios", "android", "web"])
+  target_countries String[] @default([])
+  
+  // Analytics
+  impressions     Int      @default(0)
+  clicks          Int      @default(0)
+  
+  created_by      String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([position, sort_order])
+  @@index([is_active, start_date, end_date])
+  @@map("banners")
+}
+
+// ==========================================
+// APP CONFIGURATION (Global settings)
+// ==========================================
+model AppConfig {
+  id              String   @id @default(uuid())
+  key             String   @unique
+  value           Json
+  description     String?
+  
+  // Grouping
+  category        String   @default("general") // general, features, limits, etc.
+  
+  // Platform specific
+  platform        String   @default("all") // all, ios, android, web
+  
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([category])
+  @@map("app_configs")
+}
+
+// ==========================================
+// AUDIT LOG (Track all changes)
+// ==========================================
+model UIAuditLog {
+  id              String   @id @default(uuid())
+  
+  // What changed
+  entity_type     String   // section, item, banner, theme, config
+  entity_id       String
+  action          String   // create, update, delete, publish, reorder
+  
+  // Change details
+  old_value       Json?
+  new_value       Json?
+  
+  // Who made the change
+  user_id         String
+  user_email      String?
+  ip_address      String?
+  user_agent      String?
+  
+  created_at      DateTime @default(now())
+
+  @@index([entity_type, entity_id])
+  @@index([user_id])
+  @@index([created_at])
+  @@map("ui_audit_logs")
+}

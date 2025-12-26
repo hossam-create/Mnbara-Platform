@@ -1,0 +1,301 @@
+// Compliance Service Database Schema
+// Manages customs regulations, prohibited items, and compliance warnings
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// قائمة الدول وقوانين الجمارك
+model Country {
+  id              String   @id @default(cuid())
+  code            String   @unique // ISO 3166-1 alpha-2
+  name            String
+  nameAr          String?
+  region          String?
+  currency        String?
+  
+  // Customs settings
+  dutyFreeLimit   Decimal? @db.Decimal(10, 2) // الحد الأقصى للإعفاء الجمركي
+  vatRate         Decimal? @db.Decimal(5, 2)  // نسبة ضريبة القيمة المضافة
+  importTaxRate   Decimal? @db.Decimal(5, 2)  // نسبة الرسوم الجمركية
+  
+  // Status
+  isActive        Boolean  @default(true)
+  hasRestrictions Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  prohibitedItems     ProhibitedItem[]
+  restrictedItems     RestrictedItem[]
+  customsRules        CustomsRule[]
+  complianceWarnings  ComplianceWarning[]
+  
+  @@map("countries")
+}
+
+// المنتجات المحظورة تماماً
+model ProhibitedItem {
+  id              String   @id @default(cuid())
+  countryId       String
+  
+  // Item details
+  name            String
+  nameAr          String?
+  category        String
+  description     String?
+  descriptionAr   String?
+  
+  // Classification
+  hsCode          String?  // Harmonized System code
+  keywords        String[] // كلمات مفتاحية للبحث
+  
+  // Severity
+  severity        ProhibitionSeverity @default(PROHIBITED)
+  penalty         String?  // العقوبة المحتملة
+  penaltyAr       String?
+  
+  // Legal reference
+  legalReference  String?
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  country         Country  @relation(fields: [countryId], references: [id])
+  
+  @@index([countryId])
+  @@index([category])
+  @@index([hsCode])
+  @@map("prohibited_items")
+}
+
+// المنتجات المقيدة (تحتاج تصريح)
+model RestrictedItem {
+  id              String   @id @default(cuid())
+  countryId       String
+  
+  // Item details
+  name            String
+  nameAr          String?
+  category        String
+  description     String?
+  
+  // Restriction details
+  restrictionType RestrictionType
+  maxQuantity     Int?     // الكمية المسموحة
+  maxValue        Decimal? @db.Decimal(10, 2) // القيمة المسموحة
+  
+  // Requirements
+  requiresPermit  Boolean  @default(false)
+  permitType      String?
+  requiresDeclaration Boolean @default(false)
+  
+  // Documentation
+  requiredDocs    String[] // المستندات المطلوبة
+  
+  hsCode          String?
+  keywords        String[]
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  country         Country  @relation(fields: [countryId], references: [id])
+  
+  @@index([countryId])
+  @@index([category])
+  @@map("restricted_items")
+}
+
+// قواعد الجمارك العامة
+model CustomsRule {
+  id              String   @id @default(cuid())
+  countryId       String
+  
+  // Rule details
+  title           String
+  titleAr         String?
+  description     String   @db.Text
+  descriptionAr   String?  @db.Text
+  
+  // Category
+  ruleType        CustomsRuleType
+  category        String?
+  
+  // Thresholds
+  valueThreshold  Decimal? @db.Decimal(10, 2)
+  weightThreshold Decimal? @db.Decimal(8, 2)
+  quantityThreshold Int?
+  
+  // Duty calculation
+  dutyRate        Decimal? @db.Decimal(5, 2)
+  additionalFees  Decimal? @db.Decimal(10, 2)
+  
+  // Validity
+  effectiveDate   DateTime?
+  expiryDate      DateTime?
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  country         Country  @relation(fields: [countryId], references: [id])
+  
+  @@index([countryId])
+  @@index([ruleType])
+  @@map("customs_rules")
+}
+
+// تحذيرات الامتثال للمستخدمين
+model ComplianceWarning {
+  id              String   @id @default(cuid())
+  
+  // Reference
+  userId          String?
+  orderId         String?
+  productId       String?
+  
+  // Countries involved
+  originCountryId String?
+  destCountryId   String
+  
+  // Warning details
+  warningType     WarningType
+  severity        WarningSeverity
+  
+  title           String
+  titleAr         String?
+  message         String   @db.Text
+  messageAr       String?  @db.Text
+  
+  // Action required
+  actionRequired  String?
+  actionRequiredAr String?
+  
+  // Status
+  status          WarningStatus @default(PENDING)
+  acknowledgedAt  DateTime?
+  acknowledgedBy  String?
+  
+  // Metadata
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  destCountry     Country  @relation(fields: [destCountryId], references: [id])
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+  @@map("compliance_warnings")
+}
+
+// سجل فحص الامتثال
+model ComplianceCheck {
+  id              String   @id @default(cuid())
+  
+  // Reference
+  orderId         String?
+  productId       String?
+  userId          String
+  
+  // Check details
+  originCountry   String
+  destCountry     String
+  productName     String
+  productCategory String?
+  declaredValue   Decimal? @db.Decimal(10, 2)
+  
+  // Results
+  checkResult     CheckResult
+  riskScore       Int      @default(0) // 0-100
+  
+  // Issues found
+  prohibitedMatch Boolean  @default(false)
+  restrictedMatch Boolean  @default(false)
+  dutyRequired    Boolean  @default(false)
+  estimatedDuty   Decimal? @db.Decimal(10, 2)
+  
+  // Details
+  issues          Json?    // Array of issues found
+  recommendations Json?    // Array of recommendations
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([checkResult])
+  @@map("compliance_checks")
+}
+
+// Enums
+enum ProhibitionSeverity {
+  PROHIBITED      // محظور تماماً
+  HIGHLY_RESTRICTED // مقيد بشدة
+  CONDITIONAL     // مشروط
+}
+
+enum RestrictionType {
+  QUANTITY_LIMIT  // حد الكمية
+  VALUE_LIMIT     // حد القيمة
+  PERMIT_REQUIRED // يتطلب تصريح
+  AGE_RESTRICTED  // مقيد بالعمر
+  SEASONAL        // موسمي
+  QUOTA           // حصة
+}
+
+enum CustomsRuleType {
+  DUTY_FREE       // إعفاء جمركي
+  STANDARD_DUTY   // رسوم عادية
+  SPECIAL_DUTY    // رسوم خاصة
+  EXEMPTION       // إعفاء
+  DECLARATION     // إقرار
+}
+
+enum WarningType {
+  PROHIBITED_ITEM     // منتج محظور
+  RESTRICTED_ITEM     // منتج مقيد
+  HIGH_VALUE          // قيمة عالية
+  DUTY_REQUIRED       // رسوم مطلوبة
+  DOCUMENTATION       // مستندات مطلوبة
+  QUANTITY_EXCEEDED   // تجاوز الكمية
+  GENERAL             // تحذير عام
+}
+
+enum WarningSeverity {
+  INFO            // معلومات
+  LOW             // منخفض
+  MEDIUM          // متوسط
+  HIGH            // عالي
+  CRITICAL        // حرج
+}
+
+enum WarningStatus {
+  PENDING         // معلق
+  ACKNOWLEDGED    // تم الإقرار
+  RESOLVED        // تم الحل
+  IGNORED         // تم التجاهل
+}
+
+enum CheckResult {
+  CLEAR           // واضح - لا مشاكل
+  WARNING         // تحذير
+  BLOCKED         // محظور
+  REVIEW_REQUIRED // يتطلب مراجعة
+}

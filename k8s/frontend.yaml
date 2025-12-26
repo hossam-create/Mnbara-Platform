@@ -1,0 +1,174 @@
+# Frontend Web Application Deployment (React)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-service
+  namespace: mnbara-production
+  labels:
+    app: frontend-service
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend-service
+  template:
+    metadata:
+      labels:
+        app: frontend-service
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: mnbara/frontend:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: REACT_APP_API_URL
+          value: "https://mnbara.com/api"
+        - name: REACT_APP_AUTH_SERVICE_URL
+          value: "https://mnbara.com/api/auth"
+        - name: REACT_APP_LISTING_SERVICE_URL
+          value: "https://mnbara.com/api/products"
+        - name: REACT_APP_PAYMENT_SERVICE_URL
+          value: "https://mnbara.com/api/payments"
+        - name: REACT_APP_ORDER_SERVICE_URL
+          value: "https://mnbara.com/api/orders"
+        - name: REACT_APP_STRIPE_PUBLISHABLE_KEY
+          value: "pk_test_stripe_publishable_key"
+        - name: REACT_APP_GOOGLE_CLIENT_ID
+          value: "google_client_id"
+        - name: REACT_APP_FACEBOOK_APP_ID
+          value: "facebook_app_id"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: mnbara-production
+  labels:
+    app: frontend-service
+spec:
+  selector:
+    app: frontend-service
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+
+---
+# Nginx Load Balancer and Reverse Proxy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-proxy
+  namespace: mnbara-production
+  labels:
+    app: nginx-proxy
+    tier: proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-proxy
+  template:
+    metadata:
+      labels:
+        app: nginx-proxy
+        tier: proxy
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+        - name: tls-certs
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        - name: tls-keys
+          mountPath: /etc/ssl/private
+          readOnly: true
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: tls-certs
+        secret:
+          secretName: tls-secret
+          items:
+          - key: tls.crt
+            path: mnbara.crt
+      - name: tls-keys
+        secret:
+          secretName: tls-secret
+          items:
+          - key: tls.key
+            path: mnbara.key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-proxy-service
+  namespace: mnbara-production
+  labels:
+    app: nginx-proxy
+spec:
+  selector:
+    app: nginx-proxy
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+  type: LoadBalancer
+  loadBalancerSourceRanges:
+  - 0.0.0.0/0

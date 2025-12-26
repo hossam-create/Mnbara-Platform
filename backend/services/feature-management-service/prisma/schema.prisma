@@ -1,0 +1,241 @@
+// Feature Management Service - Feature Flags & Release Management
+// خدمة إدارة الميزات - أعلام الميزات وإدارة الإصدارات
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🚀 FEATURE FLAGS
+// ==========================================
+
+model Feature {
+  id                String   @id @default(uuid())
+  key               String   @unique // e.g., "wholesale_marketplace", "smart_delivery"
+  name              String
+  nameAr            String?
+  description       String?
+  descriptionAr     String?
+  
+  // Categorization
+  category          FeatureCategory
+  service           String   // Service name this feature belongs to
+  version           String   @default("1.0.0")
+  
+  // Status
+  isEnabled         Boolean  @default(false)
+  isPublic          Boolean  @default(false) // Visible to users
+  isBeta            Boolean  @default(false)
+  isPremium         Boolean  @default(false) // Premium users only
+  
+  // Rollout
+  rolloutPercentage Int      @default(0) // 0-100 for gradual rollout
+  rolloutStrategy   RolloutStrategy @default(ALL_OR_NOTHING)
+  
+  // Dependencies
+  dependsOn         String[] // Feature keys this depends on
+  
+  // Metadata
+  icon              String?
+  color             String?
+  releaseNotes      String?
+  releaseNotesAr    String?
+  documentationUrl  String?
+  
+  // Dates
+  enabledAt         DateTime?
+  disabledAt        DateTime?
+  scheduledEnableAt DateTime?
+  scheduledDisableAt DateTime?
+  
+  // Relations
+  overrides         FeatureOverride[]
+  history           FeatureHistory[]
+  metrics           FeatureMetrics[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([category, isEnabled])
+  @@index([service])
+}
+
+enum FeatureCategory {
+  FINTECH           // BNPL, Crypto, Wallet
+  LOGISTICS         // Smart Delivery, Route Optimization
+  MARKETPLACE       // Wholesale, Auctions
+  AI                // AI Assistant, Recommendations
+  SECURITY          // Fraud Detection, 2FA
+  COMMUNICATION     // Chat, Notifications
+  ANALYTICS         // Reports, Dashboards
+  INTEGRATION       // Third-party integrations
+  EXPERIMENTAL      // Beta features
+}
+
+enum RolloutStrategy {
+  ALL_OR_NOTHING    // Either 0% or 100%
+  PERCENTAGE        // Gradual rollout by percentage
+  USER_LIST         // Specific users only
+  REGION            // By geographic region
+  SUBSCRIPTION      // By subscription tier
+}
+
+// ==========================================
+// 🎯 FEATURE OVERRIDES
+// ==========================================
+
+model FeatureOverride {
+  id                String   @id @default(uuid())
+  featureId         String
+  feature           Feature  @relation(fields: [featureId], references: [id])
+  
+  // Override Type
+  type              OverrideType
+  targetId          String   // userId, regionCode, subscriptionTier
+  
+  // Override Value
+  isEnabled         Boolean
+  
+  // Validity
+  expiresAt         DateTime?
+  
+  createdBy         String
+  createdAt         DateTime @default(now())
+  
+  @@unique([featureId, type, targetId])
+  @@index([featureId])
+}
+
+enum OverrideType {
+  USER
+  REGION
+  SUBSCRIPTION
+  ORGANIZATION
+}
+
+// ==========================================
+// 📜 FEATURE HISTORY
+// ==========================================
+
+model FeatureHistory {
+  id                String   @id @default(uuid())
+  featureId         String
+  feature           Feature  @relation(fields: [featureId], references: [id])
+  
+  action            HistoryAction
+  previousValue     Json?
+  newValue          Json?
+  
+  changedBy         String
+  reason            String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([featureId, createdAt])
+}
+
+enum HistoryAction {
+  CREATED
+  ENABLED
+  DISABLED
+  UPDATED
+  ROLLOUT_CHANGED
+  OVERRIDE_ADDED
+  OVERRIDE_REMOVED
+}
+
+// ==========================================
+// 📊 FEATURE METRICS
+// ==========================================
+
+model FeatureMetrics {
+  id                String   @id @default(uuid())
+  featureId         String
+  feature           Feature  @relation(fields: [featureId], references: [id])
+  date              DateTime @db.Date
+  
+  // Usage
+  totalChecks       Int      @default(0)
+  enabledChecks     Int      @default(0)
+  uniqueUsers       Int      @default(0)
+  
+  // Performance
+  avgResponseTime   Float?   // ms
+  errorCount        Int      @default(0)
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([featureId, date])
+  @@index([featureId, date])
+}
+
+// ==========================================
+// 📦 RELEASE MANAGEMENT
+// ==========================================
+
+model Release {
+  id                String   @id @default(uuid())
+  version           String   @unique
+  name              String
+  nameAr            String?
+  
+  // Content
+  description       String
+  descriptionAr     String?
+  releaseNotes      String
+  releaseNotesAr    String?
+  
+  // Features included
+  features          String[] // Feature keys
+  
+  // Status
+  status            ReleaseStatus @default(DRAFT)
+  
+  // Dates
+  scheduledAt       DateTime?
+  releasedAt        DateTime?
+  
+  // Metadata
+  changelog         Json?    // Detailed changes
+  breakingChanges   String[]
+  
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([status])
+}
+
+enum ReleaseStatus {
+  DRAFT
+  SCHEDULED
+  IN_PROGRESS
+  RELEASED
+  ROLLED_BACK
+}
+
+// ==========================================
+// ⚙️ SYSTEM CONFIGURATION
+// ==========================================
+
+model SystemConfig {
+  id                String   @id @default(uuid())
+  key               String   @unique
+  value             Json
+  
+  category          String
+  description       String?
+  
+  isSecret          Boolean  @default(false)
+  
+  updatedBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([category])
+}

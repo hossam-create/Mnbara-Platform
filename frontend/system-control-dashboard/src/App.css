@@ -1,0 +1,225 @@
+/* System Control Dashboard App Styles */
+
+.cockpit-interface {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background effects */
+.cockpit-interface::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(24, 144, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(19, 194, 194, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(114, 46, 209, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Layout overrides */
+.ant-layout {
+  background: transparent !important;
+}
+
+.ant-layout-content {
+  background: transparent !important;
+}
+
+/* Navigation and routing transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+}
+
+/* Global component styles */
+.cockpit-page {
+  min-height: 100vh;
+  padding: 16px;
+  position: relative;
+}
+
+.cockpit-header {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cockpit-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Error boundaries and loading states */
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: rgba(245, 34, 45, 0.1);
+  border: 1px solid rgba(245, 34, 45, 0.3);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+}
+
+.error-boundary h2 {
+  color: #f5222d;
+  margin-bottom: 16px;
+}
+
+.error-boundary p {
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 24px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+.loading-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .cockpit-page {
+    padding: 12px;
+  }
+  
+  .cockpit-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .cockpit-page {
+    padding: 8px;
+  }
+  
+  .cockpit-header {
+    padding: 8px 12px;
+  }
+  
+  .cockpit-content {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cockpit-page {
+    padding: 4px;
+  }
+  
+  .cockpit-header {
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+  
+  .cockpit-content {
+    gap: 8px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .cockpit-interface {
+    background: #000000;
+  }
+  
+  .cockpit-interface::before {
+    display: none;
+  }
+  
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .status-indicator {
+    animation: none !important;
+  }
+  
+  .glow {
+    animation: none !important;
+  }
+}
+
+/* Dark mode support (already dark by default) */
+@media (prefers-color-scheme: light) {
+  /* Keep dark theme even if user prefers light mode */
+  /* This is a system control dashboard - should always be dark */
+}
+
+/* Print styles */
+@media print {
+  .cockpit-interface {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .cockpit-interface::before {
+    display: none !important;
+  }
+  
+  .glass-panel {
+    background: white !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .cockpit-header {
+    background: #f5f5f5 !important;
+    border: 1px solid #ccc !important;
+  }
+}

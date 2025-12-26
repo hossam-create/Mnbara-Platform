@@ -25,6 +25,10 @@ import FeatureFlagsPage from './pages/control-center/FeatureFlags';
 import LogisticsPage from './pages/control-center/Logistics';
 import CCAnalyticsPage from './pages/control-center/Analytics';
 import CCDisputesPage from './pages/control-center/Disputes';
+import CentralControl from './pages/control-center/CentralControl';
+import DepartmentPortal from './pages/control-center/DepartmentPortal';
+import AIProblemSolver from './pages/control-center/AIProblemSolver';
+import UserManagement from './pages/control-center/UserManagement';
 
 function App() {
   return (
@@ -65,6 +69,10 @@ function App() {
               <Route path="ops" element={<OpsDashboard />} />
 
               {/* Control Center Routes */}
+              <Route path="control-center/central-control" element={<CentralControl />} />
+              <Route path="control-center/department/:departmentId" element={<DepartmentPortal />} />
+              <Route path="control-center/ai-problem-solver" element={<AIProblemSolver />} />
+              <Route path="control-center/user-management" element={<UserManagement />} />
               <Route path="control-center/operations" element={<OperationsPage />} />
               <Route path="control-center/engineering" element={<EngineeringPage />} />
               <Route path="control-center/feature-flags" element={<FeatureFlagsPage />} />

@@ -1,0 +1,256 @@
+// Voice Commerce Service - خدمة التجارة الصوتية
+// Voice search, commands, and checkout
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🎤 VOICE SESSIONS
+// ==========================================
+
+model VoiceSession {
+  id              String   @id @default(uuid())
+  userId          String
+  
+  // Session Info
+  language        String   @default("ar-SA") // ar-SA, en-US, etc.
+  deviceType      String?  // mobile, web, smart_speaker
+  
+  // Status
+  status          SessionStatus @default(ACTIVE)
+  
+  // Metrics
+  commandCount    Int      @default(0)
+  successCount    Int      @default(0)
+  errorCount      Int      @default(0)
+  
+  commands        VoiceCommand[]
+  
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+  
+  @@index([userId, startedAt])
+}
+
+enum SessionStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  ERROR
+}
+
+// ==========================================
+// 🗣️ VOICE COMMANDS
+// ==========================================
+
+model VoiceCommand {
+  id              String   @id @default(uuid())
+  sessionId       String
+  session         VoiceSession @relation(fields: [sessionId], references: [id])
+  userId          String
+  
+  // Audio Info
+  audioUrl        String?
+  audioDuration   Float?   // seconds
+  
+  // Transcription
+  transcript      String
+  transcriptAr    String?
+  confidence      Float    // 0-1
+  
+  // Intent Recognition
+  intent          CommandIntent
+  entities        Json     // Extracted entities
+  
+  // Processing
+  processingTime  Int?     // ms
+  
+  // Response
+  responseText    String?
+  responseTextAr  String?
+  responseAudioUrl String?
+  
+  // Result
+  status          CommandStatus @default(PROCESSING)
+  errorMessage    String?
+  
+  // Action Taken
+  actionType      String?  // search, add_to_cart, checkout, etc.
+  actionData      Json?    // Action-specific data
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([intent])
+}
+
+enum CommandIntent {
+  SEARCH_PRODUCT
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  VIEW_CART
+  CHECKOUT
+  TRACK_ORDER
+  GET_RECOMMENDATIONS
+  ASK_PRICE
+  ASK_AVAILABILITY
+  COMPARE_PRODUCTS
+  GET_HELP
+  NAVIGATE
+  UNKNOWN
+}
+
+enum CommandStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ==========================================
+// 🧠 INTENT PATTERNS
+// ==========================================
+
+model IntentPattern {
+  id              String   @id @default(uuid())
+  intent          CommandIntent
+  
+  // Patterns
+  patterns        String[] // Regex patterns
+  patternsAr      String[] // Arabic patterns
+  
+  // Keywords
+  keywords        String[]
+  keywordsAr      String[]
+  
+  // Examples
+  examples        String[]
+  examplesAr      String[]
+  
+  // Priority
+  priority        Int      @default(0)
+  
+  // Status
+  isEnabled       Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([intent, isEnabled])
+}
+
+// ==========================================
+// 🔊 VOICE RESPONSES
+// ==========================================
+
+model VoiceResponse {
+  id              String   @id @default(uuid())
+  
+  // Response Type
+  responseType    ResponseType
+  intent          CommandIntent?
+  
+  // Templates
+  template        String   // English template
+  templateAr      String   // Arabic template
+  
+  // Variables
+  variables       String[] // e.g., {product_name}, {price}
+  
+  // Audio
+  preGeneratedUrl String?  // Pre-generated audio URL
+  
+  // Status
+  isEnabled       Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([responseType, intent])
+}
+
+enum ResponseType {
+  SUCCESS
+  ERROR
+  CONFIRMATION
+  CLARIFICATION
+  SUGGESTION
+  GREETING
+  FAREWELL
+}
+
+// ==========================================
+// 📊 VOICE ANALYTICS
+// ==========================================
+
+model VoiceAnalytics {
+  id              String   @id @default(uuid())
+  date            DateTime @db.Date
+  
+  // Volume
+  totalSessions   Int      @default(0)
+  totalCommands   Int      @default(0)
+  uniqueUsers     Int      @default(0)
+  
+  // Success Rates
+  successRate     Float    @default(0)
+  intentAccuracy  Float    @default(0)
+  
+  // Intents Breakdown
+  searchCount     Int      @default(0)
+  cartCount       Int      @default(0)
+  checkoutCount   Int      @default(0)
+  helpCount       Int      @default(0)
+  
+  // Languages
+  arabicCount     Int      @default(0)
+  englishCount    Int      @default(0)
+  otherCount      Int      @default(0)
+  
+  // Performance
+  avgProcessingTime Float? // ms
+  avgConfidence   Float?
+  
+  // Conversions
+  voiceOrders     Int      @default(0)
+  voiceRevenue    Float    @default(0)
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([date])
+  @@index([date])
+}
+
+// ==========================================
+// 🎯 USER VOICE PREFERENCES
+// ==========================================
+
+model UserVoicePreference {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Language
+  preferredLanguage String @default("ar-SA")
+  
+  // Voice Settings
+  voiceSpeed      Float    @default(1.0) // 0.5-2.0
+  voicePitch      Float    @default(0)   // -20 to 20
+  voiceGender     String   @default("FEMALE") // MALE, FEMALE
+  
+  // Behavior
+  confirmBeforeAction Boolean @default(true)
+  readProductDetails  Boolean @default(true)
+  
+  // History
+  lastUsedAt      DateTime?
+  totalCommands   Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

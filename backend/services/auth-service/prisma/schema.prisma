@@ -171,6 +171,78 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+// Category Models - Optimized for Large Product Catalogs
+model Category {
+  id                String   @id @default(cuid())
+  name              String
+  nameAr            String?
+  slug              String   @unique
+  description       String?
+  image             String?
+  
+  // Hierarchy
+  parentId           String?
+  level             Int      @default(1)
+  depth             Int      @default(1)
+  path              String?  // e.g., /electronics/computers/laptops
+  
+  // Display
+  displayOrder      Int      @default(0)
+  isActive          Boolean  @default(true)
+  hasChildren       Boolean  @default(false)
+  
+  // Performance fields
+  productCount      Int      @default(0)
+  metadata          Json     @default("{}")
+  searchVector      String?  // For full-text search
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  parent            Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children          Category[] @relation("CategoryHierarchy")
+  stats             CategoryStats?
+  ancestors         CategoryPath[] @relation("CategoryPathAncestors")
+  descendants       CategoryPath[] @relation("CategoryPathDescendants")
+  
+  // Indexes (handled by SQL optimization script)
+  @@map("categories")
+}
+
+model CategoryStats {
+  id                String   @id @default(cuid())
+  categoryId        String   @unique
+  productCount      Int      @default(0)
+  activeListings    Int      @default(0)
+  soldProducts      Int      @default(0)
+  avgPrice          Decimal  @default(0) @db.Decimal(12, 2)
+  totalRevenue      Decimal  @default(0) @db.Decimal(15, 2)
+  viewCount         BigInt   @default(0)
+  favoriteCount     Int      @default(0)
+  lastUpdated       DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  category          Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@map("category_stats")
+}
+
+model CategoryPath {
+  ancestorId        String
+  descendantId      String
+  depth             Int
+  
+  // Relations
+  ancestor          Category @relation("CategoryPathAncestors", fields: [ancestorId], references: [id], onDelete: Cascade)
+  descendant        Category @relation("CategoryPathDescendants", fields: [descendantId], references: [id], onDelete: Cascade)
+  
+  @@id([ancestorId, descendantId])
+  @@map("category_paths")
+}
+
 // Enums
 enum Gender {
   MALE

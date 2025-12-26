@@ -94,6 +94,11 @@ const DashboardLayout = () => {
       label: 'Live Ops',
     },
     {
+      key: '/control-center/feature-flags',
+      icon: <SettingOutlined />,
+      label: '🎛️ إدارة الميزات',
+    },
+    {
       key: 'control-center',
       icon: <RocketOutlined />,
       label: 'Ship Control',

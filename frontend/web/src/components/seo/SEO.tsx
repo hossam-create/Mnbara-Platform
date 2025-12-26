@@ -104,20 +104,20 @@ export const SEO: React.FC<SEOProps> = ({
     // Cleanup function to reset meta tags when component unmounts
     return () => {
       // Reset title to default
-      document.title = 'MNBARA - Cross-Border Shopping Made Easy';
+      document.title = 'MNBARH - Cross-Border Shopping Made Easy';
       
       // Reset description
       updateMetaTag('description', 'Connect with travelers to get products from anywhere in the world');
       
       // Reset other meta tags to default values
       updateMetaTag('keywords', 'cross-border shopping, travelers, delivery, international products');
-      updatePropertyTag('og:title', 'MNBARA - Cross-Border Shopping Made Easy');
+      updatePropertyTag('og:title', 'MNBARH - Cross-Border Shopping Made Easy');
       updatePropertyTag('og:description', 'Connect with travelers to get products from anywhere in the world');
       updatePropertyTag('og:image', '/og-image.jpg');
       updatePropertyTag('og:url', window.location.origin);
       updateMetaTag('twitter:card', 'summary_large_image');
       updateMetaTag('twitter:site', '@mnbara');
-      updatePropertyTag('twitter:title', 'MNBARA - Cross-Border Shopping Made Easy');
+      updatePropertyTag('twitter:title', 'MNBARH - Cross-Border Shopping Made Easy');
       updatePropertyTag('twitter:description', 'Connect with travelers to get products from anywhere in the world');
       updatePropertyTag('twitter:image', '/twitter-image.jpg');
       

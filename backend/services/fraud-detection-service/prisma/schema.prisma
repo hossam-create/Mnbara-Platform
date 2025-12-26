@@ -1,0 +1,368 @@
+// Fraud Detection Service - نظام كشف الاحتيال
+// Real-time fraud detection and prevention
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🛡️ FRAUD DETECTION
+// ==========================================
+
+model FraudAlert {
+  id                String   @id @default(uuid())
+  
+  // Target
+  targetType        TargetType
+  targetId          String   // userId, orderId, transactionId
+  
+  // Alert Details
+  alertType         AlertType
+  severity          Severity
+  riskScore         Float    // 0-100
+  
+  // Detection Info
+  detectedBy        String   // Rule name or ML model
+  confidence        Float    // 0-1
+  
+  // Evidence
+  indicators        Json     // List of fraud indicators
+  rawData           Json?    // Original data that triggered alert
+  
+  // Status
+  status            AlertStatus @default(PENDING)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  resolution        String?
+  
+  // Actions Taken
+  actionsTaken      String[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([targetType, targetId])
+  @@index([status, severity])
+  @@index([createdAt])
+}
+
+enum TargetType {
+  USER
+  ORDER
+  TRANSACTION
+  PAYMENT
+  ACCOUNT
+  LISTING
+  REVIEW
+}
+
+enum AlertType {
+  ACCOUNT_TAKEOVER
+  PAYMENT_FRAUD
+  IDENTITY_THEFT
+  FAKE_LISTING
+  FAKE_REVIEW
+  MONEY_LAUNDERING
+  PROMO_ABUSE
+  REFUND_ABUSE
+  VELOCITY_ABUSE
+  BOT_ACTIVITY
+  SUSPICIOUS_BEHAVIOR
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  PENDING
+  INVESTIGATING
+  CONFIRMED_FRAUD
+  FALSE_POSITIVE
+  RESOLVED
+  ESCALATED
+}
+
+// ==========================================
+// 👤 USER RISK PROFILES
+// ==========================================
+
+model UserRiskProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  
+  // Risk Scores
+  overallRiskScore  Float    @default(0)
+  paymentRiskScore  Float    @default(0)
+  behaviorRiskScore Float    @default(0)
+  velocityRiskScore Float    @default(0)
+  
+  // Risk Factors
+  riskFactors       Json     // List of contributing factors
+  
+  // Trust Indicators
+  trustScore        Float    @default(50) // 0-100
+  verificationLevel String   @default("BASIC")
+  
+  // Account Age & Activity
+  accountAgeDays    Int      @default(0)
+  totalOrders       Int      @default(0)
+  totalSpent        Float    @default(0)
+  chargebackCount   Int      @default(0)
+  refundCount       Int      @default(0)
+  
+  // Flags
+  isBlacklisted     Boolean  @default(false)
+  isWhitelisted     Boolean  @default(false)
+  requiresReview    Boolean  @default(false)
+  
+  // Device & Location
+  knownDevices      String[]
+  knownIPs          String[]
+  knownLocations    String[]
+  
+  sessions          UserSession[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([overallRiskScore])
+  @@index([isBlacklisted])
+}
+
+// ==========================================
+// 📱 SESSION TRACKING
+// ==========================================
+
+model UserSession {
+  id                String   @id @default(uuid())
+  userId            String
+  userRisk          UserRiskProfile @relation(fields: [userId], references: [userId])
+  
+  // Session Info
+  sessionId         String   @unique
+  
+  // Device Info
+  deviceId          String?
+  deviceType        String?  // mobile, desktop, tablet
+  deviceBrand       String?
+  deviceModel       String?
+  os                String?
+  osVersion         String?
+  browser           String?
+  browserVersion    String?
+  
+  // Network Info
+  ipAddress         String
+  ipCountry         String?
+  ipCity            String?
+  ipISP             String?
+  isVPN             Boolean  @default(false)
+  isProxy           Boolean  @default(false)
+  isTor             Boolean  @default(false)
+  
+  // Behavior
+  pageViews         Int      @default(0)
+  clickCount        Int      @default(0)
+  avgTimePerPage    Float?
+  
+  // Risk Assessment
+  sessionRiskScore  Float    @default(0)
+  anomalies         String[]
+  
+  // Status
+  isActive          Boolean  @default(true)
+  terminatedReason  String?
+  
+  startedAt         DateTime @default(now())
+  lastActivityAt    DateTime @default(now())
+  endedAt           DateTime?
+  
+  @@index([userId, startedAt])
+  @@index([ipAddress])
+}
+
+// ==========================================
+// 💳 TRANSACTION MONITORING
+// ==========================================
+
+model TransactionRisk {
+  id                String   @id @default(uuid())
+  transactionId     String   @unique
+  userId            String
+  
+  // Transaction Details
+  amount            Float
+  currency          String
+  paymentMethod     String
+  merchantId        String?
+  
+  // Risk Assessment
+  riskScore         Float    // 0-100
+  riskLevel         RiskLevel
+  
+  // Signals
+  signals           Json     // List of risk signals
+  
+  // Velocity Checks
+  hourlyCount       Int      @default(0)
+  dailyCount        Int      @default(0)
+  weeklyCount       Int      @default(0)
+  hourlyAmount      Float    @default(0)
+  dailyAmount       Float    @default(0)
+  
+  // Decision
+  decision          TransactionDecision
+  decisionReason    String?
+  
+  // Review
+  requiresReview    Boolean  @default(false)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([riskLevel])
+}
+
+enum RiskLevel {
+  VERY_LOW
+  LOW
+  MEDIUM
+  HIGH
+  VERY_HIGH
+}
+
+enum TransactionDecision {
+  APPROVED
+  DECLINED
+  REVIEW
+  CHALLENGE
+}
+
+// ==========================================
+// 📋 FRAUD RULES
+// ==========================================
+
+model FraudRule {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  nameAr            String?
+  description       String?
+  descriptionAr     String?
+  
+  // Rule Config
+  ruleType          RuleType
+  conditions        Json     // Rule conditions
+  actions           Json     // Actions to take
+  
+  // Scoring
+  riskWeight        Float    @default(1.0)
+  
+  // Status
+  isEnabled         Boolean  @default(true)
+  
+  // Stats
+  triggeredCount    Int      @default(0)
+  lastTriggeredAt   DateTime?
+  
+  createdBy         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum RuleType {
+  VELOCITY
+  AMOUNT
+  LOCATION
+  DEVICE
+  BEHAVIOR
+  PATTERN
+  BLACKLIST
+  ML_MODEL
+}
+
+// ==========================================
+// 🚫 BLACKLISTS
+// ==========================================
+
+model Blacklist {
+  id                String   @id @default(uuid())
+  
+  // Entry Type
+  entryType         BlacklistType
+  value             String   // IP, email, device ID, etc.
+  
+  // Reason
+  reason            String
+  reasonAr          String?
+  
+  // Source
+  source            String   // manual, automated, external
+  relatedAlertId    String?
+  
+  // Validity
+  expiresAt         DateTime?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  
+  addedBy           String
+  createdAt         DateTime @default(now())
+  
+  @@unique([entryType, value])
+  @@index([entryType, isActive])
+}
+
+enum BlacklistType {
+  IP_ADDRESS
+  EMAIL
+  PHONE
+  DEVICE_ID
+  CARD_BIN
+  CARD_HASH
+  USER_ID
+  ADDRESS
+}
+
+// ==========================================
+// 📊 ANALYTICS
+// ==========================================
+
+model FraudMetrics {
+  id                String   @id @default(uuid())
+  date              DateTime @db.Date
+  
+  // Volume
+  totalTransactions Int      @default(0)
+  flaggedCount      Int      @default(0)
+  blockedCount      Int      @default(0)
+  
+  // Alerts
+  alertsGenerated   Int      @default(0)
+  alertsResolved    Int      @default(0)
+  falsePositives    Int      @default(0)
+  confirmedFraud    Int      @default(0)
+  
+  // Financial Impact
+  fraudAmount       Float    @default(0)
+  preventedAmount   Float    @default(0)
+  
+  // Performance
+  avgRiskScore      Float    @default(0)
+  avgResponseTime   Float?   // ms
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([date])
+  @@index([date])
+}

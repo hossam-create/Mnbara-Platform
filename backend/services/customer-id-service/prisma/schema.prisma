@@ -1,0 +1,393 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Customer ID Model
+model CustomerID {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  userType          String    // 'buyer', 'seller', 'traveler'
+  
+  // Multiple ID formats
+  standardID        String    @unique // MNB-2025-001234
+  shortID           String    @unique // MNB001234
+  uuidID            String    @unique // mnb_550e8400...
+  numericID         String    @unique // 1704067200001234
+  
+  sequentialNumber  Int
+  
+  // Status
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  user              User?     @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([standardID])
+  @@index([shortID])
+  @@index([userType])
+}
+
+// Counter for sequential IDs
+model CustomerIDCounter {
+  userType          String    @id // 'buyer', 'seller', 'traveler'
+  currentNumber     Int       @default(0)
+  updatedAt         DateTime  @updatedAt
+}
+
+// User model (reference)
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String?
+  phone             String?
+  
+  customerID        CustomerID?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+// ============ LOYALTY MODELS ============
+model Loyalty {
+  id                String    @id @default(cuid())
+  customerId        String    @unique
+  points            Int       @default(0)
+  tier              String    @default("bronze")
+  joinDate          DateTime  @default(now())
+  totalSpent        Float     @default(0)
+  
+  pointsHistory     PointsHistory[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+model PointsHistory {
+  id                String    @id @default(cuid())
+  loyaltyId         String
+  loyalty           Loyalty   @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  
+  points            Int
+  reason            String
+  type              String    // 'earned', 'redeemed'
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([loyaltyId])
+}
+
+// ============ REFERRAL MODELS ============
+model Referral {
+  id                String    @id @default(cuid())
+  customerId        String
+  referralCode      String    @unique
+  referralLink      String    @unique
+  
+  referredCount     Int       @default(0)
+  totalRewards      Float     @default(0)
+  
+  referrals         ReferralRecord[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+model ReferralRecord {
+  id                String    @id @default(cuid())
+  referralId        String
+  referral          Referral  @relation(fields: [referralId], references: [id], onDelete: Cascade)
+  
+  referredCustomerId String
+  status            String    // 'pending', 'completed'
+  rewardAmount      Float
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([referralId])
+}
+
+// ============ SEGMENTATION MODELS ============
+model CustomerSegment {
+  id                String    @id @default(cuid())
+  customerId        String    @unique
+  segment           String    // 'vip', 'regular', 'new', 'inactive', 'at-risk'
+  
+  segmentScore      Float
+  benefits          String[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+  @@index([segment])
+}
+
+// ============ OFFERS MODELS ============
+model PersonalizedOffer {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  title             String
+  description       String
+  discountPercent   Float
+  discountAmount    Float?
+  
+  validFrom         DateTime
+  validUntil        DateTime
+  
+  applied           Boolean   @default(false)
+  appliedAt         DateTime?
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([customerId])
+}
+
+// ============ ANALYTICS MODELS ============
+model CustomerAnalytics {
+  id                String    @id @default(cuid())
+  customerId        String    @unique
+  
+  totalPurchases    Int       @default(0)
+  totalSpent        Float     @default(0)
+  averageOrderValue Float     @default(0)
+  
+  lastPurchaseDate  DateTime?
+  lastVisitDate     DateTime?
+  
+  engagementScore   Float     @default(0)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+// ============ NOTIFICATION MODELS ============
+model NotificationPreference {
+  id                String    @id @default(cuid())
+  customerId        String    @unique
+  
+  emailNotifications Boolean  @default(true)
+  smsNotifications  Boolean   @default(true)
+  pushNotifications Boolean   @default(true)
+  
+  promotionalEmails Boolean   @default(true)
+  orderUpdates      Boolean   @default(true)
+  loyaltyUpdates    Boolean   @default(true)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+model Notification {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  title             String
+  message           String
+  type              String    // 'order', 'loyalty', 'offer', 'alert'
+  
+  read              Boolean   @default(false)
+  readAt            DateTime?
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([customerId])
+}
+
+// ============ SUPPORT TICKET MODELS ============
+model SupportTicket {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  subject           String
+  description       String
+  category          String
+  priority          String    // 'low', 'medium', 'high', 'urgent'
+  
+  status            String    @default("open") // 'open', 'in-progress', 'resolved', 'closed'
+  
+  comments          TicketComment[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  resolvedAt        DateTime?
+  
+  @@index([customerId])
+  @@index([status])
+}
+
+model TicketComment {
+  id                String    @id @default(cuid())
+  ticketId          String
+  ticket            SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  customerId        String?
+  agentId           String?
+  
+  comment           String
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([ticketId])
+}
+
+// ============ REWARDS MODELS ============
+model SpecialDateReward {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  eventType         String    // 'birthday', 'anniversary', 'holiday', 'milestone'
+  eventDate         DateTime
+  
+  points            Int
+  discount          Float
+  
+  claimed           Boolean   @default(false)
+  claimedAt         DateTime?
+  expiresAt         DateTime
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([customerId])
+  @@index([eventType])
+}
+
+// ============ SECURITY MODELS ============
+model SecurityProfile {
+  id                String    @id @default(cuid())
+  customerId        String    @unique
+  
+  riskLevel         String    @default("low") // 'low', 'medium', 'high'
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorEnabledAt DateTime?
+  
+  lastLoginAt       DateTime?
+  suspiciousActivityCount Int @default(0)
+  
+  fraudAlerts       FraudAlert[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+model FraudAlert {
+  id                String    @id @default(cuid())
+  customerId        String
+  securityProfile   SecurityProfile @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  
+  alertType         String
+  severity          String    // 'low', 'medium', 'high', 'critical'
+  description       String
+  
+  resolved          Boolean   @default(false)
+  resolvedAt        DateTime?
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([customerId])
+}
+
+model SuspiciousActivityReport {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  activityType      String
+  description       String
+  evidence          String?
+  
+  status            String    @default("pending") // 'pending', 'investigating', 'resolved'
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([customerId])
+}
+
+model SecurityEvent {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  eventType         String
+  description       String
+  ipAddress         String?
+  deviceInfo        String?
+  
+  status            String    @default("logged")
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([customerId])
+}
+
+// ============ CUSTOMER SUPPORT MODELS ============
+model LiveChatSession {
+  id                String    @id @default(cuid())
+  customerId        String
+  
+  topic             String
+  status            String    @default("active") // 'active', 'closed'
+  
+  agentName         String?
+  rating            Int?
+  
+  messages          ChatMessage[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  closedAt          DateTime?
+  
+  @@index([customerId])
+  @@index([status])
+}
+
+model ChatMessage {
+  id                String    @id @default(cuid())
+  sessionId         String
+  session           LiveChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  customerId        String
+  message           String
+  senderType        String    // 'customer', 'agent'
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([sessionId])
+}
+
+model FAQItem {
+  id                String    @id @default(cuid())
+  
+  question          String
+  answer            String
+  category          String
+  
+  order             Int
+  helpfulCount      Int       @default(0)
+  viewCount         Int       @default(0)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([category])
+}

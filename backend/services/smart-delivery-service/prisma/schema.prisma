@@ -1,0 +1,257 @@
+// Smart Delivery Service - AI Route Optimization
+// خدمة التوصيل الذكي - تحسين المسارات بالذكاء الاصطناعي
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🚚 DELIVERY MODELS
+// ==========================================
+
+model Delivery {
+  id                String   @id @default(uuid())
+  orderId           String
+  travelerId        String?
+  
+  // Pickup
+  pickupAddress     Json     // {lat, lng, address, city, country}
+  pickupContact     Json     // {name, phone}
+  pickupTime        DateTime?
+  actualPickupTime  DateTime?
+  
+  // Dropoff
+  dropoffAddress    Json
+  dropoffContact    Json
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+  
+  // Route
+  optimizedRoute    Json?    // Array of waypoints
+  distance          Float?   // in km
+  duration          Float?   // in minutes
+  
+  // Status
+  status            DeliveryStatus @default(PENDING)
+  
+  // Tracking
+  currentLocation   Json?    // {lat, lng, timestamp}
+  locationHistory   Json[]   // Array of locations
+  
+  // Ratings
+  rating            Int?
+  feedback          String?
+  
+  // Relations
+  predictions       DeliveryPrediction[]
+  events            DeliveryEvent[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([orderId])
+  @@index([travelerId, status])
+  @@index([status])
+}
+
+enum DeliveryStatus {
+  PENDING
+  ASSIGNED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+model DeliveryEvent {
+  id                String   @id @default(uuid())
+  deliveryId        String
+  delivery          Delivery @relation(fields: [deliveryId], references: [id])
+  
+  type              EventType
+  description       String
+  descriptionAr     String?
+  location          Json?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([deliveryId])
+}
+
+enum EventType {
+  CREATED
+  ASSIGNED
+  PICKED_UP
+  CHECKPOINT
+  DELAY
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+// ==========================================
+// 🔮 PREDICTION MODELS
+// ==========================================
+
+model DeliveryPrediction {
+  id                String   @id @default(uuid())
+  deliveryId        String
+  delivery          Delivery @relation(fields: [deliveryId], references: [id])
+  
+  // Predictions
+  predictedDuration Float    // in minutes
+  predictedArrival  DateTime
+  confidence        Float    // 0-100
+  
+  // Factors
+  factors           Json     // {traffic, weather, distance, time_of_day}
+  
+  // Actual vs Predicted
+  actualDuration    Float?
+  accuracy          Float?   // percentage
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([deliveryId])
+}
+
+// ==========================================
+// 🗺️ ROUTE MODELS
+// ==========================================
+
+model Route {
+  id                String   @id @default(uuid())
+  travelerId        String
+  date              DateTime @db.Date
+  
+  // Route Details
+  startLocation     Json     // {lat, lng}
+  endLocation       Json
+  waypoints         Json[]   // Array of stops
+  
+  // Optimization
+  originalDistance  Float    // Before optimization
+  optimizedDistance Float    // After optimization
+  savedDistance     Float    // Difference
+  savedTime         Float    // in minutes
+  
+  // Status
+  status            RouteStatus @default(PLANNED)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([travelerId, date])
+}
+
+enum RouteStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ==========================================
+// 📊 ANALYTICS MODELS
+// ==========================================
+
+model DeliveryAnalytics {
+  id                String   @id @default(uuid())
+  date              DateTime @db.Date
+  region            String?
+  
+  // Volume
+  totalDeliveries   Int      @default(0)
+  completedDeliveries Int    @default(0)
+  failedDeliveries  Int      @default(0)
+  
+  // Performance
+  avgDeliveryTime   Float?   // in minutes
+  onTimeRate        Float?   // percentage
+  predictionAccuracy Float?  // percentage
+  
+  // Savings
+  totalDistanceSaved Float?  // in km
+  totalTimeSaved    Float?   // in minutes
+  
+  createdAt         DateTime @default(now())
+  
+  @@unique([date, region])
+  @@index([date])
+}
+
+// ==========================================
+// 🌤️ EXTERNAL DATA MODELS
+// ==========================================
+
+model TrafficData {
+  id                String   @id @default(uuid())
+  region            String
+  timestamp         DateTime
+  
+  // Traffic Info
+  congestionLevel   Float    // 0-100
+  avgSpeed          Float    // km/h
+  incidents         Int      @default(0)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([region, timestamp])
+}
+
+model WeatherData {
+  id                String   @id @default(uuid())
+  region            String
+  timestamp         DateTime
+  
+  // Weather Info
+  condition         String   // sunny, rainy, cloudy, etc.
+  temperature       Float
+  humidity          Float
+  windSpeed         Float
+  visibility        Float
+  
+  // Impact
+  deliveryImpact    Float    // 0-100 (how much it affects delivery)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([region, timestamp])
+}
+
+// ==========================================
+// 🚗 TRAVELER MODELS
+// ==========================================
+
+model TravelerPerformance {
+  id                String   @id @default(uuid())
+  travelerId        String   @unique
+  
+  // Stats
+  totalDeliveries   Int      @default(0)
+  completedDeliveries Int    @default(0)
+  onTimeDeliveries  Int      @default(0)
+  
+  // Ratings
+  avgRating         Float    @default(0)
+  totalRatings      Int      @default(0)
+  
+  // Performance
+  avgDeliveryTime   Float?   // in minutes
+  onTimeRate        Float?   // percentage
+  
+  // Preferences
+  preferredAreas    String[]
+  maxDeliveriesPerDay Int    @default(10)
+  
+  updatedAt         DateTime @updatedAt
+  
+  @@index([travelerId])
+}

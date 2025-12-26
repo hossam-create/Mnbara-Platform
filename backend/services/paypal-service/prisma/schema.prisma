@@ -1,0 +1,200 @@
+// PayPal Service - Prisma Schema
+// PayPal Payment Integration for Mnbara Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// معاملة PayPal - PayPal Transaction
+model PayPalTransaction {
+  id              String   @id @default(uuid())
+  
+  // PayPal IDs
+  paypalOrderId   String   @unique
+  paypalPayerId   String?
+  captureId       String?
+  
+  // Internal Reference
+  orderId         String
+  userId          String
+  
+  // Amount
+  amount          Decimal  @db.Decimal(18, 2)
+  currency        String   @default("USD")
+  
+  // Fees
+  paypalFee       Decimal? @db.Decimal(18, 2)
+  platformFee     Decimal? @db.Decimal(18, 2)
+  netAmount       Decimal? @db.Decimal(18, 2)
+  
+  // Status
+  status          PayPalStatus @default(CREATED)
+  
+  // Payer Info
+  payerEmail      String?
+  payerName       String?
+  payerCountry    String?
+  
+  // Shipping
+  shippingAddress Json?
+  
+  // Metadata
+  description     String?
+  metadata        Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  approvedAt      DateTime?
+  capturedAt      DateTime?
+  refundedAt      DateTime?
+  
+  refunds         PayPalRefund[]
+  webhooks        PayPalWebhook[]
+}
+
+// استرداد PayPal - PayPal Refund
+model PayPalRefund {
+  id              String   @id @default(uuid())
+  transactionId   String
+  transaction     PayPalTransaction @relation(fields: [transactionId], references: [id])
+  
+  // PayPal Refund ID
+  paypalRefundId  String   @unique
+  
+  // Amount
+  amount          Decimal  @db.Decimal(18, 2)
+  currency        String   @default("USD")
+  
+  // Reason
+  reason          RefundReason
+  note            String?
+  
+  // Status
+  status          RefundStatus @default(PENDING)
+  
+  // Initiated by
+  initiatedBy     String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+}
+
+// Webhook PayPal - PayPal Webhook
+model PayPalWebhook {
+  id              String   @id @default(uuid())
+  transactionId   String?
+  transaction     PayPalTransaction? @relation(fields: [transactionId], references: [id])
+  
+  // Webhook Details
+  webhookId       String   @unique
+  eventType       String
+  resourceType    String
+  
+  // Payload
+  payload         Json
+  
+  // Processing
+  processed       Boolean  @default(false)
+  processedAt     DateTime?
+  error           String?
+  
+  createdAt       DateTime @default(now())
+}
+
+// حساب PayPal للتاجر - Merchant PayPal Account
+model MerchantPayPalAccount {
+  id              String   @id @default(uuid())
+  merchantId      String   @unique
+  
+  // PayPal Account
+  paypalEmail     String
+  paypalMerchantId String?
+  
+  // Onboarding
+  onboardingStatus OnboardingStatus @default(PENDING)
+  onboardingLink  String?
+  
+  // Permissions
+  canReceivePayments Boolean @default(false)
+  canIssueRefunds Boolean @default(false)
+  
+  // Verification
+  isVerified      Boolean  @default(false)
+  verifiedAt      DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// إعدادات PayPal - PayPal Settings
+model PayPalSettings {
+  id              String   @id @default(uuid())
+  
+  // Environment
+  environment     PayPalEnvironment @default(SANDBOX)
+  
+  // Fees
+  platformFeePercentage Decimal @db.Decimal(5, 2) @default(2.9)
+  fixedFee        Decimal  @db.Decimal(18, 2) @default(0.30)
+  
+  // Features
+  instantPayoutEnabled Boolean @default(false)
+  subscriptionsEnabled Boolean @default(true)
+  
+  // Limits
+  minTransactionAmount Decimal @db.Decimal(18, 2) @default(1)
+  maxTransactionAmount Decimal @db.Decimal(18, 2) @default(10000)
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Enums
+enum PayPalStatus {
+  CREATED
+  APPROVED
+  CAPTURED
+  COMPLETED
+  VOIDED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  FAILED
+  EXPIRED
+}
+
+enum RefundReason {
+  CUSTOMER_REQUEST
+  ITEM_NOT_RECEIVED
+  ITEM_NOT_AS_DESCRIBED
+  DUPLICATE_TRANSACTION
+  FRAUD
+  OTHER
+}
+
+enum RefundStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum OnboardingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum PayPalEnvironment {
+  SANDBOX
+  LIVE
+}

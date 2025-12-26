@@ -1,0 +1,38 @@
+{
+  "name": "wholesale-service",
+  "version": "1.0.0",
+  "description": "Mnbara B2B Wholesale Marketplace - سوق البيع بالجملة",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "axios": "^1.4.0",
+    "uuid": "^9.0.0",
+    "joi": "^17.9.0",
+    "bull": "^4.12.0",
+    "ioredis": "^5.3.0",
+    "winston": "^3.10.0",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.32.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.3.1",
+    "@types/uuid": "^9.0.2",
+    "@types/multer": "^1.4.7",
+    "typescript": "^5.1.3",
+    "ts-node": "^10.9.1",
+    "prisma": "^5.0.0"
+  }
+}

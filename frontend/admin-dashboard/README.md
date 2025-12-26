@@ -1,112 +1,82 @@
 # Admin Dashboard Frontend
 
-Professional React-based admin dashboard for Mnbara Platform.
+Professional React-based **Website Administration Dashboard** for Mnbara Platform.
 
-## Features
+## 🎯 Purpose
 
-- ✅ Dashboard Overview with KPIs
-- ✅ User Management with filters
-- ✅ Analytics with charts
-- ✅ Responsive design
-- ✅ Ant Design UI components
-- ✅ Real-time data from API
+This dashboard is designed for **website administrators and business managers** to manage the Mnbara marketplace platform's day-to-day operations.
 
-## Tech Stack
+## ✨ Features
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool
-- **Ant Design** - UI components
-- **Recharts** - Data visualization
-- **React Router** - Navigation
-- **Axios** - HTTP client
-- **Zustand** - State management
+- ✅ **User Management** - Manage customer accounts, KYC, permissions
+- ✅ **Order Management** - Track orders, handle disputes, refunds
+- ✅ **Product Management** - Manage listings, categories, approvals
+- ✅ **Analytics & Reports** - Business metrics, sales reports, user analytics
+- ✅ **Content Management** - Manage site content, announcements
+- ✅ **Financial Management** - Revenue tracking, payment monitoring
+- ✅ **Support Tools** - Customer support, dispute resolution
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Install Dependencies
-
 ```bash
 cd frontend/admin-dashboard
 npm install
 ```
 
 ### Run Development Server
-
 ```bash
 npm run dev
 ```
 
-The dashboard will be available at: http://localhost:3000
+The dashboard will be available at: **http://localhost:3000**
 
-### Build for Production
+## 📊 Dashboard Sections
 
-```bash
-npm run build
-```
+### Main Dashboard
+- Business KPIs and metrics
+- Recent activity overview
+- Quick action buttons
+- Revenue and user statistics
 
-## Project Structure
+### User Management
+- User list with search and filters
+- User profile management
+- KYC verification workflow
+- Role and permission management
 
-```
-src/
-├── components/
-│   └── DashboardLayout.tsx    # Main layout with sidebar
-├── pages/
-│   ├── Dashboard.tsx          # Overview page
-│   ├── Users.tsx              # User management
-│   └── Analytics.tsx          # Analytics charts
-├── App.tsx                    # Main app with routing
-├── main.tsx                   # Entry point
-└── index.css                  # Global styles
-```
-
-## Pages
-
-### Dashboard
-- Active users count
-- Total orders
-- Revenue metrics
-- User distribution charts
-- Daily revenue trends
-
-### Users
-- User list with pagination
-- Filters (role, KYC status)
-- Search functionality
-- User details
+### Order Management
+- Order tracking and status updates
+- Dispute resolution interface
+- Refund and cancellation handling
+- Shipping and delivery management
 
 ### Analytics
-- Period selection (7d, 30d, 3m, 1y)
-- User analytics
-- Order status distribution
-- Revenue breakdown
+- Sales and revenue reports
+- User behavior analytics
+- Product performance metrics
+- Geographic distribution data
 
-## API Integration
+### Content Management
+- Site announcements and notifications
+- Category and tag management
+- Featured products and promotions
+- Help documentation management
 
-The dashboard connects to the admin-service backend:
+## 🔐 Access Control
 
-```typescript
-// Example API call
-axios.get('/api/admin/analytics/overview?period=7d')
-```
+This dashboard is for:
+- **Website Administrators**
+- **Business Managers**
+- **Customer Support Team**
+- **Content Managers**
+- **Financial Analysts**
 
-API proxy is configured in `vite.config.ts` to forward `/api` requests to `http://localhost:3012`.
+## 🌐 Ports
 
-## Environment Variables
+- **Development:** http://localhost:3000
+- **Production:** https://admin.mnbara.com
 
-Create `.env` file:
+---
 
-```env
-VITE_API_URL=http://localhost:3012
-```
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## License
-
-MIT
+**Note:** This is separate from the System Control Dashboard (port 3001) which is used for technical infrastructure monitoring.

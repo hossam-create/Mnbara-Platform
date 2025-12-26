@@ -1,0 +1,269 @@
+// Multi-Currency Wallet Service - Prisma Schema
+// Supports: USD, EUR, GBP, SAR, AED, EGP + Auto-Conversion + Forex Hedging
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// المحفظة الرقمية متعددة العملات - Multi-Currency Wallet
+model Wallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  
+  // Primary Currency
+  primaryCurrency String @default("USD")
+  
+  // Status
+  isActive      Boolean  @default(true)
+  isVerified    Boolean  @default(false)
+  kycLevel      Int      @default(0) // 0: None, 1: Basic, 2: Full
+  
+  // Limits
+  dailyLimit    Decimal  @default(1000) @db.Decimal(18, 2)
+  monthlyLimit  Decimal  @default(10000) @db.Decimal(18, 2)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  balances      WalletBalance[]
+  transactions  WalletTransaction[]
+  transfers     Transfer[]
+  autoConversions AutoConversion[]
+  hedgingOrders HedgingOrder[]
+}
+
+// رصيد المحفظة بكل عملة - Wallet Balance per Currency
+model WalletBalance {
+  id            String   @id @default(uuid())
+  walletId      String
+  wallet        Wallet   @relation(fields: [walletId], references: [id])
+  
+  currency      Currency
+  balance       Decimal  @default(0) @db.Decimal(18, 2)
+  availableBalance Decimal @default(0) @db.Decimal(18, 2)
+  pendingBalance Decimal @default(0) @db.Decimal(18, 2)
+  
+  // Auto-conversion settings
+  autoConvertEnabled Boolean @default(false)
+  autoConvertTo     String?
+  autoConvertThreshold Decimal? @db.Decimal(18, 2)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([walletId, currency])
+}
+
+// معاملة المحفظة - Wallet Transaction
+model WalletTransaction {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+  
+  type            TransactionType
+  currency        Currency
+  amount          Decimal  @db.Decimal(18, 2)
+  
+  // For conversions
+  toCurrency      Currency?
+  toAmount        Decimal? @db.Decimal(18, 2)
+  exchangeRate    Decimal? @db.Decimal(18, 8)
+  
+  // Fees
+  fee             Decimal  @default(0) @db.Decimal(18, 2)
+  feeCurrency     Currency?
+  
+  // Reference
+  referenceId     String?
+  referenceType   String?
+  
+  // Balance after transaction
+  balanceAfter    Decimal  @db.Decimal(18, 2)
+  
+  status          TransactionStatus @default(PENDING)
+  description     String?
+  descriptionAr   String?
+  
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+}
+
+// تحويل بين المستخدمين - Transfer
+model Transfer {
+  id              String   @id @default(uuid())
+  
+  // Sender
+  fromWalletId    String
+  fromWallet      Wallet   @relation(fields: [fromWalletId], references: [id])
+  fromCurrency    Currency
+  fromAmount      Decimal  @db.Decimal(18, 2)
+  
+  // Receiver
+  toUserId        String
+  toCurrency      Currency
+  toAmount        Decimal  @db.Decimal(18, 2)
+  
+  // Exchange
+  exchangeRate    Decimal  @db.Decimal(18, 8)
+  fee             Decimal  @default(0) @db.Decimal(18, 2)
+  
+  // Status
+  status          TransferStatus @default(PENDING)
+  
+  // Notes
+  note            String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+}
+
+// التحويل التلقائي - Auto Conversion
+model AutoConversion {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+  
+  fromCurrency    Currency
+  toCurrency      Currency
+  
+  // Trigger conditions
+  triggerType     AutoConversionTrigger
+  triggerValue    Decimal? @db.Decimal(18, 8) // Rate threshold or amount
+  
+  // Conversion settings
+  convertAmount   Decimal? @db.Decimal(18, 2) // Fixed amount or null for all
+  convertPercentage Decimal? @db.Decimal(5, 2) // Percentage of balance
+  
+  isActive        Boolean  @default(true)
+  lastTriggered   DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// أمر التحوط - Hedging Order
+model HedgingOrder {
+  id              String   @id @default(uuid())
+  walletId        String
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+  
+  currency        Currency
+  amount          Decimal  @db.Decimal(18, 2)
+  
+  // Hedging type
+  hedgeType       HedgeType
+  
+  // Target rate
+  targetRate      Decimal  @db.Decimal(18, 8)
+  currentRate     Decimal  @db.Decimal(18, 8)
+  
+  // Protection
+  protectionCurrency Currency
+  protectionAmount Decimal @db.Decimal(18, 2)
+  
+  // Duration
+  expiresAt       DateTime
+  
+  // Status
+  status          HedgingStatus @default(ACTIVE)
+  
+  // Premium paid
+  premium         Decimal  @db.Decimal(18, 2)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  executedAt      DateTime?
+}
+
+// أسعار الصرف - Exchange Rate
+model ForexRate {
+  id            String   @id @default(uuid())
+  
+  baseCurrency  Currency
+  quoteCurrency Currency
+  
+  rate          Decimal  @db.Decimal(18, 8)
+  bid           Decimal  @db.Decimal(18, 8)
+  ask           Decimal  @db.Decimal(18, 8)
+  
+  change24h     Decimal  @db.Decimal(10, 4)
+  high24h       Decimal  @db.Decimal(18, 8)
+  low24h        Decimal  @db.Decimal(18, 8)
+  
+  source        String   @default("openexchangerates")
+  createdAt     DateTime @default(now())
+  
+  @@index([baseCurrency, quoteCurrency, createdAt])
+}
+
+// Enums
+enum Currency {
+  USD
+  EUR
+  GBP
+  SAR
+  AED
+  EGP
+  JPY
+  CNY
+  INR
+  TRY
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  CONVERSION
+  FEE
+  REFUND
+  HEDGING_PREMIUM
+  HEDGING_PAYOUT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+enum TransferStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum AutoConversionTrigger {
+  RATE_ABOVE    // Convert when rate goes above threshold
+  RATE_BELOW    // Convert when rate goes below threshold
+  BALANCE_ABOVE // Convert when balance exceeds threshold
+  SCHEDULED     // Convert on schedule
+  ON_DEPOSIT    // Convert on every deposit
+}
+
+enum HedgeType {
+  FORWARD       // Lock rate for future
+  OPTION        // Right but not obligation
+  STOP_LOSS     // Automatic conversion at loss limit
+}
+
+enum HedgingStatus {
+  ACTIVE
+  EXECUTED
+  EXPIRED
+  CANCELLED
+}

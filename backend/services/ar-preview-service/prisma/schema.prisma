@@ -1,0 +1,246 @@
+// AR Preview Service - خدمة معاينة الواقع المعزز
+// 3D models, AR sessions, and analytics
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 📦 3D MODELS
+// ==========================================
+
+model Product3DModel {
+  id              String   @id @default(uuid())
+  productId       String   @unique
+  
+  // Model Files
+  glbUrl          String   // GLB format (main)
+  usdzUrl         String?  // USDZ for iOS
+  objUrl          String?  // OBJ fallback
+  thumbnailUrl    String?
+  
+  // Model Info
+  polyCount       Int?
+  fileSize        Int?     // bytes
+  
+  // Dimensions (meters)
+  width           Float?
+  height          Float?
+  depth           Float?
+  
+  // AR Settings
+  scale           Float    @default(1.0)
+  anchorType      AnchorType @default(PLANE)
+  allowRotation   Boolean  @default(true)
+  allowScaling    Boolean  @default(true)
+  
+  // Textures
+  textures        ModelTexture[]
+  
+  // Status
+  status          ModelStatus @default(PROCESSING)
+  processingError String?
+  
+  // Stats
+  viewCount       Int      @default(0)
+  arSessionCount  Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+}
+
+enum AnchorType {
+  PLANE      // Floor/table placement
+  VERTICAL   // Wall placement
+  IMAGE      // Image marker
+  FACE       // Face tracking
+  BODY       // Body tracking
+}
+
+enum ModelStatus {
+  PROCESSING
+  READY
+  ERROR
+  ARCHIVED
+}
+
+// ==========================================
+// 🎨 MODEL TEXTURES
+// ==========================================
+
+model ModelTexture {
+  id              String   @id @default(uuid())
+  modelId         String
+  model           Product3DModel @relation(fields: [modelId], references: [id])
+  
+  // Texture Info
+  name            String
+  type            TextureType
+  url             String
+  
+  // Properties
+  width           Int?
+  height          Int?
+  format          String?  // jpg, png, webp
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([modelId])
+}
+
+enum TextureType {
+  DIFFUSE
+  NORMAL
+  ROUGHNESS
+  METALLIC
+  AMBIENT_OCCLUSION
+  EMISSIVE
+}
+
+// ==========================================
+// 📱 AR SESSIONS
+// ==========================================
+
+model ARSession {
+  id              String   @id @default(uuid())
+  userId          String?
+  productId       String
+  
+  // Device Info
+  deviceType      String?  // iOS, Android
+  deviceModel     String?
+  osVersion       String?
+  arFramework     String?  // ARKit, ARCore, WebXR
+  
+  // Session Metrics
+  duration        Int?     // seconds
+  framesRendered  Int?
+  avgFPS          Float?
+  
+  // Interactions
+  rotations       Int      @default(0)
+  scales          Int      @default(0)
+  screenshots     Int      @default(0)
+  
+  // Placement
+  placementType   AnchorType?
+  placementSuccess Boolean @default(false)
+  
+  // Outcome
+  addedToCart     Boolean  @default(false)
+  purchased       Boolean  @default(false)
+  
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+  
+  @@index([userId, startedAt])
+  @@index([productId])
+}
+
+// ==========================================
+// 📸 AR SCREENSHOTS
+// ==========================================
+
+model ARScreenshot {
+  id              String   @id @default(uuid())
+  sessionId       String
+  userId          String?
+  productId       String
+  
+  // Image
+  imageUrl        String
+  thumbnailUrl    String?
+  
+  // Metadata
+  width           Int?
+  height          Int?
+  
+  // Sharing
+  isShared        Boolean  @default(false)
+  shareCount      Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId, createdAt])
+}
+
+// ==========================================
+// 📊 AR ANALYTICS
+// ==========================================
+
+model ARAnalytics {
+  id              String   @id @default(uuid())
+  date            DateTime @db.Date
+  
+  // Volume
+  totalSessions   Int      @default(0)
+  uniqueUsers     Int      @default(0)
+  uniqueProducts  Int      @default(0)
+  
+  // Device Breakdown
+  iosSessions     Int      @default(0)
+  androidSessions Int      @default(0)
+  webSessions     Int      @default(0)
+  
+  // Performance
+  avgDuration     Float?   // seconds
+  avgFPS          Float?
+  successRate     Float?   // placement success
+  
+  // Engagement
+  totalRotations  Int      @default(0)
+  totalScales     Int      @default(0)
+  totalScreenshots Int     @default(0)
+  
+  // Conversions
+  addToCartCount  Int      @default(0)
+  purchaseCount   Int      @default(0)
+  conversionRate  Float?
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([date])
+  @@index([date])
+}
+
+// ==========================================
+// 🎯 AR MARKERS
+// ==========================================
+
+model ARMarker {
+  id              String   @id @default(uuid())
+  
+  // Marker Info
+  name            String
+  nameAr          String?
+  type            MarkerType
+  
+  // Image
+  imageUrl        String
+  width           Float    // physical width in meters
+  
+  // Associated Content
+  productId       String?
+  contentUrl      String?
+  contentType     String?
+  
+  // Status
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum MarkerType {
+  PRODUCT
+  PROMOTIONAL
+  NAVIGATION
+  INTERACTIVE
+}

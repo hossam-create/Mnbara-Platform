@@ -1,0 +1,294 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: mnbara-monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    rule_files:
+      - "alert_rules.yml"
+    
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets:
+              - alertmanager:9093
+    
+    scrape_configs:
+      # Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      # Node Exporter
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-monitoring
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: node-exporter-service
+      
+      # Auth Service
+      - job_name: 'auth-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: auth-service
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: http
+        metrics_path: '/actuator/prometheus'
+      
+      # Listing Service
+      - job_name: 'listing-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: listing-service
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: http
+        metrics_path: '/metrics'
+      
+      # Payment Service
+      - job_name: 'payment-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: payment-service
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: http
+        metrics_path: '/metrics'
+      
+      # Order Service
+      - job_name: 'order-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: order-service
+          - source_labels: [__meta_kubernetes_endpoint_port_name]
+            action: keep
+            regex: http
+        metrics_path: '/metrics'
+      
+      # PostgreSQL
+      - job_name: 'postgres'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: postgres-service
+      
+      # Redis
+      - job_name: 'redis'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: redis-service
+      
+      # Elasticsearch
+      - job_name: 'elasticsearch'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: elasticsearch-service
+        metrics_path: '/_prometheus/metrics'
+      
+      # Nginx Proxy
+      - job_name: 'nginx'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: nginx-proxy-service
+        metrics_path: '/metrics'
+      
+      # API Gateway
+      - job_name: 'api-gateway'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: api-gateway-service
+        metrics_path: '/metrics'
+      
+      # P2P Swap Service
+      - job_name: 'p2p-swap-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: p2p-swap-service
+        metrics_path: '/metrics'
+      
+      # Real-time Matcher Service
+      - job_name: 'real-time-matcher'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: real-time-matcher-service
+        metrics_path: '/metrics'
+      
+      # AI Core Service
+      - job_name: 'ai-core'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: ai-core-service
+        metrics_path: '/metrics'
+      
+      # Notification Service
+      - job_name: 'notification-service'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: notification-service
+        metrics_path: '/metrics'
+      
+      # RabbitMQ
+      - job_name: 'rabbitmq'
+        kubernetes_sd_configs:
+          - role: endpoints
+            namespaces:
+              names:
+                - mnbara-production
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_service_name]
+            action: keep
+            regex: rabbitmq-service
+        metrics_path: '/metrics'
+
+
+  alert_rules.yml: |
+    groups:
+    - name: mnbara-alerts
+      rules:
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 5 minutes"
+      
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% for more than 5 minutes"
+      
+      # Service Down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down"
+      
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 1 second"
+      
+      # Database Connection Issues
+      - alert: DatabaseConnectionIssues
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection issues"
+          description: "PostgreSQL database is not responding"
+      
+      # Elasticsearch Cluster Health
+      - alert: ElasticsearchClusterNotHealthy
+        expr: elasticsearch_cluster_health_status{color="red"} == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster is not healthy"
+          description: "Elasticsearch cluster health is red"
