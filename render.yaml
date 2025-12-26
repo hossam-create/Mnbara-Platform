@@ -5,8 +5,8 @@ services:
     name: mnbara-web
     env: node
     plan: starter
-    buildCommand: cd frontend/web && npm install && npm run build
-    startCommand: cd frontend/web && npm run preview
+    buildCommand: cd frontend/web-app && npm install && npm run build
+    startCommand: cd frontend/web-app && npm run preview
     envVars:
       - key: NODE_ENV
         value: production
@@ -20,7 +20,7 @@ services:
     name: mnbara-api
     env: node
     plan: starter
-    buildCommand: cd backend/services/api-gateway && npm install
+    buildCommand: cd backend/services/api-gateway && npm install && npm run build
     startCommand: cd backend/services/api-gateway && npm start
     envVars:
       - key: NODE_ENV
