@@ -245,7 +245,7 @@ services:
   # ==============================================
   # Databases & Cache
   # ==============================================
-  - type: pg
+  - type: postgres
     name: mnbara-db
     plan: starter
     ipAllowList: []
@@ -261,7 +261,7 @@ services:
 envVars:
   - key: DATABASE_URL
     fromService:
-      type: pg
+      type: postgres
       name: mnbara-db
       property: connectionString
   - key: REDIS_URL
