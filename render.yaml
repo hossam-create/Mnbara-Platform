@@ -108,6 +108,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3001
     healthCheckPath: /health
 
   # Listing Service
@@ -120,6 +122,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3002
     healthCheckPath: /health
 
   # Auction Service
@@ -132,6 +136,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3003
     healthCheckPath: /health
 
   # Payment Service (Hybrid JS/TS)
@@ -144,6 +150,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3004
     healthCheckPath: /health
 
   # Crowdship Service
@@ -156,6 +164,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3005
     healthCheckPath: /health
 
   # Notification Service
@@ -168,7 +178,9 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-    healthCheckPath: /
+      - key: PORT
+        value: 3006
+    healthCheckPath: /health
 
   # Matching Service (NestJS)
   - type: web
@@ -180,6 +192,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3007
     healthCheckPath: /health
 
   # Admin Service (NestJS)
@@ -192,6 +206,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3008
     healthCheckPath: /health
 
   # Recommendation Service
@@ -204,6 +220,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3009
     healthCheckPath: /health
 
   # Rewards Service
@@ -216,6 +234,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3010
     healthCheckPath: /health
 
   # Orders Service
@@ -228,6 +248,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3011
     healthCheckPath: /health
 
   # Trips Service
@@ -240,17 +262,17 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3012
     healthCheckPath: /health
 
   # ==============================================
   # Databases & Cache
   # ==============================================
-  - type: pserv
+  - type: postgres
     name: mnbara-db
-    env: docker
     plan: starter
-    repo: https://github.com/render-examples/postgres
-    autoDeploy: false
+    ipAllowList: []
 
   - type: redis
     name: mnbara-redis
@@ -263,9 +285,9 @@ services:
 envVars:
   - key: DATABASE_URL
     fromService:
-      type: pserv
+      type: postgres
       name: mnbara-db
-      property: url
+      property: connectionString
   - key: REDIS_URL
     fromService:
       type: redis
