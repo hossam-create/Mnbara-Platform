@@ -160,7 +160,7 @@ prisma/migrations/*.sql
 .lock-wscript
 
 # ========================================
-# Security & Secrets
+# Security & Secrets (CRITICAL)
 # ========================================
 *.pem
 *.key
@@ -168,6 +168,14 @@ prisma/migrations/*.sql
 secrets/
 credentials/
 .secrets/
+k8s/secrets.yaml
+infrastructure/k8s/secrets.yaml
+infrastructure/docker/docker-compose.yml
+config/oauth-providers.yaml
+config/secrets.yaml
+.env.secrets
+*.secret
+*.encrypted
 
 # ========================================
 # Extracted Resources (VERY IMPORTANT!)

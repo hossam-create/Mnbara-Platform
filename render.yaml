@@ -13,10 +13,12 @@ services:
     autoDeploy: true
 
   # Database
-  - type: postgres
+  - type: pserv
     name: mnbara-db
+    env: docker
     plan: starter
-    ipAllowList: []
+    repo: https://github.com/render-examples/postgres
+    autoDeploy: false
 
   # Redis Cache
   - type: redis
@@ -28,9 +30,9 @@ services:
 envVars:
   - key: DATABASE_URL
     fromService:
-      type: postgres
+      type: pserv
       name: mnbara-db
-      property: connectionString
+      property: url
   - key: REDIS_URL
     fromService:
       type: redis
