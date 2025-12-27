@@ -11,30 +11,3 @@ services:
         value: production
     healthCheckPath: /
     autoDeploy: true
-
-  # Database
-  - type: postgres
-    name: mnbara-db
-    plan: starter
-    ipAllowList: []
-
-  # Redis Cache
-  - type: redis
-    name: mnbara-redis
-    plan: starter
-    ipAllowList: []
-
-# Global Environment Variables
-envVars:
-  - key: DATABASE_URL
-    fromService:
-      type: postgres
-      name: mnbara-db
-      property: connectionString
-  - key: REDIS_URL
-    fromService:
-      type: redis
-      name: mnbara-redis
-      property: connectionString
-  - key: JWT_SECRET
-    generateValue: true
