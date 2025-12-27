@@ -1,0 +1,297 @@
+services:
+  # ==============================================
+  # Frontend Web App
+  # ==============================================
+  - type: web
+    name: mnbara-web
+    env: node
+    plan: starter
+    buildCommand: cd frontend/web-app && npm install && npm run build
+    startCommand: cd frontend/web-app && npm run preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5173
+    healthCheckPath: /
+    autoDeploy: true
+
+  # ==============================================
+  # API Gateway (Entry Point)
+  # ==============================================
+  - type: web
+    name: api-gateway
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/api-gateway && npm install && npm run build
+    startCommand: cd backend/services/api-gateway && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      # Service Discovery
+      - key: AUTH_SERVICE_URL
+        fromService:
+          type: web
+          name: auth-service
+          property: url
+      - key: LISTING_SERVICE_URL
+        fromService:
+          type: web
+          name: listing-service
+          property: url
+      - key: AUCTION_SERVICE_URL
+        fromService:
+          type: web
+          name: auction-service
+          property: url
+      - key: PAYMENT_SERVICE_URL
+        fromService:
+          type: web
+          name: payment-service
+          property: url
+      - key: CROWDSHIP_SERVICE_URL
+        fromService:
+          type: web
+          name: crowdship-service
+          property: url
+      - key: NOTIFICATION_SERVICE_URL
+        fromService:
+          type: web
+          name: notification-service
+          property: url
+      - key: RECOMMENDATION_SERVICE_URL
+        fromService:
+          type: web
+          name: recommendation-service
+          property: url
+      - key: REWARDS_SERVICE_URL
+        fromService:
+          type: web
+          name: rewards-service
+          property: url
+      - key: ORDERS_SERVICE_URL
+        fromService:
+          type: web
+          name: orders-service
+          property: url
+      - key: TRIPS_SERVICE_URL
+        fromService:
+          type: web
+          name: trips-service
+          property: url
+      - key: MATCHING_SERVICE_URL
+        fromService:
+          type: web
+          name: matching-service
+          property: url
+      - key: ADMIN_SERVICE_URL
+        fromService:
+          type: web
+          name: admin-service
+          property: url
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # ==============================================
+  # Microservices
+  # ==============================================
+
+  # Auth Service
+  - type: web
+    name: auth-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/auth-service && npm install && npm run build
+    startCommand: cd backend/services/auth-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+    healthCheckPath: /health
+
+  # Listing Service
+  - type: web
+    name: listing-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/listing-service && npm install && npm run build
+    startCommand: cd backend/services/listing-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3002
+    healthCheckPath: /health
+
+  # Auction Service
+  - type: web
+    name: auction-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/auction-service && npm install && npm run build
+    startCommand: cd backend/services/auction-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3003
+    healthCheckPath: /health
+
+  # Payment Service (Hybrid JS/TS)
+  - type: web
+    name: payment-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/payment-service && npm install
+    startCommand: cd backend/services/payment-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3004
+    healthCheckPath: /health
+
+  # Crowdship Service
+  - type: web
+    name: crowdship-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/crowdship-service && npm install && npm run build
+    startCommand: cd backend/services/crowdship-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3005
+    healthCheckPath: /health
+
+  # Notification Service
+  - type: web
+    name: notification-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/notification-service && npm install
+    startCommand: cd backend/services/notification-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3006
+    healthCheckPath: /health
+
+  # Matching Service (NestJS)
+  - type: web
+    name: matching-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/matching-service && npm install && npm run build
+    startCommand: cd backend/services/matching-service && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3007
+    healthCheckPath: /health
+
+  # Admin Service (NestJS)
+  - type: web
+    name: admin-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/admin-service && npm install && npm run build
+    startCommand: cd backend/services/admin-service && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3008
+    healthCheckPath: /health
+
+  # Recommendation Service
+  - type: web
+    name: recommendation-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/recommendation-service && npm install && npm run build
+    startCommand: cd backend/services/recommendation-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3009
+    healthCheckPath: /health
+
+  # Rewards Service
+  - type: web
+    name: rewards-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/rewards-service && npm install && npm run build
+    startCommand: cd backend/services/rewards-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3010
+    healthCheckPath: /health
+
+  # Orders Service
+  - type: web
+    name: orders-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/orders-service && npm install && npm run build
+    startCommand: cd backend/services/orders-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3011
+    healthCheckPath: /health
+
+  # Trips Service
+  - type: web
+    name: trips-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/trips-service && npm install && npm run build
+    startCommand: cd backend/services/trips-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3012
+    healthCheckPath: /health
+
+  # ==============================================
+  # Databases & Cache
+  # ==============================================
+  - type: postgres
+    name: mnbara-db
+    plan: starter
+    ipAllowList: []
+
+  - type: redis
+    name: mnbara-redis
+    plan: starter
+    ipAllowList: []
+
+# ==============================================
+# Global Configuration
+# ==============================================
+envVars:
+  - key: DATABASE_URL
+    fromService:
+      type: postgres
+      name: mnbara-db
+      property: connectionString
+  - key: REDIS_URL
+    fromService:
+      type: redis
+      name: mnbara-redis
+      property: connectionString
+  - key: JWT_SECRET
+    generateValue: true
