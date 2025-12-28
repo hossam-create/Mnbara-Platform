@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, Trash2, Mail, ShoppingCart, Package, AlertCircle } from 'lucide-react';
-import { notificationAPI, Notification } from '../../services/api/notificationAPI';
+import { notificationAPI } from '../../services/api/notificationAPI';
+import type { Notification } from '../../services/api/notificationAPI';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface NotificationCenterProps {

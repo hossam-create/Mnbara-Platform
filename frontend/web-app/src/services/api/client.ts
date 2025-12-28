@@ -1,7 +1,4 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { store } from '@/store'
-import { refreshToken, clearCredentials } from '@/store/slices/authSlice'
-import { showErrorNotification } from '@/store/slices/notificationSlice'
 
 // API configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
@@ -19,21 +16,10 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    const state = store.getState()
-    const token = state.auth.token
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
-
-    // Add request timestamp for performance monitoring
     config.metadata = { startTime: Date.now() }
-
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 // Response interceptor
@@ -50,59 +36,7 @@ apiClient.interceptors.response.use(
 
     return response
   },
-  async (error) => {
-    const originalRequest = error.config
-
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-
-      try {
-        const state = store.getState()
-        if (state.auth.refreshToken) {
-          await store.dispatch(refreshToken())
-          
-          // Retry original request with new token
-          const newState = store.getState()
-          if (newState.auth.token) {
-            originalRequest.headers.Authorization = `Bearer ${newState.auth.token}`
-            return apiClient(originalRequest)
-          }
-        }
-      } catch (refreshError) {
-        // Refresh failed, logout user
-        store.dispatch(clearCredentials())
-        window.location.href = '/auth/login'
-        return Promise.reject(refreshError)
-      }
-    }
-
-    // Handle network errors
-    if (!error.response) {
-      store.dispatch(showErrorNotification(
-        'Network Error',
-        'Please check your internet connection and try again.'
-      ))
-    }
-
-    // Handle server errors
-    if (error.response?.status >= 500) {
-      store.dispatch(showErrorNotification(
-        'Server Error',
-        'Something went wrong on our end. Please try again later.'
-      ))
-    }
-
-    // Handle rate limiting
-    if (error.response?.status === 429) {
-      store.dispatch(showErrorNotification(
-        'Too Many Requests',
-        'Please wait a moment before trying again.'
-      ))
-    }
-
-    return Promise.reject(error)
-  }
+  async (error) => Promise.reject(error)
 )
 
 // API client wrapper with common methods

@@ -1,5 +1,8 @@
+# Mnbara Platform - Render Deployment Configuration
+# Comprehensive microservices deployment
+
 services:
-  # Frontend Web App
+  # Frontend Web App (React/Next.js)
   - type: web
     name: mnbara-web
     env: static
@@ -9,5 +12,157 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://mnbara-api-gateway.onrender.com
     healthCheckPath: /
     autoDeploy: true
+
+  # Admin Dashboard
+  - type: web
+    name: mnbara-admin
+    env: static
+    plan: starter
+    buildCommand: cd frontend/admin-dashboard && npm install && npm run build
+    staticPublishPath: frontend/admin-dashboard/dist
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://mnbara-api-gateway.onrender.com
+    healthCheckPath: /
+    autoDeploy: true
+
+  # API Gateway (Main Backend Service)
+  - type: web
+    name: mnbara-api-gateway
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/api-gateway && npm install && npm run build
+    startCommand: cd backend/services/api-gateway && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mnbara-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: mnbara-redis
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Auth Service
+  - type: web
+    name: mnbara-auth-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/auth-service && npm install && npm run build
+    startCommand: cd backend/services/auth-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10001
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mnbara-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: mnbara-api-gateway
+          envVarKey: JWT_SECRET
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Listing Service
+  - type: web
+    name: mnbara-listing-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/listing-service && npm install && npm run build
+    startCommand: cd backend/services/listing-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10002
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mnbara-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: mnbara-redis
+          property: connectionString
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Payment Service
+  - type: web
+    name: mnbara-payment-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/payment-service && npm install && npm run build
+    startCommand: cd backend/services/payment-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10003
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mnbara-postgres
+          property: connectionString
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Auction Service
+  - type: web
+    name: mnbara-auction-service
+    env: node
+    plan: starter
+    buildCommand: cd backend/services/auction-service && npm install && npm run build
+    startCommand: cd backend/services/auction-service && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10004
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mnbara-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: mnbara-redis
+          property: connectionString
+    healthCheckPath: /health
+    autoDeploy: true
+
+# Databases
+databases:
+  # PostgreSQL Database
+  - name: mnbara-postgres
+    plan: starter
+    databaseName: mnbara_prod
+    user: mnbara_user
+    ipAllowList: []
+    
+  # Redis Cache
+  - name: mnbara-redis
+    plan: starter
+    ipAllowList: []

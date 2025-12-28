@@ -28,6 +28,8 @@ const SearchPage: React.FC = () => {
 
   const searchQuery = searchParams.get('q') || ''
   const currentPage = parseInt(searchParams.get('page') || '1')
+  const styleParam = (searchParams.get('style') || '').toLowerCase()
+  const viewMode = styleParam === 'ebay' ? 'list' : 'grid'
 
   useEffect(() => {
     if (searchQuery && searchQuery !== lastSearchQuery) {
@@ -159,6 +161,7 @@ const SearchPage: React.FC = () => {
                     results={results}
                     pagination={pagination}
                     onPageChange={handlePageChange}
+                    viewMode={viewMode}
                   />
                 ) : !isLoading && (
                   <div className="text-center py-12">

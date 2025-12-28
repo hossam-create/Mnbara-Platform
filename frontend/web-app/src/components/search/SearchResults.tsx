@@ -23,12 +23,14 @@ interface SearchResultsProps {
   results: SearchResult[]
   pagination: Pagination
   onPageChange: (page: number) => void
+  viewMode?: 'grid' | 'list'
 }
 
 const SearchResults: React.FC<SearchResultsProps> = ({
   results,
   pagination,
-  onPageChange
+  onPageChange,
+  viewMode = 'grid'
 }) => {
   const generatePageNumbers = () => {
     const pages = []
@@ -50,22 +52,58 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
   return (
     <div>
-      {/* Results Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-        {results.map((result) => (
-          <ProductCard
-            key={result.id}
-            product={{
-              id: result.id,
-              title: result.title,
-              price: result.price,
-              image: result.image,
-              rating: result.rating,
-              seller: result.seller
-            }}
-          />
-        ))}
-      </div>
+      {/* Results */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+          {results.map((result) => (
+            <ProductCard
+              key={result.id}
+              product={{
+                id: result.id,
+                title: result.title,
+                price: result.price,
+                image: result.image,
+                rating: result.rating,
+                seller: result.seller
+              }}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4 mb-8">
+          {results.map((result) => (
+            <div
+              key={result.id}
+              className="flex gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+            >
+              <img
+                src={result.image}
+                alt={result.title}
+                className="w-32 h-32 object-cover rounded-md"
+              />
+              <div className="flex-1">
+                <a href={`/product/${result.id}`} className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                  {result.title}
+                </a>
+                <div className="mt-2 text-xl font-semibold text-gray-900 dark:text-white">
+                  ${result.price.toFixed(2)}
+                </div>
+                <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  البائع: {result.seller} • التقييم: {result.rating}/5 • {result.location}
+                </div>
+                <div className="mt-3">
+                  <a
+                    href={`/product/${result.id}`}
+                    className="btn btn-primary btn-sm"
+                  >
+                    اشتري الآن
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (

@@ -6,8 +6,11 @@ import { getTrendingSearches } from '@/store/slices/searchSlice'
 import { Helmet } from 'react-helmet-async'
 import HeroSection from '@/components/home/HeroSection'
 import FeaturedProducts from '@/components/home/FeaturedProducts'
+import FeaturedCategories from '@/components/home/FeaturedCategories'
 import Categories from '@/components/home/Categories'
 import TrendingSearches from '@/components/home/TrendingSearches'
+import TrendingProducts from '@/components/home/TrendingProducts'
+import EndlessAccessories from '@/components/home/EndlessAccessories'
 import RecommendedProducts from '@/components/home/RecommendedProducts'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import LiveDealsSection from '@/components/home/LiveDealsSection'
@@ -66,6 +69,9 @@ const HomePage: React.FC = () => {
           {/* Categories */}
           <Categories />
 
+          {/* Featured Categories */}
+          <FeaturedCategories />
+
           {/* Live Deals */}
           <LiveDealsSection />
 
@@ -75,6 +81,16 @@ const HomePage: React.FC = () => {
           {/* Trending Searches */}
           {trendingSearches.length > 0 && (
             <TrendingSearches searches={trendingSearches} />
+          )}
+
+          {/* Trending Products */}
+          {featuredProducts.length > 0 && (
+            <TrendingProducts products={featuredProducts.slice(0, 12)} />
+          )}
+
+          {/* Endless Accessories */}
+          {featuredProducts.length > 0 && (
+            <EndlessAccessories products={featuredProducts.slice(0, 15)} />
           )}
 
           {/* Featured Products */}
