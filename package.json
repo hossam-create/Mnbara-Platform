@@ -1,7 +1,7 @@
 {
     "name": "mnbara-platform",
     "version": "1.0.0",
-    "description": "Mnbara Marketplace Platform - Modern Microservices Architecture",
+    "description": "Mnbarh Marketplace Platform - Modern Microservices Architecture",
     "private": true,
     "workspaces": [
         "backend/services/*",

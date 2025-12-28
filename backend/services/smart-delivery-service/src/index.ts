@@ -13,6 +13,8 @@ import deliveryRoutes from './routes/delivery.routes';
 import routeRoutes from './routes/route.routes';
 import predictionRoutes from './routes/prediction.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import logisticsRoutes from './routes/logistics.routes';
+
 
 const app: Express = express();
 const httpServer = createServer(app);
@@ -66,6 +68,8 @@ app.use('/api/v1/deliveries', deliveryRoutes);
 app.use('/api/v1/routes', routeRoutes);
 app.use('/api/v1/predictions', predictionRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/logistics', logisticsRoutes);
+
 
 // WebSocket for real-time tracking
 io.on('connection', (socket) => {

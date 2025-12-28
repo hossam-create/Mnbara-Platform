@@ -5,6 +5,8 @@ import { PrismaClient } from '@prisma/client';
 import { complianceRoutes } from './routes/compliance.routes';
 import { prohibitedRoutes } from './routes/prohibited.routes';
 import { customsRoutes } from './routes/customs.routes';
+import policyRoutes from './routes/policy.routes';
+
 
 const app = express();
 const prisma = new PrismaClient();
@@ -24,6 +26,8 @@ app.get('/health', (req, res) => {
 app.use('/api/compliance', complianceRoutes);
 app.use('/api/prohibited', prohibitedRoutes);
 app.use('/api/customs', customsRoutes);
+app.use('/api/policy', policyRoutes);
+
 
 // Start server
 app.listen(PORT, () => {

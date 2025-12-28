@@ -1,7 +1,7 @@
 {
-  "name": "@mnbara/api-gateway",
+  "name": "@mnbarh/api-gateway",
   "version": "1.0.0",
-  "description": "API Gateway for MNBARA Platform - Routes, Rate Limiting, Authentication",
+  "description": "API Gateway for MNBARH Platform - Routes, Rate Limiting, Authentication",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

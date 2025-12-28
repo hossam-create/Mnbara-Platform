@@ -51,6 +51,10 @@ const CryptoPaymentPage = React.lazy(() => import('./pages/features/CryptoPaymen
 const NotFoundPage = React.lazy(() => import('./pages/errors/NotFoundPage'))
 const ServerErrorPage = React.lazy(() => import('./pages/errors/ServerErrorPage'))
 
+// Tools
+const FeeCalculatorPage = React.lazy(() => import('./pages/FeeCalculatorPage'))
+
+
 /**
  * Main App Component - eBay-Level Routing and Layout
  * 
@@ -98,7 +102,11 @@ function App() {
               <Route path="chatbot" element={<ChatbotPage />} />
               <Route path="wholesale" element={<WholesalePage />} />
               <Route path="crypto" element={<CryptoPaymentPage />} />
+
+              {/* Tools */}
+              <Route path="fee-calculator" element={<FeeCalculatorPage />} />
             </Route>
+
 
             {/* Auth routes with auth layout */}
             <Route path="/auth" element={<AuthLayout />}>

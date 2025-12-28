@@ -4,7 +4,7 @@
 services:
   # Frontend Web App (React/Next.js)
   - type: web
-    name: mnbara-web
+    name: mnbarh-web
     env: static
     plan: free
     buildCommand: cd frontend/web-app && npm install && npm run build
@@ -13,13 +13,13 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://mnbara-api-gateway.onrender.com
+        value: https://mnbarh-api-gateway.onrender.com
     healthCheckPath: /
     autoDeploy: true
 
   # Admin Dashboard
   - type: web
-    name: mnbara-admin
+    name: mnbarh-admin
     env: static
     plan: free
     buildCommand: cd frontend/admin-dashboard && npm install && npm run build
@@ -28,13 +28,13 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXT_PUBLIC_API_URL
-        value: https://mnbara-api-gateway.onrender.com
+        value: https://mnbarh-api-gateway.onrender.com
     healthCheckPath: /
     autoDeploy: true
 
   # API Gateway (Main Backend Service)
   - type: web
-    name: mnbara-api-gateway
+    name: mnbarh-api-gateway
     env: node
     plan: free
     buildCommand: cd backend/services/api-gateway && npm install && npm run build
@@ -46,12 +46,12 @@ services:
         value: 10000
       - key: DATABASE_URL
         fromDatabase:
-          name: mnbara-postgres
+          name: mnbarh-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: mnbara-redis
+          name: mnbarh-redis
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
@@ -60,7 +60,7 @@ services:
 
   # Auth Service
   - type: web
-    name: mnbara-auth-service
+    name: mnbarh-auth-service
     env: node
     plan: free
     buildCommand: cd backend/services/auth-service && npm install && npm run build
@@ -72,19 +72,19 @@ services:
         value: 10001
       - key: DATABASE_URL
         fromDatabase:
-          name: mnbara-postgres
+          name: mnbarh-postgres
           property: connectionString
       - key: JWT_SECRET
         fromService:
           type: web
-          name: mnbara-api-gateway
+          name: mnbarh-api-gateway
           envVarKey: JWT_SECRET
     healthCheckPath: /health
     autoDeploy: true
 
   # Listing Service
   - type: web
-    name: mnbara-listing-service
+    name: mnbarh-listing-service
     env: node
     plan: free
     buildCommand: cd backend/services/listing-service && npm install && npm run build
@@ -96,19 +96,19 @@ services:
         value: 10002
       - key: DATABASE_URL
         fromDatabase:
-          name: mnbara-postgres
+          name: mnbarh-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: mnbara-redis
+          name: mnbarh-redis
           property: connectionString
     healthCheckPath: /health
     autoDeploy: true
 
   # Payment Service
   - type: web
-    name: mnbara-payment-service
+    name: mnbarh-payment-service
     env: node
     plan: free
     buildCommand: cd backend/services/payment-service && npm install && npm run build
@@ -120,7 +120,7 @@ services:
         value: 10003
       - key: DATABASE_URL
         fromDatabase:
-          name: mnbara-postgres
+          name: mnbarh-postgres
           property: connectionString
       - key: STRIPE_SECRET_KEY
         sync: false
@@ -131,7 +131,7 @@ services:
 
   # Auction Service
   - type: web
-    name: mnbara-auction-service
+    name: mnbarh-auction-service
     env: node
     plan: free
     buildCommand: cd backend/services/auction-service && npm install && npm run build
@@ -143,12 +143,12 @@ services:
         value: 10004
       - key: DATABASE_URL
         fromDatabase:
-          name: mnbara-postgres
+          name: mnbarh-postgres
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: mnbara-redis
+          name: mnbarh-redis
           property: connectionString
     healthCheckPath: /health
     autoDeploy: true
@@ -156,13 +156,13 @@ services:
 # Databases
 databases:
   # PostgreSQL Database
-  - name: mnbara-postgres
+  - name: mnbarh-postgres
     plan: free
-    databaseName: mnbara_prod
-    user: mnbara_user
+    databaseName: mnbarh_prod
+    user: mnbarh_user
     ipAllowList: []
     
   # Redis Cache
-  - name: mnbara-redis
+  - name: mnbarh-redis
     plan: free
     ipAllowList: []

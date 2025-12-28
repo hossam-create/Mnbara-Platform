@@ -36,6 +36,7 @@ const DisputesPage: React.FC = () => {
                 <th>ID</th>
                 <th>Buyer</th>
                 <th>Traveler</th>
+                <th>Trust Score</th>
                 <th>Age</th>
                 <th>Status</th>
               </tr>
@@ -46,6 +47,19 @@ const DisputesPage: React.FC = () => {
                   <td>{dsp.id}</td>
                   <td>{dsp.buyer}</td>
                   <td>{dsp.traveler}</td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <div style={{ 
+                        width: '8px', 
+                        height: '8px', 
+                        borderRadius: '50%', 
+                        background: dsp.id === 'DSP-327' ? '#ef4444' : '#22c55e' 
+                      }} />
+                      <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>
+                        {dsp.id === 'DSP-327' ? '32 (Critical)' : dsp.id === 'DSP-332' ? '88 (High)' : '92 (Elite)'}
+                      </span>
+                    </div>
+                  </td>
                   <td>{dsp.age}</td>
                   <td>
                     <StatusChip 
@@ -58,6 +72,7 @@ const DisputesPage: React.FC = () => {
             </tbody>
           </table>
         </Panel>
+
 
         <Panel title="Resolution Posture" subtitle="Outcome distribution (Last 30d)">
            <div style={{ padding: '1rem', display: 'flex', gap: '2rem', alignItems: 'center' }}>

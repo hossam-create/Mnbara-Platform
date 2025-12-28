@@ -4,6 +4,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import trustRoutes from './routes/trust.routes';
+
 import { fraudRoutes } from './routes/fraud.routes';
 import { alertRoutes } from './routes/alert.routes';
 import { blacklistRoutes } from './routes/blacklist.routes';
@@ -23,7 +25,9 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/trust', trustRoutes);
 app.use('/api/fraud', fraudRoutes);
+
 app.use('/api/alerts', alertRoutes);
 app.use('/api/blacklist', blacklistRoutes);
 app.use('/api/rules', ruleRoutes);

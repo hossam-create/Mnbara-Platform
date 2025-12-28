@@ -1,7 +1,7 @@
 {
     "name": "@mnbara/crowdship-service",
     "version": "1.0.0",
-    "description": "Mnbara Crowdshipping Service - Traveler-based delivery system",
+    "description": "Mnbarh Crowdshipping Service - Traveler-based delivery system",
     "main": "dist/index.js",
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/index.ts",

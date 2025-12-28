@@ -49,7 +49,7 @@ npm run dev
 ## 📦 Project Structure
 
 ```
-mnbara-platform/
+mnbarh-platform/
 ├── frontend/          # Web applications
 ├── mobile/            # Flutter mobile app
 ├── backend/           # Microservices
@@ -84,4 +84,4 @@ For questions or support, contact the development team.
 
 ---
 
-**Built with ❤️ by MNBara Team**
+**Built with ❤️ by MNBarh Team**

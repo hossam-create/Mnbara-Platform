@@ -33,13 +33,13 @@ const Footer: React.FC = () => {
     {
       title: 'Stay connected',
       links: [
-        { name: "Mnbara's Blogs", href: '/blog' },
+        { name: "Mnbarh's Blogs", href: '/blog' },
         { name: 'Facebook', href: '#' },
         { name: 'Twitter', href: '#' },
       ]
     },
     {
-      title: 'About Mnbara',
+      title: 'About Mnbarh',
       links: [
         { name: 'Company info', href: '/about' },
         { name: 'News', href: '/news' },
@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Copyright */}
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Copyright © 1995-{currentYear} Mnbara Inc. All Rights Reserved.{' '}
+              Copyright © 1995-{currentYear} Mnbarh Inc. All Rights Reserved.{' '}
               <Link to="/accessibility" className="hover:text-gray-900 dark:hover:text-white">
                 Accessibility
               </Link>

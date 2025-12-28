@@ -51,10 +51,10 @@ const HomePage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Mnbara - Your eBay-Level Marketplace for Everything</title>
+        <title>Mnbarh - Your eBay-Level Marketplace for Everything</title>
         <meta 
           name="description" 
-          content="Discover millions of products on Mnbara. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." 
+          content="Discover millions of products on Mnbarh. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." 
         />
         <meta name="keywords" content="marketplace, buy, sell, electronics, fashion, home, garden, collectibles" />
         <link rel="canonical" href="https://mnbara.com" />

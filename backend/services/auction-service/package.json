@@ -1,7 +1,7 @@
 {
     "name": "@mnbara/auction-service",
     "version": "1.0.0",
-    "description": "Mnbara Auction Service - Real-time Bidding Engine",
+    "description": "Mnbarh Auction Service - Real-time Bidding Engine",
     "main": "dist/index.js",
     "scripts": {
         "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
