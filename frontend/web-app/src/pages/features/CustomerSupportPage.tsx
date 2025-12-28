@@ -191,7 +191,7 @@ const CustomerSupportPage: React.FC = () => {
                 <div className="text-center">
                   <p className="text-2xl mb-2">📧</p>
                   <p className="text-sm text-gray-600">البريد الإلكتروني</p>
-                  <p className="font-medium text-gray-900">support@mnbara.com</p>
+                  <p className="font-medium text-gray-900">support@mnbarh.com</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl mb-2">🕐</p>

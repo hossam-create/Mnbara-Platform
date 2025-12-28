@@ -177,6 +177,10 @@ model Listing {
   
   // Shipping
   shippingOptions Json? // Array of shipping options
+
+  // Resell Verification
+  originOrderId   String? // ID of the original order if bought on Mnbara
+  isVerifiedImport Boolean @default(false) // Badge for "Verified Resell"
   
   // Status
   status      ListingStatus @default(ACTIVE)

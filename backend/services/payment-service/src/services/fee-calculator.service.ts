@@ -29,7 +29,7 @@ export interface FeeCalculationRequest {
  */
 export class FeeCalculatorService {
   // Fee configuration
-  private readonly PLATFORM_FEE_PERCENTAGE = 0.08; // 8%
+  private readonly PLATFORM_FEE_PERCENTAGE = 0.07; // 7%
   private readonly PAYMENT_PROCESSING_FEE_PERCENTAGE = 0.029; // 2.9%
   private readonly PAYMENT_PROCESSING_FEE_FIXED = 0.30; // $0.30
   private readonly DEFAULT_TAX_RATE = 0.08; // 8%
