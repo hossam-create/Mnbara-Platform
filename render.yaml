@@ -6,7 +6,7 @@ services:
   - type: web
     name: mnbara-web
     env: static
-    plan: starter
+    plan: free
     buildCommand: cd frontend/web-app && npm install && npm run build
     staticPublishPath: frontend/web-app/dist
     envVars:
@@ -21,7 +21,7 @@ services:
   - type: web
     name: mnbara-admin
     env: static
-    plan: starter
+    plan: free
     buildCommand: cd frontend/admin-dashboard && npm install && npm run build
     staticPublishPath: frontend/admin-dashboard/dist
     envVars:
@@ -36,7 +36,7 @@ services:
   - type: web
     name: mnbara-api-gateway
     env: node
-    plan: starter
+    plan: free
     buildCommand: cd backend/services/api-gateway && npm install && npm run build
     startCommand: cd backend/services/api-gateway && npm start
     envVars:
@@ -62,7 +62,7 @@ services:
   - type: web
     name: mnbara-auth-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: cd backend/services/auth-service && npm install && npm run build
     startCommand: cd backend/services/auth-service && npm start
     envVars:
@@ -86,7 +86,7 @@ services:
   - type: web
     name: mnbara-listing-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: cd backend/services/listing-service && npm install && npm run build
     startCommand: cd backend/services/listing-service && npm start
     envVars:
@@ -110,7 +110,7 @@ services:
   - type: web
     name: mnbara-payment-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: cd backend/services/payment-service && npm install && npm run build
     startCommand: cd backend/services/payment-service && npm start
     envVars:
@@ -133,7 +133,7 @@ services:
   - type: web
     name: mnbara-auction-service
     env: node
-    plan: starter
+    plan: free
     buildCommand: cd backend/services/auction-service && npm install && npm run build
     startCommand: cd backend/services/auction-service && npm start
     envVars:
@@ -157,12 +157,12 @@ services:
 databases:
   # PostgreSQL Database
   - name: mnbara-postgres
-    plan: starter
+    plan: free
     databaseName: mnbara_prod
     user: mnbara_user
     ipAllowList: []
     
   # Redis Cache
   - name: mnbara-redis
-    plan: starter
+    plan: free
     ipAllowList: []
