@@ -1,7 +1,7 @@
 {
-  "name": "bnpl-service",
+  "name": "mnbarh-bnpl-service",
   "version": "1.0.0",
-  "description": "Buy Now Pay Later Service for Mnbara Platform",
+  "description": "Buy Now Pay Later Service for Mnbarh Platform",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

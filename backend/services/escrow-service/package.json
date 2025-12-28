@@ -1,7 +1,7 @@
 {
-  "name": "escrow-service",
+  "name": "mnbarh-escrow-service",
   "version": "1.0.0",
-  "description": "Escrow Payment Protection Service for Mnbara Platform - Secure Buyer/Seller Transactions",
+  "description": "Escrow Payment Protection Service for Mnbarh Platform - Secure Buyer/Seller Transactions",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

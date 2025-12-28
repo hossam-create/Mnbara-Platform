@@ -1,7 +1,7 @@
 {
-  "name": "crypto-service",
+  "name": "mnbarh-crypto-service",
   "version": "1.0.0",
-  "description": "Cryptocurrency Payment Service for Mnbara Platform - Bitcoin, Ethereum, USDC, USDT",
+  "description": "Cryptocurrency Payment Service for Mnbarh Platform - Bitcoin, Ethereum, USDC, USDT",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
