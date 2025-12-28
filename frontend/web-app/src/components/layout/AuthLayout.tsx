@@ -10,7 +10,7 @@ const AuthLayout: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 opacity-90" />
           <div className="relative z-10 flex flex-col justify-center px-12 text-white">
             <div className="mb-8">
-              <h1 className="text-4xl font-bold mb-4">Welcome to Mnbara</h1>
+              <h1 className="text-4xl font-bold mb-4">Welcome to Mnbarh</h1>
               <p className="text-xl text-primary-100">
                 Your eBay-level marketplace for everything you need
               </p>
@@ -66,7 +66,7 @@ const AuthLayout: React.FC = () => {
             {/* Logo for mobile */}
             <div className="lg:hidden text-center mb-8">
               <h1 className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-                Mnbara
+                Mnbarh
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Your marketplace for everything
