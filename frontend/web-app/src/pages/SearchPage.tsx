@@ -71,7 +71,7 @@ const SearchPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Search Mnbara
+            Search Mnbarh
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Enter a search term to find products
@@ -84,10 +84,10 @@ const SearchPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{`${searchQuery} - Search Results | Mnbara`}</title>
+        <title>{`${searchQuery} - Search Results | Mnbarh`}</title>
         <meta 
           name="description" 
-          content={`Find ${searchQuery} on Mnbara. Browse millions of products from trusted sellers.`} 
+          content={`Find ${searchQuery} on Mnbarh. Browse millions of products from trusted sellers.`} 
         />
       </Helmet>
 

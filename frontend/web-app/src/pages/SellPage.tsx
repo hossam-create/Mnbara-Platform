@@ -55,8 +55,8 @@ const SellPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Sell Your Items - Mnbara</title>
-        <meta name="description" content="Start selling on Mnbara. Turn your unused items into cash with our easy-to-use selling platform." />
+        <title>Sell Your Items - Mnbarh</title>
+        <meta name="description" content="Start selling on Mnbarh. Turn your unused items into cash with our easy-to-use selling platform." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -117,7 +117,7 @@ const SellPage: React.FC = () => {
           <div className="mb-16">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                Why sell on Mnbara?
+                Why sell on Mnbarh?
               </h2>
             </div>
 
@@ -142,7 +142,7 @@ const SellPage: React.FC = () => {
               Ready to start selling?
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Join thousands of sellers who trust Mnbara to help them reach buyers worldwide.
+              Join thousands of sellers who trust Mnbarh to help them reach buyers worldwide.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link

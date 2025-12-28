@@ -47,8 +47,8 @@ const CartPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Shopping Cart ({totalItems}) - Mnbara</title>
-        <meta name="description" content="Review your cart items and proceed to checkout on Mnbara." />
+        <title>Shopping Cart ({totalItems}) - Mnbarh</title>
+        <meta name="description" content="Review your cart items and proceed to checkout on Mnbarh." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
