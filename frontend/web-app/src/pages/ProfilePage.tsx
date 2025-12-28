@@ -5,8 +5,8 @@ const ProfilePage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>My Profile - Mnbara</title>
-        <meta name="description" content="Manage your profile and account settings on Mnbara." />
+        <title>My Profile - Mnbarh</title>
+        <meta name="description" content="Manage your profile and account settings on Mnbarh." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">

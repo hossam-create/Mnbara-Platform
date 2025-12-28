@@ -770,6 +770,50 @@ services:
       timeout: 10s
       retries: 3
 
+  # Ad Service - Advertising & Promoted Listings (Q1 2026)
+  ad-service:
+    build:
+      context: ./backend/services/ad-service
+      dockerfile: Dockerfile
+    container_name: mnbara-ad-service
+    ports:
+      - "3033:3033"
+    environment:
+      - NODE_ENV=development
+      - PORT=3033
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/ad_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3033/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SEO Service - Sitemap & Meta Data (Q1 2026)
+  seo-service:
+    build:
+      context: ./backend/services/seo-service
+      dockerfile: Dockerfile
+    container_name: mnbara-seo-service
+    ports:
+      - "3034:3034"
+    environment:
+      - NODE_ENV=development
+      - PORT=3034
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3034/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Feature Management Service - Feature Flags & Release Management (Q2 2026)
   feature-management-service:
     build:

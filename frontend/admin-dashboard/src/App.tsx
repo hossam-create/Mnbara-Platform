@@ -23,7 +23,9 @@ import OperationsPage from './pages/control-center/Operations';
 import EngineeringPage from './pages/control-center/Engineering';
 import FeatureFlagsPage from './pages/control-center/FeatureFlags';
 import LogisticsPage from './pages/control-center/Logistics';
+import MarketingPage from './pages/control-center/Marketing';
 import CCAnalyticsPage from './pages/control-center/Analytics';
+
 import CCDisputesPage from './pages/control-center/Disputes';
 import CentralControl from './pages/control-center/CentralControl';
 import DepartmentPortal from './pages/control-center/DepartmentPortal';
@@ -77,7 +79,9 @@ function App() {
               <Route path="control-center/engineering" element={<EngineeringPage />} />
               <Route path="control-center/feature-flags" element={<FeatureFlagsPage />} />
               <Route path="control-center/logistics" element={<LogisticsPage />} />
+              <Route path="control-center/marketing" element={<MarketingPage />} />
               <Route path="control-center/analytics" element={<CCAnalyticsPage />} />
+
               <Route path="control-center/disputes" element={<CCDisputesPage />} />
             </Route>
           </Routes>
