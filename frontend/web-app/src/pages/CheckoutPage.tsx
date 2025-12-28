@@ -128,7 +128,7 @@ const CheckoutPage: React.FC = () => {
     return (
       <>
         <Helmet>
-          <title>Order Confirmed - Mnbara</title>
+          <title>Order Confirmed - Mnbarh</title>
         </Helmet>
         
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-16">
@@ -182,8 +182,8 @@ const CheckoutPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Checkout - Mnbara</title>
-        <meta name="description" content="Complete your purchase securely on Mnbara." />
+        <title>Checkout - Mnbarh</title>
+        <meta name="description" content="Complete your purchase securely on Mnbarh." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">

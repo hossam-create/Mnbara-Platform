@@ -1,7 +1,7 @@
 {
-  "name": "mnbara-order-service",
+  "name": "mnbarh-order-service",
   "version": "1.0.0",
-  "description": "Mnbara Platform Order Management Service",
+  "description": "Mnbarh Platform Order Management Service",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -13,9 +13,9 @@
     "orders",
     "ecommerce",
     "marketplace",
-    "mnbara"
+    "mnbarh"
   ],
-  "author": "Mnbara Team",
+  "author": "Mnbarh Team",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
@@ -44,6 +44,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mnbara/platform"
+    "url": "https://github.com/mnbarh/platform"
   }
 }

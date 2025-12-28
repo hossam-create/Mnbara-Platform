@@ -7,7 +7,9 @@ import listingRoutes from './routes/listing.routes';
 import categoryRoutes from './routes/category.routes';
 import feeRoutes from './routes/fee.routes';
 import resaleRoutes from './routes/resale.routes';
+import bulkRoutes from './routes/bulk.routes';
 import { errorHandler } from './middleware/errorHandler';
+
 
 dotenv.config();
 
@@ -30,6 +32,8 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/v1/fees', feeRoutes);
 app.use('/api/resale-listings', resaleRoutes);
+app.use('/api/bulk', bulkRoutes);
+
 
 // Error handling
 app.use(errorHandler);
