@@ -54,7 +54,7 @@ const HelpPage: React.FC = () => {
       description: 'List items, manage sales, and get paid',
       faqs: [
         { question: 'How do I start selling?', answer: 'Create an account, verify your identity, and click "Sell" to list your first item. Add photos, description, and set your price.' },
-        { question: 'What are the selling fees?', answer: 'Mnbara charges a 5% commission on successful sales. There are no listing fees for standard listings.' },
+        { question: 'What are the selling fees?', answer: 'Mnbarh charges a 5% commission on successful sales. There are no listing fees for standard listings.' },
         { question: 'When do I get paid?', answer: 'Payments are released 3 days after the buyer confirms receipt, or 7 days after delivery if not confirmed.' },
         { question: 'How do I ship items?', answer: 'You can use our integrated shipping partners or arrange your own shipping. Print shipping labels directly from your seller dashboard.' }
       ]
@@ -122,8 +122,8 @@ const HelpPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{selectedCategory ? `${selectedCategory.title} Help` : 'Help Center'} - Mnbara</title>
-        <meta name="description" content="Get help and support for using Mnbara marketplace." />
+        <title>{selectedCategory ? `${selectedCategory.title} Help` : 'Help Center'} - Mnbarh</title>
+        <meta name="description" content="Get help and support for using Mnbarh marketplace." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

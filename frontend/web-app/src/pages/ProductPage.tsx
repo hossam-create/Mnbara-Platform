@@ -200,7 +200,7 @@ const ProductPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{product.title} - Mnbara</title>
+        <title>{product.title} - Mnbarh</title>
         <meta name="description" content={product.description.slice(0, 160)} />
       </Helmet>
 

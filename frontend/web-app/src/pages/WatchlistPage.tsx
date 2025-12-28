@@ -75,8 +75,8 @@ const WatchlistPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>My Watchlist ({watchlist.length}) - Mnbara</title>
-        <meta name="description" content="Keep track of items you're interested in with your Mnbara watchlist." />
+        <title>My Watchlist ({watchlist.length}) - Mnbarh</title>
+        <meta name="description" content="Keep track of items you're interested in with your Mnbarh watchlist." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">

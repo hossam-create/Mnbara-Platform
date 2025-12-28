@@ -8,6 +8,8 @@ import transferRoutes from './routes/transfer.routes';
 import conversionRoutes from './routes/conversion.routes';
 import hedgingRoutes from './routes/hedging.routes';
 import forexRoutes from './routes/forex.routes';
+import biometricRoutes from './routes/biometric.routes';
+import limitsRoutes from './routes/limits.routes';
 
 const app: Express = express();
 const prisma = new PrismaClient();
@@ -31,7 +33,7 @@ app.get('/health', (req: Request, res: Response) => {
     status: 'healthy', 
     service: 'wallet-service',
     supportedCurrencies: ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'CNY', 'INR', 'TRY'],
-    features: ['Multi-Currency', 'Auto-Conversion', 'Forex Hedging'],
+    features: ['Multi-Currency', 'Auto-Conversion', 'Forex Hedging', 'Biometric Auth', 'Transaction Limits'],
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
@@ -44,6 +46,8 @@ app.use('/api/v1/transfers', transferRoutes);
 app.use('/api/v1/conversions', conversionRoutes);
 app.use('/api/v1/hedging', hedgingRoutes);
 app.use('/api/v1/forex', forexRoutes);
+app.use('/api/v1/biometric', biometricRoutes);
+app.use('/api/v1/limits', limitsRoutes);
 
 // 404 Handler
 app.use((req: Request, res: Response) => {

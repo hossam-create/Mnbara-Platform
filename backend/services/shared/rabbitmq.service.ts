@@ -38,12 +38,33 @@ export class RabbitMQService {
 
             // Standard Exchanges
             await this.channel.assertExchange('mnbara.events', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbara.transactions', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbara.fraud', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbara.audit', 'fanout', { durable: true });
             
             // Standard Queues
-            const queues = ['notifications', 'escrow', 'rewards', 'location-updates', 'matching', 'trips'];
+            const queues = [
+                'notifications', 
+                'escrow', 
+                'rewards', 
+                'location-updates', 
+                'matching', 
+                'trips',
+                'transaction-events',
+                'fraud-alerts',
+                'audit-logs',
+                'limit-exceeded',
+                'security-events'
+            ];
             for (const queue of queues) {
                 await this.channel.assertQueue(queue, { durable: true });
             }
+
+            // Bind transaction events
+            await this.channel.bindQueue('transaction-events', 'mnbara.transactions', 'transaction.*');
+            await this.channel.bindQueue('fraud-alerts', 'mnbara.fraud', 'fraud.*');
+            await this.channel.bindQueue('security-events', 'mnbara.fraud', 'security.*');
+            await this.channel.bindQueue('audit-logs', 'mnbara.audit', '');
             
             console.log('✅ RabbitMQ connected successfully');
             this.isConnecting = false;
