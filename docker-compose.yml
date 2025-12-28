@@ -250,6 +250,7 @@ services:
     environment:
       - NODE_ENV=development
       - PORT=3003
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/orders_db?schema=public
       - CORS_ORIGIN=http://localhost:3000
       - AUTH_SERVICE_URL=http://auth-service-java:3001
       - PAYMENT_SERVICE_URL=http://payment-service:3002

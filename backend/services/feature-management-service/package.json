@@ -1,7 +1,7 @@
 {
-  "name": "feature-management-service",
+  "name": "mnbarh-feature-management-service",
   "version": "1.0.0",
-  "description": "Mnbara Feature Flags & Release Management - إدارة الميزات والإصدارات",
+  "description": "Mnbarh Feature Flags & Release Management - إدارة الميزات والإصدارات",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

@@ -1,7 +1,7 @@
 {
-  "name": "mnbara-admin-service",
+  "name": "mnbarh-admin-service",
   "version": "1.0.0",
-  "description": "Mnbara Platform Admin Service with Blockchain Integration",
+  "description": "Mnbarh Platform Admin Service with Blockchain Integration",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",

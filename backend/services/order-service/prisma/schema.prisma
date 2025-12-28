@@ -1,0 +1,158 @@
+// Order Service Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  AWAITING_SHIPMENT
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  DISPUTED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  FAILED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  PICKED_UP
+}
+
+// Core Order Model
+model Order {
+  id              String         @id @default(cuid())
+  orderNumber     String         @unique // Human readable e.g. ORD-1001
+  userId          String         // Reference to Auth Service User
+  
+  // Financials
+  currency        String         @default("USD")
+  subtotal        Decimal        @db.Decimal(10, 2)
+  taxTotal        Decimal        @default(0) @db.Decimal(10, 2)
+  shippingTotal   Decimal        @default(0) @db.Decimal(10, 2)
+  discountTotal   Decimal        @default(0) @db.Decimal(10, 2)
+  total           Decimal        @db.Decimal(10, 2)
+  
+  // Detailed Status
+  status          OrderStatus       @default(PENDING)
+  paymentStatus   PaymentStatus     @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Payment Details
+  paymentMethodId String?
+  paymentIntentId String?
+  clientSecret    String?
+  
+  // Shipping Details
+  shippingAddressId String?
+  shippingAddress   Address?     @relation(fields: [shippingAddressId], references: [id])
+  
+  billingAddressId  String?
+  billingAddress    Address?     @relation("BillingAddress", fields: [billingAddressId], references: [id])
+
+  // Relations
+  items           OrderItem[]
+  events          OrderEvent[]
+  notes           String?
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  cancelledAt     DateTime?
+  completedAt     DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+// Order Line Items
+model OrderItem {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Product Snapshot
+  productId     String   // Reference to Listing/Product Service
+  variantId     String?
+  sku           String?
+  title         String
+  vendor        String?
+  
+  // Pricing Snapshot (At time of purchase)
+  price         Decimal  @db.Decimal(10, 2)
+  costPrice     Decimal? @db.Decimal(10, 2) // For margin calculation
+  
+  quantity      Int
+  
+  // Fulfillable?
+  requiresShipping Boolean @default(true)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Relations
+  properties    Json?    // Custom attributes (Size, Color snapshot)
+  
+  @@map("order_items")
+}
+
+// Address Model
+model Address {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  company      String?
+  address1     String
+  address2     String?
+  city         String
+  province     String?
+  provinceCode String?
+  country      String
+  countryCode  String
+  postalCode   String
+  phone        String?
+  
+  // Relations
+  shippingOrders Order[]
+  billingOrders  Order[]  @relation("BillingAddress")
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("order_addresses")
+}
+
+// Order Timeline/Audit Log
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  type      String   // STATUS_CHANGE, PAYMENT_CAPTURED, NOTE_ADDED, EMAIL_SENT
+  message   String
+  userId    String?  // Who performed the action (System or Admin or User)
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("order_events")
+}
