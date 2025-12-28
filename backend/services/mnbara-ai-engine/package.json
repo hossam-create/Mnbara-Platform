@@ -1,7 +1,7 @@
 {
-  "name": "mnbara-ai-engine",
+  "name": "mnbarh-ai-engine",
   "version": "1.0.0",
-  "description": "Mnbara AI - Custom AI Engine like Siri for Shopping & Travel",
+  "description": "Mnbarh AI - Custom AI Engine like Siri for Shopping & Travel",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
