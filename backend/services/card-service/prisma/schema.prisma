@@ -1,0 +1,103 @@
+// Card Service Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Card {
+  id              String    @id @default(uuid())
+  userId          String    // Linking to Auth
+  walletId        String    // Linking to Wallet Service (Funding Source)
+  
+  // Card Details (Sensitive data should be tokenized/encrypted in production)
+  // For MVP, we store them. In Production, store only references to Stripe/Marqeta
+  cardholderName  String
+  last4           String
+  
+  // Encrypted fields (Mocking encryption for now)
+  encryptedPan    String    
+  encryptedCvv    String
+  expiryMonth     Int
+  expiryYear      Int
+  
+  brand           CardBrand @default(VISA)
+  type            CardType  @default(VIRTUAL)
+  status          CardStatus @default(ACTIVE)
+  
+  // Limits
+  currency        String    @default("USD")
+  dailyLimit      Decimal   @default(1000)
+  monthlyLimit    Decimal   @default(5000)
+  
+  // Metadata
+  providerId      String?   // Stripe Card ID
+  billingAddress  Json?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  transactions    CardTransaction[]
+  
+  @@index([userId])
+  @@index([walletId])
+  @@map("cards")
+}
+
+model CardTransaction {
+  id              String    @id @default(uuid())
+  cardId          String
+  card            Card      @relation(fields: [cardId], references: [id])
+  
+  amount          Decimal   @db.Decimal(12, 2)
+  currency        String
+  
+  merchantName    String
+  merchantCategory String?
+  
+  status          TxStatus  @default(PENDING)
+  type            TxType    @default(PURCHASE)
+  
+  // External Reference
+  providerTxId    String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([cardId])
+  @@map("card_transactions")
+}
+
+enum CardBrand {
+  VISA
+  MASTERCARD
+}
+
+enum CardType {
+  VIRTUAL
+  PHYSICAL
+}
+
+enum CardStatus {
+  ACTIVE
+  FROZEN
+  CANCELLED
+  EXPIRED
+}
+
+enum TxStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  REVERSED
+  REFUNDED
+}
+
+enum TxType {
+  PURCHASE
+  REFUND
+  WITHDRAWAL
+}

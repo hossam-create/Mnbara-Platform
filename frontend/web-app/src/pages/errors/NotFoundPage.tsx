@@ -7,7 +7,7 @@ const NotFoundPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Page Not Found - Mnbara</title>
+        <title>Page Not Found - Mnbarh</title>
         <meta name="description" content="The page you're looking for doesn't exist." />
       </Helmet>
 

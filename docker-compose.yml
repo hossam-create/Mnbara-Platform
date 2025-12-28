@@ -263,6 +263,23 @@ services:
       - listing-service-node
     networks:
       - mnbara-network
+
+  card-service:
+    build:
+      context: ./backend/services/card-service
+      dockerfile: Dockerfile
+    container_name: mnbara-card-service
+    ports:
+      - "3020:3020"
+    environment:
+      - NODE_ENV=development
+      - PORT=3020
+      - DATABASE_URL=postgresql://mnbara:mnbara_dev_password@postgres:5432/card_db?schema=public
+    networks:
+      - mnbara-network
+    depends_on:
+      - postgres
+      - wallet-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
       interval: 30s

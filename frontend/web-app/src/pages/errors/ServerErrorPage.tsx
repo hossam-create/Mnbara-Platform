@@ -9,7 +9,7 @@ const ServerErrorPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Server Error - Mnbara</title>
+        <title>Server Error - Mnbarh</title>
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
         <div className="text-center">
