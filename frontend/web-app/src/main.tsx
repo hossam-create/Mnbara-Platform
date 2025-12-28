@@ -18,7 +18,7 @@ import ErrorBoundary from './components/ui/ErrorBoundary'
 import './styles/globals.css'
 
 /**
- * Mnbara Web App - eBay-Level E-commerce Frontend
+ * Mnbarh Web App - eBay-Level E-commerce Frontend
  * 
  * Features:
  * - Redux Toolkit for state management

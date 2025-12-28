@@ -57,8 +57,8 @@ const RegisterPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Create Account - Mnbara</title>
-        <meta name="description" content="Create your Mnbara account to start buying and selling." />
+        <title>Create Account - Mnbarh</title>
+        <meta name="description" content="Create your Mnbarh account to start buying and selling." />
       </Helmet>
 
       <div className="w-full max-w-md mx-auto">

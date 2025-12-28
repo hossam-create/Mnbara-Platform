@@ -45,8 +45,8 @@ const LoginPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Sign In - Mnbara</title>
-        <meta name="description" content="Sign in to your Mnbara account to access your orders, watchlist, and more." />
+        <title>Sign In - Mnbarh</title>
+        <meta name="description" content="Sign in to your Mnbarh account to access your orders, watchlist, and more." />
       </Helmet>
 
       <div className="w-full max-w-md mx-auto">

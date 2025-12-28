@@ -59,7 +59,7 @@ const Header: React.FC = () => {
                 <span className="text-white font-bold text-lg">M</span>
               </div>
               <span className="hidden sm:block text-xl font-bold text-gray-900 dark:text-white">
-                Mnbara
+                Mnbarh
               </span>
             </Link>
           </div>
