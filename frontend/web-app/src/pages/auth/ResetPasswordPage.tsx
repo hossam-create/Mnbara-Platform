@@ -66,7 +66,7 @@ const ResetPasswordPage: React.FC = () => {
   if (success) {
     return (
       <>
-        <Helmet><title>Password Reset - Mnbara</title></Helmet>
+        <Helmet><title>Password Reset - Mnbarh</title></Helmet>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full text-center">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
@@ -87,7 +87,7 @@ const ResetPasswordPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Reset Password - Mnbara</title></Helmet>
+      <Helmet><title>Reset Password - Mnbarh</title></Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">

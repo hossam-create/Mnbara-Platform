@@ -65,7 +65,7 @@ const Sidebar: React.FC = () => {
                 <span className="text-white font-bold text-lg">M</span>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                Mnbara
+                Mnbarh
               </span>
             </Link>
             <button
@@ -148,7 +148,7 @@ const Sidebar: React.FC = () => {
           {/* Footer */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              © 2025 Mnbara Platform
+              © 2025 Mnbarh Platform
             </div>
           </div>
         </div>

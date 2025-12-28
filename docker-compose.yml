@@ -242,7 +242,7 @@ services:
 
   orders-service:
     build:
-      context: ./backend/services/order-service
+      context: ./backend/services/orders-service
       dockerfile: Dockerfile
     container_name: mnbara-orders-service
     ports:
