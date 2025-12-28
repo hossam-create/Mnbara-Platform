@@ -49,7 +49,7 @@ const VerifyEmailPage: React.FC = () => {
   if (status === 'loading') {
     return (
       <>
-        <Helmet><title>Verifying Email - Mnbara</title></Helmet>
+        <Helmet><title>Verifying Email - Mnbarh</title></Helmet>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
           <div className="text-center">
             <LoadingSpinner size="large" />
@@ -63,7 +63,7 @@ const VerifyEmailPage: React.FC = () => {
   if (status === 'success') {
     return (
       <>
-        <Helmet><title>Email Verified - Mnbara</title></Helmet>
+        <Helmet><title>Email Verified - Mnbarh</title></Helmet>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full text-center">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
@@ -72,7 +72,7 @@ const VerifyEmailPage: React.FC = () => {
               </div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Email Verified!</h1>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Your email has been successfully verified. You can now access all features of Mnbara.
+                Your email has been successfully verified. You can now access all features of Mnbarh.
               </p>
               <button onClick={() => navigate('/')} className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700">
                 Start Shopping
@@ -87,7 +87,7 @@ const VerifyEmailPage: React.FC = () => {
   if (status === 'error') {
     return (
       <>
-        <Helmet><title>Verification Failed - Mnbara</title></Helmet>
+        <Helmet><title>Verification Failed - Mnbarh</title></Helmet>
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full text-center">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
@@ -118,7 +118,7 @@ const VerifyEmailPage: React.FC = () => {
   // Resend page (no token provided)
   return (
     <>
-      <Helmet><title>Verify Email - Mnbara</title></Helmet>
+      <Helmet><title>Verify Email - Mnbarh</title></Helmet>
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-md w-full text-center">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">

@@ -29,7 +29,7 @@ const ForgotPasswordPage: React.FC = () => {
     return (
       <>
         <Helmet>
-          <title>Check Your Email - Mnbara</title>
+          <title>Check Your Email - Mnbarh</title>
         </Helmet>
 
         <div className="w-full max-w-md mx-auto text-center">
@@ -70,8 +70,8 @@ const ForgotPasswordPage: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>Forgot Password - Mnbara</title>
-        <meta name="description" content="Reset your Mnbara account password." />
+        <title>Forgot Password - Mnbarh</title>
+        <meta name="description" content="Reset your Mnbarh account password." />
       </Helmet>
 
       <div className="w-full max-w-md mx-auto">
