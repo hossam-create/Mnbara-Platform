@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import auctionRoutes from './routes/auction.routes';
 import bidRoutes from './routes/bid.routes';
+import webhookRoutes from './routes/webhook.routes';
 import { setupSocketHandlers } from './sockets/auction.socket';
 import { setSocketIO } from './controllers/bid.controller';
 import { errorHandler } from './middleware/errorHandler';
@@ -36,11 +37,16 @@ app.use(morgan('dev'));
 
 // Routes
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'auction-service' });
+  res.json({ 
+    status: 'ok', 
+    service: 'auction-service',
+    features: ['Auto-Extend', 'Proxy Bidding', 'Outbid Webhooks']
+  });
 });
 
 app.use('/api/auctions', auctionRoutes);
 app.use('/api/bids', bidRoutes);
+app.use('/api/webhooks/auctions', webhookRoutes);
 
 // Socket.IO Setup
 setupSocketHandlers(io);

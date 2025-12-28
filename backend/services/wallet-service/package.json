@@ -1,7 +1,7 @@
 {
-  "name": "wallet-service",
+  "name": "mnbarh-wallet-service",
   "version": "1.0.0",
-  "description": "Multi-Currency Digital Wallet Service for Mnbara Platform",
+  "description": "Multi-Currency Digital Wallet Service for Mnbarh Platform",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

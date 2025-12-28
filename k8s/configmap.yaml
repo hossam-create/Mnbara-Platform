@@ -32,6 +32,8 @@ data:
   P2P_SWAP_SERVICE_URL: "http://p2p-swap-service:3005"
   REALTIME_MATCHER_SERVICE_URL: "http://real-time-matcher-service:3006"
   AI_CORE_SERVICE_URL: "http://ai-core-service:3007"
+  WALLET_SERVICE_URL: "http://wallet-service:3019"
+  FRAUD_DETECTION_SERVICE_URL: "http://fraud-detection-service:3020"
   
   # External Services
   STRIPE_WEBHOOK_ENDPOINT: "/api/webhooks/stripe"

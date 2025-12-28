@@ -65,4 +65,27 @@ export class MatchingController {
     const travelerId = userId ? parseInt(userId, 10) : MOCK_TRAVELER_ID;
     return this.matchingService.rejectMatch(matchDto, travelerId);
   }
+
+  @Get('nearby-requests')
+  @ApiOperation({ summary: 'Find nearby delivery requests for a traveler' })
+  @ApiResponse({ status: 200, description: 'Nearby requests found' })
+  @ApiResponse({ status: 400, description: 'Invalid location' })
+  async getNearbyRequests(
+    @Query('lat') lat: string,
+    @Query('lon') lon: string,
+    @Query('radius') radius: string = '50',
+    @Headers('x-user-id') userId: string
+  ) {
+    const travelerId = userId ? parseInt(userId, 10) : MOCK_TRAVELER_ID;
+    const latitude = parseFloat(lat);
+    const longitude = parseFloat(lon);
+    const radiusKm = parseInt(radius, 10) || 50;
+    
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return { success: false, message: 'Invalid latitude or longitude' };
+    }
+
+    return this.matchingService.findNearbyRequests(travelerId, latitude, longitude, radiusKm);
+  }
 }
+

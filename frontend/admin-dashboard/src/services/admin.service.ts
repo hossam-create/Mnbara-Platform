@@ -577,3 +577,230 @@ export const disputeService = {
     return response.data;
   },
 };
+
+// Fraud Detection Types
+export interface FraudAlert {
+  id: string;
+  transactionId: string;
+  userId: string;
+  userEmail: string;
+  amount: number;
+  currency: string;
+  riskScore: number;
+  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  signals: {
+    type: string;
+    severity: number;
+    description: string;
+  }[];
+  recommendation: 'APPROVE' | 'MANUAL_REVIEW' | 'DECLINE' | 'CHALLENGE';
+  status: 'PENDING' | 'REVIEWED' | 'APPROVED' | 'DECLINED';
+  createdAt: string;
+}
+
+export interface BiometricEnrollment {
+  id: string;
+  userId: string;
+  type: 'FACE_ID' | 'FINGERPRINT' | 'IRIS' | 'VOICE';
+  deviceId: string;
+  deviceName: string;
+  enrolledAt: string;
+  lastUsedAt: string | null;
+  isActive: boolean;
+}
+
+export interface UserLimits {
+  userId: string;
+  tier: 'basic' | 'verified' | 'premium' | 'enterprise';
+  limits: {
+    daily: { limit: number; used: number };
+    weekly: { limit: number; used: number };
+    monthly: { limit: number; used: number };
+    perTransaction: number;
+  };
+  customLimits?: boolean;
+}
+
+// Fraud Detection Service
+export const fraudService = {
+  /**
+   * Get fraud alerts
+   */
+  getAlerts: async (filters: {
+    page?: number;
+    limit?: number;
+    riskLevel?: string;
+    status?: string;
+  } = {}): Promise<PaginatedResponse<FraudAlert>> => {
+    const response = await apiClient.get('/admin/fraud/alerts', { params: filters });
+    return response.data;
+  },
+
+  /**
+   * Get fraud alert by ID
+   */
+  getAlert: async (alertId: string): Promise<FraudAlert> => {
+    const response = await apiClient.get(`/admin/fraud/alerts/${alertId}`);
+    return response.data;
+  },
+
+  /**
+   * Update fraud alert status
+   */
+  updateAlertStatus: async (
+    alertId: string,
+    status: 'APPROVED' | 'DECLINED',
+    notes?: string
+  ): Promise<FraudAlert> => {
+    const response = await apiClient.patch(`/admin/fraud/alerts/${alertId}`, {
+      status,
+      notes
+    });
+    return response.data;
+  },
+
+  /**
+   * Get fraud statistics
+   */
+  getStats: async (): Promise<{
+    pendingAlerts: number;
+    criticalAlerts: number;
+    resolvedToday: number;
+    avgRiskScore: number;
+  }> => {
+    const response = await apiClient.get('/admin/fraud/stats');
+    return response.data;
+  },
+
+  /**
+   * Analyze a transaction for fraud
+   */
+  analyzeTransaction: async (transactionId: string): Promise<{
+    riskScore: number;
+    riskLevel: string;
+    signals: FraudAlert['signals'];
+    recommendation: string;
+  }> => {
+    const response = await apiClient.post(`/admin/fraud/analyze/${transactionId}`);
+    return response.data;
+  }
+};
+
+// Biometric Service
+export const biometricService = {
+  /**
+   * Get user biometric enrollments
+   */
+  getUserEnrollments: async (userId: string): Promise<BiometricEnrollment[]> => {
+    const response = await apiClient.get(`/admin/biometric/${userId}/enrollments`);
+    return response.data;
+  },
+
+  /**
+   * Get all biometric enrollments with filters
+   */
+  getEnrollments: async (filters: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    isActive?: boolean;
+  } = {}): Promise<PaginatedResponse<BiometricEnrollment & { user: User }>> => {
+    const response = await apiClient.get('/admin/biometric/enrollments', { params: filters });
+    return response.data;
+  },
+
+  /**
+   * Revoke a biometric enrollment
+   */
+  revokeEnrollment: async (userId: string, enrollmentId: string): Promise<void> => {
+    await apiClient.delete(`/admin/biometric/${userId}/enrollments/${enrollmentId}`);
+  },
+
+  /**
+   * Revoke all biometric enrollments for a user
+   */
+  revokeAllEnrollments: async (userId: string): Promise<{ revokedCount: number }> => {
+    const response = await apiClient.delete(`/admin/biometric/${userId}/enrollments`);
+    return response.data;
+  },
+
+  /**
+   * Get biometric statistics
+   */
+  getStats: async (): Promise<{
+    totalEnrollments: number;
+    activeUsers: number;
+    successRate: number;
+    failedToday: number;
+    byType: Record<string, number>;
+  }> => {
+    const response = await apiClient.get('/admin/biometric/stats');
+    return response.data;
+  }
+};
+
+// Transaction Limits Service
+export const limitsService = {
+  /**
+   * Get user transaction limits
+   */
+  getUserLimits: async (userId: string): Promise<UserLimits> => {
+    const response = await apiClient.get(`/admin/limits/${userId}`);
+    return response.data;
+  },
+
+  /**
+   * Update user transaction limits
+   */
+  updateUserLimits: async (
+    userId: string,
+    limits: Partial<{
+      daily: number;
+      weekly: number;
+      monthly: number;
+      perTransaction: number;
+    }>
+  ): Promise<UserLimits> => {
+    const response = await apiClient.put(`/admin/limits/${userId}`, { limits });
+    return response.data;
+  },
+
+  /**
+   * Reset user limits to tier defaults
+   */
+  resetToTierDefaults: async (userId: string): Promise<UserLimits> => {
+    const response = await apiClient.post(`/admin/limits/${userId}/reset`);
+    return response.data;
+  },
+
+  /**
+   * Get limit usage statistics
+   */
+  getUsageStats: async (): Promise<{
+    avgUtilization: number;
+    nearLimitUsers: number;
+    customLimitsCount: number;
+    blockedCountries: number;
+  }> => {
+    const response = await apiClient.get('/admin/limits/stats');
+    return response.data;
+  },
+
+  /**
+   * Get users near their limits
+   */
+  getUsersNearLimit: async (threshold: number = 80): Promise<{
+    users: Array<{
+      userId: string;
+      email: string;
+      utilizationPercent: number;
+      limitType: string;
+    }>;
+  }> => {
+    const response = await apiClient.get('/admin/limits/near-limit', {
+      params: { threshold }
+    });
+    return response.data;
+  }
+};
+

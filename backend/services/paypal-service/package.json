@@ -1,7 +1,7 @@
 {
-  "name": "paypal-service",
+  "name": "mnbarh-paypal-service",
   "version": "1.0.0",
-  "description": "PayPal Payment Integration Service for Mnbara Platform",
+  "description": "PayPal Payment Integration Service for Mnbarh Platform",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

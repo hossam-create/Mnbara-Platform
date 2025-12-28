@@ -1,7 +1,7 @@
 {
-  "name": "smart-delivery-service",
+  "name": "mnbarh-smart-delivery-service",
   "version": "1.0.0",
-  "description": "Mnbara Smart Delivery - AI-Powered Route Optimization & Delivery Prediction",
+  "description": "Mnbarh Smart Delivery - AI-Powered Route Optimization & Delivery Prediction",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

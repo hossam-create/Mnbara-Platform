@@ -282,4 +282,143 @@ export class MatchingService {
 
     return Math.max(0, Math.min(200, score)); // Clamp between 0-200
   }
+
+  /**
+   * Find nearby delivery requests for a traveler based on their current location
+   * البحث عن طلبات التوصيل القريبة للمسافر بناءً على موقعه الحالي
+   */
+  async findNearbyRequests(travelerId: number, lat: number, lon: number, radiusKm: number = 50) {
+    // Get traveler's active trips
+    const travelerTrips = await this.prisma.trip.findMany({
+      where: {
+        travelerId,
+        status: 'ACTIVE',
+        departureDate: { gte: new Date() },
+      },
+      select: {
+        id: true,
+        originCountry: true,
+        destCountry: true,
+        originCity: true,
+        destCity: true,
+        availableWeight: true,
+      },
+    });
+
+    if (travelerTrips.length === 0) {
+      return {
+        success: true,
+        message: 'No active trips found',
+        requests: [],
+      };
+    }
+
+    // Get origin and destination countries from trips
+    const originCountries = [...new Set(travelerTrips.map(t => t.originCountry))];
+    const destCountries = [...new Set(travelerTrips.map(t => t.destCountry))];
+
+    // Find pending orders that match the traveler's routes
+    const nearbyOrders = await this.prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        OR: [
+          {
+            pickupCountry: { in: originCountries },
+            deliveryCountry: { in: destCountries },
+          },
+        ],
+      },
+      include: {
+        buyer: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            rating: true,
+          },
+        },
+        items: true,
+      },
+      take: 50,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Calculate distance and filter by radius
+    const requestsWithDistance = nearbyOrders.map(order => {
+      // Use order pickup location if available, otherwise use city-based estimation
+      const orderLat = order.pickupLat || 0;
+      const orderLon = order.pickupLon || 0;
+      
+      const distance = this.calculateDistance(lat, lon, orderLat, orderLon);
+      
+      // Find matching trip for this order
+      const matchingTrip = travelerTrips.find(
+        trip => trip.originCountry === order.pickupCountry && 
+                trip.destCountry === order.deliveryCountry
+      );
+
+      // Calculate potential earnings
+      const potentialEarning = matchingTrip && order.totalWeight
+        ? Number(order.totalWeight) * 5 // Assuming $5/kg average
+        : order.estimatedFee || 0;
+
+      return {
+        order: {
+          id: order.id,
+          orderNumber: order.orderNumber,
+          pickupCity: order.pickupCity,
+          pickupCountry: order.pickupCountry,
+          deliveryCity: order.deliveryCity,
+          deliveryCountry: order.deliveryCountry,
+          totalWeight: order.totalWeight,
+          estimatedFee: order.estimatedFee,
+          createdAt: order.createdAt,
+        },
+        buyer: order.buyer,
+        itemCount: order.items.length,
+        distance: Math.round(distance * 10) / 10, // Round to 1 decimal
+        potentialEarning,
+        matchingTripId: matchingTrip?.id,
+        canDeliver: !!matchingTrip && 
+                    (!order.totalWeight || Number(matchingTrip.availableWeight) >= Number(order.totalWeight)),
+      };
+    });
+
+    // Filter by radius and sort by distance
+    const filteredRequests = requestsWithDistance
+      .filter(r => r.distance <= radiusKm || r.matchingTripId) // Include if within radius OR has matching trip
+      .sort((a, b) => {
+        // Prioritize deliverable orders
+        if (a.canDeliver !== b.canDeliver) return a.canDeliver ? -1 : 1;
+        return a.distance - b.distance;
+      });
+
+    return {
+      success: true,
+      travelerLocation: { lat, lon },
+      radiusKm,
+      totalFound: filteredRequests.length,
+      requests: filteredRequests.slice(0, 20), // Limit to top 20
+    };
+  }
+
+  /**
+   * Calculate distance between two coordinates using Haversine formula
+   */
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Earth's radius in km
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  private toRad(deg: number): number {
+    return deg * (Math.PI / 180);
+  }
 }
+

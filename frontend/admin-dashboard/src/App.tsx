@@ -32,6 +32,11 @@ import DepartmentPortal from './pages/control-center/DepartmentPortal';
 import AIProblemSolver from './pages/control-center/AIProblemSolver';
 import UserManagement from './pages/control-center/UserManagement';
 
+// Security & Fraud Management
+import FraudAlerts from './pages/control-center/FraudAlerts';
+import TransactionLimits from './pages/control-center/TransactionLimits';
+import BiometricStatus from './pages/control-center/BiometricStatus';
+
 function App() {
   return (
     <ConfigProvider
@@ -81,8 +86,12 @@ function App() {
               <Route path="control-center/logistics" element={<LogisticsPage />} />
               <Route path="control-center/marketing" element={<MarketingPage />} />
               <Route path="control-center/analytics" element={<CCAnalyticsPage />} />
-
               <Route path="control-center/disputes" element={<CCDisputesPage />} />
+
+              {/* Security & Fraud Management Routes */}
+              <Route path="control-center/fraud-alerts" element={<FraudAlerts />} />
+              <Route path="control-center/transaction-limits" element={<TransactionLimits />} />
+              <Route path="control-center/biometric-status" element={<BiometricStatus />} />
             </Route>
           </Routes>
         </BrowserRouter>
@@ -92,3 +101,4 @@ function App() {
 }
 
 export default App;
+
