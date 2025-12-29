@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "mnbara.name" -}}
+{{- define "mnbarh.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "mnbara.fullname" -}}
+{{- define "mnbarh.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "mnbara.chart" -}}
+{{- define "mnbarh.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "mnbara.labels" -}}
-helm.sh/chart: {{ include "mnbara.chart" . }}
-{{ include "mnbara.selectorLabels" . }}
+{{- define "mnbarh.labels" -}}
+helm.sh/chart: {{ include "mnbarh.chart" . }}
+{{ include "mnbarh.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -46,17 +46,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "mnbara.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "mnbara.name" . }}
+{{- define "mnbarh.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "mnbarh.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "mnbara.serviceAccountName" -}}
+{{- define "mnbarh.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "mnbara.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "mnbarh.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -65,10 +65,10 @@ Create the name of the service account to use
 {{/*
 Service labels for a specific service
 */}}
-{{- define "mnbara.serviceLabels" -}}
+{{- define "mnbarh.serviceLabels" -}}
 {{- $root := index . 0 -}}
 {{- $serviceName := index . 1 -}}
-helm.sh/chart: {{ include "mnbara.chart" $root }}
+helm.sh/chart: {{ include "mnbarh.chart" $root }}
 app.kubernetes.io/name: {{ $serviceName }}
 app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{- if $root.Chart.AppVersion }}
@@ -76,13 +76,13 @@ app.kubernetes.io/version: {{ $root.Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 app.kubernetes.io/component: {{ $serviceName }}
-app.kubernetes.io/part-of: mnbara-platform
+app.kubernetes.io/part-of: mnbarh-platform
 {{- end }}
 
 {{/*
 Service selector labels
 */}}
-{{- define "mnbara.serviceSelectorLabels" -}}
+{{- define "mnbarh.serviceSelectorLabels" -}}
 {{- $root := index . 0 -}}
 {{- $serviceName := index . 1 -}}
 app.kubernetes.io/name: {{ $serviceName }}
@@ -92,7 +92,7 @@ app.kubernetes.io/instance: {{ $root.Release.Name }}
 {{/*
 Database URL helper
 */}}
-{{- define "mnbara.databaseUrl" -}}
+{{- define "mnbarh.databaseUrl" -}}
 {{- $host := printf "%s-postgresql" .Release.Name -}}
 {{- $port := "5432" -}}
 {{- $database := .Values.postgresql.auth.database -}}
@@ -103,7 +103,7 @@ postgresql://{{ $user }}:$(DATABASE_PASSWORD)@{{ $host }}:{{ $port }}/{{ $databa
 {{/*
 Redis URL helper
 */}}
-{{- define "mnbara.redisUrl" -}}
+{{- define "mnbarh.redisUrl" -}}
 {{- $host := printf "%s-redis-master" .Release.Name -}}
 redis://:$(REDIS_PASSWORD)@{{ $host }}:6379
 {{- end }}
@@ -111,7 +111,7 @@ redis://:$(REDIS_PASSWORD)@{{ $host }}:6379
 {{/*
 RabbitMQ URL helper
 */}}
-{{- define "mnbara.rabbitmqUrl" -}}
+{{- define "mnbarh.rabbitmqUrl" -}}
 {{- $host := printf "%s-rabbitmq" .Release.Name -}}
 {{- $user := .Values.rabbitmq.auth.username -}}
 amqp://{{ $user }}:$(RABBITMQ_PASSWORD)@{{ $host }}:5672
@@ -120,7 +120,7 @@ amqp://{{ $user }}:$(RABBITMQ_PASSWORD)@{{ $host }}:5672
 {{/*
 Elasticsearch URL helper
 */}}
-{{- define "mnbara.elasticsearchUrl" -}}
+{{- define "mnbarh.elasticsearchUrl" -}}
 {{- $host := printf "%s-elasticsearch" .Release.Name -}}
 http://{{ $host }}:9200
 {{- end }}
@@ -128,7 +128,7 @@ http://{{ $host }}:9200
 {{/*
 MinIO URL helper
 */}}
-{{- define "mnbara.minioUrl" -}}
+{{- define "mnbarh.minioUrl" -}}
 {{- $host := printf "%s-minio" .Release.Name -}}
 http://{{ $host }}:9000
 {{- end }}
@@ -136,7 +136,7 @@ http://{{ $host }}:9000
 {{/*
 Image helper
 */}}
-{{- define "mnbara.image" -}}
+{{- define "mnbarh.image" -}}
 {{- $registry := .root.Values.image.registry -}}
 {{- $repository := .service.image.repository -}}
 {{- $tag := default .root.Values.image.tag .service.image.tag -}}
