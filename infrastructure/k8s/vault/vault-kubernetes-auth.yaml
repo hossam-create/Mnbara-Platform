@@ -42,15 +42,15 @@ data:
     # API Gateway Policy
     vault policy write api-gateway - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read JWT secrets
-    path "secret/data/mnbara/jwt" {
+    path "secret/data/mnbarh/jwt" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -58,23 +58,23 @@ data:
     # Auth Service Policy
     vault policy write auth-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read and manage JWT secrets
-    path "secret/data/mnbara/jwt" {
+    path "secret/data/mnbarh/jwt" {
       capabilities = ["read"]
     }
     # Read OAuth credentials
-    path "secret/data/mnbara/oauth" {
+    path "secret/data/mnbarh/oauth" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read encryption keys
-    path "secret/data/mnbara/encryption" {
+    path "secret/data/mnbarh/encryption" {
       capabilities = ["read"]
     }
     EOF
@@ -82,27 +82,27 @@ data:
     # Payment Service Policy
     vault policy write payment-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Stripe credentials
-    path "secret/data/mnbara/stripe" {
+    path "secret/data/mnbarh/stripe" {
       capabilities = ["read"]
     }
     # Read PayPal credentials
-    path "secret/data/mnbara/paypal" {
+    path "secret/data/mnbarh/paypal" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     # Read blockchain credentials
-    path "secret/data/mnbara/blockchain" {
+    path "secret/data/mnbarh/blockchain" {
       capabilities = ["read"]
     }
     EOF
@@ -110,15 +110,15 @@ data:
     # Auction Service Policy
     vault policy write auction-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     EOF
@@ -126,19 +126,19 @@ data:
     # Listing Service Policy
     vault policy write listing-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read MinIO credentials
-    path "secret/data/mnbara/minio" {
+    path "secret/data/mnbarh/minio" {
       capabilities = ["read"]
     }
     # Read Elasticsearch credentials
-    path "secret/data/mnbara/elasticsearch" {
+    path "secret/data/mnbarh/elasticsearch" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -146,19 +146,19 @@ data:
     # Notification Service Policy
     vault policy write notification-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read notification credentials (FCM/APNs)
-    path "secret/data/mnbara/notifications" {
+    path "secret/data/mnbarh/notifications" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -166,15 +166,15 @@ data:
     # Recommendation Service Policy
     vault policy write recommendation-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     EOF
@@ -182,11 +182,11 @@ data:
     # Matching Service Policy
     vault policy write matching-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -194,11 +194,11 @@ data:
     # Trips Service Policy
     vault policy write trips-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -206,15 +206,15 @@ data:
     # Orders Service Policy
     vault policy write orders-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     EOF
@@ -222,11 +222,11 @@ data:
     # Rewards Service Policy
     vault policy write rewards-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     EOF
@@ -234,11 +234,11 @@ data:
     # Admin Service Policy
     vault policy write admin-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read all service secrets (admin access)
-    path "secret/data/mnbara/*" {
+    path "secret/data/mnbarh/*" {
       capabilities = ["read", "list"]
     }
     EOF
@@ -246,26 +246,26 @@ data:
     # Crowdship Service Policy
     vault policy write crowdship-service - <<EOF
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     EOF
     
     # Secrets Migration Policy (for initial setup)
     vault policy write secrets-migration - <<EOF
-    # Full access to mnbara secrets for migration
-    path "secret/data/mnbara/*" {
+    # Full access to mnbarh secrets for migration
+    path "secret/data/mnbarh/*" {
       capabilities = ["create", "read", "update", "delete", "list"]
     }
-    path "secret/metadata/mnbara/*" {
+    path "secret/metadata/mnbarh/*" {
       capabilities = ["list", "read", "delete"]
     }
     EOF
@@ -282,91 +282,91 @@ data:
     # API Gateway Role
     vault write auth/kubernetes/role/api-gateway \
       bound_service_account_names=api-gateway \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=api-gateway \
       ttl=1h
     
     # Auth Service Role
     vault write auth/kubernetes/role/auth-service \
       bound_service_account_names=auth-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=auth-service \
       ttl=1h
     
     # Payment Service Role
     vault write auth/kubernetes/role/payment-service \
       bound_service_account_names=payment-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=payment-service \
       ttl=1h
     
     # Auction Service Role
     vault write auth/kubernetes/role/auction-service \
       bound_service_account_names=auction-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=auction-service \
       ttl=1h
     
     # Listing Service Role
     vault write auth/kubernetes/role/listing-service \
       bound_service_account_names=listing-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=listing-service \
       ttl=1h
     
     # Notification Service Role
     vault write auth/kubernetes/role/notification-service \
       bound_service_account_names=notification-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=notification-service \
       ttl=1h
     
     # Recommendation Service Role
     vault write auth/kubernetes/role/recommendation-service \
       bound_service_account_names=recommendation-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=recommendation-service \
       ttl=1h
     
     # Matching Service Role
     vault write auth/kubernetes/role/matching-service \
       bound_service_account_names=matching-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=matching-service \
       ttl=1h
     
     # Trips Service Role
     vault write auth/kubernetes/role/trips-service \
       bound_service_account_names=trips-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=trips-service \
       ttl=1h
     
     # Orders Service Role
     vault write auth/kubernetes/role/orders-service \
       bound_service_account_names=orders-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=orders-service \
       ttl=1h
     
     # Rewards Service Role
     vault write auth/kubernetes/role/rewards-service \
       bound_service_account_names=rewards-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=rewards-service \
       ttl=1h
     
     # Admin Service Role
     vault write auth/kubernetes/role/admin-service \
       bound_service_account_names=admin-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=admin-service \
       ttl=1h
     
     # Crowdship Service Role
     vault write auth/kubernetes/role/crowdship-service \
       bound_service_account_names=crowdship-service \
-      bound_service_account_namespaces=mnbara \
+      bound_service_account_namespaces=mnbarh \
       policies=crowdship-service \
       ttl=1h
     
