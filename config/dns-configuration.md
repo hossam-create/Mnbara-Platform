@@ -1,50 +1,50 @@
 # DNS Configuration for Mnbara Platform
 # Production Domain Setup - Final 5% Completion
 
-## Domain: mnbara.com
+## Domain: mnbarh.com
 
 ### Required DNS Records
 
 #### A Records (IPv4)
 ```
-mnbara.com                    A    <LOAD_BALANCER_IP>
-www.mnbara.com               A    <LOAD_BALANCER_IP>
-api.mnbara.com               A    <LOAD_BALANCER_IP>
-monitoring.mnbara.com        A    <LOAD_BALANCER_IP>
-status.mnbara.com            A    <LOAD_BALANCER_IP>
+mnbarh.com                    A    <LOAD_BALANCER_IP>
+www.mnbarh.com               A    <LOAD_BALANCER_IP>
+api.mnbarh.com               A    <LOAD_BALANCER_IP>
+monitoring.mnbarh.com        A    <LOAD_BALANCER_IP>
+status.mnbarh.com            A    <LOAD_BALANCER_IP>
 ```
 
 #### AAAA Records (IPv6) - Optional
 ```
-mnbara.com                    AAAA <LOAD_BALANCER_IPv6>
-www.mnbara.com               AAAA <LOAD_BALANCER_IPv6>
-api.mnbara.com               AAAA <LOAD_BALANCER_IPv6>
-monitoring.mnbara.com        AAAA <LOAD_BALANCER_IPv6>
-status.mnbara.com            AAAA <LOAD_BALANCER_IPv6>
+mnbarh.com                    AAAA <LOAD_BALANCER_IPv6>
+www.mnbarh.com               AAAA <LOAD_BALANCER_IPv6>
+api.mnbarh.com               AAAA <LOAD_BALANCER_IPv6>
+monitoring.mnbarh.com        AAAA <LOAD_BALANCER_IPv6>
+status.mnbarh.com            AAAA <LOAD_BALANCER_IPv6>
 ```
 
 #### CNAME Records
 ```
-cdn.mnbara.com               CNAME <CDN_ENDPOINT>
-assets.mnbara.com            CNAME <CDN_ENDPOINT>
-images.mnbara.com            CNAME <CDN_ENDPOINT>
+cdn.mnbarh.com               CNAME <CDN_ENDPOINT>
+assets.mnbarh.com            CNAME <CDN_ENDPOINT>
+images.mnbarh.com            CNAME <CDN_ENDPOINT>
 ```
 
 #### MX Records (Email)
 ```
-mnbara.com                   MX   10 mail.mnbara.com
+mnbarh.com                   MX   10 mail.mnbarh.com
 ```
 
 #### TXT Records
 ```
-mnbara.com                   TXT  "v=spf1 include:_spf.google.com ~all"
-_dmarc.mnbara.com           TXT  "v=DMARC1; p=quarantine; rua=mailto:dmarc@mnbara.com"
-google._domainkey.mnbara.com TXT  "v=DKIM1; k=rsa; p=<GOOGLE_DKIM_KEY>"
+mnbarh.com                   TXT  "v=spf1 include:_spf.google.com ~all"
+_dmarc.mnbarh.com           TXT  "v=DMARC1; p=quarantine; rua=mailto:dmarc@mnbarh.com"
+google._domainkey.mnbarh.com TXT  "v=DKIM1; k=rsa; p=<GOOGLE_DKIM_KEY>"
 ```
 
 #### SRV Records (Optional)
 ```
-_sip._tcp.mnbara.com        SRV  10 5 5060 sip.mnbara.com
+_sip._tcp.mnbarh.com        SRV  10 5 5060 sip.mnbarh.com
 ```
 
 ### DNS Configuration by Provider
@@ -55,24 +55,24 @@ _sip._tcp.mnbara.com        SRV  10 5 5060 sip.mnbara.com
 curl -L https://github.com/cloudflare/cloudflare-go/releases/latest/download/flarectl-linux-amd64.tar.gz | tar xz
 
 # Configure DNS records
-flarectl dns create --zone mnbara.com --name @ --type A --content <LOAD_BALANCER_IP> --ttl 300
-flarectl dns create --zone mnbara.com --name www --type A --content <LOAD_BALANCER_IP> --ttl 300
-flarectl dns create --zone mnbara.com --name api --type A --content <LOAD_BALANCER_IP> --ttl 300
-flarectl dns create --zone mnbara.com --name monitoring --type A --content <LOAD_BALANCER_IP> --ttl 300
-flarectl dns create --zone mnbara.com --name status --type A --content <LOAD_BALANCER_IP> --ttl 300
+flarectl dns create --zone mnbarh.com --name @ --type A --content <LOAD_BALANCER_IP> --ttl 300
+flarectl dns create --zone mnbarh.com --name www --type A --content <LOAD_BALANCER_IP> --ttl 300
+flarectl dns create --zone mnbarh.com --name api --type A --content <LOAD_BALANCER_IP> --ttl 300
+flarectl dns create --zone mnbarh.com --name monitoring --type A --content <LOAD_BALANCER_IP> --ttl 300
+flarectl dns create --zone mnbarh.com --name status --type A --content <LOAD_BALANCER_IP> --ttl 300
 
 # Enable Cloudflare proxy (orange cloud)
-flarectl dns update --zone mnbara.com --name @ --proxy
-flarectl dns update --zone mnbara.com --name www --proxy
+flarectl dns update --zone mnbarh.com --name @ --proxy
+flarectl dns update --zone mnbarh.com --name www --proxy
 ```
 
 #### AWS Route 53 Configuration
 ```bash
 # Create hosted zone
-aws route53 create-hosted-zone --name mnbara.com --caller-reference $(date +%s)
+aws route53 create-hosted-zone --name mnbarh.com --caller-reference $(date +%s)
 
 # Get hosted zone ID
-ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name=='mnbara.com.'].Id" --output text | cut -d'/' -f3)
+ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name=='mnbarh.com.'].Id" --output text | cut -d'/' -f3)
 
 # Create A records
 aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch '{
@@ -80,7 +80,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch
     {
       "Action": "CREATE",
       "ResourceRecordSet": {
-        "Name": "mnbara.com",
+        "Name": "mnbarh.com",
         "Type": "A",
         "TTL": 300,
         "ResourceRecords": [{"Value": "<LOAD_BALANCER_IP>"}]
@@ -89,7 +89,7 @@ aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch
     {
       "Action": "CREATE",
       "ResourceRecordSet": {
-        "Name": "www.mnbara.com",
+        "Name": "www.mnbarh.com",
         "Type": "A",
         "TTL": 300,
         "ResourceRecords": [{"Value": "<LOAD_BALANCER_IP>"}]
@@ -102,14 +102,14 @@ aws route53 change-resource-record-sets --hosted-zone-id $ZONE_ID --change-batch
 #### Google Cloud DNS Configuration
 ```bash
 # Create DNS zone
-gcloud dns managed-zones create mnbara-zone --dns-name=mnbara.com. --description="Mnbara Platform DNS Zone"
+gcloud dns managed-zones create mnbarh-zone --dns-name=mnbarh.com. --description="Mnbara Platform DNS Zone"
 
 # Add A records
-gcloud dns record-sets transaction start --zone=mnbara-zone
-gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=mnbara.com. --ttl=300 --type=A --zone=mnbara-zone
-gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=www.mnbara.com. --ttl=300 --type=A --zone=mnbara-zone
-gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=api.mnbara.com. --ttl=300 --type=A --zone=mnbara-zone
-gcloud dns record-sets transaction execute --zone=mnbara-zone
+gcloud dns record-sets transaction start --zone=mnbarh-zone
+gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=mnbarh.com. --ttl=300 --type=A --zone=mnbarh-zone
+gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=www.mnbarh.com. --ttl=300 --type=A --zone=mnbarh-zone
+gcloud dns record-sets transaction add <LOAD_BALANCER_IP> --name=api.mnbarh.com. --ttl=300 --type=A --zone=mnbarh-zone
+gcloud dns record-sets transaction execute --zone=mnbarh-zone
 ```
 
 ### Load Balancer IP Discovery
@@ -117,31 +117,31 @@ gcloud dns record-sets transaction execute --zone=mnbara-zone
 #### AWS ELB
 ```bash
 # Get ELB DNS name
-aws elbv2 describe-load-balancers --names mnbara-production --query 'LoadBalancers[0].DNSName' --output text
+aws elbv2 describe-load-balancers --names mnbarh-production --query 'LoadBalancers[0].DNSName' --output text
 
 # Get ELB IP (for A record)
-nslookup $(aws elbv2 describe-load-balancers --names mnbara-production --query 'LoadBalancers[0].DNSName' --output text)
+nslookup $(aws elbv2 describe-load-balancers --names mnbarh-production --query 'LoadBalancers[0].DNSName' --output text)
 ```
 
 #### Google Cloud Load Balancer
 ```bash
 # Get external IP
-gcloud compute addresses describe mnbara-ip --global --format="value(address)"
+gcloud compute addresses describe mnbarh-ip --global --format="value(address)"
 ```
 
 #### Azure Load Balancer
 ```bash
 # Get public IP
-az network public-ip show --resource-group mnbara-rg --name mnbara-ip --query ipAddress --output tsv
+az network public-ip show --resource-group mnbarh-rg --name mnbarh-ip --query ipAddress --output tsv
 ```
 
 #### Kubernetes Ingress
 ```bash
 # Get ingress external IP
-kubectl get ingress mnbara-ingress -n mnbara-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+kubectl get ingress mnbarh-ingress -n mnbarh-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
 # Or get service external IP
-kubectl get service nginx-proxy-service -n mnbara-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+kubectl get service nginx-proxy-service -n mnbarh-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 ### DNS Propagation Check
@@ -149,16 +149,16 @@ kubectl get service nginx-proxy-service -n mnbara-production -o jsonpath='{.stat
 #### Check DNS propagation globally
 ```bash
 # Using dig
-dig @8.8.8.8 mnbara.com A
-dig @1.1.1.1 mnbara.com A
-dig @208.67.222.222 mnbara.com A
+dig @8.8.8.8 mnbarh.com A
+dig @1.1.1.1 mnbarh.com A
+dig @208.67.222.222 mnbarh.com A
 
 # Using nslookup
-nslookup mnbara.com 8.8.8.8
-nslookup mnbara.com 1.1.1.1
+nslookup mnbarh.com 8.8.8.8
+nslookup mnbarh.com 1.1.1.1
 
 # Using online tools
-curl -s "https://dns.google/resolve?name=mnbara.com&type=A" | jq .
+curl -s "https://dns.google/resolve?name=mnbarh.com&type=A" | jq .
 ```
 
 #### DNS propagation monitoring script
@@ -166,7 +166,7 @@ curl -s "https://dns.google/resolve?name=mnbara.com&type=A" | jq .
 #!/bin/bash
 # dns-check.sh
 
-DOMAIN="mnbara.com"
+DOMAIN="mnbarh.com"
 EXPECTED_IP="<LOAD_BALANCER_IP>"
 
 DNS_SERVERS=(
@@ -195,13 +195,13 @@ done
 #### Check SSL certificate
 ```bash
 # Check certificate details
-openssl s_client -servername mnbara.com -connect mnbara.com:443 -showcerts
+openssl s_client -servername mnbarh.com -connect mnbarh.com:443 -showcerts
 
 # Check certificate expiration
-echo | openssl s_client -servername mnbara.com -connect mnbara.com:443 2>/dev/null | openssl x509 -noout -dates
+echo | openssl s_client -servername mnbarh.com -connect mnbarh.com:443 2>/dev/null | openssl x509 -noout -dates
 
 # Check certificate chain
-curl -I https://mnbara.com
+curl -I https://mnbarh.com
 ```
 
 ### Performance Optimization
@@ -234,7 +234,7 @@ curl -I https://mnbara.com
 #!/bin/bash
 # dns-monitor.sh
 
-DOMAIN="mnbara.com"
+DOMAIN="mnbarh.com"
 EXPECTED_IP="<LOAD_BALANCER_IP>"
 
 while true; do
@@ -265,9 +265,9 @@ done
 # Test all subdomains
 for subdomain in "" "www" "api" "monitoring" "status"; do
     if [ -z "$subdomain" ]; then
-        domain="mnbara.com"
+        domain="mnbarh.com"
     else
-        domain="$subdomain.mnbara.com"
+        domain="$subdomain.mnbarh.com"
     fi
     echo "Testing $domain:"
     curl -I "https://$domain" | head -n1
@@ -277,10 +277,10 @@ done
 ### Launch Day DNS Checklist
 
 - [ ] All A records pointing to correct load balancer IP
-- [ ] WWW redirect working (www.mnbara.com → mnbara.com)
-- [ ] API subdomain resolving (api.mnbara.com)
-- [ ] Monitoring subdomain resolving (monitoring.mnbara.com)
-- [ ] Status page subdomain resolving (status.mnbara.com)
+- [ ] WWW redirect working (www.mnbarh.com → mnbarh.com)
+- [ ] API subdomain resolving (api.mnbarh.com)
+- [ ] Monitoring subdomain resolving (monitoring.mnbarh.com)
+- [ ] Status page subdomain resolving (status.mnbarh.com)
 - [ ] SSL certificates valid for all domains
 - [ ] DNS propagation complete globally
 - [ ] CDN configuration optimized
