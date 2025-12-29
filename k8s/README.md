@@ -24,8 +24,8 @@ This directory contains the complete Kubernetes configuration for deploying the 
 ## 🏗️ Architecture Components
 
 ### 🔐 **Namespaces**
-- `mnbara-production` - Main application services
-- `mnbara-monitoring` - Monitoring and observability
+- `mnbarh-production` - Main application services
+- `mnbarh-monitoring` - Monitoring and observability
 
 ### 🗄️ **Data Layer**
 - **PostgreSQL** - Primary database with 4 service-specific databases
@@ -135,9 +135,9 @@ All sensitive data is stored in Kubernetes secrets:
 
 ### 🌐 **Domain Configuration**
 The deployment is configured for:
-- **Main App:** `https://mnbara.com`
-- **Monitoring:** `https://monitoring.mnbara.com`
-- **Status Page:** `https://status.mnbara.com`
+- **Main App:** `https://mnbarh.com`
+- **Monitoring:** `https://monitoring.mnbarh.com`
+- **Status Page:** `https://status.mnbarh.com`
 
 Update DNS records to point to your Kubernetes cluster's load balancer IP.
 
@@ -253,34 +253,34 @@ All services are configured with HPA based on:
 #### Pods Not Starting
 ```bash
 # Check pod status
-kubectl get pods -n mnbara-production
+kubectl get pods -n mnbarh-production
 
 # Check pod logs
-kubectl logs <pod-name> -n mnbara-production
+kubectl logs <pod-name> -n mnbarh-production
 
 # Describe pod for events
-kubectl describe pod <pod-name> -n mnbara-production
+kubectl describe pod <pod-name> -n mnbarh-production
 ```
 
 #### Database Connection Issues
 ```bash
 # Check database pod
-kubectl get pods -n mnbara-production | grep postgres
+kubectl get pods -n mnbarh-production | grep postgres
 
 # Check database logs
-kubectl logs postgres-<pod-id> -n mnbara-production
+kubectl logs postgres-<pod-id> -n mnbarh-production
 
 # Test database connection
-kubectl exec -it postgres-<pod-id> -n mnbara-production -- psql -U mnbara_user -d mnbara_production
+kubectl exec -it postgres-<pod-id> -n mnbarh-production -- psql -U mnbarh_user -d mnbarh_production
 ```
 
 #### Service Not Accessible
 ```bash
 # Check service endpoints
-kubectl get endpoints -n mnbara-production
+kubectl get endpoints -n mnbarh-production
 
 # Check ingress status
-kubectl get ingress -n mnbara-production
+kubectl get ingress -n mnbarh-production
 
 # Check ingress controller logs
 kubectl logs -n ingress-nginx deployment/ingress-nginx-controller
@@ -306,19 +306,19 @@ kubectl logs -n ingress-nginx deployment/ingress-nginx-controller
 ### 🛠️ **Useful Commands**
 ```bash
 # Watch all pods
-kubectl get pods -n mnbara-production -w
+kubectl get pods -n mnbarh-production -w
 
 # Port forward to service
-kubectl port-forward -n mnbara-production service/auth-service 8080:8080
+kubectl port-forward -n mnbarh-production service/auth-service 8080:8080
 
 # Scale deployment
-kubectl scale deployment auth-service --replicas=5 -n mnbara-production
+kubectl scale deployment auth-service --replicas=5 -n mnbarh-production
 
 # Update deployment
-kubectl set image deployment/auth-service auth-service=mnbara/auth-service:v2.0 -n mnbara-production
+kubectl set image deployment/auth-service auth-service=mnbarh/auth-service:v2.0 -n mnbarh-production
 
 # Check resource usage
-kubectl top pods -n mnbara-production
+kubectl top pods -n mnbarh-production
 kubectl top nodes
 ```
 
