@@ -79,16 +79,16 @@ admin-dashboard/
 ```bash
 # Start PostgreSQL
 docker run -d \
-  --name mnbara-postgres \
+  --name mnbarh-postgres \
   -e POSTGRES_USER=crowdship \
   -e POSTGRES_PASSWORD=crowdpass \
-  -e POSTGRES_DB=mnbara_db \
+  -e POSTGRES_DB=mnbarh_db \
   -p 5432:5432 \
   postgres:14
 
 # Start Redis
 docker run -d \
-  --name mnbara-redis \
+  --name mnbarh-redis \
   -p 6379:6379 \
   redis:6-alpine
 ```
@@ -97,7 +97,7 @@ docker run -d \
 
 ```bash
 cd backend/services/admin-service
-psql -U crowdship -d mnbara_db -f prisma/migrations/001_admin_tracking_tables.sql
+psql -U crowdship -d mnbarh_db -f prisma/migrations/001_admin_tracking_tables.sql
 ```
 
 ### 3. Backend Setup
@@ -112,7 +112,7 @@ npm install
 cp .env.example .env
 
 # Edit .env with your configuration
-# DATABASE_URL=postgresql://crowdship:crowdpass@localhost:5432/mnbara_db
+# DATABASE_URL=postgresql://crowdship:crowdpass@localhost:5432/mnbarh_db
 # REDIS_HOST=localhost
 # REDIS_PORT=6379
 # JWT_SECRET=your-secret-key
@@ -255,7 +255,7 @@ PORT=3012
 NODE_ENV=development
 
 # Database
-DATABASE_URL=postgresql://crowdship:crowdpass@localhost:5432/mnbara_db
+DATABASE_URL=postgresql://crowdship:crowdpass@localhost:5432/mnbarh_db
 
 # Redis
 REDIS_HOST=localhost
@@ -283,11 +283,11 @@ VITE_API_URL=http://localhost:3012
 ```bash
 # Backend
 cd backend/services/admin-service
-docker build -t mnbara-admin-service .
+docker build -t mnbarh-admin-service .
 
 # Frontend
 cd frontend/admin-dashboard
-docker build -t mnbara-admin-dashboard .
+docker build -t mnbarh-admin-dashboard .
 ```
 
 ### Run with Docker Compose
@@ -301,7 +301,7 @@ services:
     environment:
       POSTGRES_USER: crowdship
       POSTGRES_PASSWORD: crowdpass
-      POSTGRES_DB: mnbara_db
+      POSTGRES_DB: mnbarh_db
     ports:
       - "5432:5432"
 
@@ -311,11 +311,11 @@ services:
       - "6379:6379"
 
   admin-service:
-    image: mnbara-admin-service
+    image: mnbarh-admin-service
     ports:
       - "3012:3012"
     environment:
-      DATABASE_URL: postgresql://crowdship:crowdpass@postgres:5432/mnbara_db
+      DATABASE_URL: postgresql://crowdship:crowdpass@postgres:5432/mnbarh_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
@@ -323,7 +323,7 @@ services:
       - redis
 
   admin-dashboard:
-    image: mnbara-admin-dashboard
+    image: mnbarh-admin-dashboard
     ports:
       - "3000:80"
     environment:
@@ -490,9 +490,9 @@ MIT License - see LICENSE file
 ## 📞 Support
 
 For issues and questions:
-- GitHub Issues: [Create Issue](https://github.com/mnbara/admin-dashboard/issues)
-- Email: support@mnbara.com
-- Docs: [Documentation](https://docs.mnbara.com)
+- GitHub Issues: [Create Issue](https://github.com/mnbarh/admin-dashboard/issues)
+- Email: support@mnbarh.com
+- Docs: [Documentation](https://docs.mnbarh.com)
 
 ---
 
