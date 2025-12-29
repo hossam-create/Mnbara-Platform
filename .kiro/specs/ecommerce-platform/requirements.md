@@ -1,14 +1,14 @@
-# Requirements Document - MNBARA Platform
+# Requirements Document - MNBARH Platform
 
 ## Introduction
 
-This document defines the requirements for completing the MNBARA e-commerce platform MVP. MNBARA is a marketplace supporting auctions, fixed-price listings, traveler-based crowdshipping, and escrow payments. The platform consists of a web application (React/Vite), mobile app (React Native), admin dashboard, and a microservices backend with 14 services including real-time auction capabilities and blockchain smart contracts.
+This document defines the requirements for completing the MNBARH e-commerce platform MVP. MNBARH is a marketplace supporting auctions, fixed-price listings, traveler-based crowdshipping, and escrow payments. The platform consists of a web application (React/Vite), mobile app (React Native), admin dashboard, and a microservices backend with 14 services including real-time auction capabilities and blockchain smart contracts.
 
 **Current State:** The backend infrastructure is largely complete with PostgreSQL/PostGIS, Redis, RabbitMQ, MinIO, and Elasticsearch. Core services are operational. This spec focuses on completing frontend implementations, mobile app features, and integration gaps.
 
 ## Glossary
 
-- **MNBARA_System**: The complete MNBARA marketplace platform
+- **MNBARH_System**: The complete MNBARH marketplace platform
 - **Buyer**: A user who purchases products through fixed-price listings or auctions
 - **Seller**: A user who lists products for sale
 - **Traveler**: A verified user who facilitates cross-border purchases via crowdshipping
@@ -28,10 +28,10 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 
 #### Acceptance Criteria
 
-1. WHEN a user submits registration with email, phone, and password on the web app, THE MNBARA_System SHALL create a new account via auth-service and return a JWT token.
-2. WHEN a user submits valid login credentials, THE MNBARA_System SHALL issue access and refresh tokens and redirect to the dashboard.
-3. WHERE OAuth provider login is selected, THE MNBARA_System SHALL authenticate via the provider and create or link the user account.
-4. WHEN a user enables MFA in settings, THE MNBARA_System SHALL require verification code for subsequent logins.
+1. WHEN a user submits registration with email, phone, and password on the web app, THE MNBARH_System SHALL create a new account via auth-service and return a JWT token.
+2. WHEN a user submits valid login credentials, THE MNBARH_System SHALL issue access and refresh tokens and redirect to the dashboard.
+3. WHERE OAuth provider login is selected, THE MNBARH_System SHALL authenticate via the provider and create or link the user account.
+4. WHEN a user enables MFA in settings, THE MNBARH_System SHALL require verification code for subsequent logins.
 5. THE Web_Application SHALL persist authentication state and handle token refresh automatically.
 
 ### Requirement 2: Web Application Product Browsing
@@ -131,8 +131,8 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 #### Acceptance Criteria
 
 1. THE Mobile_App SHALL register device tokens with notification-service for FCM (Android) and APNs (iOS).
-2. WHEN an auction event occurs (outbid, ending soon, won), THE MNBARA_System SHALL send push notification within 30 seconds.
-3. WHEN an order status changes, THE MNBARA_System SHALL send push notification to relevant parties.
+2. WHEN an auction event occurs (outbid, ending soon, won), THE MNBARH_System SHALL send push notification within 30 seconds.
+3. WHEN an order status changes, THE MNBARH_System SHALL send push notification to relevant parties.
 4. THE Mobile_App SHALL support notification preferences configuration.
 
 ### Requirement 11: Admin Dashboard User Management
@@ -175,9 +175,9 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 #### Acceptance Criteria
 
 1. WHEN a crowdship order is created, THE Payment_Service SHALL hold funds in escrow with status "held".
-2. WHEN delivery evidence is submitted and verified, THE MNBARA_System SHALL release escrow to seller and traveler.
-3. IF a dispute is raised, THEN THE MNBARA_System SHALL freeze escrow pending admin resolution.
-4. THE MNBARA_System SHALL integrate MNBAuctionEscrow smart contract for blockchain-backed escrow option.
+2. WHEN delivery evidence is submitted and verified, THE MNBARH_System SHALL release escrow to seller and traveler.
+3. IF a dispute is raised, THEN THE MNBARH_System SHALL freeze escrow pending admin resolution.
+4. THE MNBARH_System SHALL integrate MNBAuctionEscrow smart contract for blockchain-backed escrow option.
 
 ### Requirement 15: Rewards System Integration
 
@@ -188,7 +188,7 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 1. WHEN a user completes a transaction, THE Rewards_Service SHALL award points based on transaction value.
 2. THE Web_Application and Mobile_App SHALL display user's reward balance and transaction history.
 3. WHEN a user redeems rewards, THE Rewards_Service SHALL deduct points and apply discount or benefit.
-4. THE MNBARA_System SHALL display leaderboard of top earners.
+4. THE MNBARH_System SHALL display leaderboard of top earners.
 
 ### Requirement 16: Blockchain Wallet Integration
 
@@ -197,9 +197,9 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 #### Acceptance Criteria
 
 1. THE Web_Application SHALL support wallet connection (MetaMask, WalletConnect) for MNB token transactions.
-2. WHEN a user pays with MNB tokens, THE MNBARA_System SHALL process via MNBExchange smart contract.
+2. WHEN a user pays with MNB tokens, THE MNBARH_System SHALL process via MNBExchange smart contract.
 3. THE Mobile_App SHALL support wallet connection for token-based payments.
-4. THE MNBARA_System SHALL display MNB token balance and transaction history.
+4. THE MNBARH_System SHALL display MNB token balance and transaction history.
 
 ### Requirement 17: Search and Discovery Enhancement
 
@@ -207,10 +207,10 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 
 #### Acceptance Criteria
 
-1. THE MNBARA_System SHALL index all products in Elasticsearch with full-text search, synonyms, and typo tolerance.
+1. THE MNBARH_System SHALL index all products in Elasticsearch with full-text search, synonyms, and typo tolerance.
 2. THE Search_System SHALL support auto-complete suggestions as user types.
 3. THE Search_System SHALL rank results by relevance, popularity, seller rating, and recency.
-4. THE MNBARA_System SHALL provide personalized recommendations based on browsing history via recommendation-service.
+4. THE MNBARH_System SHALL provide personalized recommendations based on browsing history via recommendation-service.
 
 ### Requirement 18: Real-Time Notifications System
 
@@ -221,7 +221,7 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 1. THE Notification_Service SHALL publish events to RabbitMQ for async processing.
 2. THE Web_Application SHALL receive real-time notifications via WebSocket connection.
 3. THE Mobile_App SHALL receive push notifications via FCM/APNs.
-4. THE MNBARA_System SHALL support email notifications for critical events (order confirmation, payment received).
+4. THE MNBARH_System SHALL support email notifications for critical events (order confirmation, payment received).
 
 ### Requirement 19: API Gateway Security
 
@@ -240,7 +240,7 @@ This document defines the requirements for completing the MNBARA e-commerce plat
 
 #### Acceptance Criteria
 
-1. THE MNBARA_System SHALL expose Prometheus metrics for all services.
-2. THE MNBARA_System SHALL implement structured JSON logging with correlation IDs.
-3. THE MNBARA_System SHALL configure alerts for payment failures, auction timer drift, and service health.
-4. THE MNBARA_System SHALL provide Grafana dashboards for real-time monitoring.
+1. THE MNBARH_System SHALL expose Prometheus metrics for all services.
+2. THE MNBARH_System SHALL implement structured JSON logging with correlation IDs.
+3. THE MNBARH_System SHALL configure alerts for payment failures, auction timer drift, and service health.
+4. THE MNBARH_System SHALL provide Grafana dashboards for real-time monitoring.
