@@ -23,7 +23,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-  EKS_CLUSTER_NAME: mnbara-cluster
+  EKS_CLUSTER_NAME: mnbarh-cluster
 
 jobs:
   # ============================================
@@ -136,8 +136,8 @@ jobs:
           context: backend/services/${{ matrix.service }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:${{ needs.setup.outputs.image_tag }}
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:latest
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.service }}:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.service }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -187,8 +187,8 @@ jobs:
           context: backend/services/recommendation-service
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/mnbara/recommendation-service:${{ needs.setup.outputs.image_tag }}
-            ${{ env.ECR_REGISTRY }}/mnbara/recommendation-service:latest
+            ${{ env.ECR_REGISTRY }}/mnbarh/recommendation-service:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbarh/recommendation-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -239,7 +239,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          VITE_API_URL: ${{ needs.setup.outputs.environment == 'production' && 'https://api.mnbara.com' || 'https://api-staging.mnbara.com' }}
+          VITE_API_URL: ${{ needs.setup.outputs.environment == 'production' && 'https://api.mnbarh.com' || 'https://api-staging.mnbarh.com' }}
 
       - name: Configure AWS credentials
         if: steps.should-build.outputs.build == 'true'
@@ -264,8 +264,8 @@ jobs:
           context: ${{ matrix.path }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.app }}:${{ needs.setup.outputs.image_tag }}
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.app }}:latest
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.app }}:${{ needs.setup.outputs.image_tag }}
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.app }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -303,11 +303,11 @@ jobs:
           aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}-${{ needs.setup.outputs.environment }} --region ${{ env.AWS_REGION }}
 
       - name: Update Helm dependencies
-        working-directory: infrastructure/k8s/mnbara
+        working-directory: infrastructure/k8s/mnbarh
         run: helm dependency update
 
       - name: Deploy with Helm
-        working-directory: infrastructure/k8s/mnbara
+        working-directory: infrastructure/k8s/mnbarh
         run: |
           ENV=${{ needs.setup.outputs.environment }}
           VALUES_FILE="values-${ENV}.yaml"
@@ -318,9 +318,9 @@ jobs:
             VALUES_FILE="values-prod.yaml"
           fi
           
-          helm upgrade --install mnbara . \
+          helm upgrade --install mnbarh . \
             -f $VALUES_FILE \
-            --namespace mnbara-${{ needs.setup.outputs.environment }} \
+            --namespace mnbarh-${{ needs.setup.outputs.environment }} \
             --create-namespace \
             --set image.tag=${{ needs.setup.outputs.image_tag }} \
             --set global.environment=${{ needs.setup.outputs.environment }} \
@@ -329,13 +329,13 @@ jobs:
 
       - name: Verify deployment
         run: |
-          kubectl rollout status deployment/api-gateway -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
-          kubectl rollout status deployment/auth-service -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
-          kubectl rollout status deployment/auction-service -n mnbara-${{ needs.setup.outputs.environment }} --timeout=5m
+          kubectl rollout status deployment/api-gateway -n mnbarh-${{ needs.setup.outputs.environment }} --timeout=5m
+          kubectl rollout status deployment/auth-service -n mnbarh-${{ needs.setup.outputs.environment }} --timeout=5m
+          kubectl rollout status deployment/auction-service -n mnbarh-${{ needs.setup.outputs.environment }} --timeout=5m
 
       - name: Run smoke tests
         run: |
-          API_URL=$(kubectl get ingress -n mnbara-${{ needs.setup.outputs.environment }} -o jsonpath='{.items[0].spec.rules[0].host}')
+          API_URL=$(kubectl get ingress -n mnbarh-${{ needs.setup.outputs.environment }} -o jsonpath='{.items[0].spec.rules[0].host}')
           curl -f https://${API_URL}/health || echo "Health check endpoint not available"
 
   # ============================================
@@ -396,7 +396,7 @@ jobs:
 
       - name: Rollback Helm release
         run: |
-          helm rollback mnbara -n mnbara-${{ needs.setup.outputs.environment }} || true
+          helm rollback mnbarh -n mnbarh-${{ needs.setup.outputs.environment }} || true
 
       - name: Notify rollback
         if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}

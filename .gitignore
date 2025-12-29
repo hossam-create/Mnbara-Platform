@@ -165,6 +165,11 @@ prisma/migrations/*.sql
 *.pem
 *.key
 *.cert
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
 secrets/
 credentials/
 .secrets/
@@ -176,6 +181,27 @@ config/secrets.yaml
 .env.secrets
 *.secret
 *.encrypted
+.vault-token
+vault-token
+.aws/
+.gcp/
+.azure/
+.ssh/
+private_key*
+public_key*
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+known_hosts
+authorized_keys
+.kube/config
+kubeconfig
+.docker/config.json
+docker-compose.override.yml
+.env.*.local
+.env.*.production
+.env.*.staging
 
 # ========================================
 # Extracted Resources (VERY IMPORTANT!)
@@ -188,3 +214,22 @@ config/secrets.yaml
 # Legacy Projects
 # ========================================
 web/mnbara-web-legacy/
+
+# ========================================
+# Security Scanning
+# ========================================
+gitleaks-report.json
+gitleaks-report*.json
+.gitleaks.toml
+trufflehog-report.json
+
+# ========================================
+# Mobile Sensitive Files
+# ========================================
+android/app/google-services.json
+ios/GoogleService-Info.plist
+*.mobileprovision
+*.apk
+*.ipa
+*.aab
+

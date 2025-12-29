@@ -1,43 +1,25 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { PrismaClient } from '@prisma/client';
-import { complianceRoutes } from './routes/compliance.routes';
-import { prohibitedRoutes } from './routes/prohibited.routes';
-import { customsRoutes } from './routes/customs.routes';
-import policyRoutes from './routes/policy.routes';
+import kycRoutes from './routes/kyc.routes';
+import { EnvValidator, ENV_CONFIGS } from '../../shared/utils/env-validator';
 
+// Validate environment variables before starting
+EnvValidator.validate(ENV_CONFIGS.COMPLIANCE_SERVICE);
 
 const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3012;
+const PORT = process.env.PORT || 3005;
 
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Health check
+app.use('/api/kyc', kycRoutes);
+
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'compliance-service' });
+  res.json({ status: 'ok', service: 'compliance-service' });
 });
 
-// Routes
-app.use('/api/compliance', complianceRoutes);
-app.use('/api/prohibited', prohibitedRoutes);
-app.use('/api/customs', customsRoutes);
-app.use('/api/policy', policyRoutes);
-
-
-// Start server
 app.listen(PORT, () => {
-  console.log(`🛃 Compliance Service running on port ${PORT}`);
+  console.log(`🔒 Compliance service running on port ${PORT}`);
 });
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-export { prisma };

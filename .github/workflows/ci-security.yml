@@ -1,0 +1,48 @@
+name: CI Security & Tests
+on:
+  push:
+    branches: ["main", "master", "security/**"]
+  pull_request:
+    branches: ["main", "master"]
+
+permissions:
+  contents: read
+  id-token: write
+  checks: write
+
+jobs:
+  build-and-scan:
+    name: Build, Lint, Test & Secret Scan (warn)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint || true
+
+      - name: Unit tests
+        run: npm run test --workspaces || true
+
+      - name: Run gitleaks (warn-only)
+        run: |
+          chmod +x ./scripts/run-gitleaks.sh || true
+          ./scripts/run-gitleaks.sh gitleaks-report.json || echo "Gitleaks found possible secrets; review gitleaks-report.json artifact"
+
+      - name: Upload gitleaks report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json

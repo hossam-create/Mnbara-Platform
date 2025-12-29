@@ -7,209 +7,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  USER
-  SELLER
-  TRAVELER
-  BUYER
-  ADMIN
-  SUPER_ADMIN
-}
-
-model User {
-  id            Int       @id @default(autoincrement())
-  email         String    @unique
-  firstName     String
-  lastName      String
-  role          UserRole  @default(USER)
-  rating        Decimal?  @db.Decimal(3, 2) @default(0)
+model DeliveryRequest {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
   
-  travelerLocation    TravelerLocation?
-  travelerAvailability TravelerAvailability[]
-  buyerOrders         Order[]   @relation("BuyerOrders")
-  travelerOrders      Order[]   @relation("TravelerOrders")
+  pickupLocation  Json
+  dropoffLocation Json
   
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-model TravelerLocation {
-  id          Int      @id @default(autoincrement())
-  travelerId  Int      @unique
-  traveler    User     @relation(fields: [travelerId], references: [id])
+  status          DeliveryStatus @default(PENDING)
+  reward          Float
   
-  latitude    Float
-  longitude   Float
-  country     String?
-  airportCode String?
+  travelerId      String?
+  acceptedAt      DateTime?
+  deliveredAt     DateTime?
+  deliveryProof   String?
   
-  lastSeenAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
+  @@map("delivery_requests")
+  @@index([status])
   @@index([travelerId])
-  @@index([country])
-  @@index([airportCode])
 }
 
-model TravelerAvailability {
-  id          Int      @id @default(autoincrement())
-  travelerId  Int
-  traveler    User     @relation(fields: [travelerId], references: [id])
+model Traveler {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
   
-  origin      String
-  destination String
-  departTime  DateTime
-  arriveTime  DateTime
+  status              TravelerStatus @default(AVAILABLE)
+  currentLocation     Json
+  lastLocationUpdate  DateTime?
   
-  allowedCategories String[]
-  maxWeight   Decimal?  @db.Decimal(8, 2)
-  maxVolume   Decimal?  @db.Decimal(8, 2)
+  totalDeliveries     Int      @default(0)
+  totalEarnings       Float    @default(0)
+  rating              Float    @default(5)
   
-  isActive    Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
   
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@map("travelers")
+  @@index([status])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  travelerId String
+  orderId    String   @unique
   
+  score      Int
+  comment    String?
+  
+  createdAt  DateTime @default(now())
+  
+  @@map("ratings")
   @@index([travelerId])
-  @@index([origin])
-  @@index([destination])
-  @@index([departTime])
-  @@index([isActive])
 }
 
-enum RequestStatus {
-  REQUESTED
-  NEGOTIATING
-  ACCEPTED
-  REJECTED
-  CANCELLED
-}
-
-enum OfferStatus {
-  OFFERED
-  COUNTERED
-  ACCEPTED
-  REJECTED
-}
-
-enum TravelStatus {
+enum DeliveryStatus {
   PENDING
-  SUBMITTED
-  APPROVED
-  REJECTED
-}
-
-model ShopperRequest {
-  id                Int            @id @default(autoincrement())
-  buyerId           Int
-  buyer             User           @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  productUrl        String
-  title             String?
-  price             Decimal?       @db.Decimal(10, 2)
-  currency          String         @default("USD")
-  sourceSite        String?
-  sourceCountry     String?
-  destinationCountry String?       // Added for SET-001
-  imageUrl          String?
-  status            RequestStatus  @default(REQUESTED)
-  isOrderReady      Boolean        @default(false)
-  offers            TravelerOffer[]
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now())
-
-  @@index([buyerId])
-  @@index([status])
-  @@index([sourceCountry])
-  @@index([destinationCountry])
-}
-
-model TravelerOffer {
-  id                 Int           @id @default(autoincrement())
-  requestId          Int
-  request            ShopperRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  travelerId         Int
-  traveler           User          @relation(fields: [travelerId], references: [id], onDelete: Cascade)
-  listedPrice        Decimal       @db.Decimal(10, 2)
-  estimatedTax       Decimal       @db.Decimal(10, 2) @default(0)
-  estimatedShipping  Decimal       @db.Decimal(10, 2) @default(0)
-  platformFee        Decimal       @db.Decimal(10, 2) @default(0)
-  travelerProfit     Decimal       @db.Decimal(10, 2) @default(0)
-  totalProposed      Decimal       @db.Decimal(10, 2)
-  status             OfferStatus   @default(OFFERED)
-  lastActor          String        @default("traveler")
-  counterNote        String?
-  travelDepartureDate DateTime?
-  travelArrivalDate  DateTime?
-  travelStatus       TravelStatus  @default(PENDING)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @default(now())
-
-  @@index([requestId])
-  @@index([travelerId])
-  @@index([status])
-  @@unique([requestId, travelerId])
-}
-
-enum OrderLinkStatus {
-  PENDING_PAYMENT
-  PAID
+  ACCEPTED
+  IN_TRANSIT
+  DELIVERED
   CANCELLED
 }
 
-model RequestOrder {
-  id                  Int             @id @default(autoincrement())
-  requestId           Int             @unique
-  request             ShopperRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  offerId             Int
-  offer               TravelerOffer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
-  buyerId             Int
-  buyer               User            @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  travelerId          Int
-  traveler            User            @relation("TravelerOrderLink", fields: [travelerId], references: [id], onDelete: Cascade)
-  productTitle        String?
-  productUrl          String
-  sourceSite          String?
-  sourceCountry       String?
-  priceBreakdown      Json
-  totalProposed       Decimal         @db.Decimal(10, 2)
-  travelDepartureDate DateTime?
-  travelArrivalDate   DateTime?
-  status              OrderLinkStatus @default(PENDING_PAYMENT)
-  createdAt           DateTime        @default(now())
-
-  @@index([offerId])
-}
-
-model Order {
-  id            Int       @id @default(autoincrement())
-  buyerId       Int
-  buyer         User      @relation("BuyerOrders", fields: [buyerId], references: [id])
-  travelerId    Int?
-  traveler      User?     @relation("TravelerOrders", fields: [travelerId], references: [id])
-  
-  status        String    @default("REQUESTED") // Using String to match TS type, or we can define Enum
-  
-  trackingHistory TrackingHistory[]
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  @@index([buyerId])
-  @@index([travelerId])
-  @@index([status])
-}
-
-model TrackingHistory {
-  id          Int      @id @default(autoincrement())
-  orderId     Int
-  order       Order    @relation(fields: [orderId], references: [id])
-  
-  status      String
-  location    String?
-  notes       String?
-  
-  createdAt   DateTime @default(now())
-  
-  @@index([orderId])
+enum TravelerStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
 }

@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: mnbara
+      POSTGRES_PASSWORD: mnbara_dev
+      POSTGRES_DB: mnbara_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Listing Service
+  listing-service:
+    build:
+      context: ./backend/services/listing-service-node
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      PORT: 3001
+      JWT_SECRET: dev-secret-key
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/services/listing-service-node:/app
+      - /app/node_modules
+
+  # Cart Service
+  cart-service:
+    build:
+      context: ./backend/services/cart-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      REDIS_URL: redis://redis:6379
+      PORT: 3002
+      JWT_SECRET: dev-secret-key
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./backend/services/cart-service:/app
+      - /app/node_modules
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      PORT: 3003
+      JWT_SECRET: dev-secret-key
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/services/payment-service:/app
+      - /app/node_modules
+
+  # Crowdship Service
+  crowdship-service:
+    build:
+      context: ./backend/services/crowdship-service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      PORT: 3004
+      JWT_SECRET: dev-secret-key
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/services/crowdship-service:/app
+      - /app/node_modules
+
+  # Compliance Service
+  compliance-service:
+    build:
+      context: ./backend/services/compliance-service
+      dockerfile: Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      PORT: 3005
+      JWT_SECRET: dev-secret-key
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/services/compliance-service:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,4 +1,3 @@
-// Payment Service Database Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,289 +7,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Wallet {
-  id            String @id @default(cuid())
-  userId        String @unique
+model Order {
+  id              String   @id @default(cuid())
+  userId          String
   
-  // Balances
-  availableBalance Decimal @default(0) @db.Decimal(15, 2)
-  pendingBalance   Decimal @default(0) @db.Decimal(15, 2)
-  escrowBalance    Decimal @default(0) @db.Decimal(15, 2)
+  items           Json
+  totalAmount     Float
   
-  // Multi-currency support
-  currency      String @default("USD")
+  paymentIntentId String   @unique
+  status          OrderStatus @default(PENDING)
   
-  // Status
-  status        WalletStatus @default(ACTIVE)
-  isVerified    Boolean @default(false)
-  
-  // Limits
-  dailyLimit    Decimal? @db.Decimal(15, 2)
-  monthlyLimit  Decimal? @db.Decimal(15, 2)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  transactions  Transaction[]
-  escrows       Escrow[]
-  paymentMethods PaymentMethod[]
-  
-  @@map("wallets")
-}
-
-model PaymentMethod {
-  id            String @id @default(cuid())
-  walletId      String
-  userId        String
-  
-  type          PaymentMethodType
-  provider      PaymentProvider
-  
-  // Card details (encrypted)
-  last4         String?
-  brand         String?
-  expiryMonth   Int?
-  expiryYear    Int?
-  
-  // Bank details
-  bankName      String?
-  accountType   String?
-  routingNumber String?
-  
-  // External IDs
-  stripePaymentMethodId String?
-  paypalPaymentMethodId String?
-  
-  // Status
-  isDefault     Boolean @default(false)
-  isVerified    Boolean @default(false)
-  status        PaymentMethodStatus @default(ACTIVE)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  wallet        Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
-  transactions  Transaction[]
-  
-  @@map("payment_methods")
-}
-
-model Transaction {
-  id              String @id @default(cuid())
-  walletId        String
-  paymentMethodId String?
-  
-  // Transaction details
-  type            TransactionType
-  status          TransactionStatus @default(PENDING)
-  amount          Decimal @db.Decimal(15, 2)
-  currency        String @default("USD")
-  fee             Decimal @default(0) @db.Decimal(15, 2)
-  netAmount       Decimal @db.Decimal(15, 2)
-  
-  // References
-  referenceId     String? // Order ID, Auction ID, etc.
-  referenceType   String? // "order", "auction", "withdrawal", etc.
-  
-  // External transaction IDs
-  stripeTransactionId String?
-  paypalTransactionId String?
-  
-  // Metadata
-  description     String?
-  metadata        Json?
-  
-  // Timestamps
-  processedAt     DateTime?
-  failedAt        DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
-  // Relations
-  wallet          Wallet @relation(fields: [walletId], references: [id])
-  paymentMethod   PaymentMethod? @relation(fields: [paymentMethodId], references: [id])
-  escrow          Escrow?
-  
-  @@map("transactions")
+  @@map("orders")
+  @@index([userId])
+  @@index([status])
 }
 
-model Escrow {
-  id              String @id @default(cuid())
-  transactionId   String @unique
-  buyerWalletId   String
-  sellerWalletId  String
-  
-  // Escrow details
-  amount          Decimal @db.Decimal(15, 2)
-  currency        String @default("USD")
-  commission      Decimal @default(0) @db.Decimal(15, 2)
-  
-  // References
-  orderId         String?
-  auctionId       String?
-  
-  // Status
-  status          EscrowStatus @default(PENDING)
-  
-  // Timestamps
-  releaseDate     DateTime? // Auto-release date
-  releasedAt      DateTime?
-  disputedAt      DateTime?
-  resolvedAt      DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
-  transaction     Transaction @relation(fields: [transactionId], references: [id])
-  buyerWallet     Wallet @relation(fields: [buyerWalletId], references: [id])
-  disputes        EscrowDispute[]
-  
-  @@map("escrows")
-}
-
-model EscrowDispute {
-  id          String @id @default(cuid())
-  escrowId    String
-  raisedBy    String // userId
-  
-  reason      DisputeReason
-  description String
-  evidence    Json? // Array of evidence files/links
-  
-  status      DisputeStatus @default(OPEN)
-  resolution  String?
-  resolvedBy  String? // Admin user ID
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  resolvedAt  DateTime?
-  
-  // Relations
-  escrow      Escrow @relation(fields: [escrowId], references: [id])
-  
-  @@map("escrow_disputes")
-}
-
-model Commission {
-  id            String @id @default(cuid())
-  transactionId String
-  
-  // Commission details
-  rate          Decimal @db.Decimal(5, 4) // e.g., 0.15 for 15%
-  amount        Decimal @db.Decimal(15, 2)
-  currency      String @default("USD")
-  
-  // References
-  sellerId      String
-  orderId       String?
-  auctionId     String?
-  
-  status        CommissionStatus @default(PENDING)
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  paidAt        DateTime?
-  
-  @@map("commissions")
-}
-
-model PaymentWebhook {
-  id          String @id @default(cuid())
-  provider    PaymentProvider
-  eventType   String
-  eventId     String @unique
-  payload     Json
-  processed   Boolean @default(false)
-  
-  createdAt   DateTime @default(now())
-  processedAt DateTime?
-  
-  @@map("payment_webhooks")
-}
-
-// Enums
-enum WalletStatus {
-  ACTIVE
-  SUSPENDED
-  FROZEN
-  CLOSED
-}
-
-enum PaymentMethodType {
-  CREDIT_CARD
-  DEBIT_CARD
-  BANK_ACCOUNT
-  PAYPAL
-  APPLE_PAY
-  GOOGLE_PAY
-}
-
-enum PaymentProvider {
-  STRIPE
-  PAYPAL
-  APPLE_PAY
-  GOOGLE_PAY
-  BANK_TRANSFER
-}
-
-enum PaymentMethodStatus {
-  ACTIVE
-  INACTIVE
-  EXPIRED
-  FAILED_VERIFICATION
-}
-
-enum TransactionType {
-  DEPOSIT
-  WITHDRAWAL
-  PAYMENT
-  REFUND
-  COMMISSION
-  ESCROW_HOLD
-  ESCROW_RELEASE
-  FEE
-}
-
-enum TransactionStatus {
+enum OrderStatus {
   PENDING
+  CONFIRMED
   PROCESSING
-  COMPLETED
-  FAILED
+  SHIPPED
+  DELIVERED
   CANCELLED
   REFUNDED
-}
-
-enum EscrowStatus {
-  PENDING
-  HELD
-  RELEASED
-  DISPUTED
-  RESOLVED
-  CANCELLED
-}
-
-enum DisputeReason {
-  ITEM_NOT_RECEIVED
-  ITEM_NOT_AS_DESCRIBED
-  DAMAGED_ITEM
-  WRONG_ITEM
-  SELLER_UNRESPONSIVE
-  BUYER_UNRESPONSIVE
-  OTHER
-}
-
-enum DisputeStatus {
-  OPEN
-  UNDER_REVIEW
-  RESOLVED
-  CLOSED
-}
-
-enum CommissionStatus {
-  PENDING
-  CALCULATED
-  PAID
-  DISPUTED
 }
