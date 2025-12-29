@@ -112,7 +112,7 @@ Add the label to enable Vault injection:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: mnbara
+  name: mnbarh
   labels:
     vault-injection: enabled
 ```
@@ -125,9 +125,9 @@ metadata:
   annotations:
     vault.hashicorp.com/agent-inject: "true"
     vault.hashicorp.com/role: "auth-service"
-    vault.hashicorp.com/agent-inject-secret-database.json: "secret/data/mnbara/database"
+    vault.hashicorp.com/agent-inject-secret-database.json: "secret/data/mnbarh/database"
     vault.hashicorp.com/agent-inject-template-database.json: |
-      {{- with secret "secret/data/mnbara/database" -}}
+      {{- with secret "secret/data/mnbarh/database" -}}
       {
         "host": "{{ .Data.data.host }}",
         "password": "{{ .Data.data.password }}"
@@ -168,20 +168,20 @@ Each service has a dedicated policy with least-privilege access:
 
 ## Secrets Paths
 
-All MNBARA secrets are stored under `secret/data/mnbara/`:
+All MNBARA secrets are stored under `secret/data/mnbarh/`:
 
-- `secret/data/mnbara/database` - PostgreSQL credentials
-- `secret/data/mnbara/redis` - Redis credentials
-- `secret/data/mnbara/rabbitmq` - RabbitMQ credentials
-- `secret/data/mnbara/jwt` - JWT signing secrets
-- `secret/data/mnbara/stripe` - Stripe API keys
-- `secret/data/mnbara/paypal` - PayPal credentials
-- `secret/data/mnbara/oauth` - OAuth provider credentials
-- `secret/data/mnbara/minio` - MinIO credentials
-- `secret/data/mnbara/elasticsearch` - Elasticsearch credentials
-- `secret/data/mnbara/encryption` - Encryption keys
-- `secret/data/mnbara/notifications` - FCM/APNs credentials
-- `secret/data/mnbara/blockchain` - Web3/Infura credentials
+- `secret/data/mnbarh/database` - PostgreSQL credentials
+- `secret/data/mnbarh/redis` - Redis credentials
+- `secret/data/mnbarh/rabbitmq` - RabbitMQ credentials
+- `secret/data/mnbarh/jwt` - JWT signing secrets
+- `secret/data/mnbarh/stripe` - Stripe API keys
+- `secret/data/mnbarh/paypal` - PayPal credentials
+- `secret/data/mnbarh/oauth` - OAuth provider credentials
+- `secret/data/mnbarh/minio` - MinIO credentials
+- `secret/data/mnbarh/elasticsearch` - Elasticsearch credentials
+- `secret/data/mnbarh/encryption` - Encryption keys
+- `secret/data/mnbarh/notifications` - FCM/APNs credentials
+- `secret/data/mnbarh/blockchain` - Web3/Infura credentials
 
 ## Monitoring
 
@@ -206,7 +206,7 @@ kubectl logs -n vault -l app.kubernetes.io/name=vault-agent-injector
 
 ### Check Pod Injection
 ```bash
-kubectl describe pod <pod-name> -n mnbara | grep -A 20 "Annotations"
+kubectl describe pod <pod-name> -n mnbarh | grep -A 20 "Annotations"
 ```
 
 ### Verify Policy
