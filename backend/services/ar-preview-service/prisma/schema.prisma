@@ -244,3 +244,65 @@ enum MarkerType {
   NAVIGATION
   INTERACTIVE
 }
+
+// ==========================================
+// 👗 VIRTUAL TRY-ON (New Feature)
+// غرفة القياس الافتراضية
+// ==========================================
+
+model VirtualTryOn {
+  id              String   @id @default(uuid())
+  userId          String
+  productId       String
+  productName     String
+  productCategory TryOnCategory
+  
+  // Assets
+  productImageUrl String
+  userPhotoUrl    String?   // User's uploaded photo
+  resultImageUrl  String?   // AI-generated try-on result
+  
+  // Body/Face Measurements (if applicable)
+  measurements    Json?     // e.g., { faceWidth, faceLength, shoulderWidth }
+  
+  // AI Processing
+  aiModel         String    @default("tryOn-v1")
+  processingStatus TryOnStatus @default(PENDING)
+  processingTime  Int?      // ms
+  confidenceScore Float?    // How good the fit looks (0-1)
+  
+  // User Feedback
+  userRating      Int?      // 1-5 stars
+  userFeedback    String?
+  
+  // Outcome
+  addedToCart     Boolean   @default(false)
+  purchased       Boolean   @default(false)
+  sharedOnSocial  Boolean   @default(false)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([productId])
+  @@index([productCategory])
+}
+
+enum TryOnCategory {
+  GLASSES       // نظارات
+  WATCHES       // ساعات
+  JEWELRY       // مجوهرات
+  HATS          // قبعات
+  SHOES         // أحذية
+  CLOTHING      // ملابس
+  MAKEUP        // مكياج
+  BAGS          // حقائب
+}
+
+enum TryOnStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+

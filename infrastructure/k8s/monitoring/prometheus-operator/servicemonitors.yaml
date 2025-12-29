@@ -10,11 +10,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: api-gateway
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: api-gateway
@@ -38,11 +38,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: auth-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: auth-service
@@ -60,11 +60,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: listing-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: listing-service
@@ -82,11 +82,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: auction-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: auction-service
@@ -104,11 +104,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: payment-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: payment-service
@@ -126,11 +126,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: crowdship-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: crowdship-service
@@ -148,11 +148,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: notification-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: notification-service
@@ -170,11 +170,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: recommendation-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: recommendation-service
@@ -192,11 +192,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: rewards-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: rewards-service
@@ -214,11 +214,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: orders-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: orders-service
@@ -236,11 +236,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: trips-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: trips-service
@@ -258,11 +258,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: matching-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: matching-service
@@ -280,11 +280,11 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: admin-service
-    app.kubernetes.io/part-of: mnbara-platform
+    app.kubernetes.io/part-of: mnbarh-platform
 spec:
   namespaceSelector:
     matchNames:
-      - mnbara
+      - mnbarh
   selector:
     matchLabels:
       app.kubernetes.io/name: admin-service

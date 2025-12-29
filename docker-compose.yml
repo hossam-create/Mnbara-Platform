@@ -858,6 +858,58 @@ services:
       timeout: 10s
       retries: 3
 
+  # Social Commerce Service - Team Purchase, Live Shopping (NEW)
+  social-commerce-service:
+    build:
+      context: ./backend/services/social-commerce-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-social-commerce-service
+    ports:
+      - "3035:3028"
+    environment:
+      - NODE_ENV=development
+      - PORT=3028
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/social_commerce_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3028/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Sustainability Service - Second Life, Carbon Footprint (NEW)
+  sustainability-service:
+    build:
+      context: ./backend/services/sustainability-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-sustainability-service
+    ports:
+      - "3036:3029"
+    environment:
+      - NODE_ENV=development
+      - PORT=3029
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/sustainability_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3029/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # ===================
   # FRONTENDS
   # ===================

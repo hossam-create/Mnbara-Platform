@@ -254,3 +254,110 @@ model UserVoicePreference {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// ==========================================
+// 💰 VOICE NEGOTIATION (New Feature)
+// التفاوض الصوتي بالذكاء الاصطناعي
+// ==========================================
+
+model VoiceNegotiation {
+  id              String   @id @default(uuid())
+  userId          String
+  sellerId        String
+  productId       String
+  productName     String
+  
+  // Pricing
+  originalPrice   Float
+  buyerOffer      Float?    // Buyer's proposed price
+  sellerCounter   Float?    // Seller's counter offer
+  finalPrice      Float?    // Agreed price
+  
+  // Negotiation State
+  status          NegotiationStatus @default(INITIATED)
+  round           Int       @default(1)  // Which round of negotiation
+  maxRounds       Int       @default(3)
+  
+  // AI Negotiation Settings
+  aiAssisted      Boolean   @default(true)
+  buyerMinPrice   Float?    // Buyer's minimum acceptable
+  sellerMinPrice  Float?    // Seller's minimum acceptable
+  aiSuggestedPrice Float?   // AI's fair price suggestion
+  
+  // Conversation
+  messages        NegotiationMessage[]
+  
+  // Outcome
+  outcome         NegotiationOutcome?
+  savedAmount     Float?    // How much buyer saved
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  completedAt     DateTime?
+  
+  @@index([userId])
+  @@index([sellerId])
+  @@index([productId])
+  @@index([status])
+}
+
+model NegotiationMessage {
+  id              String   @id @default(uuid())
+  negotiationId   String
+  negotiation     VoiceNegotiation @relation(fields: [negotiationId], references: [id])
+  
+  // Message
+  sender          MessageSender
+  type            MessageType
+  text            String
+  textAr          String?
+  audioUrl        String?
+  
+  // For offers
+  priceOffer      Float?
+  
+  // AI Analysis
+  sentiment       String?   // positive, neutral, negative
+  aiConfidence    Float?
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([negotiationId])
+}
+
+enum NegotiationStatus {
+  INITIATED       // Started
+  BUYER_OFFERED   // Buyer made an offer
+  SELLER_COUNTERED // Seller countered
+  AI_MEDIATING    // AI is suggesting
+  AGREED          // Both agreed
+  REJECTED        // Seller rejected
+  EXPIRED         // Timed out
+  CANCELLED       // Cancelled by user
+}
+
+enum NegotiationOutcome {
+  DEAL_MADE       // Successfully negotiated
+  NO_DEAL         // Could not agree
+  BOUGHT_ORIGINAL // Bought at original price
+  CANCELLED       // Cancelled
+}
+
+enum MessageSender {
+  BUYER
+  SELLER
+  AI_ASSISTANT
+}
+
+enum MessageType {
+  GREETING
+  OFFER
+  COUNTER_OFFER
+  QUESTION
+  RESPONSE
+  SUGGESTION
+  ACCEPTANCE
+  REJECTION
+  FAREWELL
+}
+
