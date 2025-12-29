@@ -1,0 +1,180 @@
+// Mnbara Platform - Sustainability Service
+// خدمة الاستدامة - سوق حياة ثانية وتتبع البصمة الكربونية
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// SECOND LIFE MARKETPLACE (Resale)
+// سوق حياة ثانية - إعادة البيع
+// ==========================================
+
+model SecondLifeListing {
+  id                String   @id @default(uuid())
+  originalOrderId   String   // Order from which user bought the item
+  originalProductId String
+  productName       String
+  productImages     String[] // Original product images
+  originalPrice     Float
+  resalePrice       Float
+  condition         ProductCondition
+  conditionNotes    String?
+  sellerId          String
+  sellerName        String
+  status            ListingStatus @default(ACTIVE)
+  viewCount         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  soldAt            DateTime?
+  buyerId           String?
+  
+  carbonSaved       Float?   // kg CO2 saved by buying used
+  
+  @@index([sellerId])
+  @@index([originalProductId])
+  @@index([status])
+}
+
+enum ProductCondition {
+  LIKE_NEW      // مثل الجديد
+  VERY_GOOD     // جيد جدا
+  GOOD          // جيد
+  ACCEPTABLE    // مقبول
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  REMOVED
+}
+
+// ==========================================
+// CARBON FOOTPRINT TRACKING
+// تتبع البصمة الكربونية
+// ==========================================
+
+model CarbonFootprint {
+  id          String   @id @default(uuid())
+  userId      String
+  month       Int      // 1-12
+  year        Int
+  
+  // Emissions from shipping (kg CO2)
+  shippingEmissions     Float @default(0)
+  
+  // Savings from eco-choices
+  groupDeliverySaved    Float @default(0) // From choosing group delivery
+  secondLifeSaved       Float @default(0) // From buying used items
+  localPickupSaved      Float @default(0) // From local pickup vs shipping
+  
+  totalEmissions        Float @default(0)
+  totalSaved            Float @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, month, year])
+  @@index([userId])
+}
+
+model CarbonAction {
+  id          String   @id @default(uuid())
+  userId      String
+  actionType  CarbonActionType
+  orderId     String?
+  carbonKg    Float    // Positive = saved, Negative = emitted
+  description String
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([orderId])
+}
+
+enum CarbonActionType {
+  SHIPPING_STANDARD
+  SHIPPING_EXPRESS
+  GROUP_DELIVERY
+  LOCAL_PICKUP
+  BOUGHT_SECONDHAND
+  SOLD_SECONDHAND
+  ECO_PACKAGING
+  CARBON_OFFSET_DONATION
+}
+
+// ==========================================
+// SUSTAINABILITY SCORE & REWARDS
+// نقاط ومكافآت الاستدامة
+// ==========================================
+
+model SustainabilityScore {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  totalScore      Int      @default(0)
+  level           SustainabilityLevel @default(SEEDLING)
+  carbonSavedKg   Float    @default(0)
+  treesEquivalent Float    @default(0) // Trees equivalent to CO2 saved
+  badgesEarned    String[] // Array of badge IDs
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([level])
+  @@index([totalScore])
+}
+
+enum SustainabilityLevel {
+  SEEDLING    // 0-100 points
+  SAPLING     // 101-500
+  TREE        // 501-2000
+  FOREST      // 2001-10000
+  ECOSYSTEM   // 10001+
+}
+
+model EcoReward {
+  id          String   @id @default(uuid())
+  userId      String
+  rewardType  EcoRewardType
+  points      Int
+  description String
+  expiresAt   DateTime?
+  isRedeemed  Boolean  @default(false)
+  redeemedAt  DateTime?
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRedeemed])
+}
+
+enum EcoRewardType {
+  DISCOUNT_5_PERCENT
+  DISCOUNT_10_PERCENT
+  FREE_SHIPPING
+  TREE_PLANTED
+  CARBON_OFFSET
+  ECO_BADGE
+}
+
+// ==========================================
+// ECO PRODUCTS & CERTIFICATIONS
+// المنتجات والشهادات البيئية
+// ==========================================
+
+model EcoProduct {
+  id              String   @id @default(uuid())
+  productId       String   @unique
+  certifications  String[] // ECO_FRIENDLY, RECYCLED, ORGANIC, etc.
+  carbonFootprint Float?   // kg CO2 per unit
+  recyclable      Boolean  @default(false)
+  biodegradable   Boolean  @default(false)
+  locallyMade     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  
+  @@index([productId])
+}

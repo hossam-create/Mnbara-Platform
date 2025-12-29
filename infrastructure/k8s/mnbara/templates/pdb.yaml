@@ -6,12 +6,12 @@ metadata:
   name: {{ .Values.apiGateway.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
 ---
 # Auth Service PDB
 apiVersion: policy/v1
@@ -20,12 +20,12 @@ metadata:
   name: {{ .Values.authService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.authService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.authService.name) | nindent 6 }}
 ---
 # Listing Service PDB
 apiVersion: policy/v1
@@ -34,12 +34,12 @@ metadata:
   name: {{ .Values.listingService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 6 }}
 ---
 # Auction Service PDB (critical for real-time bidding - higher availability)
 apiVersion: policy/v1
@@ -48,12 +48,12 @@ metadata:
   name: {{ .Values.auctionService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
 spec:
   minAvailable: 2
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.auctionService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.auctionService.name) | nindent 6 }}
 ---
 # Payment Service PDB (critical for transactions)
 apiVersion: policy/v1
@@ -62,12 +62,12 @@ metadata:
   name: {{ .Values.paymentService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.paymentService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.paymentService.name) | nindent 6 }}
 ---
 # Crowdship Service PDB
 apiVersion: policy/v1
@@ -76,12 +76,12 @@ metadata:
   name: {{ .Values.crowdshipService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.crowdshipService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.crowdshipService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.crowdshipService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.crowdshipService.name) | nindent 6 }}
 ---
 # Notification Service PDB
 apiVersion: policy/v1
@@ -90,12 +90,12 @@ metadata:
   name: {{ .Values.notificationService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.notificationService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.notificationService.name) | nindent 6 }}
 ---
 # Recommendation Service PDB
 apiVersion: policy/v1
@@ -104,12 +104,12 @@ metadata:
   name: {{ .Values.recommendationService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.recommendationService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.recommendationService.name) | nindent 6 }}
 ---
 # Rewards Service PDB
 apiVersion: policy/v1
@@ -118,12 +118,12 @@ metadata:
   name: {{ .Values.rewardsService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.rewardsService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.rewardsService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.rewardsService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.rewardsService.name) | nindent 6 }}
 ---
 # Orders Service PDB
 apiVersion: policy/v1
@@ -132,12 +132,12 @@ metadata:
   name: {{ .Values.ordersService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.ordersService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.ordersService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.ordersService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.ordersService.name) | nindent 6 }}
 ---
 # Trips Service PDB
 apiVersion: policy/v1
@@ -146,12 +146,12 @@ metadata:
   name: {{ .Values.tripsService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.tripsService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.tripsService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.tripsService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.tripsService.name) | nindent 6 }}
 ---
 # Matching Service PDB
 apiVersion: policy/v1
@@ -160,12 +160,12 @@ metadata:
   name: {{ .Values.matchingService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.matchingService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.matchingService.name) | nindent 6 }}
 ---
 # Admin Service PDB
 apiVersion: policy/v1
@@ -174,12 +174,12 @@ metadata:
   name: {{ .Values.adminService.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.adminService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.adminService.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.adminService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.adminService.name) | nindent 6 }}
 ---
 # Web Frontend PDB
 apiVersion: policy/v1
@@ -188,10 +188,10 @@ metadata:
   name: {{ .Values.webFrontend.name }}-pdb
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.webFrontend.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.webFrontend.name) | nindent 4 }}
 spec:
   minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.webFrontend.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.webFrontend.name) | nindent 6 }}
 {{- end }}

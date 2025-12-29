@@ -1,0 +1,192 @@
+// Mnbara Platform - Social Commerce Service
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// TEAM PURCHASE (Group Buying)
+// ==========================================
+
+model TeamPurchase {
+  id              String   @id @default(uuid())
+  productId       String
+  productName     String
+  originalPrice   Float
+  discountedPrice Float
+  targetMembers   Int      @default(3)
+  currentMembers  Int      @default(1)
+  status          TeamPurchaseStatus @default(PENDING)
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  creatorId       String
+  members         TeamMember[]
+  
+  @@index([status, expiresAt])
+  @@index([creatorId])
+}
+
+model TeamMember {
+  id            String   @id @default(uuid())
+  teamPurchaseId String
+  userId        String
+  joinedAt      DateTime @default(now())
+  hasPaid       Boolean  @default(false)
+  
+  teamPurchase  TeamPurchase @relation(fields: [teamPurchaseId], references: [id])
+  
+  @@unique([teamPurchaseId, userId])
+  @@index([userId])
+}
+
+enum TeamPurchaseStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+// ==========================================
+// LIVE SHOPPING (Streaming Commerce)
+// ==========================================
+
+model LiveStream {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  hostId        String
+  hostName      String
+  streamUrl     String?
+  thumbnailUrl  String?
+  status        LiveStreamStatus @default(SCHEDULED)
+  scheduledAt   DateTime?
+  startedAt     DateTime?
+  endedAt       DateTime?
+  viewerCount   Int      @default(0)
+  peakViewers   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  products      LiveStreamProduct[]
+  purchases     LiveStreamPurchase[]
+  
+  @@index([hostId])
+  @@index([status, scheduledAt])
+}
+
+model LiveStreamProduct {
+  id            String   @id @default(uuid())
+  liveStreamId  String
+  productId     String
+  productName   String
+  originalPrice Float
+  livePrice     Float
+  stock         Int
+  soldCount     Int      @default(0)
+  displayOrder  Int      @default(0)
+  
+  liveStream    LiveStream @relation(fields: [liveStreamId], references: [id])
+  
+  @@index([liveStreamId])
+}
+
+model LiveStreamPurchase {
+  id            String   @id @default(uuid())
+  liveStreamId  String
+  productId     String
+  userId        String
+  quantity      Int
+  price         Float
+  purchasedAt   DateTime @default(now())
+  
+  liveStream    LiveStream @relation(fields: [liveStreamId], references: [id])
+  
+  @@index([liveStreamId])
+  @@index([userId])
+}
+
+enum LiveStreamStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+}
+
+// ==========================================
+// INFLUENCER CAMPAIGNS
+// ==========================================
+
+model InfluencerCampaign {
+  id              String   @id @default(uuid())
+  influencerId    String
+  influencerName  String
+  referralCode    String   @unique
+  commissionRate  Float    @default(0.05) // 5% default
+  totalEarnings   Float    @default(0)
+  totalSales      Int      @default(0)
+  status          CampaignStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  referrals       InfluencerReferral[]
+  
+  @@index([influencerId])
+  @@index([referralCode])
+}
+
+model InfluencerReferral {
+  id            String   @id @default(uuid())
+  campaignId    String
+  buyerId       String
+  orderId       String
+  orderAmount   Float
+  commission    Float
+  isPaid        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  
+  campaign      InfluencerCampaign @relation(fields: [campaignId], references: [id])
+  
+  @@index([campaignId])
+  @@index([buyerId])
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+// ==========================================
+// SOCIAL SHARING & REWARDS
+// ==========================================
+
+model SocialShare {
+  id          String   @id @default(uuid())
+  userId      String
+  productId   String
+  platform    SocialPlatform
+  shareUrl    String
+  clicks      Int      @default(0)
+  conversions Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([productId])
+}
+
+enum SocialPlatform {
+  WHATSAPP
+  FACEBOOK
+  TWITTER
+  INSTAGRAM
+  TELEGRAM
+  TIKTOK
+  COPY_LINK
+}
