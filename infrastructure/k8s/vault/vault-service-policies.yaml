@@ -17,17 +17,17 @@ data:
     # Requires: database, jwt, redis credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read JWT secrets for token validation
-    path "secret/data/mnbara/jwt" {
+    path "secret/data/mnbarh/jwt" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials for caching/rate limiting
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -42,27 +42,27 @@ data:
     # Requires: database, jwt, oauth, redis, encryption credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read JWT secrets for token generation
-    path "secret/data/mnbara/jwt" {
+    path "secret/data/mnbarh/jwt" {
       capabilities = ["read"]
     }
     
     # Read OAuth provider credentials
-    path "secret/data/mnbara/oauth" {
+    path "secret/data/mnbarh/oauth" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials for session management
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read encryption keys for sensitive data
-    path "secret/data/mnbara/encryption" {
+    path "secret/data/mnbarh/encryption" {
       capabilities = ["read"]
     }
     
@@ -77,32 +77,32 @@ data:
     # Requires: database, stripe, paypal, redis, rabbitmq, blockchain credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Stripe credentials
-    path "secret/data/mnbara/stripe" {
+    path "secret/data/mnbarh/stripe" {
       capabilities = ["read"]
     }
     
     # Read PayPal credentials
-    path "secret/data/mnbara/paypal" {
+    path "secret/data/mnbarh/paypal" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials for event publishing
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
     # Read blockchain credentials for MNB token payments
-    path "secret/data/mnbara/blockchain" {
+    path "secret/data/mnbarh/blockchain" {
       capabilities = ["read"]
     }
     
@@ -117,17 +117,17 @@ data:
     # Requires: database, redis, rabbitmq credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials for real-time auction state
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials for bid events
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
@@ -142,22 +142,22 @@ data:
     # Requires: database, minio, elasticsearch, redis credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read MinIO credentials for image storage
-    path "secret/data/mnbara/minio" {
+    path "secret/data/mnbarh/minio" {
       capabilities = ["read"]
     }
     
     # Read Elasticsearch credentials for search indexing
-    path "secret/data/mnbara/elasticsearch" {
+    path "secret/data/mnbarh/elasticsearch" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials for caching
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -172,22 +172,22 @@ data:
     # Requires: database, notifications (FCM/APNs), rabbitmq, redis credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read FCM/APNs credentials
-    path "secret/data/mnbara/notifications" {
+    path "secret/data/mnbarh/notifications" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials for event consumption
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -202,17 +202,17 @@ data:
     # Requires: database, redis, rabbitmq credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials for caching recommendations
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials for event processing
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
@@ -227,12 +227,12 @@ data:
     # Requires: database, redis credentials
     
     # Read database credentials (PostGIS for geo queries)
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -247,12 +247,12 @@ data:
     # Requires: database, redis credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -267,17 +267,17 @@ data:
     # Requires: database, redis, rabbitmq credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials for order events
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
@@ -292,12 +292,12 @@ data:
     # Requires: database, redis credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
@@ -312,17 +312,17 @@ data:
     # Requires: full read access to all secrets
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read all MNBARA secrets (admin access)
-    path "secret/data/mnbara/*" {
+    path "secret/data/mnbarh/*" {
       capabilities = ["read", "list"]
     }
     
     # List secret metadata
-    path "secret/metadata/mnbara/*" {
+    path "secret/metadata/mnbarh/*" {
       capabilities = ["list", "read"]
     }
     
@@ -337,17 +337,17 @@ data:
     # Requires: database, redis, rabbitmq credentials
     
     # Read database credentials
-    path "secret/data/mnbara/database" {
+    path "secret/data/mnbarh/database" {
       capabilities = ["read"]
     }
     
     # Read Redis credentials
-    path "secret/data/mnbara/redis" {
+    path "secret/data/mnbarh/redis" {
       capabilities = ["read"]
     }
     
     # Read RabbitMQ credentials
-    path "secret/data/mnbara/rabbitmq" {
+    path "secret/data/mnbarh/rabbitmq" {
       capabilities = ["read"]
     }
     
