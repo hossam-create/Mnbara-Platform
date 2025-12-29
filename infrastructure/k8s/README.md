@@ -32,57 +32,57 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 
 # Update dependencies
-cd infrastructure/k8s/mnbara
+cd infrastructure/k8s/mnbarh
 helm dependency update
 
 # Install in development mode
-helm install mnbara . -f values-dev.yaml --create-namespace
+helm install mnbarh . -f values-dev.yaml --create-namespace
 ```
 
 ### Staging Environment
 
 ```bash
 # Create secrets first
-kubectl create secret generic mnbara-secrets \
+kubectl create secret generic mnbarh-secrets \
   --from-literal=postgres-password=<password> \
   --from-literal=redis-password=<password> \
   --from-literal=jwt-secret=<secret> \
-  -n mnbara-staging
+  -n mnbarh-staging
 
 # Install
-helm install mnbara . -f values-staging.yaml --create-namespace
+helm install mnbarh . -f values-staging.yaml --create-namespace
 ```
 
 ### Production Environment
 
 ```bash
 # Create secrets (use external secrets manager in production)
-kubectl create secret generic mnbara-database \
+kubectl create secret generic mnbarh-database \
   --from-literal=postgres-password=<password> \
   --from-literal=password=<password> \
-  -n mnbara-prod
+  -n mnbarh-prod
 
-kubectl create secret generic mnbara-redis \
+kubectl create secret generic mnbarh-redis \
   --from-literal=redis-password=<password> \
-  -n mnbara-prod
+  -n mnbarh-prod
 
-kubectl create secret generic mnbara-jwt \
+kubectl create secret generic mnbarh-jwt \
   --from-literal=jwt-secret=<secret> \
-  -n mnbara-prod
+  -n mnbarh-prod
 
-kubectl create secret generic mnbara-stripe \
+kubectl create secret generic mnbarh-stripe \
   --from-literal=secret-key=<stripe-key> \
   --from-literal=webhook-secret=<webhook-secret> \
-  -n mnbara-prod
+  -n mnbarh-prod
 
 # Install
-helm install mnbara . -f values-prod.yaml --create-namespace
+helm install mnbarh . -f values-prod.yaml --create-namespace
 ```
 
 ## Chart Structure
 
 ```
-mnbara/
+mnbarh/
 ├── Chart.yaml              # Chart metadata and dependencies
 ├── values.yaml             # Default values
 ├── values-dev.yaml         # Development overrides
@@ -140,21 +140,21 @@ externalSecrets:
   # AWS Secrets Manager
   aws:
     region: "us-east-1"
-    role: "arn:aws:iam::123456789:role/mnbara-secrets"
-    serviceAccountRef: "mnbara-sa"
+    role: "arn:aws:iam::123456789:role/mnbarh-secrets"
+    serviceAccountRef: "mnbarh-sa"
   
   # HashiCorp Vault
   vault:
     server: "http://vault.vault:8200"
     path: "secret"
-    role: "mnbara"
+    role: "mnbarh"
   
   # Secret paths
   secretPaths:
-    database: "mnbara/database"
-    redis: "mnbara/redis"
-    jwt: "mnbara/jwt"
-    stripe: "mnbara/stripe"
+    database: "mnbarh/database"
+    redis: "mnbarh/redis"
+    jwt: "mnbarh/jwt"
+    stripe: "mnbarh/stripe"
 ```
 
 #### Prerequisites for External Secrets
@@ -172,8 +172,8 @@ aws iam create-policy --policy-name MNBARASecretsAccess --policy-document file:/
 
 # Associate with service account (EKS)
 eksctl create iamserviceaccount \
-  --name mnbara-sa \
-  --namespace mnbara-prod \
+  --name mnbarh-sa \
+  --namespace mnbarh-prod \
   --cluster your-cluster \
   --attach-policy-arn arn:aws:iam::123456789:policy/MNBARASecretsAccess
 ```
@@ -349,13 +349,13 @@ monitoring:
 helm dependency update
 
 # Upgrade release
-helm upgrade mnbara . -f values-prod.yaml
+helm upgrade mnbarh . -f values-prod.yaml
 ```
 
 ## Uninstalling
 
 ```bash
-helm uninstall mnbara -n mnbara-prod
+helm uninstall mnbarh -n mnbarh-prod
 ```
 
 ## Service Mesh
@@ -388,7 +388,7 @@ serviceMesh:
 istioctl install --set profile=production
 
 # Enable sidecar injection for namespace
-kubectl label namespace mnbara-prod istio-injection=enabled
+kubectl label namespace mnbarh-prod istio-injection=enabled
 ```
 
 ### Enabling Linkerd
@@ -411,7 +411,7 @@ serviceMesh:
 linkerd install | kubectl apply -f -
 
 # Inject sidecars
-kubectl get deploy -n mnbara-prod -o yaml | linkerd inject - | kubectl apply -f -
+kubectl get deploy -n mnbarh-prod -o yaml | linkerd inject - | kubectl apply -f -
 ```
 
 ### Service Mesh Features
@@ -448,20 +448,20 @@ See [tests/README.md](tests/README.md) for detailed test documentation.
 
 ### Check pod status
 ```bash
-kubectl get pods -n mnbara-prod
+kubectl get pods -n mnbarh-prod
 ```
 
 ### View logs
 ```bash
-kubectl logs -f deployment/auction-service -n mnbara-prod
+kubectl logs -f deployment/auction-service -n mnbarh-prod
 ```
 
 ### Describe pod for events
 ```bash
-kubectl describe pod <pod-name> -n mnbara-prod
+kubectl describe pod <pod-name> -n mnbarh-prod
 ```
 
 ### Check HPA status
 ```bash
-kubectl get hpa -n mnbara-prod
+kubectl get hpa -n mnbarh-prod
 ```
