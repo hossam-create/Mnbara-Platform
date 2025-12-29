@@ -33,7 +33,7 @@ done
 echo "✅ All required environment variables are configured"
 
 # Create deployment directory
-DEPLOY_DIR="/opt/mnbara/production/$(date +%Y%m%d_%H%M%S)"
+DEPLOY_DIR="/opt/mnbarh/production/$(date +%Y%m%d_%H%M%S)"
 echo "📁 Creating deployment directory: $DEPLOY_DIR"
 mkdir -p "$DEPLOY_DIR"
 
@@ -47,23 +47,23 @@ echo "🐳 Building Docker images..."
 
 # Build backend services
 echo "🔨 Building API Gateway..."
-docker build -f backend/services/api-gateway/Dockerfile.prod -t mnbara-api-gateway:2026.1.0 .
+docker build -f backend/services/api-gateway/Dockerfile.prod -t mnbarh-api-gateway:2026.1.0 .
 
 echo "🔨 Building P2P Swap Service..."
-docker build -f backend/services/admin-service/Dockerfile.prod -t mnbara-p2p-swap:2026.1.0 .
+docker build -f backend/services/admin-service/Dockerfile.prod -t mnbarh-p2p-swap:2026.1.0 .
 
 echo "🔨 Building Real-time Matching Service..."
-docker build -f backend/services/matching-service/Dockerfile.prod -t mnbara-real-time-matcher:2026.1.0 .
+docker build -f backend/services/matching-service/Dockerfile.prod -t mnbarh-real-time-matcher:2026.1.0 .
 
 echo "🔨 Building AI Core Service..."
-docker build -f backend/services/ai-core/Dockerfile.prod -t mnbara-ai-core:2026.1.0 .
+docker build -f backend/services/ai-core/Dockerfile.prod -t mnbarh-ai-core:2026.1.0 .
 
 # Build frontend services
 echo "🔨 Building Web Frontend..."
-docker build -f frontend/web/Dockerfile.prod -t mnbara-web-frontend:2026.1.0 .
+docker build -f frontend/web/Dockerfile.prod -t mnbarh-web-frontend:2026.1.0 .
 
 echo "🔨 Building Mobile Backend..."
-docker build -f frontend/mobile/mnbara-app/Dockerfile.prod -t mnbara-mobile-backend:2026.1.0 .
+docker build -f frontend/mobile/mnbarh-app/Dockerfile.prod -t mnbarh-mobile-backend:2026.1.0 .
 
 echo "✅ All Docker images built successfully"
 
@@ -78,18 +78,18 @@ fi
 
 # Create Docker network
 echo "🌐 Creating production network..."
-docker network create --driver overlay --attachable mnbara-network-prod 2>/dev/null || true
+docker network create --driver overlay --attachable mnbarh-network-prod 2>/dev/null || true
 
 # Deploy services
 echo "🚀 Deploying production stack..."
-docker stack deploy -c docker-compose.prod.yml mnbara-prod
+docker stack deploy -c docker-compose.prod.yml mnbarh-prod
 
 echo "⏳ Waiting for services to start..."
 sleep 30
 
 # Check deployment status
 echo "📊 Checking deployment status..."
-docker service ls --filter "name=mnbara-prod"
+docker service ls --filter "name=mnbarh-prod"
 
 # Run health checks
 echo "🏥 Running health checks..."
@@ -103,7 +103,7 @@ else
 fi
 
 # Check database connection
-DB_HEALTH=$(docker exec mnbara-postgres-prod pg_isready -U "$DB_USER" 2>/dev/null && echo "healthy" || echo "failed")
+DB_HEALTH=$(docker exec mnbarh-postgres-prod pg_isready -U "$DB_USER" 2>/dev/null && echo "healthy" || echo "failed")
 if [ "$DB_HEALTH" = "healthy" ]; then
     echo "✅ Database is healthy"
 else
@@ -111,7 +111,7 @@ else
 fi
 
 # Check Redis
-REDIS_HEALTH=$(docker exec mnbara-redis-prod redis-cli -a "$REDIS_PASSWORD" ping 2>/dev/null | grep -q PONG && echo "healthy" || echo "failed")
+REDIS_HEALTH=$(docker exec mnbarh-redis-prod redis-cli -a "$REDIS_PASSWORD" ping 2>/dev/null | grep -q PONG && echo "healthy" || echo "failed")
 if [ "$REDIS_HEALTH" = "healthy" ]; then
     echo "✅ Redis is healthy"
 else
@@ -122,33 +122,33 @@ fi
 echo "📊 Running database migrations..."
 
 # API Gateway migrations
-docker run --rm --network mnbara-network-prod \
+docker run --rm --network mnbarh-network-prod \
   -e DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@postgres:5432/api_gateway_db" \
-  mnbara-api-gateway:2026.1.0 npm run migrate:prod
+  mnbarh-api-gateway:2026.1.0 npm run migrate:prod
 
 # P2P Swap migrations
-docker run --rm --network mnbara-network-prod \
+docker run --rm --network mnbarh-network-prod \
   -e DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@postgres:5432/swap_db" \
-  mnbara-p2p-swap:2026.1.0 npm run migrate:prod
+  mnbarh-p2p-swap:2026.1.0 npm run migrate:prod
 
 # Real-time Matching migrations
-docker run --rm --network mnbara-network-prod \
+docker run --rm --network mnbarh-network-prod \
   -e DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@postgres:5432/matching_db" \
-  mnbara-real-time-matcher:2026.1.0 npm run migrate:prod
+  mnbarh-real-time-matcher:2026.1.0 npm run migrate:prod
 
 echo "✅ Database migrations completed"
 
 # Create backup of current deployment
 echo "💾 Creating deployment backup..."
-if [ -d "/opt/mnbara/production/current" ]; then
-    BACKUP_DIR="/opt/mnbara/backups/$(date +%Y%m%d_%H%M%S)"
+if [ -d "/opt/mnbarh/production/current" ]; then
+    BACKUP_DIR="/opt/mnbarh/backups/$(date +%Y%m%d_%H%M%S)"
     mkdir -p "$BACKUP_DIR"
-    cp -r "/opt/mnbara/production/current/"* "$BACKUP_DIR/"
+    cp -r "/opt/mnbarh/production/current/"* "$BACKUP_DIR/"
     echo "✅ Backup created: $BACKUP_DIR"
 fi
 
 # Update current deployment symlink
-ln -sfn "$DEPLOY_DIR" "/opt/mnbara/production/current"
+ln -sfn "$DEPLOY_DIR" "/opt/mnbarh/production/current"
 
 echo "🎉 Deployment completed successfully!"
 echo ""
@@ -156,10 +156,10 @@ echo "📋 Deployment Summary:"
 echo "   - Deployment Directory: $DEPLOY_DIR"
 echo "   - Version: 2026.1.0"
 echo "   - Timestamp: $(date)"
-echo "   - Services Deployed: $(docker service ls --filter "name=mnbara-prod" | wc -l)"
+echo "   - Services Deployed: $(docker service ls --filter "name=mnbarh-prod" | wc -l)"
 echo ""
 echo "🌐 Access Points:"
-echo "   - Web Application: https://app.mnbara.com"
+echo "   - Web Application: https://app.mnbarh.com"
 echo "   - API Gateway: http://localhost:8080"
 echo "   - Real-time WebSocket: ws://localhost:3001"
 echo "   - Monitoring: http://localhost:9090 (Prometheus)"
@@ -167,7 +167,7 @@ echo "   - Monitoring: http://localhost:3001 (Grafana)"
 echo ""
 echo "🔧 Next Steps:"
 echo "   1. Verify all services are running: docker service ls"
-echo "   2. Check logs: docker service logs mnbara-prod_api-gateway"
+echo "   2. Check logs: docker service logs mnbarh-prod_api-gateway"
 echo "   3. Monitor performance: http://localhost:3001"
 echo "   4. Run smoke tests: ./scripts/smoke-test.sh"
 echo ""

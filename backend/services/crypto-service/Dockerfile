@@ -1,27 +1,29 @@
-# Crypto Service Dockerfile
-FROM node:18-alpine
+# Crypto Service
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+COPY tsconfig.json ./
+RUN npm install
 
-# Copy Prisma schema
+# Copy Prisma schema and generate client
 COPY prisma ./prisma/
-
-# Generate Prisma client
 RUN npx prisma generate
 
 # Copy source code
-COPY dist ./dist/
+COPY src ./src
+
+# Build the application
+RUN npm run build
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3018
 
 # Expose port
 EXPOSE 3018
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3018/health || exit 1
 
 # Start service
 CMD ["node", "dist/index.js"]

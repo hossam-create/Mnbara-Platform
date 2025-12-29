@@ -1,15 +1,29 @@
-FROM node:18-alpine
+# Compliance Service
+FROM node:20-alpine
 
 WORKDIR /app
 
+# Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+COPY tsconfig.json ./
+RUN npm install
 
+# Copy Prisma schema and generate client
 COPY prisma ./prisma/
 RUN npx prisma generate
 
-COPY dist ./dist/
+# Copy source code
+COPY src ./src
 
-EXPOSE 3012
+# Build the application
+RUN npm run build
 
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3015
+
+# Expose port
+EXPOSE 3015
+
+# Start service
 CMD ["node", "dist/index.js"]

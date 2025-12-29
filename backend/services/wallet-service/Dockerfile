@@ -1,20 +1,26 @@
-# Multi-Currency Wallet Service Dockerfile
-FROM node:18-alpine
+# Wallet Service
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+COPY tsconfig.json ./
+RUN npm install
 
-# Copy Prisma schema
+# Copy Prisma schema and generate client
 COPY prisma ./prisma/
-
-# Generate Prisma client
 RUN npx prisma generate
 
 # Copy source code
-COPY dist ./dist/
+COPY src ./src
+
+# Build the application
+RUN npm run build
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3019
 
 # Expose port
 EXPOSE 3019
