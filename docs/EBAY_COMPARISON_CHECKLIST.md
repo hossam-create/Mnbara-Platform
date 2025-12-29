@@ -111,7 +111,7 @@
 - ✅ Traffic Analytics
 - ✅ Conversion Tracking
 - ✅ Financial Reports
-- **Status:** `backend/services/smart-delivery-service/` & `mnbara-ai-engine/`
+- **Status:** `backend/services/smart-delivery-service/` & `mnbarh-ai-engine/`
 
 ### 8. **Customer Service** � CODMPLETE ✅
 - ✅ Support tickets (exists)
