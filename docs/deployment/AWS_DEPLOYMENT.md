@@ -38,7 +38,7 @@ This Mnbara platform is designed for deployment on **AWS Microservices Architect
 
 #### 1. Create VPC and Subnets
 ```bash
-aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=mnbara-vpc}]'
+aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=mnbarh-vpc}]'
 
 # Create public and private subnets in 2 AZs
 aws ec2 create-subnet --vpc-id vpc-xxx --cidr-block 10.0.1.0/24 --availability-zone us-east-1a
@@ -48,15 +48,15 @@ aws ec2 create-subnet --vpc-id vpc-xxx --cidr-block 10.0.2.0/24 --availability-z
 #### 2. Create RDS PostgreSQL Instance
 ```bash
 aws rds create-db-instance \
-  --db-instance-identifier mnbara-db \
+  --db-instance-identifier mnbarh-db \
   --db-instance-class db.t3.medium \
   --engine postgres \
   --engine-version 15.4 \
-  --master-username mnbara_admin \
+  --master-username mnbarh_admin \
   --master-user-password CHANGE_ME \
   --allocated-storage 100 \
   --vpc-security-group-ids sg-xxx \
-  --db-subnet-group-name mnbara-db-subnet \
+  --db-subnet-group-name mnbarh-db-subnet \
   --backup-retention-period 7 \
   --multi-az \
   --storage-encrypted \
@@ -66,21 +66,21 @@ aws rds create-db-instance \
 #### 3. Create ElastiCache Redis Cluster
 ```bash
 aws elasticache create-cache-cluster \
-  --cache-cluster-id mnbara-redis \
+  --cache-cluster-id mnbarh-redis \
   --cache-node-type cache.t3.medium \
   --engine redis \
   --engine-version 7.0 \
   --num-cache-nodes 1 \
-  --cache-subnet-group-name mnbara-cache-subnet
+  --cache-subnet-group-name mnbarh-cache-subnet
 ```
 
 #### 4. Create S3 Buckets
 ```bash
 # For user uploads
-aws s3 mb s3://mnbara-uploads --region us-east-1
+aws s3 mb s3://mnbarh-uploads --region us-east-1
 
 # For frontend static files
-aws s3 mb s3://mnbara-web --region us-east-1
+aws s3 mb s3://mnbarh-web --region us-east-1
 ```
 
 ---
@@ -92,7 +92,7 @@ aws s3 mb s3://mnbara-web --region us-east-1
 # Create repository for each service
 for service in auth listing auction payment crowdship recommendation rewards notification; do
   aws ecr create-repository \
-    --repository-name mnbara/$service-service \
+    --repository-name mnbarh/$service-service \
     --region us-east-1
 done
 ```
@@ -104,9 +104,9 @@ aws ecr get-login-password --region us-east-1 | docker login --username AWS --pa
 
 # Build and push each service
 cd services/auth-service
-docker build -t mnbara/auth-service .
-docker tag mnbara/auth-service:latest 123456789.dkr.ecr.us-east-1.amazonaws.com/mnbara/auth-service:latest
-docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/mnbara/auth-service:latest
+docker build -t mnbarh/auth-service .
+docker tag mnbarh/auth-service:latest 123456789.dkr.ecr.us-east-1.amazonaws.com/mnbarh/auth-service:latest
+docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/mnbarh/auth-service:latest
 
 # Repeat for all services...
 ```
@@ -118,7 +118,7 @@ docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/mnbara/auth-service:latest
 #### 1. Create ECS Cluster
 ```bash
 aws ecs create-cluster \
-  --cluster-name mnbara-cluster \
+  --cluster-name mnbarh-cluster \
   --capacity-providers FARGATE FARGATE_SPOT \
   --default-capacity-provider-strategy capacityProvider=FARGATE,weight=1
 ```
@@ -134,9 +134,9 @@ aws ecs register-task-definition --cli-input-json file://infrastructure/aws/task
 #### 3. Create ECS Services
 ```bash
 aws ecs create-service \
-  --cluster mnbara-cluster \
+  --cluster mnbarh-cluster \
   --service-name auth-service \
-  --task-definition mnbara-auth:1 \
+  --task-definition mnbarh-auth:1 \
   --desired-count 2 \
   --launch-type FARGATE \
   --network-configuration "awsvpcConfiguration={subnets=[subnet-xxx,subnet-yyy],securityGroups=[sg-xxx],assignPublicIp=ENABLED}" \
@@ -150,7 +150,7 @@ aws ecs create-service \
 #### 1. Create REST API
 ```bash
 aws apigateway create-rest-api \
-  --name mnbara-api \
+  --name mnbarh-api \
   --description "Mnbara Marketplace API" \
   --endpoint-configuration types=REGIONAL
 ```
@@ -168,7 +168,7 @@ aws apigateway create-rest-api \
 
 ```bash
 # Connect to RDS instance
-psql -h mnbara-db.xxxxx.us-east-1.rds.amazonaws.com -U mnbara_admin -d postgres
+psql -h mnbarh-db.xxxxx.us-east-1.rds.amazonaws.com -U mnbarh_admin -d postgres
 
 # Enable PostGIS
 CREATE EXTENSION IF NOT EXISTS postgis;
@@ -189,20 +189,20 @@ npx prisma migrate deploy
 
 #### 1. Build Next.js
 ```bash
-cd web/mnbara-web
+cd web/mnbarh-web
 npm run build
 npm run export  # For static export
 ```
 
 #### 2. Upload to S3
 ```bash
-aws s3 sync out/ s3://mnbara-web/ --delete
+aws s3 sync out/ s3://mnbarh-web/ --delete
 ```
 
 #### 3. Create CloudFront Distribution
 ```bash
 aws cloudfront create-distribution \
-  --origin-domain-name mnbara-web.s3.amazonaws.com \
+  --origin-domain-name mnbarh-web.s3.amazonaws.com \
   --default-root-object index.html
 ```
 
@@ -214,11 +214,11 @@ aws cloudfront create-distribution \
 ```bash
 # Store sensitive credentials
 aws secretsmanager create-secret \
-  --name mnbara/database \
-  --secret-string '{"username":"mnbara_admin","password":"CHANGE_ME"}'
+  --name mnbarh/database \
+  --secret-string '{"username":"mnbarh_admin","password":"CHANGE_ME"}'
 
 aws secretsmanager create-secret \
-  --name mnbara/stripe \
+  --name mnbarh/stripe \
   --secret-string '{"apiKey":"sk_live_xxx","webhookSecret":"whsec_xxx"}'
 ```
 
