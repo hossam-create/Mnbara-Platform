@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: auth-service
     tier: backend
@@ -20,38 +20,38 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: mnbara/auth-service:latest
+        image: mnbarh/auth-service:latest
         ports:
         - containerPort: 8080
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "production"
         - name: SPRING_DATASOURCE_URL
-          value: "jdbc:postgresql://postgres-service:5432/mnbara_production"
+          value: "jdbc:postgresql://postgres-service:5432/mnbarh_production"
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: SPRING_DATASOURCE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: SPRING_REDIS_HOST
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: REDIS_HOST
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         - name: GOOGLE_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: GOOGLE_CLIENT_SECRET
         resources:
           requests:
@@ -78,7 +78,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: auth-service
 spec:
@@ -95,7 +95,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: listing-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: listing-service
     tier: backend
@@ -112,26 +112,26 @@ spec:
     spec:
       containers:
       - name: listing-service
-        image: mnbara/listing-service:latest
+        image: mnbarh/listing-service:latest
         ports:
         - containerPort: 3001
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbarh_production"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
@@ -140,7 +140,7 @@ spec:
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         resources:
           requests:
@@ -167,7 +167,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: listing-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: listing-service
 spec:
@@ -184,7 +184,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: payment-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: payment-service
     tier: backend
@@ -201,41 +201,41 @@ spec:
     spec:
       containers:
       - name: payment-service
-        image: mnbara/payment-service:latest
+        image: mnbarh/payment-service:latest
         ports:
         - containerPort: 3002
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbarh_production"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: STRIPE_SECRET_KEY
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: STRIPE_WEBHOOK_SECRET
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         resources:
           requests:
@@ -262,7 +262,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: payment-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: payment-service
 spec:
@@ -279,7 +279,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: order-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: order-service
     tier: backend
@@ -296,43 +296,43 @@ spec:
     spec:
       containers:
       - name: order-service
-        image: mnbara/order-service:latest
+        image: mnbarh/order-service:latest
         ports:
         - containerPort: 3003
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbarh_production"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
         - name: AUTH_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: AUTH_SERVICE_URL
         - name: PAYMENT_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: PAYMENT_SERVICE_URL
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         resources:
           requests:
@@ -360,7 +360,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: notification-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: notification-service
     tier: backend
@@ -377,7 +377,7 @@ spec:
     spec:
       containers:
       - name: notification-service
-        image: mnbara/notification-service:latest
+        image: mnbarh/notification-service:latest
         ports:
         - containerPort: 3004
         - containerPort: 8080
@@ -385,12 +385,12 @@ spec:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: CORS_ORIGIN
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: CORS_ORIGIN
         - name: SMTP_HOST
           value: "smtp.gmail.com"
@@ -399,12 +399,12 @@ spec:
         - name: SMTP_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: SMTP_USER
         - name: SMTP_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: SMTP_PASSWORD
         resources:
           requests:
@@ -431,7 +431,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: notification-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: notification-service
 spec:
@@ -452,7 +452,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api-gateway
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: api-gateway
     tier: backend
@@ -469,53 +469,53 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: mnbara/api-gateway:latest
+        image: mnbarh/api-gateway:latest
         ports:
         - containerPort: 8080
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbara_production"
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/mnbarh_production"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         - name: AUTH_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: AUTH_SERVICE_URL
         - name: LISTING_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: LISTING_SERVICE_URL
         - name: PAYMENT_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: PAYMENT_SERVICE_URL
         - name: ORDER_SERVICE_URL
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: ORDER_SERVICE_URL
         resources:
           requests:
@@ -542,7 +542,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: api-gateway-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: api-gateway
 spec:
@@ -559,7 +559,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: p2p-swap-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: p2p-swap-service
     tier: backend
@@ -576,50 +576,50 @@ spec:
     spec:
       containers:
       - name: p2p-swap-service
-        image: mnbara/p2p-swap-service:latest
+        image: mnbarh/p2p-swap-service:latest
         ports:
         - containerPort: 3005
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
           value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/swap_db"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
         - name: RABBITMQ_URL
-          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbara"
+          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbarh"
         - name: RABBITMQ_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_USER
         - name: RABBITMQ_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_PASSWORD
         - name: BLOCKCHAIN_RPC_URL
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: BLOCKCHAIN_RPC_URL
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         resources:
           requests:
@@ -646,7 +646,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: p2p-swap-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: p2p-swap-service
 spec:
@@ -663,7 +663,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: real-time-matcher
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: real-time-matcher
     tier: backend
@@ -680,7 +680,7 @@ spec:
     spec:
       containers:
       - name: real-time-matcher
-        image: mnbara/real-time-matcher:latest
+        image: mnbarh/real-time-matcher:latest
         ports:
         - containerPort: 3006
         - containerPort: 3001
@@ -688,19 +688,19 @@ spec:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
           value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/matching_db"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
@@ -709,7 +709,7 @@ spec:
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         resources:
           requests:
@@ -736,7 +736,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: real-time-matcher-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: real-time-matcher
 spec:
@@ -757,7 +757,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-core
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: ai-core
     tier: backend
@@ -774,26 +774,26 @@ spec:
     spec:
       containers:
       - name: ai-core
-        image: mnbara/ai-core:latest
+        image: mnbarh/ai-core:latest
         ports:
         - containerPort: 3007
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
           value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/ai_db"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
@@ -824,7 +824,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-core-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: ai-core
 spec:
@@ -841,7 +841,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wallet-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: wallet-service
     tier: backend
@@ -858,65 +858,65 @@ spec:
     spec:
       containers:
       - name: wallet-service
-        image: mnbara/wallet-service:latest
+        image: mnbarh/wallet-service:latest
         ports:
         - containerPort: 3019
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
           value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/wallet_db"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
         - name: RABBITMQ_URL
-          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbara"
+          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbarh"
         - name: RABBITMQ_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_USER
         - name: RABBITMQ_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         - name: BIOMETRIC_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: BIOMETRIC_ENCRYPTION_KEY
         - name: AUDIT_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: AUDIT_ENCRYPTION_KEY
         - name: AUDIT_SIGNING_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: AUDIT_SIGNING_KEY
         - name: WALLET_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: WALLET_ENCRYPTION_KEY
         resources:
           requests:
@@ -943,7 +943,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: wallet-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: wallet-service
 spec:
@@ -960,7 +960,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fraud-detection-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: fraud-detection-service
     tier: backend
@@ -977,52 +977,52 @@ spec:
     spec:
       containers:
       - name: fraud-detection-service
-        image: mnbara/fraud-detection-service:latest
+        image: mnbarh/fraud-detection-service:latest
         ports:
         - containerPort: 3020
         env:
         - name: NODE_ENV
           valueFrom:
             configMapKeyRef:
-              name: mnbara-config
+              name: mnbarh-config
               key: NODE_ENV
         - name: DATABASE_URL
           value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/fraud_db"
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: POSTGRES_PASSWORD
         - name: REDIS_URL
           value: "redis://redis-service:6379"
         - name: RABBITMQ_URL
-          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbara"
+          value: "amqp://$(RABBITMQ_USER):$(RABBITMQ_PASSWORD)@rabbitmq-service:5672/mnbarh"
         - name: RABBITMQ_USER
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_USER
         - name: RABBITMQ_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: RABBITMQ_PASSWORD
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: JWT_SECRET
         - name: FRAUD_MODEL_PATH
           value: "/app/models/fraud-detection-v1"
         - name: IP_REPUTATION_API_KEY
           valueFrom:
             secretKeyRef:
-              name: mnbara-secrets
+              name: mnbarh-secrets
               key: IP_REPUTATION_API_KEY
         resources:
           requests:
@@ -1049,7 +1049,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fraud-detection-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: fraud-detection-service
 spec:
