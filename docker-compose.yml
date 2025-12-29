@@ -222,10 +222,10 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-payment-service
     ports:
-      - "3002:3002"
+      - "3008:3008"
     environment:
       - NODE_ENV=development
-      - PORT=3002
+      - PORT=3008
       - CORS_ORIGIN=http://localhost:3000
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret}

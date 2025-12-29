@@ -10,14 +10,18 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+COPY tsconfig.json ./
+RUN npm install
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma/
 RUN npx prisma generate
 
 # Copy source code
-COPY dist ./dist/
+COPY src ./src
+
+# Build the application
+RUN npm run build
 
 # Environment
 ENV NODE_ENV=production

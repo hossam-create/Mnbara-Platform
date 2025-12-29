@@ -39,10 +39,10 @@ services:
   # PostgreSQL Database (Production)
   postgres:
     image: postgres:15-alpine
-    container_name: mnbara-postgres-prod
+    container_name: mnbarh-postgres-prod
     environment:
-      POSTGRES_DB: mnbara_production
-      POSTGRES_USER: ${DB_USER:-mnbara_prod}
+      POSTGRES_DB: mnbarh_production
+      POSTGRES_USER: ${DB_USER:-mnbarh_prod}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-your-secure-db-password-2026}
       POSTGRES_MULTIPLE_DATABASES: auth_db,listing_db,payment_db,orders_db,auction_db,crowdship_db,notification_db,swap_db
     ports:
@@ -52,7 +52,7 @@ services:
       - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
       - ./backups:/backups
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 1
       resources:
@@ -71,7 +71,7 @@ services:
   # Redis Cluster (Production)
   redis:
     image: redis:7-alpine
-    container_name: mnbara-redis-prod
+    container_name: mnbarh-redis-prod
     command: redis-server --appendonly yes --requirepass $${REDIS_PASSWORD:-your-redis-password-2026}
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-your-redis-password-2026}
@@ -80,7 +80,7 @@ services:
     volumes:
       - redis_data_prod:/data
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 3
       resources:
@@ -96,18 +96,18 @@ services:
   # RabbitMQ Cluster (Production)
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: mnbara-rabbitmq-prod
+    container_name: mnbarh-rabbitmq-prod
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-mnbara_prod}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-mnbarh_prod}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-your-rabbitmq-password-2026}
-      RABBITMQ_DEFAULT_VHOST: /mnbara
+      RABBITMQ_DEFAULT_VHOST: /mnbarh
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmq_data_prod:/var/lib/rabbitmq
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 2
       resources:
@@ -118,7 +118,7 @@ services:
   # Elasticsearch Cluster (Production)
   elasticsearch:
     image: elasticsearch:8.11.0
-    container_name: mnbara-elasticsearch-prod
+    container_name: mnbarh-elasticsearch-prod
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=true
@@ -129,7 +129,7 @@ services:
     volumes:
       - elasticsearch_data_prod:/usr/share/elasticsearch/data
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 1
       resources:
@@ -146,7 +146,7 @@ services:
     build:
       context: ./backend/services/api-gateway
       dockerfile: Dockerfile.prod
-    container_name: mnbara-api-gateway-prod
+    container_name: mnbarh-api-gateway-prod
     ports:
       - "80:8080"
       - "443:8443"
@@ -157,7 +157,7 @@ services:
       - postgres
       - redis
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       <<: *common-deploy
       replicas: 3
@@ -173,7 +173,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         - SERVICE_NAME=p2p-swap
-    container_name: mnbara-p2p-swap-prod
+    container_name: mnbarh-p2p-swap-prod
     environment:
       <<: *common-environment
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/swap_db
@@ -184,7 +184,7 @@ services:
       - redis
       - rabbitmq
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       <<: *common-deploy
       replicas: 4  # Higher scale for matching workload
@@ -194,7 +194,7 @@ services:
     build:
       context: ./backend/services/matching-service
       dockerfile: Dockerfile.prod
-    container_name: mnbara-real-time-matcher-prod
+    container_name: mnbarh-real-time-matcher-prod
     environment:
       <<: *common-environment
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/matching_db
@@ -206,7 +206,7 @@ services:
       - postgres
       - redis
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       <<: *common-deploy
       replicas: 4  # High scale for real-time operations
@@ -216,7 +216,7 @@ services:
     build:
       context: ./backend/services/ai-core
       dockerfile: Dockerfile.prod
-    container_name: mnbara-ai-core-prod
+    container_name: mnbarh-ai-core-prod
     environment:
       <<: *common-environment
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/ai_db
@@ -227,7 +227,7 @@ services:
       - postgres
       - redis
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       <<: *common-deploy
       replicas: 2
@@ -241,17 +241,17 @@ services:
     build:
       context: ./frontend/web
       dockerfile: Dockerfile.prod
-    container_name: mnbara-web-frontend-prod
+    container_name: mnbarh-web-frontend-prod
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      VITE_API_URL: https://api.mnbara.com
-      VITE_WS_URL: wss://ws.mnbara.com
+      VITE_API_URL: https://api.mnbarh.com
+      VITE_WS_URL: wss://ws.mnbarh.com
     depends_on:
       - api-gateway
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 3
       resources:
@@ -262,16 +262,16 @@ services:
   # Mobile Backend (Production)
   mobile-backend:
     build:
-      context: ./frontend/mobile/mnbara-app
+      context: ./frontend/mobile/mnbarh-app
       dockerfile: Dockerfile.prod
-    container_name: mnbara-mobile-backend-prod
+    container_name: mnbarh-mobile-backend-prod
     ports:
       - "3002:3002"
     environment:
       <<: *common-environment
       DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/mobile_db
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 2
 
@@ -282,21 +282,21 @@ services:
   # Prometheus Monitoring
   prometheus:
     image: prom/prometheus:latest
-    container_name: mnbara-prometheus-prod
+    container_name: mnbarh-prometheus-prod
     ports:
       - "9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 1
 
   # Grafana Dashboard
   grafana:
     image: grafana/grafana:latest
-    container_name: mnbara-grafana-prod
+    container_name: mnbarh-grafana-prod
     ports:
       - "3001:3000"
     environment:
@@ -305,25 +305,25 @@ services:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana-dashboards:/var/lib/grafana/dashboards
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 1
 
   # Redis Commander (Management)
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: mnbara-redis-commander-prod
+    container_name: mnbarh-redis-commander-prod
     ports:
       - "8081:8081"
     environment:
       REDIS_HOSTS: local:redis:6379:0:$${REDIS_PASSWORD}
     networks:
-      - mnbara-network-prod
+      - mnbarh-network-prod
     deploy:
       replicas: 1
 
 networks:
-  mnbara-network-prod:
+  mnbarh-network-prod:
     driver: overlay
     attachable: true
     ipam:

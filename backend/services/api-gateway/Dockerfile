@@ -2,33 +2,19 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Initialize npm project
-RUN npm init -y
+# Copy package definition
+COPY package.json ./
+COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm install express http-proxy-middleware jsonwebtoken cors dotenv helmet morgan
-RUN npm install -D typescript ts-node-dev @types/express @types/http-proxy-middleware @types/jsonwebtoken @types/cors @types/morgan @types/node
+RUN npm install
 
-# Create tsconfig.json inline
-RUN echo '{ \
-    "compilerOptions": { \
-    "target": "es2016", \
-    "module": "commonjs", \
-    "outDir": "./dist", \
-    "rootDir": "./src", \
-    "strict": true, \
-    "esModuleInterop": true, \
-    "skipLibCheck": true, \
-    "forceConsistentCasingInFileNames": true \
-    }, \
-    "include": ["src/**/*"], \
-    "exclude": ["node_modules"] \
-    }' > tsconfig.json
-
+# Copy source code
 COPY src ./src
 COPY .env.example ./
 
-RUN npm run build || npx tsc
+# Build
+RUN npm run build
 
 EXPOSE 8080
 
