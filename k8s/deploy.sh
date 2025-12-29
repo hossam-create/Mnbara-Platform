@@ -68,10 +68,10 @@ print_success "Database deployments created"
 
 # Wait for databases to be ready
 print_status "Waiting for databases to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment/postgres -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/redis -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/elasticsearch -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s statefulset/rabbitmq -n mnbara-production
+kubectl wait --for=condition=available --timeout=300s deployment/postgres -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/redis -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/elasticsearch -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s statefulset/rabbitmq -n mnbarh-production
 print_success "Databases are ready"
 
 # Step 4: Deploy Backend Services
@@ -81,15 +81,15 @@ print_success "Backend services deployed"
 
 # Wait for backend services to be ready
 print_status "Waiting for backend services to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment/auth-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/listing-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/payment-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/order-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/notification-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/api-gateway -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/p2p-swap-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/real-time-matcher -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/ai-core -n mnbara-production
+kubectl wait --for=condition=available --timeout=300s deployment/auth-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/listing-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/payment-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/order-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/notification-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/api-gateway -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/p2p-swap-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/real-time-matcher -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/ai-core -n mnbarh-production
 print_success "Backend services are ready"
 
 # Step 5: Deploy Frontend
@@ -99,8 +99,8 @@ print_success "Frontend deployed"
 
 # Wait for frontend to be ready
 print_status "Waiting for frontend to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment/frontend-service -n mnbara-production
-kubectl wait --for=condition=available --timeout=300s deployment/nginx-proxy -n mnbara-production
+kubectl wait --for=condition=available --timeout=300s deployment/frontend-service -n mnbarh-production
+kubectl wait --for=condition=available --timeout=300s deployment/nginx-proxy -n mnbarh-production
 print_success "Frontend is ready"
 
 # Step 6: Deploy Monitoring
@@ -110,8 +110,8 @@ print_success "Monitoring stack deployed"
 
 # Wait for monitoring to be ready
 print_status "Waiting for monitoring to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment/prometheus -n mnbara-monitoring
-kubectl wait --for=condition=available --timeout=300s deployment/grafana -n mnbara-monitoring
+kubectl wait --for=condition=available --timeout=300s deployment/prometheus -n mnbarh-monitoring
+kubectl wait --for=condition=available --timeout=300s deployment/grafana -n mnbarh-monitoring
 print_success "Monitoring stack is ready"
 
 # Step 7: Configure Ingress
@@ -134,27 +134,27 @@ echo "===================="
 # Check all pods in production namespace
 echo ""
 print_status "Production Pods:"
-kubectl get pods -n mnbara-production -o wide
+kubectl get pods -n mnbarh-production -o wide
 
 # Check all services in production namespace
 echo ""
 print_status "Production Services:"
-kubectl get services -n mnbara-production
+kubectl get services -n mnbarh-production
 
 # Check monitoring pods
 echo ""
 print_status "Monitoring Pods:"
-kubectl get pods -n mnbara-monitoring -o wide
+kubectl get pods -n mnbarh-monitoring -o wide
 
 # Check ingress
 echo ""
 print_status "Ingress Configuration:"
-kubectl get ingress -n mnbara-production
+kubectl get ingress -n mnbarh-production
 
 # Check HPA
 echo ""
 print_status "Horizontal Pod Autoscalers:"
-kubectl get hpa -n mnbara-production
+kubectl get hpa -n mnbarh-production
 
 # Step 10: Health Checks
 print_status "Performing health checks..."
@@ -183,10 +183,10 @@ check_service_health() {
 }
 
 # Health check for services (commented out for now as it requires port forwarding)
-# check_service_health "auth-service" "mnbara-production" "8080" "/actuator/health"
-# check_service_health "listing-service" "mnbara-production" "3001" "/health"
-# check_service_health "payment-service" "mnbara-production" "3002" "/health"
-# check_service_health "order-service" "mnbara-production" "3003" "/health"
+# check_service_health "auth-service" "mnbarh-production" "8080" "/actuator/health"
+# check_service_health "listing-service" "mnbarh-production" "3001" "/health"
+# check_service_health "payment-service" "mnbarh-production" "3002" "/health"
+# check_service_health "order-service" "mnbarh-production" "3003" "/health"
 
 # Step 11: Display Access Information
 echo ""
@@ -197,18 +197,18 @@ print_success "Mnbara Platform is now deployed and ready for launch!"
 echo ""
 echo "📊 Access Information:"
 echo "====================="
-echo "🌐 Main Application: https://mnbara.com"
-echo "📈 Monitoring (Grafana): https://monitoring.mnbara.com/grafana"
-echo "📊 Metrics (Prometheus): https://monitoring.mnbara.com/prometheus"
-echo "🔍 Status Page: https://status.mnbara.com"
+echo "🌐 Main Application: https://mnbarh.com"
+echo "📈 Monitoring (Grafana): https://monitoring.mnbarh.com/grafana"
+echo "📊 Metrics (Prometheus): https://monitoring.mnbarh.com/prometheus"
+echo "🔍 Status Page: https://status.mnbarh.com"
 echo ""
 echo "🔐 Default Credentials:"
 echo "======================"
-echo "Grafana Admin: admin / mnbara_admin_2026"
+echo "Grafana Admin: admin / mnbarh_admin_2026"
 echo ""
 echo "📋 Next Steps:"
 echo "=============="
-echo "1. Configure DNS records for mnbara.com"
+echo "1. Configure DNS records for mnbarh.com"
 echo "2. Set up SSL certificates (Let's Encrypt)"
 echo "3. Configure OAuth providers (Google, Facebook, Apple)"
 echo "4. Set up Stripe payment processing"
@@ -227,7 +227,7 @@ Deployment Date: $(date)
 Launch Target: January 1, 2026
 
 Kubernetes Cluster: $(kubectl config current-context)
-Namespaces: mnbara-production, mnbara-monitoring
+Namespaces: mnbarh-production, mnbarh-monitoring
 
 Services Deployed:
 - Auth Service (Java/Spring Boot): 3 replicas
