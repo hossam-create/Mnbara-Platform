@@ -9,11 +9,11 @@ global:
   environment: development
 
 # Namespace
-namespace: mnbara
+namespace: mnbarh
 
 # Common labels
 commonLabels:
-  app.kubernetes.io/part-of: mnbara-platform
+  app.kubernetes.io/part-of: mnbarh-platform
 
 # Image settings
 image:
@@ -24,7 +24,7 @@ image:
 # Service account
 serviceAccount:
   create: true
-  name: mnbara-sa
+  name: mnbarh-sa
   annotations: {}
 
 # Ingress configuration
@@ -35,21 +35,21 @@ ingress:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: api.mnbara.com
+    - host: api.mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: api-gateway
-    - host: mnbara.com
+    - host: mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: web-frontend
   tls:
-    - secretName: mnbara-tls
+    - secretName: mnbarh-tls
       hosts:
-        - api.mnbara.com
-        - mnbara.com
+        - api.mnbarh.com
+        - mnbarh.com
 
 # ============================================
 # Backend Services Configuration
@@ -61,7 +61,7 @@ apiGateway:
   name: api-gateway
   replicaCount: 2
   image:
-    repository: mnbara/api-gateway
+    repository: mnbarh/api-gateway
     tag: ""
   service:
     type: ClusterIP
@@ -77,7 +77,7 @@ apiGateway:
     NODE_ENV: production
     PORT: "8080"
     LOG_LEVEL: "info"
-    CORS_ORIGINS: "https://mnbara.com,https://admin.mnbara.com"
+    CORS_ORIGINS: "https://mnbarh.com,https://admin.mnbarh.com"
   config:
     logLevel: "info"
     logFormat: "json"
@@ -112,7 +112,7 @@ authService:
   name: auth-service
   replicaCount: 2
   image:
-    repository: mnbara/auth-service
+    repository: mnbarh/auth-service
     tag: ""
   service:
     type: ClusterIP
@@ -139,7 +139,7 @@ listingService:
   name: listing-service
   replicaCount: 2
   image:
-    repository: mnbara/listing-service
+    repository: mnbarh/listing-service
     tag: ""
   service:
     type: ClusterIP
@@ -166,7 +166,7 @@ auctionService:
   name: auction-service
   replicaCount: 3
   image:
-    repository: mnbara/auction-service
+    repository: mnbarh/auction-service
     tag: ""
   service:
     type: ClusterIP
@@ -220,7 +220,7 @@ paymentService:
   name: payment-service
   replicaCount: 2
   image:
-    repository: mnbara/payment-service
+    repository: mnbarh/payment-service
     tag: ""
   service:
     type: ClusterIP
@@ -277,7 +277,7 @@ crowdshipService:
   name: crowdship-service
   replicaCount: 2
   image:
-    repository: mnbara/crowdship-service
+    repository: mnbarh/crowdship-service
     tag: ""
   service:
     type: ClusterIP
@@ -304,7 +304,7 @@ notificationService:
   name: notification-service
   replicaCount: 2
   image:
-    repository: mnbara/notification-service
+    repository: mnbarh/notification-service
     tag: ""
   service:
     type: ClusterIP
@@ -329,7 +329,7 @@ notificationService:
     email:
       enabled: true
       provider: "ses"
-      fromAddress: "noreply@mnbara.com"
+      fromAddress: "noreply@mnbarh.com"
       fromName: "MNBARA"
     sms:
       enabled: false
@@ -357,7 +357,7 @@ recommendationService:
   name: recommendation-service
   replicaCount: 2
   image:
-    repository: mnbara/recommendation-service
+    repository: mnbarh/recommendation-service
     tag: ""
   service:
     type: ClusterIP
@@ -384,7 +384,7 @@ rewardsService:
   name: rewards-service
   replicaCount: 2
   image:
-    repository: mnbara/rewards-service
+    repository: mnbarh/rewards-service
     tag: ""
   service:
     type: ClusterIP
@@ -411,7 +411,7 @@ ordersService:
   name: orders-service
   replicaCount: 2
   image:
-    repository: mnbara/orders-service
+    repository: mnbarh/orders-service
     tag: ""
   service:
     type: ClusterIP
@@ -438,7 +438,7 @@ tripsService:
   name: trips-service
   replicaCount: 2
   image:
-    repository: mnbara/trips-service
+    repository: mnbarh/trips-service
     tag: ""
   service:
     type: ClusterIP
@@ -465,7 +465,7 @@ matchingService:
   name: matching-service
   replicaCount: 2
   image:
-    repository: mnbara/matching-service
+    repository: mnbarh/matching-service
     tag: ""
   service:
     type: ClusterIP
@@ -514,7 +514,7 @@ adminService:
   name: admin-service
   replicaCount: 2
   image:
-    repository: mnbara/admin-service
+    repository: mnbarh/admin-service
     tag: ""
   service:
     type: ClusterIP
@@ -545,7 +545,7 @@ webFrontend:
   name: web-frontend
   replicaCount: 2
   image:
-    repository: mnbara/web-frontend
+    repository: mnbarh/web-frontend
     tag: ""
   service:
     type: ClusterIP
@@ -569,7 +569,7 @@ adminDashboard:
   name: admin-dashboard
   replicaCount: 1
   image:
-    repository: mnbara/admin-dashboard
+    repository: mnbarh/admin-dashboard
     tag: ""
   service:
     type: ClusterIP
@@ -593,9 +593,9 @@ postgresql:
   enabled: true
   auth:
     postgresPassword: ""  # Set via secrets
-    username: mnbara_user
+    username: mnbarh_user
     password: ""  # Set via secrets
-    database: mnbara_db
+    database: mnbarh_db
   primary:
     persistence:
       enabled: true
@@ -642,7 +642,7 @@ redis:
 rabbitmq:
   enabled: true
   auth:
-    username: mnbara_user
+    username: mnbarh_user
     password: ""  # Set via secrets
   persistence:
     enabled: true
@@ -751,7 +751,7 @@ externalSecrets:
   aws:
     region: "us-east-1"
     role: ""
-    serviceAccountRef: "mnbara-sa"
+    serviceAccountRef: "mnbarh-sa"
   
   # HashiCorp Vault Configuration
   vault:
@@ -759,18 +759,18 @@ externalSecrets:
     path: "secret"
     version: "v2"
     mountPath: "kubernetes"
-    role: "mnbara"
+    role: "mnbarh"
   
   # Secret paths in external provider
   secretPaths:
-    database: "mnbara/database"
-    redis: "mnbara/redis"
-    rabbitmq: "mnbara/rabbitmq"
-    jwt: "mnbara/jwt"
-    stripe: "mnbara/stripe"
-    paypal: "mnbara/paypal"
-    oauth: "mnbara/oauth"
-    minio: "mnbara/minio"
+    database: "mnbarh/database"
+    redis: "mnbarh/redis"
+    rabbitmq: "mnbarh/rabbitmq"
+    jwt: "mnbarh/jwt"
+    stripe: "mnbarh/stripe"
+    paypal: "mnbarh/paypal"
+    oauth: "mnbarh/oauth"
+    minio: "mnbarh/minio"
 
 # ============================================
 # Service Mesh Configuration
