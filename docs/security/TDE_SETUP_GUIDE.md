@@ -77,11 +77,11 @@ wal_encryption = on
 initdb -D /var/lib/postgresql/data --data-encryption=on
 
 # For existing cluster, you'll need to migrate
-pg_dump mnbara_db > backup.sql
+pg_dump mnbarh_db > backup.sql
 # Reinitialize with encryption
 initdb -D /var/lib/postgresql/data_encrypted --data-encryption=on
 # Restore
-psql -d mnbara_db < backup.sql
+psql -d mnbarh_db < backup.sql
 ```
 
 5. **Verify encryption**
@@ -188,11 +188,11 @@ hdiutil attach pgdata.dmg
 ```bash
 # Create encrypted RDS instance
 aws rds create-db-instance \
-  --db-instance-identifier mnbara-db-prod \
+  --db-instance-identifier mnbarh-db-prod \
   --db-instance-class db.t3.medium \
   --engine postgres \
   --engine-version 15.3 \
-  --master-username mnbara_admin \
+  --master-username mnbarh_admin \
   --master-user-password "SecurePassword123!" \
   --allocated-storage 100 \
   --storage-type gp3 \
@@ -200,29 +200,29 @@ aws rds create-db-instance \
   --kms-key-id arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012 \
   --backup-retention-period 7 \
   --vpc-security-group-ids sg-12345678 \
-  --db-subnet-group-name mnbara-db-subnet \
+  --db-subnet-group-name mnbarh-db-subnet \
   --publicly-accessible false
 
 # Enable encryption for existing instance (requires snapshot restore)
 aws rds create-db-snapshot \
-  --db-instance-identifier mnbara-db \
-  --db-snapshot-identifier mnbara-db-snapshot
+  --db-instance-identifier mnbarh-db \
+  --db-snapshot-identifier mnbarh-db-snapshot
 
 aws rds copy-db-snapshot \
-  --source-db-snapshot-identifier mnbara-db-snapshot \
-  --target-db-snapshot-identifier mnbara-db-snapshot-encrypted \
+  --source-db-snapshot-identifier mnbarh-db-snapshot \
+  --target-db-snapshot-identifier mnbarh-db-snapshot-encrypted \
   --kms-key-id arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
 
 aws rds restore-db-instance-from-db-snapshot \
-  --db-instance-identifier mnbara-db-encrypted \
-  --db-snapshot-identifier mnbara-db-snapshot-encrypted
+  --db-instance-identifier mnbarh-db-encrypted \
+  --db-snapshot-identifier mnbarh-db-snapshot-encrypted
 ```
 
 #### Google Cloud SQL
 
 ```bash
 # Create encrypted Cloud SQL instance
-gcloud sql instances create mnbara-db-prod \
+gcloud sql instances create mnbarh-db-prod \
   --database-version=POSTGRES_15 \
   --tier=db-custom-2-7680 \
   --region=us-central1 \
@@ -234,7 +234,7 @@ gcloud sql instances create mnbara-db-prod \
   --backup-start-time=03:00
 
 # Enable encryption for existing instance
-gcloud sql instances patch mnbara-db \
+gcloud sql instances patch mnbarh-db \
   --disk-encryption-key=projects/PROJECT_ID/locations/LOCATION/keyRings/KEYRING/cryptoKeys/KEY
 ```
 
@@ -243,10 +243,10 @@ gcloud sql instances patch mnbara-db \
 ```bash
 # Create encrypted Azure PostgreSQL
 az postgres flexible-server create \
-  --resource-group mnbara-rg \
-  --name mnbara-db-prod \
+  --resource-group mnbarh-rg \
+  --name mnbarh-db-prod \
   --location eastus \
-  --admin-user mnbara_admin \
+  --admin-user mnbarh_admin \
   --admin-password "SecurePassword123!" \
   --sku-name Standard_D2s_v3 \
   --tier GeneralPurpose \
@@ -260,9 +260,9 @@ az postgres flexible-server create \
 # Azure automatically encrypts data at rest using Microsoft-managed keys
 # For customer-managed keys:
 az postgres flexible-server update \
-  --resource-group mnbara-rg \
-  --name mnbara-db-prod \
-  --key-id https://mnbara-keyvault.vault.azure.net/keys/postgres-key/version
+  --resource-group mnbarh-rg \
+  --name mnbarh-db-prod \
+  --key-id https://mnbarh-keyvault.vault.azure.net/keys/postgres-key/version
 ```
 
 ### Option 4: Docker with Encrypted Volumes
@@ -276,11 +276,11 @@ version: '3.8'
 services:
   postgres:
     image: postgis/postgis:15-3.4-alpine
-    container_name: mnbara-postgres-encrypted
+    container_name: mnbarh-postgres-encrypted
     environment:
-      POSTGRES_DB: mnbara_db
-      POSTGRES_USER: mnbara_user
-      POSTGRES_PASSWORD: mnbara_pass
+      POSTGRES_DB: mnbarh_db
+      POSTGRES_USER: mnbarh_user
+      POSTGRES_PASSWORD: mnbarh_pass
       # Enable checksums for data integrity
       POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
@@ -289,7 +289,7 @@ services:
         source: postgres_encrypted_data
         target: /var/lib/postgresql/data
     networks:
-      - mnbara-network
+      - mnbarh-network
 
 volumes:
   postgres_encrypted_data:
@@ -300,7 +300,7 @@ volumes:
       device: "/encrypted/postgres/data"  # Mount point of encrypted filesystem
 
 networks:
-  mnbara-network:
+  mnbarh-network:
     driver: bridge
 ```
 
@@ -349,7 +349,7 @@ export async function getEncryptionKey(): Promise<string> {
     token: process.env.VAULT_TOKEN,
   });
   
-  const result = await client.read('secret/data/mnbara/tde-key');
+  const result = await client.read('secret/data/mnbarh/tde-key');
   return result.data.data.key;
 }
 ```
@@ -378,10 +378,10 @@ export async function getEncryptionKey(): Promise<string> {
 
 ```bash
 # Backup with encryption
-pg_dump mnbara_db | openssl enc -aes-256-cbc -salt -pbkdf2 -out backup.sql.enc
+pg_dump mnbarh_db | openssl enc -aes-256-cbc -salt -pbkdf2 -out backup.sql.enc
 
 # Restore from encrypted backup
-openssl enc -aes-256-cbc -d -pbkdf2 -in backup.sql.enc | psql mnbara_db
+openssl enc -aes-256-cbc -d -pbkdf2 -in backup.sql.enc | psql mnbarh_db
 ```
 
 ### Automated Backup Script
@@ -392,11 +392,11 @@ openssl enc -aes-256-cbc -d -pbkdf2 -in backup.sql.enc | psql mnbara_db
 
 BACKUP_DIR="/backups/postgresql"
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="mnbara_db_$DATE.sql"
+BACKUP_FILE="mnbarh_db_$DATE.sql"
 ENCRYPTED_FILE="$BACKUP_FILE.enc"
 
 # Create backup
-pg_dump -U mnbara_user mnbara_db > "$BACKUP_DIR/$BACKUP_FILE"
+pg_dump -U mnbarh_user mnbarh_db > "$BACKUP_DIR/$BACKUP_FILE"
 
 # Encrypt backup
 openssl enc -aes-256-cbc -salt -pbkdf2 \
@@ -409,7 +409,7 @@ rm "$BACKUP_DIR/$BACKUP_FILE"
 
 # Upload to S3 (optional)
 aws s3 cp "$BACKUP_DIR/$ENCRYPTED_FILE" \
-  s3://mnbara-backups/postgresql/ \
+  s3://mnbarh-backups/postgresql/ \
   --storage-class GLACIER
 
 echo "Backup completed: $ENCRYPTED_FILE"
@@ -439,7 +439,7 @@ SELECT
   tup_returned,
   tup_fetched
 FROM pg_stat_database
-WHERE datname = 'mnbara_db';
+WHERE datname = 'mnbarh_db';
 ```
 
 ### Audit Logging
@@ -562,4 +562,4 @@ For issues or questions:
 - Review PostgreSQL logs
 - Check encryption key accessibility
 - Verify hardware support for encryption
-- Contact platform team: security@mnbara.com
+- Contact platform team: security@mnbarh.com
