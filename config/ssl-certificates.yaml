@@ -12,7 +12,7 @@ spec:
     # ACME server URL for Let's Encrypt production
     server: https://acme-v02.api.letsencrypt.org/directory
     # Email address for ACME registration
-    email: admin@mnbara.com
+    email: admin@mnbarh.com
     # Secret to store the ACME account private key
     privateKeySecretRef:
       name: letsencrypt-prod
@@ -24,7 +24,7 @@ spec:
     # Enable DNS-01 challenge provider (optional)
     - dns01:
         cloudflare:
-          email: admin@mnbara.com
+          email: admin@mnbarh.com
           apiKeySecretRef:
             name: cloudflare-api-key
             key: api-key
@@ -34,77 +34,77 @@ spec:
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: mnbara-tls
-  namespace: mnbara-production
+  name: mnbarh-tls
+  namespace: mnbarh-production
 spec:
-  secretName: mnbara-tls
+  secretName: mnbarh-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - mnbara.com
-  - www.mnbara.com
+  - mnbarh.com
+  - www.mnbarh.com
 
 ---
 # API Domain Certificate
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: api-mnbara-tls
-  namespace: mnbara-production
+  name: api-mnbarh-tls
+  namespace: mnbarh-production
 spec:
-  secretName: api-mnbara-tls
+  secretName: api-mnbarh-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - api.mnbara.com
+  - api.mnbarh.com
 
 ---
 # Monitoring Domain Certificate
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: monitoring-mnbara-tls
-  namespace: mnbara-monitoring
+  name: monitoring-mnbarh-tls
+  namespace: mnbarh-monitoring
 spec:
-  secretName: monitoring-mnbara-tls
+  secretName: monitoring-mnbarh-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - monitoring.mnbara.com
+  - monitoring.mnbarh.com
 
 ---
 # Status Page Certificate
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: status-mnbara-tls
-  namespace: mnbara-production
+  name: status-mnbarh-tls
+  namespace: mnbarh-production
 spec:
-  secretName: status-mnbara-tls
+  secretName: status-mnbarh-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - status.mnbara.com
+  - status.mnbarh.com
 
 ---
 # Wildcard Certificate (Alternative approach)
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: wildcard-mnbara-tls
-  namespace: mnbara-production
+  name: wildcard-mnbarh-tls
+  namespace: mnbarh-production
 spec:
-  secretName: wildcard-mnbara-tls
+  secretName: wildcard-mnbarh-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
   dnsNames:
-  - "*.mnbara.com"
-  - mnbara.com
+  - "*.mnbarh.com"
+  - mnbarh.com
 
 ---
 # SSL Configuration for Nginx Ingress
@@ -112,7 +112,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-ssl-config
-  namespace: mnbara-production
+  namespace: mnbarh-production
 data:
   ssl-protocols: "TLSv1.2 TLSv1.3"
   ssl-ciphers: "ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384"
@@ -128,7 +128,7 @@ data:
     X-Content-Type-Options nosniff always;
     X-XSS-Protection "1; mode=block" always;
     Referrer-Policy "strict-origin-when-cross-origin" always;
-    Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mnbara.com wss://mnbara.com; frame-src https://www.google.com https://www.facebook.com;" always;
+    Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mnbarh.com wss://mnbarh.com; frame-src https://www.google.com https://www.facebook.com;" always;
 
 ---
 # Certificate Renewal Job
@@ -136,7 +136,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: cert-renewal-check
-  namespace: mnbara-production
+  namespace: mnbarh-production
 spec:
   schedule: "0 2 * * *" # Daily at 2 AM
   jobTemplate:
@@ -153,7 +153,7 @@ spec:
               echo "Checking SSL certificate expiration..."
               
               # Check main domain
-              EXPIRY=$(echo | openssl s_client -servername mnbara.com -connect mnbara.com:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
+              EXPIRY=$(echo | openssl s_client -servername mnbarh.com -connect mnbarh.com:443 2>/dev/null | openssl x509 -noout -dates | grep notAfter | cut -d= -f2)
               EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
               CURRENT_EPOCH=$(date +%s)
               DAYS_LEFT=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
@@ -163,7 +163,7 @@ spec:
               if [ $DAYS_LEFT -lt 30 ]; then
                 echo "Certificate expires in less than 30 days, triggering renewal..."
                 # Trigger cert-manager renewal
-                kubectl annotate certificate mnbara-tls cert-manager.io/force-renewal=$(date +%s) -n mnbara-production
+                kubectl annotate certificate mnbarh-tls cert-manager.io/force-renewal=$(date +%s) -n mnbarh-production
               else
                 echo "Certificate is valid for $DAYS_LEFT more days"
               fi
@@ -175,7 +175,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ssl-monitor
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: ssl-monitor
 spec:
@@ -190,7 +190,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ssl-monitor
-  namespace: mnbara-production
+  namespace: mnbarh-production
 spec:
   replicas: 1
   selector:
@@ -229,7 +229,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ssl-exporter-config
-  namespace: mnbara-production
+  namespace: mnbarh-production
 data:
   config.yaml: |
     modules:
@@ -244,11 +244,11 @@ data:
           fail_if_not_ssl: true
           
     targets:
-      - name: mnbara-main
-        url: https://mnbara.com
-      - name: mnbara-api
-        url: https://api.mnbara.com
-      - name: mnbara-monitoring
-        url: https://monitoring.mnbara.com
-      - name: mnbara-status
-        url: https://status.mnbara.com
+      - name: mnbarh-main
+        url: https://mnbarh.com
+      - name: mnbarh-api
+        url: https://api.mnbarh.com
+      - name: mnbarh-monitoring
+        url: https://monitoring.mnbarh.com
+      - name: mnbarh-status
+        url: https://status.mnbarh.com
