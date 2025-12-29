@@ -33,27 +33,27 @@ export const productsIndexTemplate = {
         sellerId: { type: 'keyword' },
         title: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: {
             keyword: { type: 'keyword' },
             autocomplete: {
               type: 'text',
-              analyzer: 'mnbara_autocomplete',
-              search_analyzer: 'mnbara_autocomplete_search',
+              analyzer: 'mnbarh_autocomplete',
+              search_analyzer: 'mnbarh_autocomplete_search',
             },
             arabic: {
               type: 'text',
-              analyzer: 'mnbara_arabic',
+              analyzer: 'mnbarh_arabic',
             },
           },
         },
         description: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: {
             arabic: {
               type: 'text',
-              analyzer: 'mnbara_arabic',
+              analyzer: 'mnbarh_arabic',
             },
           },
         },
@@ -70,7 +70,7 @@ export const productsIndexTemplate = {
         images: { type: 'keyword' }, // Array of image URLs
         tags: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: { keyword: { type: 'keyword' } },
         },
         attributes: {
@@ -122,19 +122,19 @@ export const listingsIndexTemplate = {
         type: { type: 'keyword' }, // fixed, auction
         title: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: {
             keyword: { type: 'keyword' },
             autocomplete: {
               type: 'text',
-              analyzer: 'mnbara_autocomplete',
-              search_analyzer: 'mnbara_autocomplete_search',
+              analyzer: 'mnbarh_autocomplete',
+              search_analyzer: 'mnbarh_autocomplete_search',
             },
           },
         },
         description: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
         },
         categoryId: { type: 'keyword' },
         categoryPath: { type: 'keyword' },
@@ -191,17 +191,17 @@ export const auctionsIndexTemplate = {
         sellerId: { type: 'keyword' },
         title: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: {
             keyword: { type: 'keyword' },
             autocomplete: {
               type: 'text',
-              analyzer: 'mnbara_autocomplete',
-              search_analyzer: 'mnbara_autocomplete_search',
+              analyzer: 'mnbarh_autocomplete',
+              search_analyzer: 'mnbarh_autocomplete_search',
             },
           },
         },
-        description: { type: 'text', analyzer: 'mnbara_text' },
+        description: { type: 'text', analyzer: 'mnbarh_text' },
         categoryId: { type: 'keyword' },
         categoryPath: { type: 'keyword' },
         startPrice: { type: 'float' },
@@ -263,13 +263,13 @@ export const categoriesIndexTemplate = {
         id: { type: 'keyword' },
         name: {
           type: 'text',
-          analyzer: 'mnbara_text',
+          analyzer: 'mnbarh_text',
           fields: {
             keyword: { type: 'keyword' },
             autocomplete: {
               type: 'text',
-              analyzer: 'mnbara_autocomplete',
-              search_analyzer: 'mnbara_autocomplete_search',
+              analyzer: 'mnbarh_autocomplete',
+              search_analyzer: 'mnbarh_autocomplete_search',
             },
           },
         },
