@@ -25,8 +25,8 @@ interface LocationNotification {
   bodyAr: string;
   data: {
     nearbyLocation: NearbyLocation;
-    mnbaraSavings: number;
-    mnbaraRate: number;
+    mnbarhSavings: number;
+    mnbarhRate: number;
     competitorRate: number;
     transferAmount?: number;
   };
@@ -136,8 +136,8 @@ export class LocationNotificationService {
     // حساب الفرق في الأسعار
     // Western Union typically charges 5-7% fees
     const westernUnionFee = amount * 0.05;
-    const mnbaraFee = amount * 0.01; // 1% fee
-    const savings = westernUnionFee - mnbaraFee;
+    const mnbarhFee = amount * 0.01; // 1% fee
+    const savings = westernUnionFee - mnbarhFee;
 
     // الحصول على سعر الصرف من Mnbara
     const exchangeRate = await prisma.exchangeRate.findFirst({
@@ -149,9 +149,9 @@ export class LocationNotificationService {
       orderBy: { updatedAt: 'desc' }
     });
 
-    const mnbaraRate = exchangeRate?.rate || 1;
+    const mnbarhRate = exchangeRate?.rate || 1;
     // Western Union typically has 2-3% worse exchange rate
-    const competitorRate = mnbaraRate * 0.97;
+    const competitorRate = mnbarhRate * 0.97;
 
     return {
       userId,
@@ -162,8 +162,8 @@ export class LocationNotificationService {
       bodyAr: `أنت بالقرب من ${nearestLocation.nameAr}. استخدم منبرة بدلاً من ذلك ووفر $${savings.toFixed(2)} في تحويلك!`,
       data: {
         nearbyLocation: nearestLocation,
-        mnbaraSavings: savings,
-        mnbaraRate,
+        mnbarhSavings: savings,
+        mnbarhRate,
         competitorRate,
         transferAmount: amount
       }
@@ -197,8 +197,8 @@ export class LocationNotificationService {
         bodyAr: `تجاوز الطابور في ${nearest.nameAr}! حوّل فوراً مع منبرة بأسعار أفضل.`,
         data: {
           nearbyLocation: nearest,
-          mnbaraSavings: 0,
-          mnbaraRate: 0,
+          mnbarhSavings: 0,
+          mnbarhRate: 0,
           competitorRate: 0
         }
       });
@@ -216,7 +216,7 @@ export class LocationNotificationService {
     toCurrency: string,
     amount: number
   ): Promise<{
-    mnbara: { fee: number; rate: number; total: number; receiveAmount: number };
+    mnbarh: { fee: number; rate: number; total: number; receiveAmount: number };
     westernUnion: { fee: number; rate: number; total: number; receiveAmount: number };
     savings: number;
     savingsPercent: number;
@@ -231,26 +231,26 @@ export class LocationNotificationService {
       orderBy: { updatedAt: 'desc' }
     });
 
-    const mnbaraRate = exchangeRate?.rate || 1;
-    const mnbaraFee = amount * 0.01; // 1%
-    const mnbaraTotal = amount + mnbaraFee;
-    const mnbaraReceive = amount * mnbaraRate;
+    const mnbarhRate = exchangeRate?.rate || 1;
+    const mnbarhFee = amount * 0.01; // 1%
+    const mnbarhTotal = amount + mnbarhFee;
+    const mnbarhReceive = amount * mnbarhRate;
 
     // تقدير Western Union
-    const wuRate = mnbaraRate * 0.97; // 3% worse rate
+    const wuRate = mnbarhRate * 0.97; // 3% worse rate
     const wuFee = amount * 0.05; // 5% fee
     const wuTotal = amount + wuFee;
     const wuReceive = amount * wuRate;
 
-    const savings = wuTotal - mnbaraTotal + (mnbaraReceive - wuReceive);
+    const savings = wuTotal - mnbarhTotal + (mnbarhReceive - wuReceive);
     const savingsPercent = (savings / wuTotal) * 100;
 
     return {
-      mnbara: {
-        fee: mnbaraFee,
-        rate: mnbaraRate,
-        total: mnbaraTotal,
-        receiveAmount: mnbaraReceive
+      mnbarh: {
+        fee: mnbarhFee,
+        rate: mnbarhRate,
+        total: mnbarhTotal,
+        receiveAmount: mnbarhReceive
       },
       westernUnion: {
         fee: wuFee,
