@@ -6,7 +6,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -52,12 +52,12 @@ subjects:
 apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
-  name: mnbara
+  name: mnbarh
   namespace: monitoring
   labels:
     app.kubernetes.io/name: prometheus
-    app.kubernetes.io/instance: mnbara
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/instance: mnbarh
+    app.kubernetes.io/part-of: mnbarh-monitoring
 spec:
   replicas: 2
   version: v2.48.0
@@ -66,23 +66,23 @@ spec:
   # Service Monitor selector - matches all MNBARA services
   serviceMonitorSelector:
     matchLabels:
-      app.kubernetes.io/part-of: mnbara-platform
+      app.kubernetes.io/part-of: mnbarh-platform
   
   # Pod Monitor selector
   podMonitorSelector:
     matchLabels:
-      app.kubernetes.io/part-of: mnbara-platform
+      app.kubernetes.io/part-of: mnbarh-platform
   
   # Prometheus Rules selector
   ruleSelector:
     matchLabels:
-      app.kubernetes.io/part-of: mnbara-monitoring
+      app.kubernetes.io/part-of: mnbarh-monitoring
   
   # Alertmanager configuration
   alerting:
     alertmanagers:
       - namespace: monitoring
-        name: alertmanager-mnbara
+        name: alertmanager-mnbarh
         port: web
   
   # Storage configuration
@@ -124,18 +124,18 @@ spec:
   
   # External labels for federation
   externalLabels:
-    cluster: mnbara-production
+    cluster: mnbarh-production
     environment: production
 ---
 # Prometheus Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus-mnbara
+  name: prometheus-mnbarh
   namespace: monitoring
   labels:
     app.kubernetes.io/name: prometheus
-    app.kubernetes.io/instance: mnbara
+    app.kubernetes.io/instance: mnbarh
 spec:
   type: ClusterIP
   ports:
@@ -144,7 +144,7 @@ spec:
       name: web
   selector:
     app.kubernetes.io/name: prometheus
-    prometheus: mnbara
+    prometheus: mnbarh
 ---
 # Additional scrape configs secret
 apiVersion: v1
