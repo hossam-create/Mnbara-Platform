@@ -8,8 +8,8 @@ metadata:
   name: payment-cde
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
-    security.mnbara.com/cde: "true"
+    security.mnbarh.com/pci-dss: "true"
+    security.mnbarh.com/cde: "true"
   annotations:
     # Enforce strict security policies
     pod-security.kubernetes.io/enforce: restricted
@@ -25,7 +25,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   podSelector: {}
   policyTypes:
@@ -41,7 +41,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-service
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   podSelector:
     matchLabels:
@@ -53,7 +53,7 @@ spec:
     - from:
         - namespaceSelector:
             matchLabels:
-              app.kubernetes.io/name: mnbara
+              app.kubernetes.io/name: mnbarh
           podSelector:
             matchLabels:
               app.kubernetes.io/name: api-gateway
@@ -70,7 +70,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-service
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   podSelector:
     matchLabels:
@@ -134,10 +134,10 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: api-gateway-to-payment
-  namespace: mnbara
+  namespace: mnbarh
   labels:
     app.kubernetes.io/name: api-gateway
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   podSelector:
     matchLabels:
@@ -149,7 +149,7 @@ spec:
     - to:
         - namespaceSelector:
             matchLabels:
-              security.mnbara.com/cde: "true"
+              security.mnbarh.com/cde: "true"
           podSelector:
             matchLabels:
               app.kubernetes.io/name: payment-service
@@ -166,7 +166,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-service
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   selector:
     matchLabels:
@@ -177,7 +177,7 @@ spec:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/mnbara/sa/api-gateway"
+              - "cluster.local/ns/mnbarh/sa/api-gateway"
       to:
         - operation:
             methods: ["POST", "GET"]
@@ -188,7 +188,7 @@ spec:
               - "/ready"
       when:
         - key: request.auth.claims[iss]
-          values: ["https://auth.mnbara.com"]
+          values: ["https://auth.mnbarh.com"]
 
 ---
 # Strict mTLS for payment namespace
@@ -199,7 +199,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   mtls:
     mode: STRICT
@@ -213,7 +213,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   hard:
     pods: "10"
@@ -235,7 +235,7 @@ metadata:
   namespace: payment-cde
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   limits:
     - type: Pod
@@ -267,7 +267,7 @@ metadata:
   name: payment-cde-restricted
   labels:
     app.kubernetes.io/name: payment-cde
-    security.mnbara.com/pci-dss: "true"
+    security.mnbarh.com/pci-dss: "true"
 spec:
   privileged: false
   allowPrivilegeEscalation: false
