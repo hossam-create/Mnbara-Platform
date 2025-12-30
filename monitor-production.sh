@@ -86,13 +86,13 @@ echo "🏗️  INFRASTRUCTURE STATUS"
 echo "-----------------------"
 
 # Database
-check_database "PostgreSQL" "docker exec mnbara-postgres-prod pg_isready -U $DB_USER" "PostgreSQL Database"
+check_database "PostgreSQL" "docker exec mnbarh-postgres-prod pg_isready -U $DB_USER" "PostgreSQL Database"
 
 # Redis
-check_database "Redis" "docker exec mnbara-redis-prod redis-cli -a $REDIS_PASSWORD ping | grep -q PONG" "Redis Cache"
+check_database "Redis" "docker exec mnbarh-redis-prod redis-cli -a $REDIS_PASSWORD ping | grep -q PONG" "Redis Cache"
 
 # RabbitMQ
-check_database "RabbitMQ" "docker exec mnbara-rabbitmq-prod rabbitmq-diagnostics ping" "RabbitMQ Message Queue"
+check_database "RabbitMQ" "docker exec mnbarh-rabbitmq-prod rabbitmq-diagnostics ping" "RabbitMQ Message Queue"
 
 # Elasticsearch
 check_api_endpoint "http://localhost:9200/_cluster/health" "200" "Elasticsearch Cluster"
@@ -107,19 +107,19 @@ echo "🔧 BACKEND SERVICES STATUS"
 echo "-------------------------"
 
 # API Gateway
-check_service "API Gateway" "mnbara-api-gateway-prod"
+check_service "API Gateway" "mnbarh-api-gateway-prod"
 check_api_endpoint "http://localhost:8080/health" "200" "API Gateway Health"
 
 # P2P Swap Service
-check_service "P2P Swap Service" "mnbara-p2p-swap-prod"
+check_service "P2P Swap Service" "mnbarh-p2p-swap-prod"
 check_api_endpoint "http://localhost:8080/api/p2p-swap/health" "200" "P2P Swap Service Health"
 
 # Real-time Matching Service
-check_service "Real-time Matching Service" "mnbara-real-time-matcher-prod"
+check_service "Real-time Matching Service" "mnbarh-real-time-matcher-prod"
 check_api_endpoint "http://localhost:3001/health" "200" "Real-time Matching Service Health"
 
 # AI Core Service
-check_service "AI Core Service" "mnbara-ai-core-prod"
+check_service "AI Core Service" "mnbarh-ai-core-prod"
 check_api_endpoint "http://localhost:8080/api/ai/health" "200" "AI Core Service Health"
 
 echo ""
@@ -132,11 +132,11 @@ echo "🎨 FRONTEND SERVICES STATUS"
 echo "--------------------------"
 
 # Web Frontend
-check_service "Web Frontend" "mnbara-web-frontend-prod"
+check_service "Web Frontend" "mnbarh-web-frontend-prod"
 check_api_endpoint "http://localhost:3000" "200" "Web Frontend"
 
 # Mobile Backend
-check_service "Mobile Backend" "mnbara-mobile-backend-prod"
+check_service "Mobile Backend" "mnbarh-mobile-backend-prod"
 check_api_endpoint "http://localhost:3002/health" "200" "Mobile Backend Health"
 
 echo ""
@@ -149,11 +149,11 @@ echo "📈 MONITORING SERVICES STATUS"
 echo "---------------------------"
 
 # Prometheus
-check_service "Prometheus" "mnbara-prometheus-prod"
+check_service "Prometheus" "mnbarh-prometheus-prod"
 check_api_endpoint "http://localhost:9090" "200" "Prometheus"
 
 # Grafana
-check_service "Grafana" "mnbara-grafana-prod"
+check_service "Grafana" "mnbarh-grafana-prod"
 check_api_endpoint "http://localhost:3001" "200" "Grafana"
 
 echo ""
@@ -246,15 +246,15 @@ echo ""
 echo "🔔 RECOMMENDED ACTIONS:"
 
 # Check if any critical services are down
-if ! docker ps --filter "name=mnbara-postgres-prod" --format "{{.Names}}" | grep -q "^mnbara-postgres-prod$"; then
+if ! docker ps --filter "name=mnbarh-postgres-prod" --format "{{.Names}}" | grep -q "^mnbarh-postgres-prod$"; then
     echo "   🚨 CRITICAL: PostgreSQL database is down"
 fi
 
-if ! docker ps --filter "name=mnbara-api-gateway-prod" --format "{{.Names}}" | grep -q "^mnbara-api-gateway-prod$"; then
+if ! docker ps --filter "name=mnbarh-api-gateway-prod" --format "{{.Names}}" | grep -q "^mnbarh-api-gateway-prod$"; then
     echo "   🚨 CRITICAL: API Gateway is down"
 fi
 
-if ! docker ps --filter "name=mnbara-redis-prod" --format "{{.Names}}" | grep -q "^mnbara-redis-prod$"; then
+if ! docker ps --filter "name=mnbarh-redis-prod" --format "{{.Names}}" | grep -q "^mnbarh-redis-prod$"; then
     echo "   🚨 CRITICAL: Redis cache is down"
 fi
 
