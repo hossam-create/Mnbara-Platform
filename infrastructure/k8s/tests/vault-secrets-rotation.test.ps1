@@ -65,9 +65,9 @@ if ($DatabaseSecretsExist) {
     Write-TestResult -TestName "PostgreSQL database plugin is configured" -Passed $HasPostgresPlugin -Message "PostgreSQL plugin configuration not found"
     
     # Test 4: Dynamic roles are defined
-    $HasReadonlyRole = $DatabaseContent -match "database/roles/mnbara-readonly"
-    $HasReadwriteRole = $DatabaseContent -match "database/roles/mnbara-readwrite"
-    $HasAdminRole = $DatabaseContent -match "database/roles/mnbara-admin"
+    $HasReadonlyRole = $DatabaseContent -match "database/roles/mnbarh-readonly"
+    $HasReadwriteRole = $DatabaseContent -match "database/roles/mnbarh-readwrite"
+    $HasAdminRole = $DatabaseContent -match "database/roles/mnbarh-admin"
     $AllRolesDefined = $HasReadonlyRole -and $HasReadwriteRole -and $HasAdminRole
     Write-TestResult -TestName "All database roles are defined (readonly, readwrite, admin)" -Passed $AllRolesDefined -Message "Missing roles: readonly=$HasReadonlyRole, readwrite=$HasReadwriteRole, admin=$HasAdminRole"
     
@@ -78,11 +78,11 @@ if ($DatabaseSecretsExist) {
     Write-TestResult -TestName "TTL is configured for credential rotation" -Passed $TtlConfigured -Message "TTL configuration not found"
     
     # Test 6: Readonly role has appropriate TTL (1h default, 24h max)
-    $ReadonlyTtlMatch = $DatabaseContent -match 'mnbara-readonly[\s\S]*?default_ttl="1h"[\s\S]*?max_ttl="24h"'
+    $ReadonlyTtlMatch = $DatabaseContent -match 'mnbarh-readonly[\s\S]*?default_ttl="1h"[\s\S]*?max_ttl="24h"'
     Write-TestResult -TestName "Readonly role has appropriate TTL (1h/24h)" -Passed $ReadonlyTtlMatch -Message "Expected default_ttl=1h and max_ttl=24h for readonly role"
     
     # Test 7: Admin role has shorter TTL for security (30m default, 2h max)
-    $AdminTtlMatch = $DatabaseContent -match 'mnbara-admin[\s\S]*?default_ttl="30m"[\s\S]*?max_ttl="2h"'
+    $AdminTtlMatch = $DatabaseContent -match 'mnbarh-admin[\s\S]*?default_ttl="30m"[\s\S]*?max_ttl="2h"'
     Write-TestResult -TestName "Admin role has shorter TTL for security (30m/2h)" -Passed $AdminTtlMatch -Message "Expected default_ttl=30m and max_ttl=2h for admin role"
     
     # Test 8: Revocation statements are configured
@@ -130,19 +130,19 @@ if ($PkiExists) {
     Write-TestResult -TestName "Intermediate CA has 5-year TTL configured" -Passed $HasIntermediateTtl -Message "Intermediate CA TTL not set to 43800h (5 years)"
     
     # Test 16: Service certificate role is defined
-    $HasServiceRole = $PkiContent -match "pki_int/roles/mnbara-service"
-    Write-TestResult -TestName "Service certificate role is defined" -Passed $HasServiceRole -Message "mnbara-service PKI role not found"
+    $HasServiceRole = $PkiContent -match "pki_int/roles/mnbarh-service"
+    Write-TestResult -TestName "Service certificate role is defined" -Passed $HasServiceRole -Message "mnbarh-service PKI role not found"
     
     # Test 17: Internal service role is defined with shorter TTL
-    $HasInternalRole = $PkiContent -match "pki_int/roles/mnbara-internal"
-    Write-TestResult -TestName "Internal service certificate role is defined" -Passed $HasInternalRole -Message "mnbara-internal PKI role not found"
+    $HasInternalRole = $PkiContent -match "pki_int/roles/mnbarh-internal"
+    Write-TestResult -TestName "Internal service certificate role is defined" -Passed $HasInternalRole -Message "mnbarh-internal PKI role not found"
     
     # Test 18: Service certificates have reasonable TTL (72h default, 720h max)
-    $HasServiceTtl = $PkiContent -match "mnbara-service[\s\S]*?max_ttl=720h[\s\S]*?ttl=72h"
+    $HasServiceTtl = $PkiContent -match "mnbarh-service[\s\S]*?max_ttl=720h[\s\S]*?ttl=72h"
     Write-TestResult -TestName "Service certificates have 72h/720h TTL" -Passed ([bool]$HasServiceTtl) -Message "Expected ttl=72h and max_ttl=720h for service certificates"
     
     # Test 19: Internal certificates have shorter TTL (24h default)
-    $InternalTtlMatch = $PkiContent -match 'mnbara-internal[\s\S]*?ttl=24h'
+    $InternalTtlMatch = $PkiContent -match 'mnbarh-internal[\s\S]*?ttl=24h'
     Write-TestResult -TestName "Internal certificates have 24h TTL for frequent rotation" -Passed $InternalTtlMatch -Message "Expected ttl=24h for internal certificates"
     
     # Test 20: CRL distribution points are configured
