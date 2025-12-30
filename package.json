@@ -1,41 +1,27 @@
 {
-    "name": "mnbara-platform",
-    "version": "1.0.0",
-    "description": "Mnbarh Marketplace Platform - Modern Microservices Architecture",
-    "private": true,
-    "workspaces": [
-        "backend/services/*",
-        "frontend/mobile/*",
-        "frontend/web/*",
-        "frontend/admin-dashboard"
-    ],
-    "scripts": {
-        "dev": "docker-compose up",
-        "dev:auth": "npm run dev --workspace=@mnbara/auth-service",
-        "dev:listing": "npm run dev --workspace=@mnbara/listing-service",
-        "dev:auction": "npm run dev --workspace=@mnbara/auction-service",
-        "dev:payment": "npm run dev --workspace=@mnbara/payment-service",
-        "build": "npm run build --workspaces",
-        "test": "npm run test --workspaces",
-        "lint": "node node_modules/eslint/bin/eslint.js . --ext .js,.ts,.tsx"
-    },
-    "dependencies": {
-        "@openzeppelin/contracts": "^5.4.0",
-        "@openzeppelin/contracts-upgradeable": "^5.4.0",
-        "dotenv": "^17.2.3",
-        "ethers": "^6.8.0"
-    },
-    "devDependencies": {
-        "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-        "@typescript-eslint/eslint-plugin": "^7.0.0",
-        "@typescript-eslint/parser": "^7.0.0",
-        "eslint": "^8.57.1",
-        "hardhat": "^2.27.1",
-        "prettier": "^3.2.5",
-        "typescript": "^5.3.3"
-    },
-    "engines": {
-        "node": "22.20.0",
-        "npm": ">=10.0.0"
-    }
+  "name": "mnbara-platform",
+  "version": "1.0.0",
+  "description": "MNBara E-commerce Platform",
+  "scripts": {
+    "setup:db": "bash scripts/setup-databases.sh",
+    "setup:db:win": "scripts\\setup-databases.bat",
+    "start:mvp": "bash scripts/start-mvp.sh",
+    "start:mvp:win": "scripts\\start-mvp.bat",
+    "verify": "bash scripts/verify-services.sh",
+    "verify:win": "scripts\\verify-services.bat",
+    "test:integration": "npx vitest run test/integration/mvp-integration.test.ts",
+    "test:all": "npx vitest run",
+    "test:watch": "npx vitest",
+    "dev": "concurrently \"npm run dev:listing\" \"npm run dev:cart\" \"npm run dev:payment\"",
+    "dev:listing": "cd backend/services/listing-service-node && npm run dev",
+    "dev:cart": "cd backend/services/cart-service && npm run dev",
+    "dev:payment": "cd backend/services/payment-service && npm run dev"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4",
+    "axios": "^1.6.2"
+  }
 }

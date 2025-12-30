@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -22,14 +23,14 @@ import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { QueryOrdersDto } from './dto/query-orders.dto';
-
-// TODO: Implement JWT auth guard and get userId from token
-// For now, using header or hardcoded userId
-const MOCK_USER_ID = 1;
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Public } from '../auth/public.decorator';
+import { User } from '../auth/user.decorator';
 
 @ApiTags('orders')
 @ApiBearerAuth()
 @Controller('api/v1/orders')
+@UseGuards(JwtAuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -37,12 +38,12 @@ export class OrdersController {
   @ApiOperation({ summary: 'Create a new order (authenticated user)' })
   @ApiResponse({ status: 201, description: 'Order created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  create(@Body() createOrderDto: CreateOrderDto) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.create(MOCK_USER_ID, createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @User('userId') userId: number) {
+    return this.ordersService.create(userId, createOrderDto);
   }
 
   @Post('guest')
+  @Public()
   @ApiOperation({ summary: 'Create a guest order (no authentication required)' })
   @ApiResponse({ status: 201, description: 'Guest order created successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -53,9 +54,8 @@ export class OrdersController {
   @Get()
   @ApiOperation({ summary: 'Get all orders for current user' })
   @ApiResponse({ status: 200, description: 'Orders retrieved successfully' })
-  findAll(@Query() query: QueryOrdersDto) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.findAll(MOCK_USER_ID, null, query);
+  findAll(@Query() query: QueryOrdersDto, @User('userId') userId: number) {
+    return this.ordersService.findAll(userId, null, query);
   }
 
   @Get(':id')
@@ -63,9 +63,8 @@ export class OrdersController {
   @ApiParam({ name: 'id', description: 'Order ID' })
   @ApiResponse({ status: 200, description: 'Order retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.findOne(id, MOCK_USER_ID, null);
+  findOne(@Param('id', ParseIntPipe) id: number, @User('userId') userId: number) {
+    return this.ordersService.findOne(id, userId, null);
   }
 
   @Patch(':id')
@@ -76,9 +75,9 @@ export class OrdersController {
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
+    @User('userId') userId: number,
   ) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.update(id, MOCK_USER_ID, null, updateOrderDto);
+    return this.ordersService.update(id, userId, null, updateOrderDto);
   }
 
   @Post(':id/cancel')
@@ -88,9 +87,8 @@ export class OrdersController {
   @ApiResponse({ status: 200, description: 'Order cancelled successfully' })
   @ApiResponse({ status: 400, description: 'Cannot cancel order' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  cancel(@Param('id', ParseIntPipe) id: number) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.cancel(id, MOCK_USER_ID, null);
+  cancel(@Param('id', ParseIntPipe) id: number, @User('userId') userId: number) {
+    return this.ordersService.cancel(id, userId, null);
   }
 
   @Get(':id/tracking')
@@ -98,12 +96,12 @@ export class OrdersController {
   @ApiParam({ name: 'id', description: 'Order ID' })
   @ApiResponse({ status: 200, description: 'Tracking info retrieved' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  getTracking(@Param('id', ParseIntPipe) id: number) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.getTracking(id, MOCK_USER_ID, null);
+  getTracking(@Param('id', ParseIntPipe) id: number, @User('userId') userId: number) {
+    return this.ordersService.getTracking(id, userId, null);
   }
 
   @Get('guest/:email')
+  @Public()
   @ApiOperation({ summary: 'Get guest orders by email (for account creation prompt)' })
   @ApiParam({ name: 'email', description: 'Guest email address' })
   @ApiResponse({ status: 200, description: 'Guest orders retrieved' })
@@ -116,8 +114,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Confirm delivery and release escrow' })
   @ApiParam({ name: 'id', description: 'Order ID' })
   @ApiResponse({ status: 200, description: 'Escrow released' })
-  confirmDelivery(@Param('id', ParseIntPipe) id: number) {
-    // TODO: Get userId from JWT token
-    return this.ordersService.confirmDelivery(id, MOCK_USER_ID);
+  confirmDelivery(@Param('id', ParseIntPipe) id: number, @User('userId') userId: number) {
+    return this.ordersService.confirmDelivery(id, userId);
   }
 }

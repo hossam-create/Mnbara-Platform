@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Seller {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  businessName  String
+  businessType  String   // individual, company
+  email         String   @unique
+  phone         String
+  
+  // Business Details
+  taxId         String?
+  businessAddress Json
+  bankAccount   Json?
+  
+  // Verification
+  verified      Boolean  @default(false)
+  verifiedAt    DateTime?
+  kycStatus     String   @default("pending") // pending, approved, rejected
+  
+  // Status
+  status        String   @default("active") // active, suspended, banned
+  rating        Float    @default(0)
+  totalSales    Int      @default(0)
+  totalRevenue  Float    @default(0)
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  products      Product[]
+  inventory     Inventory[]
+  sales         Sale[]
+  analytics     SellerAnalytics[]
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id])
+  
+  title         String
+  description   String
+  category      String
+  price         Float
+  comparePrice  Float?
+  cost          Float?
+  
+  // Product Details
+  sku           String   @unique
+  barcode       String?
+  images        String[]
+  condition     String   // new, used, refurbished
+  brand         String?
+  
+  // Inventory
+  stock         Int      @default(0)
+  lowStockAlert Int      @default(5)
+  
+  // Status
+  status        String   @default("draft") // draft, active, inactive, sold
+  featured      Boolean  @default(false)
+  
+  // SEO
+  slug          String   @unique
+  metaTitle     String?
+  metaDescription String?
+  
+  // Stats
+  views         Int      @default(0)
+  favorites     Int      @default(0)
+  sold          Int      @default(0)
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  publishedAt   DateTime?
+  
+  // Relations
+  inventory     Inventory[]
+  sales         Sale[]
+  
+  @@index([sellerId])
+  @@index([category])
+  @@index([status])
+}
+
+model Inventory {
+  id            String   @id @default(uuid())
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id])
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  
+  quantity      Int
+  reserved      Int      @default(0)
+  available     Int      // quantity - reserved
+  
+  location      String?
+  warehouse     String?
+  
+  // Tracking
+  lastRestocked DateTime?
+  reorderPoint  Int      @default(10)
+  reorderQty    Int      @default(50)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([sellerId, productId])
+  @@index([sellerId])
+  @@index([productId])
+}
+
+model Sale {
+  id            String   @id @default(uuid())
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id])
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  
+  orderId       String
+  customerId    String
+  
+  quantity      Int
+  unitPrice     Float
+  totalPrice    Float
+  cost          Float?
+  profit        Float?
+  
+  status        String   // pending, completed, cancelled, refunded
+  
+  paymentMethod String
+  paymentStatus String
+  
+  shippingFee   Float    @default(0)
+  tax           Float    @default(0)
+  commission    Float    @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+  
+  @@index([sellerId])
+  @@index([productId])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+model SellerAnalytics {
+  id            String   @id @default(uuid())
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id])
+  
+  date          DateTime @db.Date
+  
+  // Sales Metrics
+  totalSales    Int      @default(0)
+  totalRevenue  Float    @default(0)
+  totalProfit   Float    @default(0)
+  avgOrderValue Float    @default(0)
+  
+  // Product Metrics
+  productsViewed Int     @default(0)
+  productsSold   Int     @default(0)
+  conversionRate Float   @default(0)
+  
+  // Customer Metrics
+  newCustomers   Int     @default(0)
+  returningCustomers Int @default(0)
+  
+  // Inventory Metrics
+  lowStockItems  Int     @default(0)
+  outOfStockItems Int    @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([sellerId, date])
+  @@index([sellerId])
+  @@index([date])
+}
