@@ -1,5 +1,5 @@
-{
-    "name": "@mnbara/auth-service",
+﻿{
+    "name": "@mnbarh/auth-service",
     "version": "1.0.0",
     "description": "Mnbarh Authentication Service",
     "main": "dist/index.js",
@@ -57,3 +57,4 @@
         "node": "22.20.0"
     }
 }
+

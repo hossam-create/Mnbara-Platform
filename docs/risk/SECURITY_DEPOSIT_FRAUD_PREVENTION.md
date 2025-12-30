@@ -1,10 +1,10 @@
-# GUARANTEE PHASE — SECURITY DEPOSIT SYSTEM
+﻿# GUARANTEE PHASE â€” SECURITY DEPOSIT SYSTEM
 ## Fraud Prevention & Arbitration Rules
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Security Deposit Hardening Specification  
 **Date:** December 20, 2025  
-**Classification:** Internal — Risk & Trust Operations
+**Classification:** Internal â€” Risk & Trust Operations
 
 ---
 
@@ -14,36 +14,36 @@
 
 | Scenario | Signal | Evidence Required | Decision | Deposit Movement |
 |----------|--------|-------------------|----------|------------------|
-| Buyer refuses to accept delivery without reason | Traveler reports refusal + buyer silent | Photo/video of item at location + communication log + GPS timestamp | Platform rules in favor of traveler | Buyer deposit → Traveler (full) |
-| Buyer claims "not what I ordered" without proof | Dispute opened, no buyer evidence | Compare original request spec vs delivered item photos | Platform review required | Hold both deposits → 48hr evidence window |
-| Buyer ghosts at pickup location | Traveler at location, buyer unresponsive for 2+ hours | Traveler GPS at agreed location + call/message attempts (3+) + timestamp proof | Traveler compensation from buyer deposit | Buyer deposit → Traveler (delivery fee + compensation %) |
-| Buyer demands refund after accepting | Confirmation already recorded | Buyer's own confirmation (button press / signature) | Dispute rejected | No deposit movement — case closed |
-| Buyer claims item damaged in transit | Photos show damage | Pre-delivery photos (traveler) vs post-delivery photos (buyer) | Compare condition, assess fault | If traveler fault: Traveler deposit → Buyer. If pre-existing: Buyer deposit retained |
+| Buyer refuses to accept delivery without reason | Traveler reports refusal + buyer silent | Photo/video of item at location + communication log + GPS timestamp | Platform rules in favor of traveler | Buyer deposit â†’ Traveler (full) |
+| Buyer claims "not what I ordered" without proof | Dispute opened, no buyer evidence | Compare original request spec vs delivered item photos | Platform review required | Hold both deposits â†’ 48hr evidence window |
+| Buyer ghosts at pickup location | Traveler at location, buyer unresponsive for 2+ hours | Traveler GPS at agreed location + call/message attempts (3+) + timestamp proof | Traveler compensation from buyer deposit | Buyer deposit â†’ Traveler (delivery fee + compensation %) |
+| Buyer demands refund after accepting | Confirmation already recorded | Buyer's own confirmation (button press / signature) | Dispute rejected | No deposit movement â€” case closed |
+| Buyer claims item damaged in transit | Photos show damage | Pre-delivery photos (traveler) vs post-delivery photos (buyer) | Compare condition, assess fault | If traveler fault: Traveler deposit â†’ Buyer. If pre-existing: Buyer deposit retained |
 
 ## 1.2 Fake Delivery Claim
 
 | Scenario | Signal | Evidence Required | Decision | Deposit Movement |
 |----------|--------|-------------------|----------|------------------|
-| Traveler marks delivered, buyer denies receipt | Dispute opened by buyer | GPS proof of traveler location + photo at door/location + communication log | Cross-reference evidence quality | If traveler evidence weak: Traveler deposit → Buyer. If strong: Buyer required to prove non-receipt |
-| Traveler uploads fake delivery photo | Image metadata inconsistent (wrong date/location) | EXIF data analysis + GPS mismatch detection | Platform flags as fraudulent | Traveler deposit → Buyer + TravelerRiskFlag SET |
-| Traveler delivers to wrong address | Buyer reports wrong location | Compare agreed address vs delivery GPS coordinates | Traveler fault if mismatch > 500m | Traveler deposit → Buyer (item cost + fees) |
-| Traveler claims customs seizure | No item delivered | Customs documentation required (official stamp/receipt) | Verify document authenticity | If verified: Split deposits (50/50 return). If unverified: Traveler deposit → Buyer |
+| Traveler marks delivered, buyer denies receipt | Dispute opened by buyer | GPS proof of traveler location + photo at door/location + communication log | Cross-reference evidence quality | If traveler evidence weak: Traveler deposit â†’ Buyer. If strong: Buyer required to prove non-receipt |
+| Traveler uploads fake delivery photo | Image metadata inconsistent (wrong date/location) | EXIF data analysis + GPS mismatch detection | Platform flags as fraudulent | Traveler deposit â†’ Buyer + TravelerRiskFlag SET |
+| Traveler delivers to wrong address | Buyer reports wrong location | Compare agreed address vs delivery GPS coordinates | Traveler fault if mismatch > 500m | Traveler deposit â†’ Buyer (item cost + fees) |
+| Traveler claims customs seizure | No item delivered | Customs documentation required (official stamp/receipt) | Verify document authenticity | If verified: Split deposits (50/50 return). If unverified: Traveler deposit â†’ Buyer |
 
 ## 1.3 Wrong Product
 
 | Scenario | Signal | Evidence Required | Decision | Deposit Movement |
 |----------|--------|-------------------|----------|------------------|
-| Completely different item delivered | Buyer photo shows wrong product | Original request spec + receipt from purchase + buyer's photo of received item | Clear mismatch = Traveler fault | Traveler deposit → Buyer (full) |
+| Completely different item delivered | Buyer photo shows wrong product | Original request spec + receipt from purchase + buyer's photo of received item | Clear mismatch = Traveler fault | Traveler deposit â†’ Buyer (full) |
 | Correct item, wrong variant (size/color) | Buyer disputes variant | Original request spec (must include variant) + receipt + delivered item photo | If spec was vague: Shared fault. If spec clear: Traveler fault | Shared: 50/50 return. Traveler: Full to buyer |
 | Counterfeit product | Buyer alleges fake | Traveler purchase receipt + brand verification (if possible) + buyer photos | Platform cannot verify authenticity without physical item | Escalate to manual review, may require return |
-| Item missing accessories | Buyer claims incomplete | Original spec (must list accessories) + traveler purchase receipt | Compare itemized receipt vs delivered contents | If receipt shows accessories: Traveler deposit → Buyer (partial). If not listed: Dispute rejected |
+| Item missing accessories | Buyer claims incomplete | Original spec (must list accessories) + traveler purchase receipt | Compare itemized receipt vs delivered contents | If receipt shows accessories: Traveler deposit â†’ Buyer (partial). If not listed: Dispute rejected |
 
 ## 1.4 Traveler Disappearance
 
 | Scenario | Signal | Evidence Required | Decision | Deposit Movement |
 |----------|--------|-------------------|----------|------------------|
-| Traveler stops responding after payment received | No communication for 48+ hours | Communication log + last known activity + deposit status | Automatic escalation after 72hr silence | Traveler deposit → Buyer (full) + TravelerRiskFlag SET |
-| Traveler claims personal emergency | Traveler requests delay | Proof of emergency (medical/travel docs) within 72hr | Platform grants extension or cancellation | If valid: Mutual return of deposits. If no proof: Traveler deposit → Buyer |
+| Traveler stops responding after payment received | No communication for 48+ hours | Communication log + last known activity + deposit status | Automatic escalation after 72hr silence | Traveler deposit â†’ Buyer (full) + TravelerRiskFlag SET |
+| Traveler claims personal emergency | Traveler requests delay | Proof of emergency (medical/travel docs) within 72hr | Platform grants extension or cancellation | If valid: Mutual return of deposits. If no proof: Traveler deposit â†’ Buyer |
 | Traveler's flight cancelled | Travel disruption | Airline cancellation notice + rebooking proof (if any) | Force majeure consideration | Mutual return of deposits (no penalty) |
 | Traveler detained at customs | Item confiscated, traveler delayed | Official customs documentation + communication proof | Verify authenticity of docs | If verified: Mutual return. If suspicious: Hold for investigation |
 | Traveler deletes account mid-transaction | Account deletion attempted | System block on deletion during active transactions | Transaction must complete or arbitrate first | Traveler deposit held until resolution |
@@ -52,10 +52,10 @@
 
 | Scenario | Signal | Evidence Required | Decision | Deposit Movement |
 |----------|--------|-------------------|----------|------------------|
-| Buyer-Traveler same person (self-dealing) | IP/device/payment method match | Device fingerprint + IP logs + payment account match | Transaction voided | Both deposits frozen → Investigation |
+| Buyer-Traveler same person (self-dealing) | IP/device/payment method match | Device fingerprint + IP logs + payment account match | Transaction voided | Both deposits frozen â†’ Investigation |
 | Fake dispute to extract deposit | Pattern: User always "wins" disputes | Dispute history analysis + counterparty patterns | Flag if win rate > 80% over 5+ disputes | Case-by-case review + RiskFlag SET |
 | Coordinated rating manipulation | Buyer/Traveler repeatedly transact together | Transaction graph analysis (closed loop) | If > 3 transactions between same pair in 30 days: Flag | No deposit impact, but TrustFlag SET on both |
-| Third-party deposit funding | Deposit paid by non-account holder | Payment source verification | Transaction voided if mismatch | Deposits frozen → Manual review |
+| Third-party deposit funding | Deposit paid by non-account holder | Payment source verification | Transaction voided if mismatch | Deposits frozen â†’ Manual review |
 
 ---
 
@@ -112,9 +112,9 @@
 
 **Rules:**
 - Flags are SET by arbitration outcomes, never by algorithm alone
-- Flags are READ-ONLY for matching/display — no score mutation
+- Flags are READ-ONLY for matching/display â€” no score mutation
 - Flags DO NOT automatically block users
-- Travelers see: "This buyer has limited history" (generic) — no flag details exposed
+- Travelers see: "This buyer has limited history" (generic) â€” no flag details exposed
 
 ## 3.2 TravelerRiskFlag
 
@@ -131,7 +131,7 @@
 - Flags are SET by platform arbitration, not automated
 - Flags inform internal operations (support priority, manual review triggers)
 - Flags DO NOT modify trust scores directly
-- Buyers see: "This traveler is new" or "Verified Traveler" — no flag details exposed
+- Buyers see: "This traveler is new" or "Verified Traveler" â€” no flag details exposed
 
 ---
 
@@ -216,11 +216,11 @@
 
 | Pattern | Description | Detection | Action |
 |---------|-------------|-----------|--------|
-| Deposit → Withdraw → Repeat | User deposits, creates transaction, cancels, withdraws | Track deposit/withdrawal ratio | Flag if ratio > 3:1 in 30 days |
+| Deposit â†’ Withdraw â†’ Repeat | User deposits, creates transaction, cancels, withdraws | Track deposit/withdrawal ratio | Flag if ratio > 3:1 in 30 days |
 | Micro-deposit testing | Small deposits to test payment system | Track deposit amounts < $5 | Block after 3 micro-deposits |
 | Deposit from multiple sources | Different cards/wallets funding same account | Payment source tracking | Flag if > 3 sources in 7 days |
 | Deposit immediately before blacklist | User anticipates ban, tries to cash out | Withdrawal freeze during investigation | Hold withdrawals until case closed |
-| Circular deposit flow | A deposits → B deposits → A deposits | Transaction graph analysis | Flag + freeze both accounts |
+| Circular deposit flow | A deposits â†’ B deposits â†’ A deposits | Transaction graph analysis | Flag + freeze both accounts |
 
 **Rules:**
 - Minimum deposit hold: 24 hours before withdrawal available
@@ -261,3 +261,4 @@
 **Version:** 1.0  
 **Classification:** Internal Use Only  
 **Date:** December 20, 2025
+

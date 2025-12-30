@@ -1,12 +1,12 @@
-# Mnbara Platform - API Design Standards
+﻿# Mnbarh Platform - API Design Standards
 
 **Version:** 1.0  
 **Last Updated:** 2025-12-22  
-**Status:** 🔴 IN PROGRESS
+**Status:** ًں”´ IN PROGRESS
 
 ---
 
-## 📋 Table of Contents
+## ًں“‹ Table of Contents
 
 1. [API Principles](#api-principles)
 2. [RESTful Conventions](#restful-conventions)
@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 API Principles
+## ًںژ¯ API Principles
 
 ### 1. Consistency
 - All APIs follow the same patterns
@@ -55,7 +55,7 @@
 
 ---
 
-## 🔄 RESTful Conventions
+## ًں”„ RESTful Conventions
 
 ### HTTP Methods
 
@@ -87,11 +87,11 @@ GET    /api/v1/users/:id/orders/:orderId # Get specific order
 - Use **plural nouns** for collections: `/users`, `/orders`, `/products`
 - Use **lowercase** with hyphens: `/user-profiles`, `/payment-methods`
 - Use **hierarchical structure** for relationships: `/users/:id/orders`
-- Avoid **verbs** in URLs: ❌ `/getUser`, ✅ `/users/:id`
+- Avoid **verbs** in URLs: â‌Œ `/getUser`, âœ… `/users/:id`
 
 ---
 
-## 📤 Request/Response Format
+## ًں“¤ Request/Response Format
 
 ### Request Format
 
@@ -168,7 +168,7 @@ GET    /api/v1/users/:id/orders/:orderId # Get specific order
 
 ---
 
-## ❌ Error Handling
+## â‌Œ Error Handling
 
 ### Error Response Format
 
@@ -240,7 +240,7 @@ SERVICE_UNAVAILABLE    - Service unavailable
 
 ---
 
-## 🔐 Authentication & Authorization
+## ًں”گ Authentication & Authorization
 
 ### Authentication Methods
 
@@ -283,7 +283,7 @@ Response:
 
 ---
 
-## 📦 Versioning
+## ًں“¦ Versioning
 
 ### URL Versioning (Recommended)
 
@@ -296,7 +296,7 @@ Response:
 
 ```
 GET /api/users
-Accept: application/vnd.mnbara.v1+json
+Accept: application/vnd.mnbarh.v1+json
 ```
 
 ### Version Lifecycle
@@ -307,14 +307,14 @@ Accept: application/vnd.mnbara.v1+json
 
 ### Breaking Changes
 
-- Major version increment (v1 → v2)
+- Major version increment (v1 â†’ v2)
 - 6-month deprecation period
 - Clear migration guide
 - Support for both versions during transition
 
 ---
 
-## 🚦 Rate Limiting
+## ًںڑ¦ Rate Limiting
 
 ### Rate Limit Headers
 
@@ -348,7 +348,7 @@ X-RateLimit-Reset: 1640169600
 
 ---
 
-## 📄 Pagination
+## ًں“„ Pagination
 
 ### Query Parameters
 
@@ -391,7 +391,7 @@ Response:
 
 ---
 
-## 🔍 Filtering & Sorting
+## ًں”چ Filtering & Sorting
 
 ### Filtering
 
@@ -427,19 +427,19 @@ GET /api/v1/users/search?q=john&fields=name,email
 
 ---
 
-## 📚 Documentation
+## ًں“ڑ Documentation
 
 ### OpenAPI Specification
 
 ```yaml
 openapi: 3.0.0
 info:
-  title: Mnbara Platform API
+  title: Mnbarh Platform API
   version: 1.0.0
-  description: API for Mnbara Platform
+  description: API for Mnbarh Platform
 
 servers:
-  - url: https://api.mnbara.com/api/v1
+  - url: https://api.mnbarh.com/api/v1
     description: Production
 
 paths:
@@ -543,7 +543,7 @@ components:
 
 ---
 
-## 🔗 API Contracts
+## ًں”— API Contracts
 
 ### Service-to-Service Communication
 
@@ -563,7 +563,7 @@ External API: /api/v1/users
 1.0
 
 ## Base URL
-https://service.mnbara.com/api/v1
+https://service.mnbarh.com/api/v1
 
 ## Authentication
 JWT Bearer token required
@@ -597,7 +597,7 @@ Authorization: Bearer <token>
 
 ---
 
-## ✅ API Review Checklist
+## âœ… API Review Checklist
 
 - [ ] Follows RESTful conventions
 - [ ] Uses consistent naming
@@ -616,6 +616,7 @@ Authorization: Bearer <token>
 
 ---
 
-**Status:** 🔴 IN PROGRESS  
+**Status:** ًں”´ IN PROGRESS  
 **Last Updated:** 2025-12-22  
 **Next Review:** 2025-12-29
+

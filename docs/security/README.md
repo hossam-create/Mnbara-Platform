@@ -1,8 +1,8 @@
-# 🔐 Security Documentation
+﻿# ًں”گ Security Documentation
 
-This directory contains all security-related documentation, reports, and tools for the Mnbara Platform.
+This directory contains all security-related documentation, reports, and tools for the Mnbarh Platform.
 
-## 📁 Contents
+## ًں“پ Contents
 
 ### Reports
 - **`SECURITY_REPORT.md`** - Comprehensive security sweep final report
@@ -15,7 +15,7 @@ This directory contains all security-related documentation, reports, and tools f
 - **`../security_check.ps1`** - Local security scanning script (root directory)
 - **`../../create_prs.ps1`** - PR creation helper script (root directory)
 
-## 🔍 Security Checks
+## ًں”چ Security Checks
 
 ### Automated Checks
 - **CodeQL** - Runs on every PR and push
@@ -30,15 +30,15 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\security_check.ps1
 ```
 
-## 📊 Current Status
+## ًں“ٹ Current Status
 
-- ✅ No sensitive files tracked in git
-- ✅ All security patterns in `.gitignore`
-- ✅ CodeQL passing (0 warnings, 0 errors)
-- ✅ CI workflow comprehensive and active
-- ✅ Automated security scanning enabled
+- âœ… No sensitive files tracked in git
+- âœ… All security patterns in `.gitignore`
+- âœ… CodeQL passing (0 warnings, 0 errors)
+- âœ… CI workflow comprehensive and active
+- âœ… Automated security scanning enabled
 
-## 🔄 Maintenance
+## ًں”„ Maintenance
 
 These files are part of the permanent project structure. They should be updated:
 - After major security changes
@@ -49,5 +49,6 @@ These files are part of the permanent project structure. They should be updated:
 ---
 
 **Last Updated:** 2025-01-27
+
 
 

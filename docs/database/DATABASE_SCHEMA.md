@@ -1,9 +1,9 @@
-# Mnbara Platform - Database Schema Documentation
+﻿# mnbarh Platform - Database Schema Documentation
 
 ## Overview
-This document describes the complete database schema for the Mnbara Platform, including all tables, relationships, and indexes.
+This document describes the complete database schema for the mnbarh Platform, including all tables, relationships, and indexes.
 
-## Database: `mnbara_db`
+## Database: `mnbarh_db`
 - **Type:** PostgreSQL 14+
 - **Extensions:** PostGIS (for geo-spatial data)
 - **Encoding:** UTF8
@@ -36,7 +36,7 @@ User financial accounts for holding balances.
 - `is_locked` - Wallet lock status
 
 **Relationships:**
-- `user_id` → `users.id` (CASCADE DELETE)
+- `user_id` â†’ `users.id` (CASCADE DELETE)
 
 ---
 
@@ -171,7 +171,7 @@ Main order/request table.
 
 **Status Flow:**
 ```
-REQUESTED → MATCHED → PURCHASED → IN_TRANSIT → ARRIVED → DELIVERED → COMPLETED
+REQUESTED â†’ MATCHED â†’ PURCHASED â†’ IN_TRANSIT â†’ ARRIVED â†’ DELIVERED â†’ COMPLETED
 ```
 
 **Key Fields:**
@@ -357,16 +357,17 @@ All major tables have `updated_at` triggers that auto-update on row modification
 
 ```bash
 # Run initial schema
-psql -U mnbara_user -d mnbara_db -f complete_schema.sql
+psql -U mnbarh_user -d mnbarh_db -f complete_schema.sql
 
 # Enable PostGIS (if not already)
-psql -U mnbara_user -d mnbara_db -c "CREATE EXTENSION postgis;"
+psql -U mnbarh_user -d mnbarh_db -c "CREATE EXTENSION postgis;"
 
 # Verify tables
-psql -U mnbara_user -d mnbara_db -c "\dt"
+psql -U mnbarh_user -d mnbarh_db -c "\dt"
 ```
 
 ---
 
 **Last Updated:** 2025-12-01  
 **Version:** 1.0.0
+

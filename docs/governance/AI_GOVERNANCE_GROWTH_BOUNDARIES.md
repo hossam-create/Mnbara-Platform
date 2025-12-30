@@ -1,16 +1,16 @@
-# AI GOVERNANCE & GROWTH BOUNDARIES
+﻿# AI GOVERNANCE & GROWTH BOUNDARIES
 ## Global Trust-First Commerce Platform
 
 **Confidential & Privileged**
 **Classification:** Strategic Governance Blueprint
-**Platform:** Mnbara - Traveler-Based Commerce
+**Platform:** mnbarh - Traveler-Based Commerce
 **Date:** December 18, 2025
 
 ---
 
 ## 1. Platform Context
 
-Mnbara is a **Trust-First Global Commerce Platform** enabling:
+mnbarh is a **Trust-First Global Commerce Platform** enabling:
 - Travelers to fulfill cross-border purchase requests
 - Buyers to access products unavailable in their region
 - Secure escrow-based transactions
@@ -26,11 +26,11 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 
 ### 2.1 Human Sovereignty Principle
 ```
-┌────────────────────────────────────────────────────────────┐
-│  "NO AI OUTPUT SHALL RESULT IN FINANCIAL, LEGAL, OR       │
-│   REPUTATIONAL CONSEQUENCE WITHOUT EXPLICIT HUMAN         │
-│   CONFIRMATION."                                          │
-└────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "NO AI OUTPUT SHALL RESULT IN FINANCIAL, LEGAL, OR       â”‚
+â”‚   REPUTATIONAL CONSEQUENCE WITHOUT EXPLICIT HUMAN         â”‚
+â”‚   CONFIRMATION."                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 | Rule | Description | Enforcement |
@@ -41,10 +41,10 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 
 ### 2.2 Deterministic Integrity Principle
 ```
-┌────────────────────────────────────────────────────────────┐
-│  "THE AI CORE SHALL PRODUCE IDENTICAL OUTPUTS FOR         │
-│   IDENTICAL INPUTS, REGARDLESS OF TIME OR CONTEXT."       │
-└────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "THE AI CORE SHALL PRODUCE IDENTICAL OUTPUTS FOR         â”‚
+â”‚   IDENTICAL INPUTS, REGARDLESS OF TIME OR CONTEXT."       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 | Rule | Description | Enforcement |
@@ -55,24 +55,24 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 
 ### 2.3 Fail-Safe Principle
 ```
-┌────────────────────────────────────────────────────────────┐
-│  "UPON ANY FAILURE, THE PLATFORM DEFAULTS TO HUMAN        │
-│   OPERATION, NEVER TO AUTONOMOUS ACTION."                 │
-└────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "UPON ANY FAILURE, THE PLATFORM DEFAULTS TO HUMAN        â”‚
+â”‚   OPERATION, NEVER TO AUTONOMOUS ACTION."                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 | Rule | Description | Enforcement |
 | :--- | :--- | :--- |
-| **SAFE-001** | AI outage → Manual review queue | Circuit breaker |
-| **SAFE-002** | Model drift alert → Human investigation | Monitoring |
+| **SAFE-001** | AI outage â†’ Manual review queue | Circuit breaker |
+| **SAFE-002** | Model drift alert â†’ Human investigation | Monitoring |
 | **SAFE-003** | Kill switch executable in <5 minutes | SRE runbook |
 
 ### 2.4 Data Minimization Principle
 ```
-┌────────────────────────────────────────────────────────────┐
-│  "THE AI SHALL PROCESS ONLY DATA STRICTLY NECESSARY       │
-│   FOR THE STATED PURPOSE, NEVER MORE."                    │
-└────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "THE AI SHALL PROCESS ONLY DATA STRICTLY NECESSARY       â”‚
+â”‚   FOR THE STATED PURPOSE, NEVER MORE."                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 | Rule | Description | Enforcement |
@@ -83,10 +83,10 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 
 ---
 
-## 3. GROWTH PHASES: MVP → Global Commerce Assistant
+## 3. GROWTH PHASES: MVP â†’ Global Commerce Assistant
 
 ### Phase 0: Foundation (Pre-Launch)
-**Status:** ✅ COMPLETE
+**Status:** âœ… COMPLETE
 **Regulatory Class:** None (Internal only)
 
 | Capability | Description |
@@ -98,7 +98,7 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 ---
 
 ### Phase 1: MVP - Traveler Commerce (CURRENT)
-**Status:** 🔶 ACTIVE
+**Status:** ًں”¶ ACTIVE
 **Regulatory Class:** Non-Autonomous Decision Support
 **Geography:** Initial Markets (GCC, MEA)
 
@@ -129,7 +129,7 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 ---
 
 ### Phase 2: Enhanced Commerce Assistant (Year 1-2)
-**Status:** 📋 ROADMAP
+**Status:** ًں“‹ ROADMAP
 **Regulatory Class:** Enhanced Advisory
 **Geography:** GCC + EU + Selected APAC
 
@@ -149,7 +149,7 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 ---
 
 ### Phase 3: Exchange Facilitator (Year 2-3)
-**Status:** 📋 ROADMAP
+**Status:** ًں“‹ ROADMAP
 **Regulatory Class:** Facilitated Matching (Requires Notification)
 **Geography:** Global (Tier 1 Markets)
 
@@ -170,7 +170,7 @@ These principles are **PERMANENT** and cannot be modified by any governance body
 ---
 
 ### Phase 4: Global Commerce Intelligence (Year 3+)
-**Status:** 📋 VISION
+**Status:** ًں“‹ VISION
 **Regulatory Class:** Regulated Advisory
 **Geography:** Global
 
@@ -262,7 +262,7 @@ Before ANY phase transition:
 3. **Legal Review:** Updated Terms of Service / Privacy Policy
 4. **Regulatory Filing:** Notification to relevant authorities (if required)
 5. **Board Approval:** Unanimous CCB sign-off
-6. **Rollout Plan:** Phased activation (1% → 10% → 100%)
+6. **Rollout Plan:** Phased activation (1% â†’ 10% â†’ 100%)
 
 ### 6.2 Regulatory Inheritance
 Each phase **inherits ALL constraints** from previous phases:
@@ -314,3 +314,4 @@ END IF
 **Architecture Owner:** Chief Technology Officer
 **Legal Owner:** General Counsel
 **Version:** 1.0 (Long-Term Governance Blueprint)
+

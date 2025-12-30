@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/audit",
+﻿{
+  "name": "@mnbarh/audit",
   "version": "1.0.0",
-  "description": "Audit logging module for MNBARA platform",
+  "description": "Audit logging module for mnbarh platform",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
@@ -13,7 +13,7 @@
     "compliance",
     "security"
   ],
-  "author": "MNBARA Platform",
+  "author": "mnbarh Platform",
   "license": "UNLICENSED",
   "peerDependencies": {
     "@prisma/client": "^5.0.0",
@@ -25,3 +25,4 @@
     "typescript": "^5.0.0"
   }
 }
+

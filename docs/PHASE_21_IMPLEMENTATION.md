@@ -1,4 +1,4 @@
-# Phase 21: Blockchain Integration & Biometric Security Implementation
+﻿# Phase 21: Blockchain Integration & Biometric Security Implementation
 
 ## Overview
 This phase implements the foundation for Blockchain integration (MNB Token interaction) and Biometric Security (WebAuthn).
@@ -7,7 +7,7 @@ This phase implements the foundation for Blockchain integration (MNB Token inter
 
 ### 1. Blockchain Service
 Located in `backend/services/blockchain-service`.
-- **Purpose**: Acts as a gateway to the MNBara Smart Contracts.
+- **Purpose**: Acts as a gateway to the Mnbarh Smart Contracts.
 - **Microservice**: Node.js/Express with TypeScript.
 - **Key Features**:
   - `TokenService`: Wraps `ethers.js` calls to `MNBToken.sol`.
@@ -74,3 +74,4 @@ BLOCKCHAIN_SERVICE_URL=http://localhost:3008
 - Register a biometric credential using a frontend that supports WebAuthn.
 - Call `/api/biometric/kyc/upgrade` with the wallet address.
 - Check `blockchain-service` logs or query the contract to valid the KYC tier update.
+

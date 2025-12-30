@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "seo-service",
   "version": "1.0.0",
-  "description": "Mnbara SEO & Sitemap Service",
+  "description": "mnbarh SEO & Sitemap Service",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -21,3 +21,4 @@
     "ts-node": "^10.9.1"
   }
 }
+

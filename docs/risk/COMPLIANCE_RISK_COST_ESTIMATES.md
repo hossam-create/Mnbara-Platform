@@ -1,7 +1,7 @@
-# COMPLIANCE & RISK COST ESTIMATES (ANNUALIZED)
+﻿# COMPLIANCE & RISK COST ESTIMATES (ANNUALIZED)
 ## Budgetary Requirements for Regulatory Operations
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Compliance Cost Projections  
 **Date:** December 20, 2025  
 **Currency:** USD  
@@ -69,3 +69,4 @@
 
 **Recommendation:** 
 At Launch, lean heavily on **Legal Tech** and **Outsourced Compliance (Compliance-as-a-Service)** to keep fixed headcount costs low. Transition to **In-house** assets only as volume dictates ($50M+ GMV).
+

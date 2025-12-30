@@ -1,13 +1,13 @@
-# Public Trust Statement: How We Use AI for Safety & Risk
+﻿# Public Trust Statement: How We Use AI for Safety & Risk
 
 **Effective Date:** December 2025
-**Applicability:** Mnbara Platform & AI Trust Operating System
+**Applicability:** mnbarh Platform & AI Trust Operating System
 
 ---
 
 ## 1. What This System Is
 
-At Mnbara, we use advanced technology to keep our marketplace safe, secure, and fair. Our **AI Trust & Risk Operating System** is a **Decision Support Tool** designed to assist our human Trust & Safety teams.
+At mnbarh, we use advanced technology to keep our marketplace safe, secure, and fair. Our **AI Trust & Risk Operating System** is a **Decision Support Tool** designed to assist our human Trust & Safety teams.
 
 Its primary function is to **analyze** high volumes of transaction data in real-time to identify potential risks such as fraud, policy violations, or suspicious activity. It provides a **recommendation** (e.g., "Review for Safety") to help our team make faster, better-informed decisions.
 
@@ -25,7 +25,7 @@ We believe in **Human-in-the-Loop** governance. Technology is a tool, but humans
 
 *   **Final Authority:** All high-impact decisions (such as account suspensions) require confirmation by a trained Trust & Safety specialist.
 *   **Override Capability:** Our human agents always have the authority to disagree with and override a system recommendation if they believe it is incorrect.
-*   **Accountability:** We log all decisions. If a mistake is made, we can trace exactly why it happened—whether it was a system flag or a human error—and correct it.
+*   **Accountability:** We log all decisions. If a mistake is made, we can trace exactly why it happenedâ€”whether it was a system flag or a human errorâ€”and correct it.
 
 ## 4. Fairness & Explainability
 
@@ -53,4 +53,5 @@ We deploy this technology to **protect** our community, not to police it unfairl
 If you have questions about a decision affecting your account, our support team is available to provide a human review.
 
 ---
-**Mnbara Trust & Safety**
+**mnbarh Trust & Safety**
+

@@ -1,8 +1,8 @@
-# Transparent Data Encryption (TDE) Setup Guide
+﻿# Transparent Data Encryption (TDE) Setup Guide
 
 ## Overview
 
-This guide provides instructions for implementing Transparent Data Encryption (TDE) for PostgreSQL in the MNBARA platform. TDE encrypts data at rest, protecting against unauthorized access to database files, backups, and storage media.
+This guide provides instructions for implementing Transparent Data Encryption (TDE) for PostgreSQL in the MNBARH platform. TDE encrypts data at rest, protecting against unauthorized access to database files, backups, and storage media.
 
 **Requirements**: 19.1 - Enable Postgres encryption (TDE/PG Crypto)
 
@@ -563,3 +563,4 @@ For issues or questions:
 - Check encryption key accessibility
 - Verify hardware support for encryption
 - Contact platform team: security@mnbarh.com
+

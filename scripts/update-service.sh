@@ -1,6 +1,6 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# 🚀 Mnbara Service Update Script
+# ًںڑ€ mnbarh Service Update Script
 # Usage: ./scripts/update-service.sh [service-name] [version]
 # Example: ./scripts/update-service.sh auth-service v3.3.0
 
@@ -8,8 +8,8 @@ set -e
 
 SERVICE_NAME=$1
 VERSION=$2
-NAMESPACE="mnbara"
-REGISTRY="mnbara"
+NAMESPACE="mnbarh"
+REGISTRY="mnbarh"
 
 # Colors
 RED='\033[0;31m'
@@ -17,46 +17,47 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${GREEN}🚀 Mnbara Service Update Script${NC}"
+echo -e "${GREEN}ًںڑ€ mnbarh Service Update Script${NC}"
 echo "=================================="
 
 # Validate inputs
 if [ -z "$SERVICE_NAME" ] || [ -z "$VERSION" ]; then
-    echo -e "${RED}❌ Usage: ./update-service.sh [service-name] [version]${NC}"
+    echo -e "${RED}â‌Œ Usage: ./update-service.sh [service-name] [version]${NC}"
     echo "Example: ./update-service.sh auth-service v3.3.0"
     exit 1
 fi
 
-echo -e "${YELLOW}📦 Updating: $SERVICE_NAME to $VERSION${NC}"
+echo -e "${YELLOW}ًں“¦ Updating: $SERVICE_NAME to $VERSION${NC}"
 
 # Step 1: Run tests
-echo -e "\n${YELLOW}1️⃣ Running tests...${NC}"
+echo -e "\n${YELLOW}1ï¸ڈâƒ£ Running tests...${NC}"
 cd backend/services/$SERVICE_NAME
-npm run test || { echo -e "${RED}❌ Tests failed!${NC}"; exit 1; }
-echo -e "${GREEN}✅ Tests passed${NC}"
+npm run test || { echo -e "${RED}â‌Œ Tests failed!${NC}"; exit 1; }
+echo -e "${GREEN}âœ… Tests passed${NC}"
 
 # Step 2: Build Docker image
-echo -e "\n${YELLOW}2️⃣ Building Docker image...${NC}"
+echo -e "\n${YELLOW}2ï¸ڈâƒ£ Building Docker image...${NC}"
 docker build -t $REGISTRY/$SERVICE_NAME:$VERSION .
-echo -e "${GREEN}✅ Image built${NC}"
+echo -e "${GREEN}âœ… Image built${NC}"
 
 # Step 3: Push to registry
-echo -e "\n${YELLOW}3️⃣ Pushing to registry...${NC}"
+echo -e "\n${YELLOW}3ï¸ڈâƒ£ Pushing to registry...${NC}"
 docker push $REGISTRY/$SERVICE_NAME:$VERSION
-echo -e "${GREEN}✅ Image pushed${NC}"
+echo -e "${GREEN}âœ… Image pushed${NC}"
 
 # Step 4: Update Kubernetes deployment
-echo -e "\n${YELLOW}4️⃣ Updating Kubernetes deployment...${NC}"
+echo -e "\n${YELLOW}4ï¸ڈâƒ£ Updating Kubernetes deployment...${NC}"
 kubectl set image deployment/$SERVICE_NAME \
     $SERVICE_NAME=$REGISTRY/$SERVICE_NAME:$VERSION \
     -n $NAMESPACE
 
 # Step 5: Wait for rollout
-echo -e "\n${YELLOW}5️⃣ Waiting for rollout...${NC}"
+echo -e "\n${YELLOW}5ï¸ڈâƒ£ Waiting for rollout...${NC}"
 kubectl rollout status deployment/$SERVICE_NAME -n $NAMESPACE
 
 # Step 6: Verify
-echo -e "\n${YELLOW}6️⃣ Verifying deployment...${NC}"
+echo -e "\n${YELLOW}6ï¸ڈâƒ£ Verifying deployment...${NC}"
 kubectl get pods -l app=$SERVICE_NAME -n $NAMESPACE
 
-echo -e "\n${GREEN}🎉 Update complete! $SERVICE_NAME is now running $VERSION${NC}"
+echo -e "\n${GREEN}ًںژ‰ Update complete! $SERVICE_NAME is now running $VERSION${NC}"
+

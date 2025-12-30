@@ -1,4 +1,4 @@
-# MNBARA Execution Task Plan
+﻿# MNBARH Execution Task Plan
 
 **Document Type:** Execution-Ready Task Plan  
 **Purpose:** Development-ready tasks for Jira/Linear/ClickUp import  
@@ -9,7 +9,7 @@
 
 ## Part 1: Refined Strategy (Feedback Incorporated)
 
-### 1.1 Radical Transparency → Measurable Business Outcomes
+### 1.1 Radical Transparency â†’ Measurable Business Outcomes
 
 | Initiative | Business Outcome | Target Metric |
 |------------|------------------|---------------|
@@ -18,7 +18,7 @@
 | Public Protection Fund | Increase buyer LTV | +20% repeat purchase rate |
 | Transparent Seller Scores | Reduce disputes | -25% dispute rate |
 
-### 1.2 Community Governance → Advisory-Driven, Platform-Governed
+### 1.2 Community Governance â†’ Advisory-Driven, Platform-Governed
 
 **Model Clarification:**
 - Seller Advisory Board provides input on policy changes
@@ -26,7 +26,7 @@
 - Community voting influences feature prioritization (non-binding)
 - Peer mediation is optional; platform arbitration is final
 
-### 1.3 Seller Partnership → Tied to Trust Score
+### 1.3 Seller Partnership â†’ Tied to Trust Score
 
 **Abuse Prevention:**
 - Free analytics access requires minimum Trust Score (50+)
@@ -34,7 +34,7 @@
 - Gaming detection triggers automatic review
 - Appeal process with human review within 48 hours
 
-### 1.4 Sustainability → Cost & Logistics Advantage
+### 1.4 Sustainability â†’ Cost & Logistics Advantage
 
 **Reframed Value Proposition:**
 - Local-first = reduced shipping costs (not just eco-friendly)
@@ -42,7 +42,7 @@
 - Sustainable packaging = brand partnerships & sponsorships
 - Green badges = premium positioning for eco-conscious buyers
 
-### 1.5 Security Features → Fraud & Cost Reduction
+### 1.5 Security Features â†’ Fraud & Cost Reduction
 
 | Feature | Fraud Reduction | Cost Savings |
 |---------|-----------------|--------------|
@@ -50,7 +50,7 @@
 | Phone Verification | -60% fake accounts | -$30K/year fraud losses |
 | Device Fingerprinting | -40% multi-account abuse | -$20K/year chargebacks |
 
-### 1.6 Shipping Hub → Phased Regional Rollout
+### 1.6 Shipping Hub â†’ Phased Regional Rollout
 
 **Risk Mitigation Strategy:**
 - Phase 2a: Single carrier (USPS) in 3 pilot regions
@@ -110,7 +110,7 @@
 | **Risk Level** | Medium |
 | **Success Metrics** | 80% dashboard adoption, +25% seller satisfaction |
 
-### Initiative 5: MNBARA Shield (Buyer Protection)
+### Initiative 5: MNBARH Shield (Buyer Protection)
 
 | Attribute | Detail |
 |-----------|--------|
@@ -192,16 +192,16 @@
 
 | Task ID | Task | MVP | Priority | Effort | Order | Owner |
 |---------|------|-----|----------|--------|-------|-------|
-| SEC-001 | Integrate Twilio SMS provider for OTP delivery | ✅ | Critical | Small | 1 | Backend |
-| SEC-002 | Implement SMS-based 2FA flow in auth service | ✅ | Critical | Medium | 2 | Backend |
-| SEC-003 | Add authenticator app support (TOTP) | ✅ | Critical | Medium | 3 | Backend |
-| SEC-004 | Build 2FA enrollment UI (web) | ✅ | Critical | Small | 4 | Frontend |
-| SEC-005 | Build 2FA enrollment UI (mobile) | ✅ | Critical | Small | 5 | Mobile |
-| SEC-006 | Implement phone verification for seller registration | ✅ | Critical | Medium | 6 | Backend |
-| SEC-007 | Add device fingerprinting for fraud detection | ❌ | High | Medium | 7 | Backend |
-| SEC-008 | Create security settings page in user profile | ✅ | High | Small | 8 | Frontend |
-| SEC-009 | Implement 2FA recovery flow (backup codes) | ✅ | High | Small | 9 | Backend |
-| SEC-010 | Add security event logging and alerting | ❌ | Medium | Medium | 10 | Backend |
+| SEC-001 | Integrate Twilio SMS provider for OTP delivery | âœ… | Critical | Small | 1 | Backend |
+| SEC-002 | Implement SMS-based 2FA flow in auth service | âœ… | Critical | Medium | 2 | Backend |
+| SEC-003 | Add authenticator app support (TOTP) | âœ… | Critical | Medium | 3 | Backend |
+| SEC-004 | Build 2FA enrollment UI (web) | âœ… | Critical | Small | 4 | Frontend |
+| SEC-005 | Build 2FA enrollment UI (mobile) | âœ… | Critical | Small | 5 | Mobile |
+| SEC-006 | Implement phone verification for seller registration | âœ… | Critical | Medium | 6 | Backend |
+| SEC-007 | Add device fingerprinting for fraud detection | â‌Œ | High | Medium | 7 | Backend |
+| SEC-008 | Create security settings page in user profile | âœ… | High | Small | 8 | Frontend |
+| SEC-009 | Implement 2FA recovery flow (backup codes) | âœ… | High | Small | 9 | Backend |
+| SEC-010 | Add security event logging and alerting | â‌Œ | Medium | Medium | 10 | Backend |
 
 **Ready for Development:** Tasks SEC-001 through SEC-006 are MVP and can start immediately.
 
@@ -209,14 +209,14 @@
 
 | Task ID | Task | MVP | Priority | Effort | Order | Owner |
 |---------|------|-----|----------|--------|-------|-------|
-| TRN-001 | Design fee calculator component specifications | ✅ | Critical | Small | 1 | Product |
-| TRN-002 | Build fee calculation API endpoint | ✅ | Critical | Small | 2 | Backend |
-| TRN-003 | Implement real-time fee calculator UI | ✅ | Critical | Medium | 3 | Frontend |
-| TRN-004 | Add fee breakdown to listing creation flow | ✅ | Critical | Small | 4 | Frontend |
-| TRN-005 | Create fee history page in seller dashboard | ❌ | High | Small | 5 | Frontend |
-| TRN-006 | Build search ranking explainer component | ❌ | Medium | Medium | 6 | Frontend |
-| TRN-007 | Add "Why am I seeing this?" to search results | ❌ | Medium | Small | 7 | Frontend |
-| TRN-008 | Create fee comparison tool (vs competitors) | ❌ | Low | Medium | 8 | Frontend |
+| TRN-001 | Design fee calculator component specifications | âœ… | Critical | Small | 1 | Product |
+| TRN-002 | Build fee calculation API endpoint | âœ… | Critical | Small | 2 | Backend |
+| TRN-003 | Implement real-time fee calculator UI | âœ… | Critical | Medium | 3 | Frontend |
+| TRN-004 | Add fee breakdown to listing creation flow | âœ… | Critical | Small | 4 | Frontend |
+| TRN-005 | Create fee history page in seller dashboard | â‌Œ | High | Small | 5 | Frontend |
+| TRN-006 | Build search ranking explainer component | â‌Œ | Medium | Medium | 6 | Frontend |
+| TRN-007 | Add "Why am I seeing this?" to search results | â‌Œ | Medium | Small | 7 | Frontend |
+| TRN-008 | Create fee comparison tool (vs competitors) | â‌Œ | Low | Medium | 8 | Frontend |
 
 **Ready for Development:** Tasks TRN-001 through TRN-004 are MVP.
 
@@ -224,16 +224,16 @@
 
 | Task ID | Task | MVP | Priority | Effort | Order | Owner |
 |---------|------|-----|----------|--------|-------|-------|
-| CNV-001 | Design guest checkout flow | ✅ | Critical | Small | 1 | Product |
-| CNV-002 | Implement guest checkout backend logic | ✅ | Critical | Medium | 2 | Backend |
-| CNV-003 | Build guest checkout UI | ✅ | Critical | Medium | 3 | Frontend |
-| CNV-004 | Add guest-to-registered account conversion | ✅ | High | Small | 4 | Backend |
-| CNV-005 | Integrate Apple Pay SDK | ✅ | High | Medium | 5 | Frontend |
-| CNV-006 | Integrate Google Pay SDK | ✅ | High | Medium | 6 | Frontend |
-| CNV-007 | Add mobile wallet support to checkout | ✅ | High | Small | 7 | Frontend |
-| CNV-008 | Implement one-click reorder for returning users | ❌ | Medium | Medium | 8 | Full Stack |
-| CNV-009 | Add cart abandonment email triggers | ❌ | Medium | Small | 9 | Backend |
-| CNV-010 | Build checkout analytics dashboard | ❌ | Low | Medium | 10 | Data |
+| CNV-001 | Design guest checkout flow | âœ… | Critical | Small | 1 | Product |
+| CNV-002 | Implement guest checkout backend logic | âœ… | Critical | Medium | 2 | Backend |
+| CNV-003 | Build guest checkout UI | âœ… | Critical | Medium | 3 | Frontend |
+| CNV-004 | Add guest-to-registered account conversion | âœ… | High | Small | 4 | Backend |
+| CNV-005 | Integrate Apple Pay SDK | âœ… | High | Medium | 5 | Frontend |
+| CNV-006 | Integrate Google Pay SDK | âœ… | High | Medium | 6 | Frontend |
+| CNV-007 | Add mobile wallet support to checkout | âœ… | High | Small | 7 | Frontend |
+| CNV-008 | Implement one-click reorder for returning users | â‌Œ | Medium | Medium | 8 | Full Stack |
+| CNV-009 | Add cart abandonment email triggers | â‌Œ | Medium | Small | 9 | Backend |
+| CNV-010 | Build checkout analytics dashboard | â‌Œ | Low | Medium | 10 | Data |
 
 **Ready for Development:** Tasks CNV-001 through CNV-007 are MVP.
 
@@ -241,16 +241,16 @@
 
 | Task ID | Task | MVP | Priority | Effort | Order | Owner |
 |---------|------|-----|----------|--------|-------|-------|
-| ANA-001 | Design seller analytics data model | ✅ | Critical | Medium | 1 | Data |
-| ANA-002 | Set up analytics data pipeline | ✅ | Critical | Large | 2 | Data |
-| ANA-003 | Build traffic analytics API | ✅ | Critical | Medium | 3 | Backend |
-| ANA-004 | Build conversion metrics API | ✅ | Critical | Medium | 4 | Backend |
-| ANA-005 | Create seller dashboard layout | ✅ | Critical | Medium | 5 | Frontend |
-| ANA-006 | Implement traffic charts component | ✅ | High | Medium | 6 | Frontend |
-| ANA-007 | Implement conversion funnel visualization | ✅ | High | Medium | 7 | Frontend |
-| ANA-008 | Add listing performance cards | ✅ | High | Small | 8 | Frontend |
-| ANA-009 | Build pricing insights module | ❌ | Medium | Large | 9 | Data |
-| ANA-010 | Add competitor benchmarking (anonymized) | ❌ | Low | Large | 10 | Data |
+| ANA-001 | Design seller analytics data model | âœ… | Critical | Medium | 1 | Data |
+| ANA-002 | Set up analytics data pipeline | âœ… | Critical | Large | 2 | Data |
+| ANA-003 | Build traffic analytics API | âœ… | Critical | Medium | 3 | Backend |
+| ANA-004 | Build conversion metrics API | âœ… | Critical | Medium | 4 | Backend |
+| ANA-005 | Create seller dashboard layout | âœ… | Critical | Medium | 5 | Frontend |
+| ANA-006 | Implement traffic charts component | âœ… | High | Medium | 6 | Frontend |
+| ANA-007 | Implement conversion funnel visualization | âœ… | High | Medium | 7 | Frontend |
+| ANA-008 | Add listing performance cards | âœ… | High | Small | 8 | Frontend |
+| ANA-009 | Build pricing insights module | â‌Œ | Medium | Large | 9 | Data |
+| ANA-010 | Add competitor benchmarking (anonymized) | â‌Œ | Low | Large | 10 | Data |
 
 **Ready for Development:** Tasks ANA-001 through ANA-008 are MVP.
 
@@ -258,16 +258,16 @@
 
 | Task ID | Task | MVP | Priority | Effort | Order | Owner |
 |---------|------|-----|----------|--------|-------|-------|
-| PRO-001 | Select and contract escrow partner | ✅ | Critical | Large | 1 | Operations |
-| PRO-002 | Design protection program terms and policies | ✅ | Critical | Medium | 2 | Legal/Product |
-| PRO-003 | Integrate escrow API for payment holding | ✅ | Critical | Large | 3 | Backend |
-| PRO-004 | Build claim submission workflow | ✅ | Critical | Medium | 4 | Backend |
-| PRO-005 | Create claim submission UI | ✅ | Critical | Medium | 5 | Frontend |
-| PRO-006 | Implement claim review admin panel | ✅ | Critical | Medium | 6 | Frontend |
-| PRO-007 | Build automated refund processing | ✅ | High | Medium | 7 | Backend |
-| PRO-008 | Add protection badge to listings | ✅ | High | Small | 8 | Frontend |
-| PRO-009 | Create protection fund visibility dashboard | ❌ | Medium | Medium | 9 | Frontend |
-| PRO-010 | Implement claim escalation workflow | ❌ | Medium | Medium | 10 | Backend |
+| PRO-001 | Select and contract escrow partner | âœ… | Critical | Large | 1 | Operations |
+| PRO-002 | Design protection program terms and policies | âœ… | Critical | Medium | 2 | Legal/Product |
+| PRO-003 | Integrate escrow API for payment holding | âœ… | Critical | Large | 3 | Backend |
+| PRO-004 | Build claim submission workflow | âœ… | Critical | Medium | 4 | Backend |
+| PRO-005 | Create claim submission UI | âœ… | Critical | Medium | 5 | Frontend |
+| PRO-006 | Implement claim review admin panel | âœ… | Critical | Medium | 6 | Frontend |
+| PRO-007 | Build automated refund processing | âœ… | High | Medium | 7 | Backend |
+| PRO-008 | Add protection badge to listings | âœ… | High | Small | 8 | Frontend |
+| PRO-009 | Create protection fund visibility dashboard | â‌Œ | Medium | Medium | 9 | Frontend |
+| PRO-010 | Implement claim escalation workflow | â‌Œ | Medium | Medium | 10 | Backend |
 
 **Ready for Development:** PRO-001 and PRO-002 must complete before PRO-003.
 
@@ -295,7 +295,7 @@
 
 ### Phase 2: Competitive Moat (6-18 months)
 
-#### Epic 2.1: MNBARA Shield (Full Protection)
+#### Epic 2.1: MNBARH Shield (Full Protection)
 
 | Task ID | Task | Priority | Effort | Order | Dependencies | Risk |
 |---------|------|----------|--------|-------|--------------|------|
@@ -401,7 +401,7 @@
 
 | Epic | Total Tasks | Est. Effort | Risk Level |
 |------|-------------|-------------|------------|
-| MNBARA Shield | 10 | 10 weeks | Medium |
+| MNBARH Shield | 10 | 10 weeks | Medium |
 | Trust Score | 10 | 12 weeks | Medium-High |
 | Shipping (2a) | 8 | 8 weeks | Medium |
 | Shipping (2b) | 5 | 6 weeks | Medium |
@@ -804,3 +804,4 @@
 | 1.0 | Dec 2024 | Product Team | Initial execution plan |
 
 **Next Review:** After Phase 1 Sprint 3 completion
+

@@ -1,4 +1,4 @@
-# Mandatory Human Justification Policy
+﻿# Mandatory Human Justification Policy
 
 **Document ID:** GOV-JUSTIFY-001
 **Purpose:** Enforcing meaningful human oversight on AI recommendations
@@ -10,7 +10,7 @@
 
 ## 1. Policy Statement
 
-To ensure our AI Trust & Risk Operating System remains a "Decision Support Tool" and does not devolve into "Automated Decision-Making" (GDPR Art. 22), Mnbara mandates that **all high-impact decisions must be accompanied by an explicit, recorded human justification.**
+To ensure our AI Trust & Risk Operating System remains a "Decision Support Tool" and does not devolve into "Automated Decision-Making" (GDPR Art. 22), mnbarh mandates that **all high-impact decisions must be accompanied by an explicit, recorded human justification.**
 
 The "Click to Accept" button without context is **PROHIBITED** for adverse actions.
 
@@ -73,3 +73,4 @@ Failure to adhere to this policy forces the system back into "Automated Decision
 **Approved By:**
 Chief Compliance Officer
 Head of Operations
+

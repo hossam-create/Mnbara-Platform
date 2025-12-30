@@ -1,9 +1,9 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # PostgreSQL Encryption Setup Script
 # Requirements: 19.1 - Enable Postgres encryption (TDE/PG Crypto)
 #
-# This script automates the setup of PostgreSQL encryption for the MNBARA platform
+# This script automates the setup of PostgreSQL encryption for the mnbarh platform
 
 set -e
 
@@ -21,9 +21,9 @@ MIGRATIONS_DIR="$PROJECT_ROOT/backend/services/shared/database/migrations"
 # Default values
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-5432}"
-DB_NAME="${DB_NAME:-mnbara_db}"
-DB_USER="${DB_USER:-mnbara_user}"
-DB_PASSWORD="${DB_PASSWORD:-mnbara_pass}"
+DB_NAME="${DB_NAME:-mnbarh_db}"
+DB_USER="${DB_USER:-mnbarh_user}"
+DB_PASSWORD="${DB_PASSWORD:-mnbarh_pass}"
 
 # Functions
 print_header() {
@@ -52,14 +52,14 @@ check_prerequisites() {
         print_error "psql command not found. Please install PostgreSQL client."
         exit 1
     fi
-    print_info "✓ psql found"
+    print_info "âœ“ psql found"
     
     # Check if node is installed
     if ! command -v node &> /dev/null; then
         print_error "node command not found. Please install Node.js."
         exit 1
     fi
-    print_info "✓ node found"
+    print_info "âœ“ node found"
     
     # Check database connection
     if ! PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "SELECT 1" &> /dev/null; then
@@ -67,7 +67,7 @@ check_prerequisites() {
         print_info "Connection details: $DB_USER@$DB_HOST:$DB_PORT/$DB_NAME"
         exit 1
     fi
-    print_info "✓ Database connection successful"
+    print_info "âœ“ Database connection successful"
     
     echo ""
 }
@@ -128,7 +128,7 @@ enable_pgcrypto() {
     else
         print_info "Installing pgcrypto extension..."
         PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f "$MIGRATIONS_DIR/enable_pgcrypto.sql"
-        print_info "✓ pgcrypto extension enabled"
+        print_info "âœ“ pgcrypto extension enabled"
     fi
     
     echo ""
@@ -139,7 +139,7 @@ setup_encrypted_columns() {
     
     print_info "Creating encrypted columns for sensitive fields..."
     PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f "$MIGRATIONS_DIR/encrypt_sensitive_fields.sql"
-    print_info "✓ Encrypted columns created"
+    print_info "âœ“ Encrypted columns created"
     
     echo ""
 }
@@ -183,7 +183,7 @@ SELECT set_encryption_key('$DB_ENCRYPTION_KEY');
 SELECT * FROM migrate_all_sensitive_fields();
 EOF
     
-    print_info "✓ Data migration completed"
+    print_info "âœ“ Data migration completed"
     
     echo ""
 }
@@ -194,21 +194,21 @@ verify_setup() {
     # Check pgcrypto
     PGCRYPTO_EXISTS=$(PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -tAc "SELECT COUNT(*) FROM pg_extension WHERE extname='pgcrypto'")
     if [ "$PGCRYPTO_EXISTS" -eq "1" ]; then
-        print_info "✓ pgcrypto extension enabled"
+        print_info "âœ“ pgcrypto extension enabled"
     else
-        print_error "✗ pgcrypto extension not found"
+        print_error "âœ— pgcrypto extension not found"
     fi
     
     # Check encrypted columns
     ENCRYPTED_COLUMNS=$(PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -tAc "SELECT COUNT(*) FROM information_schema.columns WHERE column_name LIKE '%_encrypted'")
-    print_info "✓ Found $ENCRYPTED_COLUMNS encrypted columns"
+    print_info "âœ“ Found $ENCRYPTED_COLUMNS encrypted columns"
     
     # Check encryption functions
     FUNCTIONS=$(PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -tAc "SELECT COUNT(*) FROM pg_proc WHERE proname IN ('set_encryption_key', 'encrypt_data', 'decrypt_data')")
     if [ "$FUNCTIONS" -eq "3" ]; then
-        print_info "✓ Encryption functions created"
+        print_info "âœ“ Encryption functions created"
     else
-        print_error "✗ Some encryption functions missing"
+        print_error "âœ— Some encryption functions missing"
     fi
     
     echo ""
@@ -245,7 +245,7 @@ print_next_steps() {
 # Main execution
 main() {
     print_header "PostgreSQL Encryption Setup"
-    echo "This script will set up encryption for the MNBARA platform"
+    echo "This script will set up encryption for the mnbarh platform"
     echo ""
     
     check_prerequisites
@@ -262,3 +262,4 @@ main() {
 
 # Run main function
 main
+

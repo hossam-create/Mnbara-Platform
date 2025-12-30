@@ -1,4 +1,4 @@
-# Immediate Execution Checklist - Start Here
+﻿# Immediate Execution Checklist - Start Here
 
 **Date:** December 20, 2025  
 **Duration:** Next 2 weeks  
@@ -6,7 +6,7 @@
 
 ---
 
-## 🚀 Week 1: Foundation Setup
+## ًںڑ€ Week 1: Foundation Setup
 
 ### Task 22: Finalize Database Migrations (Days 1-2)
 
@@ -49,7 +49,7 @@
 
 - [ ] Create database backup
   ```bash
-  pg_dump mnbara_db > backup_20251220.sql
+  pg_dump mnbarh_db > backup_20251220.sql
   ```
 
 **Success Criteria:**
@@ -133,9 +133,9 @@
   - [ ] Verify 429 response on 101st request
 
 - [ ] Test authentication
-  - [ ] Request without token → 401
-  - [ ] Request with invalid token → 401
-  - [ ] Request with valid token → 200
+  - [ ] Request without token â†’ 401
+  - [ ] Request with invalid token â†’ 401
+  - [ ] Request with valid token â†’ 200
 
 **Success Criteria:**
 - Kong/Prism running and responding
@@ -148,7 +148,7 @@
 
 ---
 
-## 🔐 Week 2: Authentication Foundation
+## ًں”گ Week 2: Authentication Foundation
 
 ### Task 19: Backend Authentication Service (Days 1-4)
 
@@ -278,7 +278,7 @@
 
 ---
 
-## 📋 Daily Standup Template
+## ًں“‹ Daily Standup Template
 
 Use this for daily progress tracking:
 
@@ -287,19 +287,19 @@ Date: [DATE]
 Week: [WEEK]
 Task: [TASK_NUMBER - TASK_NAME]
 
-✅ Completed Today:
+âœ… Completed Today:
 - [Item 1]
 - [Item 2]
 
-⏳ In Progress:
+âڈ³ In Progress:
 - [Item 1]
 - [Item 2]
 
-🚫 Blockers:
+ًںڑ« Blockers:
 - [Blocker 1]
 - [Blocker 2]
 
-📊 Progress:
+ًں“ٹ Progress:
 - [X/Y] checklist items complete
 - [X%] task complete
 
@@ -310,7 +310,7 @@ Next Steps:
 
 ---
 
-## 🔍 Quality Gates
+## ًں”چ Quality Gates
 
 Before moving to next task, verify:
 
@@ -336,7 +336,7 @@ Before moving to next task, verify:
 
 ---
 
-## 🚨 Common Issues & Solutions
+## ًںڑ¨ Common Issues & Solutions
 
 ### Database Migration Fails
 **Problem:** Migration fails with "table already exists"
@@ -349,7 +349,7 @@ npx prisma migrate status
 npx prisma migrate reset
 
 # Or manually drop and recreate
-psql mnbara_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+psql mnbarh_db -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 ```
 
 ### API Gateway Won't Start
@@ -382,7 +382,7 @@ PORT=3001 npm run dev
 
 ---
 
-## 📞 Escalation Path
+## ًں“‍ Escalation Path
 
 If blocked:
 
@@ -394,7 +394,7 @@ If blocked:
 
 ---
 
-## ✨ Success Indicators
+## âœ¨ Success Indicators
 
 **After Week 1:**
 - Database fully migrated
@@ -417,3 +417,4 @@ If blocked:
 **Document Owner:** Engineering Team  
 **Last Updated:** December 20, 2025  
 **Next Review:** December 22, 2025 (End of Week 1)
+

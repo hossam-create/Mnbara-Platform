@@ -1,12 +1,12 @@
-# Mnbara Platform - Project Governance
+﻿# Mnbarh Platform - Project Governance
 
 **Version:** 1.0  
 **Last Updated:** 2025-12-22  
-**Status:** 🔴 IN PROGRESS
+**Status:** ًں”´ IN PROGRESS
 
 ---
 
-## 📋 Table of Contents
+## ًں“‹ Table of Contents
 
 1. [Decision-Making Process](#decision-making-process)
 2. [Communication Protocol](#communication-protocol)
@@ -19,7 +19,7 @@
 
 ---
 
-## 🎯 Decision-Making Process
+## ًںژ¯ Decision-Making Process
 
 ### Technical Decisions
 
@@ -89,7 +89,7 @@ Proposed | Accepted | Deprecated | Superseded
 
 ---
 
-## 💬 Communication Protocol
+## ًں’¬ Communication Protocol
 
 ### Communication Channels
 
@@ -152,17 +152,17 @@ Proposed | Accepted | Deprecated | Superseded
 
 ---
 
-## 🚨 Escalation Procedures
+## ًںڑ¨ Escalation Procedures
 
 ### Issue Escalation Path
 
 ```
 Team Member
-    ↓
+    â†“
 Team Lead (Resolve within 24 hours)
-    ↓
+    â†“
 KIRO (Resolve within 48 hours)
-    ↓
+    â†“
 Project Manager (Resolve within 72 hours)
 ```
 
@@ -201,7 +201,7 @@ Project Manager (Resolve within 72 hours)
 
 ---
 
-## 📝 Issue Tracking
+## ًں“‌ Issue Tracking
 
 ### GitHub Issues
 
@@ -256,7 +256,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## 📅 Meeting Schedules
+## ًں“… Meeting Schedules
 
 ### Weekly Meetings
 
@@ -284,7 +284,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## 🔄 Change Management
+## ًں”„ Change Management
 
 ### Change Request Process
 
@@ -330,7 +330,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## ⚠️ Risk Management
+## âڑ ï¸ڈ Risk Management
 
 ### Risk Identification
 
@@ -371,7 +371,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## ✅ Quality Assurance
+## âœ… Quality Assurance
 
 ### Code Review Process
 
@@ -421,7 +421,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## 📊 Metrics & KPIs
+## ًں“ٹ Metrics & KPIs
 
 ### Team Metrics
 
@@ -446,7 +446,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-## 🎓 Knowledge Management
+## ًںژ“ Knowledge Management
 
 ### Documentation Requirements
 
@@ -471,6 +471,7 @@ All work items must be tracked in GitHub Issues.
 
 ---
 
-**Status:** 🔴 IN PROGRESS  
+**Status:** ًں”´ IN PROGRESS  
 **Last Updated:** 2025-12-22  
 **Next Review:** 2025-12-29
+

@@ -1,6 +1,6 @@
-# API Contracts & Data Shapes
+﻿# API Contracts & Data Shapes
 
-Complete frontend ↔ backend interface definitions for MNBARA platform.
+Complete frontend â†” backend interface definitions for mnbarh platform.
 
 ---
 
@@ -9,7 +9,7 @@ Complete frontend ↔ backend interface definitions for MNBARA platform.
 | Rule | Enforcement |
 |------|-------------|
 | Read-only advisory | AI endpoints return suggestions only, never execute |
-| Deterministic responses | Same input → same output (no randomness) |
+| Deterministic responses | Same input â†’ same output (no randomness) |
 | No payment execution | Payment info is advisory, execution requires separate licensed flow |
 | No side effects | GET requests never modify state |
 | Feature-flagged | All AI features disabled by default |
@@ -191,7 +191,7 @@ GET /api/v1/search/listings?q=iphone&origin=US&destination=EG&minPrice=500&maxPr
         "destination": "EG",
         "category": "electronics",
         "condition": "NEW",
-        "imageUrl": "https://cdn.mnbara.com/listings/lst_abc123/thumb.jpg",
+        "imageUrl": "https://cdn.mnbarh.com/listings/lst_abc123/thumb.jpg",
         "seller": {
           "id": "usr_xyz789",
           "displayName": "TechDeals",
@@ -356,8 +356,8 @@ GET /api/v1/listings/lst_abc123
     "images": [
       {
         "id": "img_001",
-        "url": "https://cdn.mnbara.com/listings/lst_abc123/1.jpg",
-        "thumbnailUrl": "https://cdn.mnbara.com/listings/lst_abc123/1_thumb.jpg",
+        "url": "https://cdn.mnbarh.com/listings/lst_abc123/1.jpg",
+        "thumbnailUrl": "https://cdn.mnbarh.com/listings/lst_abc123/1_thumb.jpg",
         "alt": "iPhone 15 Pro Max front view",
         "order": 1
       }
@@ -365,7 +365,7 @@ GET /api/v1/listings/lst_abc123
     "seller": {
       "id": "usr_xyz789",
       "displayName": "TechDeals",
-      "avatar": "https://cdn.mnbara.com/avatars/usr_xyz789.jpg",
+      "avatar": "https://cdn.mnbarh.com/avatars/usr_xyz789.jpg",
       "rating": 4.8,
       "reviewCount": 127,
       "trustLevel": "VERIFIED",
@@ -494,7 +494,7 @@ interface RiskFlag {
 // ============ CORRIDOR ASSESSMENT ============
 interface CorridorAssessment {
   corridorId: string;          // e.g., "US_EG"
-  corridorName: string;        // e.g., "United States → Egypt"
+  corridorName: string;        // e.g., "United States â†’ Egypt"
   isSupported: boolean;
   
   // Trust requirements (advisory)
@@ -686,7 +686,7 @@ GET /api/v1/listings/lst_abc123/advisory?buyerId=usr_buyer456
     },
     "corridorAssessment": {
       "corridorId": "US_EG",
-      "corridorName": "United States → Egypt",
+      "corridorName": "United States â†’ Egypt",
       "isSupported": true,
       "trustRequirements": {
         "minBuyerTrust": "STANDARD",
@@ -749,7 +749,7 @@ GET /api/v1/listings/lst_abc123/advisory?buyerId=usr_buyer456
       "warnings": [
         "Consider using escrow for this high-value purchase"
       ],
-      "disclaimer": "This is advisory information only. MNBARA does not guarantee any transaction outcomes. You are responsible for your own purchasing decisions."
+      "disclaimer": "This is advisory information only. mnbarh does not guarantee any transaction outcomes. You are responsible for your own purchasing decisions."
     },
     "checkpoints": [
       {

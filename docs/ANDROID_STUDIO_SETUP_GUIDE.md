@@ -1,94 +1,94 @@
-# دليل فتح تطبيق MNBara على Android Studio
+﻿# ط¯ظ„ظٹظ„ ظپطھط­ طھط·ط¨ظٹظ‚ Mnbarh ط¹ظ„ظ‰ Android Studio
 
-**آخر تحديث:** 28 ديسمبر 2025
-
----
-
-## 📋 المتطلبات الأساسية
-
-### 1. البرامج المطلوبة
-- ✅ **Android Studio** (أحدث إصدار)
-- ✅ **Flutter SDK** (v3.2.0 أو أحدث)
-- ✅ **Java Development Kit (JDK)** 11 أو أحدث
-- ✅ **Android SDK** (API Level 23+)
-- ✅ **Git** (للتحكم بالإصدارات)
-
-### 2. متطلبات النظام
-- **RAM:** 8GB على الأقل (16GB موصى به)
-- **Storage:** 50GB مساحة حرة
-- **OS:** Windows 10+, macOS 10.15+, أو Linux
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 28 ط¯ظٹط³ظ…ط¨ط± 2025
 
 ---
 
-## 🚀 خطوات الإعداد الأولي
+## ًں“‹ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط©
 
-### الخطوة 1: تثبيت Flutter SDK
+### 1. ط§ظ„ط¨ط±ط§ظ…ط¬ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
+- âœ… **Android Studio** (ط£ط­ط¯ط« ط¥طµط¯ط§ط±)
+- âœ… **Flutter SDK** (v3.2.0 ط£ظˆ ط£ط­ط¯ط«)
+- âœ… **Java Development Kit (JDK)** 11 ط£ظˆ ط£ط­ط¯ط«
+- âœ… **Android SDK** (API Level 23+)
+- âœ… **Git** (ظ„ظ„طھط­ظƒظ… ط¨ط§ظ„ط¥طµط¯ط§ط±ط§طھ)
+
+### 2. ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظ†ط¸ط§ظ…
+- **RAM:** 8GB ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„ (16GB ظ…ظˆطµظ‰ ط¨ظ‡)
+- **Storage:** 50GB ظ…ط³ط§ط­ط© ط­ط±ط©
+- **OS:** Windows 10+, macOS 10.15+, ط£ظˆ Linux
+
+---
+
+## ًںڑ€ ط®ط·ظˆط§طھ ط§ظ„ط¥ط¹ط¯ط§ط¯ ط§ظ„ط£ظˆظ„ظٹ
+
+### ط§ظ„ط®ط·ظˆط© 1: طھط«ط¨ظٹطھ Flutter SDK
 
 ```bash
 # Windows (PowerShell)
-# 1. حمل Flutter من: https://flutter.dev/docs/get-started/install
-# 2. استخرج الملف إلى مجلد (مثلاً: C:\flutter)
-# 3. أضف Flutter إلى PATH
+# 1. ط­ظ…ظ„ Flutter ظ…ظ†: https://flutter.dev/docs/get-started/install
+# 2. ط§ط³طھط®ط±ط¬ ط§ظ„ظ…ظ„ظپ ط¥ظ„ظ‰ ظ…ط¬ظ„ط¯ (ظ…ط«ظ„ط§ظ‹: C:\flutter)
+# 3. ط£ط¶ظپ Flutter ط¥ظ„ظ‰ PATH
 
 # macOS / Linux
 git clone https://github.com/flutter/flutter.git -b stable
 export PATH="$PATH:`pwd`/flutter/bin"
 ```
 
-### الخطوة 2: التحقق من التثبيت
+### ط§ظ„ط®ط·ظˆط© 2: ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„طھط«ط¨ظٹطھ
 
 ```bash
 flutter doctor
 ```
 
-**النتيجة المتوقعة:**
+**ط§ظ„ظ†طھظٹط¬ط© ط§ظ„ظ…طھظˆظ‚ط¹ط©:**
 ```
-✓ Flutter (Channel stable)
-✓ Android toolchain
-✓ Android Studio
-✓ VS Code
-✓ Connected device
+âœ“ Flutter (Channel stable)
+âœ“ Android toolchain
+âœ“ Android Studio
+âœ“ VS Code
+âœ“ Connected device
 ```
 
-### الخطوة 3: تثبيت المتطلبات الناقصة
+### ط§ظ„ط®ط·ظˆط© 3: طھط«ط¨ظٹطھ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظ†ط§ظ‚طµط©
 
 ```bash
-# تثبيت Android SDK
+# طھط«ط¨ظٹطھ Android SDK
 flutter config --android-sdk /path/to/android/sdk
 
-# قبول رخص Android
+# ظ‚ط¨ظˆظ„ ط±ط®طµ Android
 flutter doctor --android-licenses
 
-# تثبيت المتطلبات الناقصة
+# طھط«ط¨ظٹطھ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظ†ط§ظ‚طµط©
 flutter pub get
 ```
 
 ---
 
-## 📂 فتح المشروع على Android Studio
+## ًں“‚ ظپطھط­ ط§ظ„ظ…ط´ط±ظˆط¹ ط¹ظ„ظ‰ Android Studio
 
-### الطريقة 1: فتح المشروع الكامل
-
-```bash
-# 1. انتقل إلى مجلد المشروع
-cd /path/to/mnbara
-
-# 2. افتح Android Studio
-# 3. اختر: File > Open
-# 4. اختر مجلد المشروع الرئيسي (mnbara)
-# 5. اختر "Open as Project"
-```
-
-### الطريقة 2: فتح مشروع Android مباشرة
+### ط§ظ„ط·ط±ظٹظ‚ط© 1: ظپطھط­ ط§ظ„ظ…ط´ط±ظˆط¹ ط§ظ„ظƒط§ظ…ظ„
 
 ```bash
-# 1. افتح Android Studio
-# 2. اختر: File > Open
-# 3. انتقل إلى: mobile/flutter_app/android
-# 4. اختر مجلد "android" وافتحه
+# 1. ط§ظ†طھظ‚ظ„ ط¥ظ„ظ‰ ظ…ط¬ظ„ط¯ ط§ظ„ظ…ط´ط±ظˆط¹
+cd /path/to/mnbarh
+
+# 2. ط§ظپطھط­ Android Studio
+# 3. ط§ط®طھط±: File > Open
+# 4. ط§ط®طھط± ظ…ط¬ظ„ط¯ ط§ظ„ظ…ط´ط±ظˆط¹ ط§ظ„ط±ط¦ظٹط³ظٹ (mnbarh)
+# 5. ط§ط®طھط± "Open as Project"
 ```
 
-### الطريقة 3: من سطر الأوامر
+### ط§ظ„ط·ط±ظٹظ‚ط© 2: ظپطھط­ ظ…ط´ط±ظˆط¹ Android ظ…ط¨ط§ط´ط±ط©
+
+```bash
+# 1. ط§ظپطھط­ Android Studio
+# 2. ط§ط®طھط±: File > Open
+# 3. ط§ظ†طھظ‚ظ„ ط¥ظ„ظ‰: mobile/flutter_app/android
+# 4. ط§ط®طھط± ظ…ط¬ظ„ط¯ "android" ظˆط§ظپطھط­ظ‡
+```
+
+### ط§ظ„ط·ط±ظٹظ‚ط© 3: ظ…ظ† ط³ط·ط± ط§ظ„ط£ظˆط§ظ…ط±
 
 ```bash
 # Windows
@@ -104,70 +104,70 @@ flutter run -d emulator-5554
 
 ---
 
-## ⚙️ إعدادات Android Studio
+## âڑ™ï¸ڈ ط¥ط¹ط¯ط§ط¯ط§طھ Android Studio
 
-### 1. تكوين SDK
+### 1. طھظƒظˆظٹظ† SDK
 
 ```
 File > Settings > Languages & Frameworks > Flutter
-├─ Flutter SDK path: /path/to/flutter
-├─ Dart SDK path: /path/to/flutter/bin/cache/dart-sdk
-└─ Enable Dart support: ✓
+â”œâ”€ Flutter SDK path: /path/to/flutter
+â”œâ”€ Dart SDK path: /path/to/flutter/bin/cache/dart-sdk
+â””â”€ Enable Dart support: âœ“
 ```
 
-### 2. تكوين Android SDK
+### 2. طھظƒظˆظٹظ† Android SDK
 
 ```
 File > Settings > Appearance & Behavior > System Settings > Android SDK
-├─ SDK Platforms:
-│  ├─ Android 14 (API 34)
-│  ├─ Android 13 (API 33)
-│  └─ Android 12 (API 31)
-├─ SDK Tools:
-│  ├─ Android SDK Build-Tools
-│  ├─ Android Emulator
-│  ├─ Android SDK Platform-Tools
-│  └─ Google Play services
-└─ Apply > OK
+â”œâ”€ SDK Platforms:
+â”‚  â”œâ”€ Android 14 (API 34)
+â”‚  â”œâ”€ Android 13 (API 33)
+â”‚  â””â”€ Android 12 (API 31)
+â”œâ”€ SDK Tools:
+â”‚  â”œâ”€ Android SDK Build-Tools
+â”‚  â”œâ”€ Android Emulator
+â”‚  â”œâ”€ Android SDK Platform-Tools
+â”‚  â””â”€ Google Play services
+â””â”€ Apply > OK
 ```
 
-### 3. تكوين Java
+### 3. طھظƒظˆظٹظ† Java
 
 ```
 File > Settings > Build, Execution, Deployment > Build Tools > Gradle
-├─ Gradle JDK: 11 أو أحدث
-└─ Apply > OK
+â”œâ”€ Gradle JDK: 11 ط£ظˆ ط£ط­ط¯ط«
+â””â”€ Apply > OK
 ```
 
 ---
 
-## 📱 إعداد المحاكي (Emulator)
+## ًں“± ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط­ط§ظƒظٹ (Emulator)
 
-### إنشاء جهاز افتراضي جديد
+### ط¥ظ†ط´ط§ط، ط¬ظ‡ط§ط² ط§ظپطھط±ط§ط¶ظٹ ط¬ط¯ظٹط¯
 
 ```
 Tools > Device Manager > Create Device
-├─ Select Hardware: Pixel 6 Pro (أو أي جهاز آخر)
-├─ Select System Image: Android 14 (API 34)
-├─ Verify Configuration
-└─ Finish
+â”œâ”€ Select Hardware: Pixel 6 Pro (ط£ظˆ ط£ظٹ ط¬ظ‡ط§ط² ط¢ط®ط±)
+â”œâ”€ Select System Image: Android 14 (API 34)
+â”œâ”€ Verify Configuration
+â””â”€ Finish
 ```
 
-### تشغيل المحاكي
+### طھط´ط؛ظٹظ„ ط§ظ„ظ…ط­ط§ظƒظٹ
 
 ```bash
-# من سطر الأوامر
+# ظ…ظ† ط³ط·ط± ط§ظ„ط£ظˆط§ظ…ط±
 emulator -avd Pixel_6_Pro_API_34
 
-# أو من Android Studio
-Tools > Device Manager > Play (▶)
+# ط£ظˆ ظ…ظ† Android Studio
+Tools > Device Manager > Play (â–¶)
 ```
 
 ---
 
-## 🔧 إعدادات المشروع
+## ًں”§ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ…ط´ط±ظˆط¹
 
-### 1. ملف local.properties
+### 1. ظ…ظ„ظپ local.properties
 
 ```properties
 # mobile/flutter_app/android/local.properties
@@ -178,17 +178,17 @@ flutter.versionName=1.0.0
 flutter.versionCode=1
 ```
 
-### 2. ملف key.properties (للإصدار)
+### 2. ظ…ظ„ظپ key.properties (ظ„ظ„ط¥طµط¯ط§ط±)
 
 ```properties
 # mobile/flutter_app/android/key.properties
-keyAlias=mnbara_key
+keyAlias=mnbarh_key
 keyPassword=your_key_password
 storeFile=/path/to/keystore.jks
 storePassword=your_store_password
 ```
 
-### 3. متغيرات البيئة
+### 3. ظ…طھط؛ظٹط±ط§طھ ط§ظ„ط¨ظٹط¦ط©
 
 ```bash
 # Windows (PowerShell)
@@ -202,24 +202,24 @@ export STRIPE_PUBLISHABLE_KEY="your_stripe_key"
 
 ---
 
-## 📦 تثبيت المتطلبات
+## ًں“¦ طھط«ط¨ظٹطھ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ
 
-### 1. تحديث المتطلبات
+### 1. طھط­ط¯ظٹط« ط§ظ„ظ…طھط·ظ„ط¨ط§طھ
 
 ```bash
 cd mobile/flutter_app
 
-# تحديث pub dependencies
+# طھط­ط¯ظٹط« pub dependencies
 flutter pub get
 
-# تحديث build files
+# طھط­ط¯ظٹط« build files
 flutter pub upgrade
 
-# إنشاء generated files
+# ط¥ظ†ط´ط§ط، generated files
 flutter pub run build_runner build
 ```
 
-### 2. تنظيف المشروع
+### 2. طھظ†ط¸ظٹظپ ط§ظ„ظ…ط´ط±ظˆط¹
 
 ```bash
 flutter clean
@@ -229,81 +229,81 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ---
 
-## 🏃 تشغيل التطبيق
+## ًںڈƒ طھط´ط؛ظٹظ„ ط§ظ„طھط·ط¨ظٹظ‚
 
-### الطريقة 1: من Android Studio
+### ط§ظ„ط·ط±ظٹظ‚ط© 1: ظ…ظ† Android Studio
 
 ```
-1. اختر جهاز من قائمة الأجهزة (Device Selector)
-2. اضغط على زر Run (▶) أو Shift + F10
-3. انتظر حتى يتم بناء وتشغيل التطبيق
+1. ط§ط®طھط± ط¬ظ‡ط§ط² ظ…ظ† ظ‚ط§ط¦ظ…ط© ط§ظ„ط£ط¬ظ‡ط²ط© (Device Selector)
+2. ط§ط¶ط؛ط· ط¹ظ„ظ‰ ط²ط± Run (â–¶) ط£ظˆ Shift + F10
+3. ط§ظ†طھط¸ط± ط­طھظ‰ ظٹطھظ… ط¨ظ†ط§ط، ظˆطھط´ط؛ظٹظ„ ط§ظ„طھط·ط¨ظٹظ‚
 ```
 
-### الطريقة 2: من سطر الأوامر
+### ط§ظ„ط·ط±ظٹظ‚ط© 2: ظ…ظ† ط³ط·ط± ط§ظ„ط£ظˆط§ظ…ط±
 
 ```bash
 cd mobile/flutter_app
 
-# تشغيل على المحاكي
+# طھط´ط؛ظٹظ„ ط¹ظ„ظ‰ ط§ظ„ظ…ط­ط§ظƒظٹ
 flutter run
 
-# تشغيل على جهاز حقيقي
+# طھط´ط؛ظٹظ„ ط¹ظ„ظ‰ ط¬ظ‡ط§ط² ط­ظ‚ظٹظ‚ظٹ
 flutter run -d <device_id>
 
-# تشغيل مع وضع debug
+# طھط´ط؛ظٹظ„ ظ…ط¹ ظˆط¶ط¹ debug
 flutter run -v
 
-# تشغيل مع hot reload
+# طھط´ط؛ظٹظ„ ظ…ط¹ hot reload
 flutter run --hot
 ```
 
-### الطريقة 3: بناء APK
+### ط§ظ„ط·ط±ظٹظ‚ط© 3: ط¨ظ†ط§ط، APK
 
 ```bash
-# بناء APK للاختبار
+# ط¨ظ†ط§ط، APK ظ„ظ„ط§ط®طھط¨ط§ط±
 flutter build apk --debug
 
-# بناء APK للإصدار
+# ط¨ظ†ط§ط، APK ظ„ظ„ط¥طµط¯ط§ط±
 flutter build apk --release
 
-# بناء App Bundle
+# ط¨ظ†ط§ط، App Bundle
 flutter build appbundle --release
 ```
 
 ---
 
-## 🐛 استكشاف الأخطاء
+## ًںگ› ط§ط³طھظƒط´ط§ظپ ط§ظ„ط£ط®ط·ط§ط،
 
-### المشكلة 1: "Flutter SDK not found"
+### ط§ظ„ظ…ط´ظƒظ„ط© 1: "Flutter SDK not found"
 
 ```bash
-# الحل:
+# ط§ظ„ط­ظ„:
 flutter config --android-sdk /path/to/android/sdk
 flutter config --android-studio-dir /path/to/android/studio
 ```
 
-### المشكلة 2: "Gradle build failed"
+### ط§ظ„ظ…ط´ظƒظ„ط© 2: "Gradle build failed"
 
 ```bash
-# الحل:
+# ط§ظ„ط­ظ„:
 cd mobile/flutter_app/android
 ./gradlew clean
 ./gradlew build
 ```
 
-### المشكلة 3: "Emulator not starting"
+### ط§ظ„ظ…ط´ظƒظ„ط© 3: "Emulator not starting"
 
 ```bash
-# الحل:
-# 1. تحقق من تفعيل Virtualization في BIOS
-# 2. استخدم emulator بدلاً من محاكي Android Studio
+# ط§ظ„ط­ظ„:
+# 1. طھط­ظ‚ظ‚ ظ…ظ† طھظپط¹ظٹظ„ Virtualization ظپظٹ BIOS
+# 2. ط§ط³طھط®ط¯ظ… emulator ط¨ط¯ظ„ط§ظ‹ ظ…ظ† ظ…ط­ط§ظƒظٹ Android Studio
 emulator -avd Pixel_6_Pro_API_34 -no-snapshot-load
 ```
 
-### المشكلة 4: "Dependencies conflict"
+### ط§ظ„ظ…ط´ظƒظ„ط© 4: "Dependencies conflict"
 
 ```bash
-# الحل:
+# ط§ظ„ط­ظ„:
 flutter pub get
 flutter pub upgrade
 flutter pub run build_runner build --delete-conflicting-outputs
@@ -311,182 +311,182 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ---
 
-## 📊 هيكل المشروع
+## ًں“ٹ ظ‡ظٹظƒظ„ ط§ظ„ظ…ط´ط±ظˆط¹
 
 ```
 mobile/flutter_app/
-├── android/                          # كود Android native
-│   ├── app/
-│   │   ├── build.gradle             # إعدادات البناء
-│   │   ├── src/main/
-│   │   │   ├── AndroidManifest.xml  # الأذونات والإعدادات
-│   │   │   ├── kotlin/              # كود Kotlin
-│   │   │   └── res/                 # الموارد
-│   │   └── proguard-rules.pro       # قواعد ProGuard
-│   ├── gradle/                       # ملفات Gradle
-│   ├── settings.gradle               # إعدادات Gradle
-│   └── local.properties              # الخصائص المحلية
-├── ios/                              # كود iOS
-├── lib/                              # كود Dart الرئيسي
-│   ├── main.dart                     # نقطة الدخول
-│   ├── core/                         # الأساسيات
-│   ├── features/                     # الميزات
-│   ├── models/                       # نماذج البيانات
-│   ├── services/                     # الخدمات
-│   ├── providers/                    # Riverpod providers
-│   ├── widgets/                      # الـ widgets المشتركة
-│   └── theme/                        # الثيم والألوان
-├── assets/                           # الصور والخطوط
-├── test/                             # اختبارات
-├── pubspec.yaml                      # المتطلبات
-└── README.md                         # التوثيق
+â”œâ”€â”€ android/                          # ظƒظˆط¯ Android native
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ build.gradle             # ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ط¨ظ†ط§ط،
+â”‚   â”‚   â”œâ”€â”€ src/main/
+â”‚   â”‚   â”‚   â”œâ”€â”€ AndroidManifest.xml  # ط§ظ„ط£ط°ظˆظ†ط§طھ ظˆط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ
+â”‚   â”‚   â”‚   â”œâ”€â”€ kotlin/              # ظƒظˆط¯ Kotlin
+â”‚   â”‚   â”‚   â””â”€â”€ res/                 # ط§ظ„ظ…ظˆط§ط±ط¯
+â”‚   â”‚   â””â”€â”€ proguard-rules.pro       # ظ‚ظˆط§ط¹ط¯ ProGuard
+â”‚   â”œâ”€â”€ gradle/                       # ظ…ظ„ظپط§طھ Gradle
+â”‚   â”œâ”€â”€ settings.gradle               # ط¥ط¹ط¯ط§ط¯ط§طھ Gradle
+â”‚   â””â”€â”€ local.properties              # ط§ظ„ط®طµط§ط¦طµ ط§ظ„ظ…ط­ظ„ظٹط©
+â”œâ”€â”€ ios/                              # ظƒظˆط¯ iOS
+â”œâ”€â”€ lib/                              # ظƒظˆط¯ Dart ط§ظ„ط±ط¦ظٹط³ظٹ
+â”‚   â”œâ”€â”€ main.dart                     # ظ†ظ‚ط·ط© ط§ظ„ط¯ط®ظˆظ„
+â”‚   â”œâ”€â”€ core/                         # ط§ظ„ط£ط³ط§ط³ظٹط§طھ
+â”‚   â”œâ”€â”€ features/                     # ط§ظ„ظ…ظٹط²ط§طھ
+â”‚   â”œâ”€â”€ models/                       # ظ†ظ…ط§ط°ط¬ ط§ظ„ط¨ظٹط§ظ†ط§طھ
+â”‚   â”œâ”€â”€ services/                     # ط§ظ„ط®ط¯ظ…ط§طھ
+â”‚   â”œâ”€â”€ providers/                    # Riverpod providers
+â”‚   â”œâ”€â”€ widgets/                      # ط§ظ„ظ€ widgets ط§ظ„ظ…ط´طھط±ظƒط©
+â”‚   â””â”€â”€ theme/                        # ط§ظ„ط«ظٹظ… ظˆط§ظ„ط£ظ„ظˆط§ظ†
+â”œâ”€â”€ assets/                           # ط§ظ„طµظˆط± ظˆط§ظ„ط®ط·ظˆط·
+â”œâ”€â”€ test/                             # ط§ط®طھط¨ط§ط±ط§طھ
+â”œâ”€â”€ pubspec.yaml                      # ط§ظ„ظ…طھط·ظ„ط¨ط§طھ
+â””â”€â”€ README.md                         # ط§ظ„طھظˆط«ظٹظ‚
 ```
 
 ---
 
-## 🎯 الميزات الرئيسية للتطبيق
+## ًںژ¯ ط§ظ„ظ…ظٹط²ط§طھ ط§ظ„ط±ط¦ظٹط³ظٹط© ظ„ظ„طھط·ط¨ظٹظ‚
 
-### 1. المصادقة والتسجيل
-- ✅ تسجيل بالبريد الإلكتروني
-- ✅ تسجيل الدخول بـ Google
-- ✅ تسجيل الدخول بـ Apple
-- ✅ تسجيل الدخول بـ Facebook
-- ✅ التحقق بـ OTP
+### 1. ط§ظ„ظ…طµط§ط¯ظ‚ط© ظˆط§ظ„طھط³ط¬ظٹظ„
+- âœ… طھط³ط¬ظٹظ„ ط¨ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ
+- âœ… طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„ ط¨ظ€ Google
+- âœ… طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„ ط¨ظ€ Apple
+- âœ… طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„ ط¨ظ€ Facebook
+- âœ… ط§ظ„طھط­ظ‚ظ‚ ط¨ظ€ OTP
 
-### 2. المتجر الرئيسي
-- ✅ عرض المنتجات
-- ✅ البحث والتصفية
-- ✅ عرض التفاصيل
-- ✅ إضافة إلى السلة
-- ✅ المفضلة
+### 2. ط§ظ„ظ…طھط¬ط± ط§ظ„ط±ط¦ظٹط³ظٹ
+- âœ… ط¹ط±ط¶ ط§ظ„ظ…ظ†طھط¬ط§طھ
+- âœ… ط§ظ„ط¨ط­ط« ظˆط§ظ„طھطµظپظٹط©
+- âœ… ط¹ط±ط¶ ط§ظ„طھظپط§طµظٹظ„
+- âœ… ط¥ط¶ط§ظپط© ط¥ظ„ظ‰ ط§ظ„ط³ظ„ط©
+- âœ… ط§ظ„ظ…ظپط¶ظ„ط©
 
-### 3. الشراء والدفع
-- ✅ سلة التسوق
-- ✅ عملية الدفع
-- ✅ دفع بـ Stripe
-- ✅ دفع بـ PayPal
-- ✅ دفع بـ Crypto
+### 3. ط§ظ„ط´ط±ط§ط، ظˆط§ظ„ط¯ظپط¹
+- âœ… ط³ظ„ط© ط§ظ„طھط³ظˆظ‚
+- âœ… ط¹ظ…ظ„ظٹط© ط§ظ„ط¯ظپط¹
+- âœ… ط¯ظپط¹ ط¨ظ€ Stripe
+- âœ… ط¯ظپط¹ ط¨ظ€ PayPal
+- âœ… ط¯ظپط¹ ط¨ظ€ Crypto
 
-### 4. المبيعات والبيع
-- ✅ إنشاء قوائم
-- ✅ إدارة المخزون
-- ✅ تحليلات المبيعات
-- ✅ إدارة الطلبات
+### 4. ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„ط¨ظٹط¹
+- âœ… ط¥ظ†ط´ط§ط، ظ‚ظˆط§ط¦ظ…
+- âœ… ط¥ط¯ط§ط±ط© ط§ظ„ظ…ط®ط²ظˆظ†
+- âœ… طھط­ظ„ظٹظ„ط§طھ ط§ظ„ظ…ط¨ظٹط¹ط§طھ
+- âœ… ط¥ط¯ط§ط±ط© ط§ظ„ط·ظ„ط¨ط§طھ
 
-### 5. الميزات المتقدمة
-- ✅ البحث بالصوت
-- ✅ معاينة AR
-- ✅ عرض VR
-- ✅ التوصيات بـ AI
-- ✅ الدعم الفوري
+### 5. ط§ظ„ظ…ظٹط²ط§طھ ط§ظ„ظ…طھظ‚ط¯ظ…ط©
+- âœ… ط§ظ„ط¨ط­ط« ط¨ط§ظ„طµظˆطھ
+- âœ… ظ…ط¹ط§ظٹظ†ط© AR
+- âœ… ط¹ط±ط¶ VR
+- âœ… ط§ظ„طھظˆطµظٹط§طھ ط¨ظ€ AI
+- âœ… ط§ظ„ط¯ط¹ظ… ط§ظ„ظپظˆط±ظٹ
 
-### 6. التتبع والتسليم
-- ✅ تتبع الطلبات
-- ✅ تتبع التسليم الحي
-- ✅ إشعارات التسليم
-- ✅ إثبات التسليم
+### 6. ط§ظ„طھطھط¨ط¹ ظˆط§ظ„طھط³ظ„ظٹظ…
+- âœ… طھطھط¨ط¹ ط§ظ„ط·ظ„ط¨ط§طھ
+- âœ… طھطھط¨ط¹ ط§ظ„طھط³ظ„ظٹظ… ط§ظ„ط­ظٹ
+- âœ… ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„طھط³ظ„ظٹظ…
+- âœ… ط¥ط«ط¨ط§طھ ط§ظ„طھط³ظ„ظٹظ…
 
 ---
 
-## 🔐 الأمان والأذونات
+## ًں”گ ط§ظ„ط£ظ…ط§ظ† ظˆط§ظ„ط£ط°ظˆظ†ط§طھ
 
-### الأذونات المطلوبة
+### ط§ظ„ط£ط°ظˆظ†ط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
 
 ```xml
-<!-- الإنترنت -->
+<!-- ط§ظ„ط¥ظ†طھط±ظ†طھ -->
 <uses-permission android:name="android.permission.INTERNET"/>
 
-<!-- الموقع -->
+<!-- ط§ظ„ظ…ظˆظ‚ط¹ -->
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-<!-- الكاميرا -->
+<!-- ط§ظ„ظƒط§ظ…ظٹط±ط§ -->
 <uses-permission android:name="android.permission.CAMERA"/>
 
-<!-- التخزين -->
+<!-- ط§ظ„طھط®ط²ظٹظ† -->
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-<!-- البيومتريا -->
+<!-- ط§ظ„ط¨ظٹظˆظ…طھط±ظٹط§ -->
 <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
 ```
 
-### طلب الأذونات في التطبيق
+### ط·ظ„ط¨ ط§ظ„ط£ط°ظˆظ†ط§طھ ظپظٹ ط§ظ„طھط·ط¨ظٹظ‚
 
 ```dart
 import 'package:permission_handler/permission_handler.dart';
 
-// طلب إذن الموقع
+// ط·ظ„ط¨ ط¥ط°ظ† ط§ظ„ظ…ظˆظ‚ط¹
 final status = await Permission.location.request();
 if (status.isGranted) {
-  // الإذن ممنوح
+  // ط§ظ„ط¥ط°ظ† ظ…ظ…ظ†ظˆط­
 }
 
-// طلب إذن الكاميرا
+// ط·ظ„ط¨ ط¥ط°ظ† ط§ظ„ظƒط§ظ…ظٹط±ط§
 final cameraStatus = await Permission.camera.request();
 ```
 
 ---
 
-## 📈 الأداء والتحسينات
+## ًں“ˆ ط§ظ„ط£ط¯ط§ط، ظˆط§ظ„طھط­ط³ظٹظ†ط§طھ
 
-### 1. تحسين البناء
+### 1. طھط­ط³ظٹظ† ط§ظ„ط¨ظ†ط§ط،
 
 ```bash
-# بناء سريع
+# ط¨ظ†ط§ط، ط³ط±ظٹط¹
 flutter build apk --debug --split-per-abi
 
-# بناء محسّن
+# ط¨ظ†ط§ط، ظ…ط­ط³ظ‘ظ†
 flutter build apk --release --obfuscate --split-debug-info=./symbols
 ```
 
-### 2. تحليل الأداء
+### 2. طھط­ظ„ظٹظ„ ط§ظ„ط£ط¯ط§ط،
 
 ```bash
-# تشغيل مع تحليل الأداء
+# طھط´ط؛ظٹظ„ ظ…ط¹ طھط­ظ„ظٹظ„ ط§ظ„ط£ط¯ط§ط،
 flutter run --profile
 
-# تحليل حجم التطبيق
+# طھط­ظ„ظٹظ„ ط­ط¬ظ… ط§ظ„طھط·ط¨ظٹظ‚
 flutter build apk --analyze-size
 ```
 
-### 3. اختبار الأداء
+### 3. ط§ط®طھط¨ط§ط± ط§ظ„ط£ط¯ط§ط،
 
 ```bash
-# تشغيل الاختبارات
+# طھط´ط؛ظٹظ„ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 flutter test
 
-# اختبارات التكامل
+# ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„طھظƒط§ظ…ظ„
 flutter drive --target=test_driver/app.dart
 ```
 
 ---
 
-## 🚀 نشر التطبيق
+## ًںڑ€ ظ†ط´ط± ط§ظ„طھط·ط¨ظٹظ‚
 
-### على Google Play Store
+### ط¹ظ„ظ‰ Google Play Store
 
 ```bash
-# 1. بناء App Bundle
+# 1. ط¨ظ†ط§ط، App Bundle
 flutter build appbundle --release
 
-# 2. التوقيع الرقمي (تلقائي إذا كان key.properties موجود)
+# 2. ط§ظ„طھظˆظ‚ظٹط¹ ط§ظ„ط±ظ‚ظ…ظٹ (طھظ„ظ‚ط§ط¦ظٹ ط¥ط°ط§ ظƒط§ظ† key.properties ظ…ظˆط¬ظˆط¯)
 
-# 3. رفع على Google Play Console
-# - انتقل إلى https://play.google.com/console
-# - اختر التطبيق
-# - اختر Release > Production
-# - رفع الـ AAB
+# 3. ط±ظپط¹ ط¹ظ„ظ‰ Google Play Console
+# - ط§ظ†طھظ‚ظ„ ط¥ظ„ظ‰ https://play.google.com/console
+# - ط§ط®طھط± ط§ظ„طھط·ط¨ظٹظ‚
+# - ط§ط®طھط± Release > Production
+# - ط±ظپط¹ ط§ظ„ظ€ AAB
 ```
 
-### على متجر تطبيقات آخر
+### ط¹ظ„ظ‰ ظ…طھط¬ط± طھط·ط¨ظٹظ‚ط§طھ ط¢ط®ط±
 
 ```bash
-# بناء APK للتوزيع
+# ط¨ظ†ط§ط، APK ظ„ظ„طھظˆط²ظٹط¹
 flutter build apk --release --split-per-abi
 
-# النتيجة:
+# ط§ظ„ظ†طھظٹط¬ط©:
 # - app-armeabi-v7a-release.apk
 # - app-arm64-v8a-release.apk
 # - app-x86_64-release.apk
@@ -494,52 +494,53 @@ flutter build apk --release --split-per-abi
 
 ---
 
-## 📞 الدعم والمساعدة
+## ًں“‍ ط§ظ„ط¯ط¹ظ… ظˆط§ظ„ظ…ط³ط§ط¹ط¯ط©
 
-### الموارد المفيدة
+### ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ظ…ظپظٹط¯ط©
 
 - [Flutter Documentation](https://flutter.dev/docs)
 - [Android Studio Help](https://developer.android.com/studio/intro)
 - [Dart Language Guide](https://dart.dev/guides)
 - [Firebase Documentation](https://firebase.google.com/docs)
 
-### الأوامر المهمة
+### ط§ظ„ط£ظˆط§ظ…ط± ط§ظ„ظ…ظ‡ظ…ط©
 
 ```bash
-# معلومات النظام
+# ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ظ†ط¸ط§ظ…
 flutter doctor -v
 
-# تحديث Flutter
+# طھط­ط¯ظٹط« Flutter
 flutter upgrade
 
-# تنظيف المشروع
+# طھظ†ط¸ظٹظپ ط§ظ„ظ…ط´ط±ظˆط¹
 flutter clean
 
-# إعادة بناء الملفات المولدة
+# ط¥ط¹ط§ط¯ط© ط¨ظ†ط§ط، ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ظˆظ„ط¯ط©
 flutter pub run build_runner build --delete-conflicting-outputs
 
-# تشغيل الاختبارات
+# طھط´ط؛ظٹظ„ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 flutter test
 
-# تحليل الكود
+# طھط­ظ„ظٹظ„ ط§ظ„ظƒظˆط¯
 flutter analyze
 ```
 
 ---
 
-## ✅ قائمة التحقق قبل البدء
+## âœ… ظ‚ط§ط¦ظ…ط© ط§ظ„طھط­ظ‚ظ‚ ظ‚ط¨ظ„ ط§ظ„ط¨ط¯ط،
 
-- [ ] تثبيت Flutter SDK
-- [ ] تثبيت Android Studio
-- [ ] تثبيت Java JDK 11+
-- [ ] تثبيت Android SDK (API 23+)
-- [ ] تشغيل `flutter doctor` بنجاح
-- [ ] إنشاء جهاز افتراضي
-- [ ] تثبيت المتطلبات: `flutter pub get`
-- [ ] تشغيل التطبيق: `flutter run`
+- [ ] طھط«ط¨ظٹطھ Flutter SDK
+- [ ] طھط«ط¨ظٹطھ Android Studio
+- [ ] طھط«ط¨ظٹطھ Java JDK 11+
+- [ ] طھط«ط¨ظٹطھ Android SDK (API 23+)
+- [ ] طھط´ط؛ظٹظ„ `flutter doctor` ط¨ظ†ط¬ط§ط­
+- [ ] ط¥ظ†ط´ط§ط، ط¬ظ‡ط§ط² ط§ظپطھط±ط§ط¶ظٹ
+- [ ] طھط«ط¨ظٹطھ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ: `flutter pub get`
+- [ ] طھط´ط؛ظٹظ„ ط§ظ„طھط·ط¨ظٹظ‚: `flutter run`
 
 ---
 
-**Status:** ✅ جاهز للتطوير والاختبار
+**Status:** âœ… ط¬ط§ظ‡ط² ظ„ظ„طھط·ظˆظٹط± ظˆط§ظ„ط§ط®طھط¨ط§ط±
 
-**آخر تحديث:** 28 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 28 ط¯ظٹط³ظ…ط¨ط± 2025
+

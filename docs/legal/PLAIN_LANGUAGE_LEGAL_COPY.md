@@ -1,4 +1,4 @@
-# Plain-Language Legal Copy Guide
+﻿# Plain-Language Legal Copy Guide
 
 Legal text rewritten to be friendly, non-threatening, and understandable by everyone.
 
@@ -34,7 +34,7 @@ Legal text rewritten to be friendly, non-threatening, and understandable by ever
 > By accessing or using our platform, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
 
 **After (Plain Language):**
-> Welcome to MNBARA. These are the rules for using our platform. We've tried to make them clear and fair. If something doesn't make sense, ask us.
+> Welcome to mnbarh. These are the rules for using our platform. We've tried to make them clear and fair. If something doesn't make sense, ask us.
 
 ---
 
@@ -49,9 +49,9 @@ Legal text rewritten to be friendly, non-threatening, and understandable by ever
 
 When you create an account, we need a few things from you:
 
-- **Be honest** — Use your real information. We need this to keep everyone safe.
-- **Keep your password safe** — Don't share it. If someone else uses your account, you're responsible for what happens.
-- **Tell us if something's wrong** — If you think someone got into your account, let us know right away. We'll help you fix it.
+- **Be honest** â€” Use your real information. We need this to keep everyone safe.
+- **Keep your password safe** â€” Don't share it. If someone else uses your account, you're responsible for what happens.
+- **Tell us if something's wrong** â€” If you think someone got into your account, let us know right away. We'll help you fix it.
 
 ---
 
@@ -62,19 +62,19 @@ When you create an account, we need a few things from you:
 
 **After (Plain Language):**
 
-**Selling on MNBARA**
+**Selling on mnbarh**
 
 If you're selling something:
 
-- **Only sell what's yours** — Don't list items you don't own or can't legally sell.
-- **Be accurate** — Describe items honestly. If there's a scratch, say so. Photos should show the real item.
-- **Follow through** — If someone buys from you, ship it. Backing out hurts everyone.
-- **Play fair** — No fake listings, no misleading descriptions, no tricks.
+- **Only sell what's yours** â€” Don't list items you don't own or can't legally sell.
+- **Be accurate** â€” Describe items honestly. If there's a scratch, say so. Photos should show the real item.
+- **Follow through** â€” If someone buys from you, ship it. Backing out hurts everyone.
+- **Play fair** â€” No fake listings, no misleading descriptions, no tricks.
 
 If you're buying:
 
-- **Pay for what you buy** — When you commit to a purchase, follow through.
-- **Communicate** — If there's an issue, talk to the seller first. Most problems can be solved with a conversation.
+- **Pay for what you buy** â€” When you commit to a purchase, follow through.
+- **Communicate** â€” If there's an issue, talk to the seller first. Most problems can be solved with a conversation.
 
 ---
 
@@ -87,10 +87,10 @@ If you're buying:
 
 **How Auctions Work**
 
-- **Bids are real commitments** — When you bid, you're saying "I'll buy this at this price." Don't bid if you don't mean it.
-- **No fake bidding** — Don't bid on your own items or have friends bid to drive up prices. We can tell, and we'll remove you from the platform.
-- **Winners pay within 48 hours** — If you win, complete your payment within 2 days.
-- **Sellers ship on time** — When your item sells, ship it within the timeframe you promised.
+- **Bids are real commitments** â€” When you bid, you're saying "I'll buy this at this price." Don't bid if you don't mean it.
+- **No fake bidding** â€” Don't bid on your own items or have friends bid to drive up prices. We can tell, and we'll remove you from the platform.
+- **Winners pay within 48 hours** â€” If you win, complete your payment within 2 days.
+- **Sellers ship on time** â€” When your item sells, ship it within the timeframe you promised.
 
 ---
 
@@ -105,32 +105,32 @@ If you're buying:
 
 If you're a traveler delivering items:
 
-- **Verify your identity first** — We need to confirm who you are before you can deliver. This protects everyone.
-- **Know the customs rules** — Different countries have different rules about what you can bring in. It's your responsibility to know them.
-- **Take photos** — When you deliver, take a photo as proof. This protects you if there's ever a question.
-- **Payment comes after delivery** — We hold the money safely until the buyer confirms they got their item. Then you get paid.
+- **Verify your identity first** â€” We need to confirm who you are before you can deliver. This protects everyone.
+- **Know the customs rules** â€” Different countries have different rules about what you can bring in. It's your responsibility to know them.
+- **Take photos** â€” When you deliver, take a photo as proof. This protects you if there's ever a question.
+- **Payment comes after delivery** â€” We hold the money safely until the buyer confirms they got their item. Then you get paid.
 
 ---
 
 ### Payments and Fees
 
 **Before (Legal):**
-> MNBARA charges fees for certain services. All fees are disclosed before transactions. Payment processing is handled securely through our approved payment providers.
+> mnbarh charges fees for certain services. All fees are disclosed before transactions. Payment processing is handled securely through our approved payment providers.
 
 **After (Plain Language):**
 
 **What It Costs**
 
-- **We show you fees upfront** — Before you complete any transaction, you'll see exactly what you're paying. No surprises.
-- **Your payment is secure** — We use trusted payment providers to keep your money safe.
-- **We take a small cut** — That's how we keep the platform running. The exact amount depends on the transaction type, and we always show it before you pay.
+- **We show you fees upfront** â€” Before you complete any transaction, you'll see exactly what you're paying. No surprises.
+- **Your payment is secure** â€” We use trusted payment providers to keep your money safe.
+- **We take a small cut** â€” That's how we keep the platform running. The exact amount depends on the transaction type, and we always show it before you pay.
 
 ---
 
 ### Dispute Resolution
 
 **Before (Legal):**
-> In case of disputes between buyers and sellers, MNBARA provides a resolution process. Our decisions in dispute cases are final and binding.
+> In case of disputes between buyers and sellers, mnbarh provides a resolution process. Our decisions in dispute cases are final and binding.
 
 **After (Plain Language):**
 
@@ -138,16 +138,16 @@ If you're a traveler delivering items:
 
 We hope every transaction goes smoothly, but sometimes things don't work out.
 
-- **Talk first** — Try to work it out with the other person. Most issues are misunderstandings.
-- **We're here to help** — If you can't resolve it, open a dispute. We'll look at both sides and make a fair decision.
-- **Our decision is final** — We do our best to be fair, but we can't keep going back and forth forever. Once we decide, that's the answer.
+- **Talk first** â€” Try to work it out with the other person. Most issues are misunderstandings.
+- **We're here to help** â€” If you can't resolve it, open a dispute. We'll look at both sides and make a fair decision.
+- **Our decision is final** â€” We do our best to be fair, but we can't keep going back and forth forever. Once we decide, that's the answer.
 
 ---
 
 ### Limitation of Liability
 
 **Before (Legal):**
-> MNBARA is not liable for any indirect, incidental, or consequential damages arising from your use of the platform. Our total liability is limited to the fees you have paid to us.
+> mnbarh is not liable for any indirect, incidental, or consequential damages arising from your use of the platform. Our total liability is limited to the fees you have paid to us.
 
 **After (Plain Language):**
 
@@ -155,11 +155,11 @@ We hope every transaction goes smoothly, but sometimes things don't work out.
 
 Let's be honest about what we can and can't do:
 
-- **We're a marketplace, not a guarantee** — We connect buyers and sellers, but we can't control what every person does.
-- **We're not responsible for everything** — If something goes wrong that we couldn't have prevented, we can't cover all the costs.
-- **We'll make it right when we can** — If we mess up, we'll refund the fees you paid us. That's the most we can offer.
+- **We're a marketplace, not a guarantee** â€” We connect buyers and sellers, but we can't control what every person does.
+- **We're not responsible for everything** â€” If something goes wrong that we couldn't have prevented, we can't cover all the costs.
+- **We'll make it right when we can** â€” If we mess up, we'll refund the fees you paid us. That's the most we can offer.
 
-We're not trying to avoid responsibility—we just want to be clear about what's realistic.
+We're not trying to avoid responsibilityâ€”we just want to be clear about what's realistic.
 
 ---
 
@@ -168,7 +168,7 @@ We're not trying to avoid responsibility—we just want to be clear about what's
 ### Opening
 
 **Before (Legal):**
-> At MNBARA, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our marketplace platform.
+> At mnbarh, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our marketplace platform.
 
 **After (Plain Language):**
 
@@ -209,11 +209,11 @@ Here's what we know about you and why:
 
 **What We Do With It**
 
-- **Run the platform** — Process your orders, send receipts, handle deliveries
-- **Keep things safe** — Verify identities, catch fraud, protect your account
-- **Help you** — Answer your questions, resolve problems
-- **Make things better** — Understand what's working and what's not
-- **Send updates** — Only if you want them (you can opt out anytime)
+- **Run the platform** â€” Process your orders, send receipts, handle deliveries
+- **Keep things safe** â€” Verify identities, catch fraud, protect your account
+- **Help you** â€” Answer your questions, resolve problems
+- **Make things better** â€” Understand what's working and what's not
+- **Send updates** â€” Only if you want them (you can opt out anytime)
 
 **What we DON'T do:**
 - Sell your personal information
@@ -252,10 +252,10 @@ We never sell your data. Period.
 
 **How We Protect Your Data**
 
-- **Encryption** — Your data is scrambled so only we can read it
-- **Secure servers** — We use industry-standard protection
-- **Limited access** — Only team members who need your data can see it
-- **Regular checks** — We test our security regularly
+- **Encryption** â€” Your data is scrambled so only we can read it
+- **Secure servers** â€” We use industry-standard protection
+- **Limited access** â€” Only team members who need your data can see it
+- **Regular checks** â€” We test our security regularly
 
 No system is 100% secure, but we work hard to protect you.
 
@@ -272,11 +272,11 @@ No system is 100% secure, but we work hard to protect you.
 
 You can:
 
-- **See your data** — Request a copy of everything we have about you
-- **Fix mistakes** — Update or correct your information anytime
-- **Delete your account** — Ask us to remove your data (some things we have to keep for legal reasons)
-- **Opt out** — Turn off marketing emails, personalization, or analytics
-- **Ask questions** — Email us at privacy@mnbara.com
+- **See your data** â€” Request a copy of everything we have about you
+- **Fix mistakes** â€” Update or correct your information anytime
+- **Delete your account** â€” Ask us to remove your data (some things we have to keep for legal reasons)
+- **Opt out** â€” Turn off marketing emails, personalization, or analytics
+- **Ask questions** â€” Email us at privacy@mnbarh.com
 
 We'll respond within 30 days.
 
@@ -316,7 +316,7 @@ This helps us understand:
 - Where the app crashes
 - What's confusing
 
-It's anonymous—we see patterns, not individuals. Turn it off if you prefer.
+It's anonymousâ€”we see patterns, not individuals. Turn it off if you prefer.
 
 ---
 
@@ -365,10 +365,10 @@ Usually 1-2 emails per week, max. Unsubscribe anytime with one click.
 
 **How Payment Protection Works**
 
-1. **Buyer pays** — Money goes into a secure holding account (not to the seller yet)
-2. **Seller/Traveler delivers** — Item gets shipped and delivered
-3. **Buyer confirms** — Buyer says "yes, I got it"
-4. **Seller gets paid** — Money is released to the seller
+1. **Buyer pays** â€” Money goes into a secure holding account (not to the seller yet)
+2. **Seller/Traveler delivers** â€” Item gets shipped and delivered
+3. **Buyer confirms** â€” Buyer says "yes, I got it"
+4. **Seller gets paid** â€” Money is released to the seller
 
 If something goes wrong, the money is still safe while we figure it out.
 
@@ -377,16 +377,16 @@ If something goes wrong, the money is still safe while we figure it out.
 ## 5. Refund Policy
 
 **Before (Legal):**
-> Refunds are subject to the terms of the original transaction and may be issued at the sole discretion of MNBARA following investigation of the dispute. Processing times may vary.
+> Refunds are subject to the terms of the original transaction and may be issued at the sole discretion of mnbarh following investigation of the dispute. Processing times may vary.
 
 **After (Plain Language):**
 
 **Refunds**
 
-- **Item never arrived?** — Full refund
-- **Item not as described?** — Full or partial refund depending on the situation
-- **Changed your mind?** — Depends on the seller's policy (check before buying)
-- **How long?** — Usually 3-5 business days back to your original payment method
+- **Item never arrived?** â€” Full refund
+- **Item not as described?** â€” Full or partial refund depending on the situation
+- **Changed your mind?** â€” Depends on the seller's policy (check before buying)
+- **How long?** â€” Usually 3-5 business days back to your original payment method
 
 If you're not sure, just ask. We'll explain your options.
 
@@ -395,7 +395,7 @@ If you're not sure, just ask. We'll explain your options.
 ## 6. Account Termination
 
 **Before (Legal):**
-> MNBARA reserves the right to terminate or suspend your account at any time, with or without cause, with or without notice. Upon termination, your right to use the platform will immediately cease.
+> mnbarh reserves the right to terminate or suspend your account at any time, with or without cause, with or without notice. Upon termination, your right to use the platform will immediately cease.
 
 **After (Plain Language):**
 
@@ -471,4 +471,5 @@ The goal is clarity without losing protection.
 *Document Version: 1.0*
 *Last Updated: December 2025*
 *Owner: Legal & Product Teams*
+
 

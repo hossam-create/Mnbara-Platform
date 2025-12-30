@@ -1,23 +1,23 @@
-# MNBARA Platform - Project Structure Documentation
+﻿# MNBARH Platform - Project Structure Documentation
 
 ## Overview
 
-This document provides a comprehensive overview of the MNBARA platform project structure, explaining the purpose of each directory and key files.
+This document provides a comprehensive overview of the MNBARH platform project structure, explaining the purpose of each directory and key files.
 
 ## Root Directory
 
 ```
-mnbara-platform/
-├── .github/                 # GitHub configuration and CI/CD
-├── .kiro/                   # Kiro IDE specifications
-├── backend/                 # Backend microservices
-├── contracts/               # Solidity smart contracts
-├── docs/                    # Documentation
-├── frontend/                # Frontend applications
-├── infrastructure/          # Infrastructure as Code
-├── scripts/                 # Utility scripts
-├── monitoring/              # Monitoring configuration
-└── [config files]           # Root configuration files
+mnbarh-platform/
+â”œâ”€â”€ .github/                 # GitHub configuration and CI/CD
+â”œâ”€â”€ .kiro/                   # Kiro IDE specifications
+â”œâ”€â”€ backend/                 # Backend microservices
+â”œâ”€â”€ contracts/               # Solidity smart contracts
+â”œâ”€â”€ docs/                    # Documentation
+â”œâ”€â”€ frontend/                # Frontend applications
+â”œâ”€â”€ infrastructure/          # Infrastructure as Code
+â”œâ”€â”€ scripts/                 # Utility scripts
+â”œâ”€â”€ monitoring/              # Monitoring configuration
+â””â”€â”€ [config files]           # Root configuration files
 ```
 
 ## Backend Services (`backend/services/`)
@@ -44,22 +44,22 @@ mnbara-platform/
 
 ```
 shared/
-├── audit/                   # Audit logging service
-│   ├── audit.service.ts     # Core audit functionality
-│   ├── audit.middleware.ts  # Express middleware
-│   └── README.md
-├── database/                # Database utilities
-│   ├── encryption.config.ts # Encryption configuration
-│   ├── prisma-encryption.middleware.ts
-│   └── migrations/          # Shared SQL migrations
-├── media/                   # Media protection
-│   ├── watermark.service.ts # Image watermarking
-│   ├── fingerprint.repository.ts
-│   ├── media-protection.service.ts
-│   └── README.md
-└── middleware/              # Shared middleware
-    ├── permission.middleware.ts
-    └── permission.types.ts
+â”œâ”€â”€ audit/                   # Audit logging service
+â”‚   â”œâ”€â”€ audit.service.ts     # Core audit functionality
+â”‚   â”œâ”€â”€ audit.middleware.ts  # Express middleware
+â”‚   â””â”€â”€ README.md
+â”œâ”€â”€ database/                # Database utilities
+â”‚   â”œâ”€â”€ encryption.config.ts # Encryption configuration
+â”‚   â”œâ”€â”€ prisma-encryption.middleware.ts
+â”‚   â””â”€â”€ migrations/          # Shared SQL migrations
+â”œâ”€â”€ media/                   # Media protection
+â”‚   â”œâ”€â”€ watermark.service.ts # Image watermarking
+â”‚   â”œâ”€â”€ fingerprint.repository.ts
+â”‚   â”œâ”€â”€ media-protection.service.ts
+â”‚   â””â”€â”€ README.md
+â””â”€â”€ middleware/              # Shared middleware
+    â”œâ”€â”€ permission.middleware.ts
+    â””â”€â”€ permission.types.ts
 ```
 
 ## Frontend Applications (`frontend/`)
@@ -68,160 +68,160 @@ shared/
 
 ```
 web/
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── auth/            # Authentication components
-│   │   ├── auctions/        # Auction-related components
-│   │   ├── checkout/        # Checkout flow components
-│   │   ├── layout/          # Layout components
-│   │   ├── notifications/   # Notification components
-│   │   ├── products/        # Product display components
-│   │   ├── search/          # Search components
-│   │   ├── seller/          # Seller dashboard components
-│   │   └── wallet/          # Blockchain wallet components
-│   ├── context/             # React contexts
-│   │   ├── AuthContext.tsx
-│   │   ├── NotificationContext.tsx
-│   │   ├── ToastContext.tsx
-│   │   └── WalletContext.tsx
-│   ├── hooks/               # Custom React hooks
-│   │   ├── useApiError.ts
-│   │   ├── useInfiniteScroll.ts
-│   │   ├── usePerformance.ts
-│   │   └── useRateLimit.ts
-│   ├── pages/               # Page components
-│   │   ├── auth/            # Login, Register pages
-│   │   ├── auctions/        # Auction pages
-│   │   ├── cart/            # Cart and checkout pages
-│   │   ├── products/        # Product pages
-│   │   ├── rewards/         # Rewards pages
-│   │   ├── seller/          # Seller dashboard pages
-│   │   └── settings/        # Settings pages
-│   ├── services/            # API service layer
-│   │   ├── api.ts           # Axios instance
-│   │   ├── auth.service.ts
-│   │   ├── notification.service.ts
-│   │   ├── rewards.service.ts
-│   │   ├── seller.service.ts
-│   │   └── wallet.service.ts
-│   ├── utils/               # Utility functions
-│   │   ├── errors.ts        # Error handling
-│   │   ├── performance.ts   # Performance monitoring
-│   │   ├── rateLimiter.ts   # Rate limiting
-│   │   └── retry.ts         # Retry logic
-│   ├── config/              # Configuration
-│   │   └── sentry.ts        # Sentry setup
-│   └── router/              # React Router setup
-│       └── index.tsx
-└── package.json
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ components/          # Reusable UI components
+â”‚   â”‚   â”œâ”€â”€ auth/            # Authentication components
+â”‚   â”‚   â”œâ”€â”€ auctions/        # Auction-related components
+â”‚   â”‚   â”œâ”€â”€ checkout/        # Checkout flow components
+â”‚   â”‚   â”œâ”€â”€ layout/          # Layout components
+â”‚   â”‚   â”œâ”€â”€ notifications/   # Notification components
+â”‚   â”‚   â”œâ”€â”€ products/        # Product display components
+â”‚   â”‚   â”œâ”€â”€ search/          # Search components
+â”‚   â”‚   â”œâ”€â”€ seller/          # Seller dashboard components
+â”‚   â”‚   â””â”€â”€ wallet/          # Blockchain wallet components
+â”‚   â”œâ”€â”€ context/             # React contexts
+â”‚   â”‚   â”œâ”€â”€ AuthContext.tsx
+â”‚   â”‚   â”œâ”€â”€ NotificationContext.tsx
+â”‚   â”‚   â”œâ”€â”€ ToastContext.tsx
+â”‚   â”‚   â””â”€â”€ WalletContext.tsx
+â”‚   â”œâ”€â”€ hooks/               # Custom React hooks
+â”‚   â”‚   â”œâ”€â”€ useApiError.ts
+â”‚   â”‚   â”œâ”€â”€ useInfiniteScroll.ts
+â”‚   â”‚   â”œâ”€â”€ usePerformance.ts
+â”‚   â”‚   â””â”€â”€ useRateLimit.ts
+â”‚   â”œâ”€â”€ pages/               # Page components
+â”‚   â”‚   â”œâ”€â”€ auth/            # Login, Register pages
+â”‚   â”‚   â”œâ”€â”€ auctions/        # Auction pages
+â”‚   â”‚   â”œâ”€â”€ cart/            # Cart and checkout pages
+â”‚   â”‚   â”œâ”€â”€ products/        # Product pages
+â”‚   â”‚   â”œâ”€â”€ rewards/         # Rewards pages
+â”‚   â”‚   â”œâ”€â”€ seller/          # Seller dashboard pages
+â”‚   â”‚   â””â”€â”€ settings/        # Settings pages
+â”‚   â”œâ”€â”€ services/            # API service layer
+â”‚   â”‚   â”œâ”€â”€ api.ts           # Axios instance
+â”‚   â”‚   â”œâ”€â”€ auth.service.ts
+â”‚   â”‚   â”œâ”€â”€ notification.service.ts
+â”‚   â”‚   â”œâ”€â”€ rewards.service.ts
+â”‚   â”‚   â”œâ”€â”€ seller.service.ts
+â”‚   â”‚   â””â”€â”€ wallet.service.ts
+â”‚   â”œâ”€â”€ utils/               # Utility functions
+â”‚   â”‚   â”œâ”€â”€ errors.ts        # Error handling
+â”‚   â”‚   â”œâ”€â”€ performance.ts   # Performance monitoring
+â”‚   â”‚   â”œâ”€â”€ rateLimiter.ts   # Rate limiting
+â”‚   â”‚   â””â”€â”€ retry.ts         # Retry logic
+â”‚   â”œâ”€â”€ config/              # Configuration
+â”‚   â”‚   â””â”€â”€ sentry.ts        # Sentry setup
+â”‚   â””â”€â”€ router/              # React Router setup
+â”‚       â””â”€â”€ index.tsx
+â””â”€â”€ package.json
 ```
 
 ### Admin Dashboard (`frontend/admin-dashboard/`)
 
 ```
 admin-dashboard/
-├── src/
-│   ├── components/
-│   │   └── DashboardLayout.tsx
-│   ├── pages/
-│   │   ├── Dashboard.tsx    # Main dashboard
-│   │   ├── Analytics.tsx    # Analytics charts
-│   │   ├── Reports.tsx      # Report generation
-│   │   ├── Users.tsx        # User management
-│   │   ├── UserDetail.tsx   # User details
-│   │   ├── KYCManagement.tsx # KYC approval
-│   │   ├── Disputes.tsx     # Dispute list
-│   │   └── DisputeDetail.tsx # Dispute resolution
-│   ├── services/
-│   │   └── admin.service.ts
-│   ├── config/
-│   │   └── sentry.ts
-│   └── App.tsx
-└── package.json
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â””â”€â”€ DashboardLayout.tsx
+â”‚   â”œâ”€â”€ pages/
+â”‚   â”‚   â”œâ”€â”€ Dashboard.tsx    # Main dashboard
+â”‚   â”‚   â”œâ”€â”€ Analytics.tsx    # Analytics charts
+â”‚   â”‚   â”œâ”€â”€ Reports.tsx      # Report generation
+â”‚   â”‚   â”œâ”€â”€ Users.tsx        # User management
+â”‚   â”‚   â”œâ”€â”€ UserDetail.tsx   # User details
+â”‚   â”‚   â”œâ”€â”€ KYCManagement.tsx # KYC approval
+â”‚   â”‚   â”œâ”€â”€ Disputes.tsx     # Dispute list
+â”‚   â”‚   â””â”€â”€ DisputeDetail.tsx # Dispute resolution
+â”‚   â”œâ”€â”€ services/
+â”‚   â”‚   â””â”€â”€ admin.service.ts
+â”‚   â”œâ”€â”€ config/
+â”‚   â”‚   â””â”€â”€ sentry.ts
+â”‚   â””â”€â”€ App.tsx
+â””â”€â”€ package.json
 ```
 
-### Mobile Application (`frontend/mobile/mnbara-app/`)
+### Mobile Application (`frontend/mobile/mnbarh-app/`)
 
 ```
-mnbara-app/
-├── src/
-│   ├── components/
-│   │   ├── ErrorBoundary.tsx
-│   │   └── notifications/
-│   │       ├── InAppNotification.tsx
-│   │       └── NotificationProvider.tsx
-│   ├── hooks/
-│   │   ├── useApiError.ts
-│   │   ├── useLocationTracking.ts
-│   │   ├── useNetworkStatus.ts
-│   │   ├── usePushNotifications.ts
-│   │   └── useRateLimit.ts
-│   ├── navigation/
-│   │   ├── RootNavigator.tsx
-│   │   ├── AuthNavigator.tsx
-│   │   ├── MainTabNavigator.tsx
-│   │   ├── ProfileNavigator.tsx
-│   │   └── TravelerNavigator.tsx
-│   ├── screens/
-│   │   ├── auth/            # Login, Register, MFA
-│   │   ├── auctions/        # Auction screens
-│   │   ├── home/            # Home screen
-│   │   ├── notifications/   # Notification list
-│   │   ├── onboarding/      # Consent screens
-│   │   ├── orders/          # Checkout
-│   │   ├── products/        # Product screens
-│   │   ├── profile/         # Profile, Settings, KYC
-│   │   ├── search/          # Search screen
-│   │   └── traveler/        # Traveler features
-│   ├── services/
-│   │   ├── api.ts
-│   │   ├── blockchain.ts
-│   │   ├── pushNotifications.ts
-│   │   ├── secureStorage.ts
-│   │   └── websocket.ts
-│   ├── store/
-│   │   ├── authStore.tsx
-│   │   ├── notificationStore.ts
-│   │   └── travelerStore.ts
-│   ├── utils/
-│   │   ├── errors.ts
-│   │   ├── offlineQueue.ts
-│   │   ├── performance.ts
-│   │   ├── rateLimiter.ts
-│   │   └── retry.ts
-│   └── config/
-│       └── sentry.ts
-├── App.tsx
-└── package.json
+mnbarh-app/
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â”œâ”€â”€ ErrorBoundary.tsx
+â”‚   â”‚   â””â”€â”€ notifications/
+â”‚   â”‚       â”œâ”€â”€ InAppNotification.tsx
+â”‚   â”‚       â””â”€â”€ NotificationProvider.tsx
+â”‚   â”œâ”€â”€ hooks/
+â”‚   â”‚   â”œâ”€â”€ useApiError.ts
+â”‚   â”‚   â”œâ”€â”€ useLocationTracking.ts
+â”‚   â”‚   â”œâ”€â”€ useNetworkStatus.ts
+â”‚   â”‚   â”œâ”€â”€ usePushNotifications.ts
+â”‚   â”‚   â””â”€â”€ useRateLimit.ts
+â”‚   â”œâ”€â”€ navigation/
+â”‚   â”‚   â”œâ”€â”€ RootNavigator.tsx
+â”‚   â”‚   â”œâ”€â”€ AuthNavigator.tsx
+â”‚   â”‚   â”œâ”€â”€ MainTabNavigator.tsx
+â”‚   â”‚   â”œâ”€â”€ ProfileNavigator.tsx
+â”‚   â”‚   â””â”€â”€ TravelerNavigator.tsx
+â”‚   â”œâ”€â”€ screens/
+â”‚   â”‚   â”œâ”€â”€ auth/            # Login, Register, MFA
+â”‚   â”‚   â”œâ”€â”€ auctions/        # Auction screens
+â”‚   â”‚   â”œâ”€â”€ home/            # Home screen
+â”‚   â”‚   â”œâ”€â”€ notifications/   # Notification list
+â”‚   â”‚   â”œâ”€â”€ onboarding/      # Consent screens
+â”‚   â”‚   â”œâ”€â”€ orders/          # Checkout
+â”‚   â”‚   â”œâ”€â”€ products/        # Product screens
+â”‚   â”‚   â”œâ”€â”€ profile/         # Profile, Settings, KYC
+â”‚   â”‚   â”œâ”€â”€ search/          # Search screen
+â”‚   â”‚   â””â”€â”€ traveler/        # Traveler features
+â”‚   â”œâ”€â”€ services/
+â”‚   â”‚   â”œâ”€â”€ api.ts
+â”‚   â”‚   â”œâ”€â”€ blockchain.ts
+â”‚   â”‚   â”œâ”€â”€ pushNotifications.ts
+â”‚   â”‚   â”œâ”€â”€ secureStorage.ts
+â”‚   â”‚   â””â”€â”€ websocket.ts
+â”‚   â”œâ”€â”€ store/
+â”‚   â”‚   â”œâ”€â”€ authStore.tsx
+â”‚   â”‚   â”œâ”€â”€ notificationStore.ts
+â”‚   â”‚   â””â”€â”€ travelerStore.ts
+â”‚   â”œâ”€â”€ utils/
+â”‚   â”‚   â”œâ”€â”€ errors.ts
+â”‚   â”‚   â”œâ”€â”€ offlineQueue.ts
+â”‚   â”‚   â”œâ”€â”€ performance.ts
+â”‚   â”‚   â”œâ”€â”€ rateLimiter.ts
+â”‚   â”‚   â””â”€â”€ retry.ts
+â”‚   â””â”€â”€ config/
+â”‚       â””â”€â”€ sentry.ts
+â”œâ”€â”€ App.tsx
+â””â”€â”€ package.json
 ```
 
 ## Infrastructure (`infrastructure/`)
 
-### Kubernetes (`infrastructure/k8s/mnbara/`)
+### Kubernetes (`infrastructure/k8s/mnbarh/`)
 
 ```
-mnbara/
-├── Chart.yaml               # Helm chart metadata
-├── values.yaml              # Default values
-├── values-dev.yaml          # Development overrides
-├── values-staging.yaml      # Staging overrides
-├── values-prod.yaml         # Production overrides
-└── templates/
-    ├── _helpers.tpl         # Template helpers
-    ├── namespace.yaml       # Namespace definition
-    ├── serviceaccount.yaml  # Service account
-    ├── configmap.yaml       # Common configuration
-    ├── secrets.yaml         # Secret templates
-    ├── ingress.yaml         # Ingress rules
-    ├── networkpolicy.yaml   # Network policies
-    ├── pdb.yaml             # Pod disruption budgets
-    ├── resourcequota.yaml   # Resource quotas
-    ├── priorityclass.yaml   # Priority classes
-    ├── servicemonitor.yaml  # Prometheus monitors
-    └── [service]/           # Per-service templates
-        ├── deployment.yaml
-        ├── service.yaml
-        └── hpa.yaml
+mnbarh/
+â”œâ”€â”€ Chart.yaml               # Helm chart metadata
+â”œâ”€â”€ values.yaml              # Default values
+â”œâ”€â”€ values-dev.yaml          # Development overrides
+â”œâ”€â”€ values-staging.yaml      # Staging overrides
+â”œâ”€â”€ values-prod.yaml         # Production overrides
+â””â”€â”€ templates/
+    â”œâ”€â”€ _helpers.tpl         # Template helpers
+    â”œâ”€â”€ namespace.yaml       # Namespace definition
+    â”œâ”€â”€ serviceaccount.yaml  # Service account
+    â”œâ”€â”€ configmap.yaml       # Common configuration
+    â”œâ”€â”€ secrets.yaml         # Secret templates
+    â”œâ”€â”€ ingress.yaml         # Ingress rules
+    â”œâ”€â”€ networkpolicy.yaml   # Network policies
+    â”œâ”€â”€ pdb.yaml             # Pod disruption budgets
+    â”œâ”€â”€ resourcequota.yaml   # Resource quotas
+    â”œâ”€â”€ priorityclass.yaml   # Priority classes
+    â”œâ”€â”€ servicemonitor.yaml  # Prometheus monitors
+    â””â”€â”€ [service]/           # Per-service templates
+        â”œâ”€â”€ deployment.yaml
+        â”œâ”€â”€ service.yaml
+        â””â”€â”€ hpa.yaml
 ```
 
 ## Smart Contracts (`contracts/`)
@@ -249,15 +249,15 @@ mnbara/
 
 ```
 docs/
-├── api/                     # API documentation
-├── architecture/            # Architecture diagrams
-├── database/                # Database schemas
-│   ├── DATABASE_SCHEMA.md
-│   └── complete_schema.sql
-├── deployment/              # Deployment guides
-├── payments/                # Payment integration docs
-└── security/                # Security documentation
-    └── TDE_SETUP_GUIDE.md
+â”œâ”€â”€ api/                     # API documentation
+â”œâ”€â”€ architecture/            # Architecture diagrams
+â”œâ”€â”€ database/                # Database schemas
+â”‚   â”œâ”€â”€ DATABASE_SCHEMA.md
+â”‚   â””â”€â”€ complete_schema.sql
+â”œâ”€â”€ deployment/              # Deployment guides
+â”œâ”€â”€ payments/                # Payment integration docs
+â””â”€â”€ security/                # Security documentation
+    â””â”€â”€ TDE_SETUP_GUIDE.md
 ```
 
 ## Key Configuration Files
@@ -278,3 +278,4 @@ docs/
 3. **New API Endpoint**: Update service, add route, update gateway
 4. **New Database Table**: Create Prisma migration, update schema
 5. **New Smart Contract**: Add to `contracts/`, update deployment scripts
+

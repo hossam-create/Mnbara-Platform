@@ -1,12 +1,12 @@
-# Mnbara Platform - Testing Standards
+﻿# Mnbarh Platform - Testing Standards
 
 **Version:** 1.0  
 **Last Updated:** 2025-12-22  
-**Status:** 🔴 IN PROGRESS
+**Status:** ًں”´ IN PROGRESS
 
 ---
 
-## 📋 Table of Contents
+## ًں“‹ Table of Contents
 
 1. [Testing Pyramid](#testing-pyramid)
 2. [Unit Testing](#unit-testing)
@@ -20,20 +20,20 @@
 
 ---
 
-## 🔺 Testing Pyramid
+## ًں”؛ Testing Pyramid
 
 ```
-        ┌─────────────────┐
-        │   E2E Tests     │  5-10%
-        │  (Slow, Expensive)
-        ├─────────────────┤
-        │ Integration     │  15-20%
-        │   Tests         │
-        │ (Medium Speed)  │
-        ├─────────────────┤
-        │   Unit Tests    │  70-80%
-        │ (Fast, Cheap)   │
-        └─────────────────┘
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+        â”‚   E2E Tests     â”‚  5-10%
+        â”‚  (Slow, Expensive)
+        â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+        â”‚ Integration     â”‚  15-20%
+        â”‚   Tests         â”‚
+        â”‚ (Medium Speed)  â”‚
+        â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+        â”‚   Unit Tests    â”‚  70-80%
+        â”‚ (Fast, Cheap)   â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### Testing Strategy
@@ -44,7 +44,7 @@
 
 ---
 
-## 🧪 Unit Testing
+## ًں§ھ Unit Testing
 
 ### Purpose
 - Test individual functions/methods in isolation
@@ -143,7 +143,7 @@ describe('UserService', () => {
 
 ---
 
-## 🔗 Integration Testing
+## ًں”— Integration Testing
 
 ### Purpose
 - Test interactions between components
@@ -226,7 +226,7 @@ describe('UserService Integration', () => {
 
 ---
 
-## 🌐 End-to-End Testing
+## ًںŒگ End-to-End Testing
 
 ### Purpose
 - Test complete user workflows
@@ -249,7 +249,7 @@ describe('UserService Integration', () => {
 ```typescript
 describe('User Registration Flow', () => {
   beforeEach(() => {
-    cy.visit('https://app.mnbara.com');
+    cy.visit('https://app.mnbarh.com');
   });
 
   it('should register new user successfully', () => {
@@ -302,7 +302,7 @@ describe('User Registration Flow', () => {
 
 ---
 
-## ⚡ Performance Testing
+## âڑ، Performance Testing
 
 ### Purpose
 - Verify system performance
@@ -337,7 +337,7 @@ export let options = {
 };
 
 export default function () {
-  let response = http.get('https://api.mnbara.com/api/v1/users');
+  let response = http.get('https://api.mnbarh.com/api/v1/users');
   
   check(response, {
     'status is 200': (r) => r.status === 200,
@@ -359,7 +359,7 @@ export default function () {
 
 ---
 
-## 🔒 Security Testing
+## ًں”’ Security Testing
 
 ### Purpose
 - Identify security vulnerabilities
@@ -433,7 +433,7 @@ describe('Security Tests', () => {
 
 ---
 
-## 📊 Test Coverage
+## ًں“ٹ Test Coverage
 
 ### Coverage Metrics
 
@@ -473,7 +473,7 @@ flutter test --coverage
 
 ---
 
-## 📦 Test Data Management
+## ًں“¦ Test Data Management
 
 ### Test Data Strategy
 
@@ -532,7 +532,7 @@ const admin = new UserBuilder()
 
 ---
 
-## 🔄 CI/CD Integration
+## ًں”„ CI/CD Integration
 
 ### GitHub Actions Workflow
 
@@ -609,7 +609,7 @@ npm run test:watch
 
 ---
 
-## ✅ Test Review Checklist
+## âœ… Test Review Checklist
 
 - [ ] Tests are descriptive and clear
 - [ ] Tests follow AAA pattern (Arrange-Act-Assert)
@@ -624,6 +624,7 @@ npm run test:watch
 
 ---
 
-**Status:** 🔴 IN PROGRESS  
+**Status:** ًں”´ IN PROGRESS  
 **Last Updated:** 2025-12-22  
 **Next Review:** 2025-12-29
+

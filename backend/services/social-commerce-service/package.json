@@ -1,5 +1,5 @@
-{
-  "name": "@mnbara/social-commerce-service",
+﻿{
+  "name": "@mnbarh/social-commerce-service",
   "version": "1.0.0",
   "description": "Social Commerce Service - Team Purchase, Live Shopping, Influencer Campaigns",
   "main": "dist/index.js",
@@ -37,3 +37,4 @@
     "node": ">=18.0.0"
   }
 }
+

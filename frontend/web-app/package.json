@@ -1,5 +1,5 @@
-{
-  "name": "mnbara-web-app",
+﻿{
+  "name": "mnbarh-web-app",
   "version": "1.0.0",
   "description": "eBay-Level E-commerce Web Application for Mnbarh Platform",
   "type": "module",
@@ -112,3 +112,4 @@
     "npm": ">=10.0.0"
   }
 }
+

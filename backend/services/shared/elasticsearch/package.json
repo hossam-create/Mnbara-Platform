@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/elasticsearch",
+﻿{
+  "name": "@mnbarh/elasticsearch",
   "version": "1.0.0",
-  "description": "Elasticsearch configuration and services for MNBARA platform",
+  "description": "Elasticsearch configuration and services for mnbarh platform",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
@@ -24,8 +24,9 @@
   "keywords": [
     "elasticsearch",
     "search",
-    "mnbara"
+    "mnbarh"
   ],
-  "author": "MNBARA Team",
+  "author": "mnbarh Team",
   "license": "MIT"
 }
+

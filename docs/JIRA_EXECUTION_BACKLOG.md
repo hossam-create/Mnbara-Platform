@@ -1,4 +1,4 @@
-# MNBARA Jira-Ready Execution Backlog
+﻿# MNBARH Jira-Ready Execution Backlog
 
 **Document Type:** Sprint-Ready Implementation Backlog  
 **Status:** APPROVED FOR EXECUTION  
@@ -8,18 +8,18 @@
 
 ## Risk Register (Mandatory Tracking)
 
-### R1 – Integrated Shipping Hub Complexity
+### R1 â€“ Integrated Shipping Hub Complexity
 
 | Attribute | Value |
 |-----------|-------|
 | **Owner** | Operations Lead |
 | **Likelihood** | High |
 | **Impact** | High |
-| **Mitigation** | Phased regional rollout: USPS only → UPS → Crowdship. 90-day gates. |
+| **Mitigation** | Phased regional rollout: USPS only â†’ UPS â†’ Crowdship. 90-day gates. |
 | **Contingency** | Fallback to manual shipping with tracking links if API fails. |
 | **Affected Stories** | SHP-*, Phase 2 |
 
-### R2 – Buyer Protection Financial Exposure (MNBARA Shield)
+### R2 â€“ Buyer Protection Financial Exposure (MNBARH Shield)
 
 | Attribute | Value |
 |-----------|-------|
@@ -30,7 +30,7 @@
 | **Contingency** | Pause new claims if fund utilization exceeds 5%. Manual review all claims >$500. |
 | **Affected Stories** | PRO-*, SHD-*, Phase 1-2 |
 
-### R3 – Seller Partnership Model Abuse
+### R3 â€“ Seller Partnership Model Abuse
 
 | Attribute | Value |
 |-----------|-------|
@@ -41,7 +41,7 @@
 | **Contingency** | Revoke benefits immediately on abuse detection. Manual review queue. |
 | **Affected Stories** | TST-*, GOV-*, Phase 2 |
 
-### R4 – Community Governance Decision Drift
+### R4 â€“ Community Governance Decision Drift
 
 | Attribute | Value |
 |-----------|-------|
@@ -52,7 +52,7 @@
 | **Contingency** | Dissolve advisory board if decisions conflict with platform viability. |
 | **Affected Stories** | GOV-*, Phase 2 |
 
-### R5 – Fraud & Identity Weakness at Scale
+### R5 â€“ Fraud & Identity Weakness at Scale
 
 | Attribute | Value |
 |-----------|-------|
@@ -63,7 +63,7 @@
 | **Contingency** | Account lockout on suspicious activity. Manual verification queue. |
 | **Affected Stories** | SEC-*, Phase 1 |
 
-### R6 – Crowdship Network Scalability
+### R6 â€“ Crowdship Network Scalability
 
 | Attribute | Value |
 |-----------|-------|
@@ -74,7 +74,7 @@
 | **Contingency** | Fallback to traditional carriers if crowdship SLA <90%. |
 | **Affected Stories** | CRW-*, SHP-*, Phase 2-3 |
 
-### R7 – Sustainability Feature Adoption Risk
+### R7 â€“ Sustainability Feature Adoption Risk
 
 | Attribute | Value |
 |-----------|-------|
@@ -85,7 +85,7 @@
 | **Contingency** | Deprioritize if adoption <10% after 6 months. |
 | **Affected Stories** | SUS-*, Phase 3 |
 
-### R8 – Scope Creep Across Phases
+### R8 â€“ Scope Creep Across Phases
 
 | Attribute | Value |
 |-----------|-------|
@@ -526,7 +526,7 @@
 **So that** I feel confident buying
 
 **Acceptance Criteria:**
-- [ ] "MNBARA Protected" badge on eligible listings
+- [ ] "MNBARH Protected" badge on eligible listings
 - [ ] Badge on checkout page
 - [ ] Tooltip explaining protection terms
 - [ ] Link to full protection policy
@@ -558,7 +558,7 @@
 
 ## Phase 2: Competitive Moat (6-18 months)
 
-### Epic 2.1: MNBARA Shield (Tiered Protection)
+### Epic 2.1: MNBARH Shield (Tiered Protection)
 **Risk Flag:** R2  
 **Business Outcome:** 95% claim resolution, buyer trust index +30%
 
@@ -963,7 +963,7 @@
 
 | Epic | Stories | MVP Stories | Total Points | Risk Level |
 |------|---------|-------------|--------------|------------|
-| MNBARA Shield | 4 | 4 | 20 | High (R2) |
+| MNBARH Shield | 4 | 4 | 20 | High (R2) |
 | Trust Score | 5 | 5 | 32 | Medium (R3) |
 | Shipping Hub | 5 | 3 | 39 | High (R1, R6) |
 | Negotiation | 4 | 4 | 18 | Low |
@@ -1197,3 +1197,4 @@
 - Set epic links
 - Assign to sprints per plan above
 - Add risk labels (R1-R8) to affected stories
+

@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "ad-service",
   "version": "1.0.0",
-  "description": "Mnbara Advertising & Promoted Listings Service",
+  "description": "mnbarh Advertising & Promoted Listings Service",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -24,3 +24,4 @@
     "ts-node": "^10.9.1"
   }
 }
+

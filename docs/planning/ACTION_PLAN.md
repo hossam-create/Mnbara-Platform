@@ -1,70 +1,70 @@
-# Mnbara Platform - Action Plan
+﻿# mnbarh Platform - Action Plan
 
-# خطة العمل العملية - أول 7 مهام
-
----
-
-## 📋 Overview - نظرة عامة
-
-هذه الخطة تحتوي على أول 7 مهام أساسية لتجهيز مشروع Mnbara للإنتاج. كل مهمة تحتوي على معايير قبول واضحة ومخرجات محددة.
-
-**المدة المتوقعة**: 2-3 أسابيع
-**الأولوية**: High
-**الحالة**: Ready to Start
+# ط®ط·ط© ط§ظ„ط¹ظ…ظ„ ط§ظ„ط¹ظ…ظ„ظٹط© - ط£ظˆظ„ 7 ظ…ظ‡ط§ظ…
 
 ---
 
-## Task 1 — Security Sweep & .gitignore 🔒
+## ًں“‹ Overview - ظ†ط¸ط±ط© ط¹ط§ظ…ط©
 
-### Description - الوصف
+ظ‡ط°ظ‡ ط§ظ„ط®ط·ط© طھط­طھظˆظٹ ط¹ظ„ظ‰ ط£ظˆظ„ 7 ظ…ظ‡ط§ظ… ط£ط³ط§ط³ظٹط© ظ„طھط¬ظ‡ظٹط² ظ…ط´ط±ظˆط¹ mnbarh ظ„ظ„ط¥ظ†طھط§ط¬. ظƒظ„ ظ…ظ‡ظ…ط© طھط­طھظˆظٹ ط¹ظ„ظ‰ ظ…ط¹ط§ظٹظٹط± ظ‚ط¨ظˆظ„ ظˆط§ط¶ط­ط© ظˆظ…ط®ط±ط¬ط§طھ ظ…ط­ط¯ط¯ط©.
 
-فحص شامل للأمان لإزالة أي معلومات حساسة من المشروع والتأكد من عدم رفعها على GitHub.
+**ط§ظ„ظ…ط¯ط© ط§ظ„ظ…طھظˆظ‚ط¹ط©**: 2-3 ط£ط³ط§ط¨ظٹط¹
+**ط§ظ„ط£ظˆظ„ظˆظٹط©**: High
+**ط§ظ„ط­ط§ظ„ط©**: Ready to Start
 
-### Priority - الأولوية
+---
 
-🔴 **Critical** - يجب تنفيذها أولاً
+## Task 1 â€” Security Sweep & .gitignore ًں”’
 
-### Estimated Time - الوقت المتوقع
+### Description - ط§ظ„ظˆطµظپ
 
-2-3 ساعات
+ظپط­طµ ط´ط§ظ…ظ„ ظ„ظ„ط£ظ…ط§ظ† ظ„ط¥ط²ط§ظ„ط© ط£ظٹ ظ…ط¹ظ„ظˆظ…ط§طھ ط­ط³ط§ط³ط© ظ…ظ† ط§ظ„ظ…ط´ط±ظˆط¹ ظˆط§ظ„طھط£ظƒط¯ ظ…ظ† ط¹ط¯ظ… ط±ظپط¹ظ‡ط§ ط¹ظ„ظ‰ GitHub.
 
-### Acceptance Criteria - معايير القبول
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-- [ ] لا توجد ملفات `.env` في git history
-- [ ] لا توجد API keys أو secrets في الكود
-- [ ] تحديث `.gitignore` ليشمل جميع الملفات الحساسة
-- [ ] فحص git history للملفات الكبيرة (>100MB)
-- [ ] إزالة أي credentials من الكود المصدري
-- [ ] التأكد من عدم وجود database dumps
+ًں”´ **Critical** - ظٹط¬ط¨ طھظ†ظپظٹط°ظ‡ط§ ط£ظˆظ„ط§ظ‹
 
-### Deliverables - المخرجات
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
+
+2-3 ط³ط§ط¹ط§طھ
+
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
+
+- [ ] ظ„ط§ طھظˆط¬ط¯ ظ…ظ„ظپط§طھ `.env` ظپظٹ git history
+- [ ] ظ„ط§ طھظˆط¬ط¯ API keys ط£ظˆ secrets ظپظٹ ط§ظ„ظƒظˆط¯
+- [ ] طھط­ط¯ظٹط« `.gitignore` ظ„ظٹط´ظ…ظ„ ط¬ظ…ظٹط¹ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ط­ط³ط§ط³ط©
+- [ ] ظپط­طµ git history ظ„ظ„ظ…ظ„ظپط§طھ ط§ظ„ظƒط¨ظٹط±ط© (>100MB)
+- [ ] ط¥ط²ط§ظ„ط© ط£ظٹ credentials ظ…ظ† ط§ظ„ظƒظˆط¯ ط§ظ„ظ…طµط¯ط±ظٹ
+- [ ] ط§ظ„طھط£ظƒط¯ ظ…ظ† ط¹ط¯ظ… ظˆط¬ظˆط¯ database dumps
+
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
 1. **Security Audit Report** (`SECURITY_AUDIT.md`):
 
    ```markdown
-   - قائمة بالملفات الحساسة التي تم العثور عليها
-   - الإجراءات المتخذة لكل ملف
-   - خلاصة الأمان النهائية
+   - ظ‚ط§ط¦ظ…ط© ط¨ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ط­ط³ط§ط³ط© ط§ظ„طھظٹ طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظٹظ‡ط§
+   - ط§ظ„ط¥ط¬ط±ط§ط،ط§طھ ط§ظ„ظ…طھط®ط°ط© ظ„ظƒظ„ ظ…ظ„ظپ
+   - ط®ظ„ط§طµط© ط§ظ„ط£ظ…ط§ظ† ط§ظ„ظ†ظ‡ط§ط¦ظٹط©
    ```
 
 2. **Updated .gitignore**:
 
    ```
-   # Already done ✅
+   # Already done âœ…
    - Excludes .env files
    - Excludes node_modules
    - Excludes secrets/ directory
    ```
 
-3. **Git History Cleanup** (إذا لزم):
+3. **Git History Cleanup** (ط¥ط°ط§ ظ„ط²ظ…):
 
    ```bash
-   # الأوامر المستخدمة
+   # ط§ظ„ط£ظˆط§ظ…ط± ط§ظ„ظ…ط³طھط®ط¯ظ…ط©
    git filter-branch --force --index-filter \
      "git rm --cached --ignore-unmatch path/to/secret" \
      --prune-empty --tag-name-filter cat -- --all
 
-   # أو باستخدام BFG Repo-Cleaner
+   # ط£ظˆ ط¨ط§ط³طھط®ط¯ط§ظ… BFG Repo-Cleaner
    bfg --delete-files secret.env
    ```
 
@@ -79,58 +79,58 @@
    - Cleaned up database dumps
    ```
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. البحث عن ملفات .env في التاريخ
+# 1. ط§ظ„ط¨ط­ط« ط¹ظ† ظ…ظ„ظپط§طھ .env ظپظٹ ط§ظ„طھط§ط±ظٹط®
 git log --all --full-history -- "**/.env"
 
-# 2. البحث عن API keys patterns
+# 2. ط§ظ„ط¨ط­ط« ط¹ظ† API keys patterns
 git grep -i "apikey\|api_key\|secret_key" $(git rev-list --all)
 
-# 3. فحص الملفات الكبيرة
+# 3. ظپط­طµ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظƒط¨ظٹط±ط©
 git rev-list --objects --all | \
   git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | \
   awk '$3 > 104857600' | sort -k3 -n -r
 
-# 4. إزالة الملفات الحساسة إذا وجدت
-# استخدم BFG أو git filter-branch
+# 4. ط¥ط²ط§ظ„ط© ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ط­ط³ط§ط³ط© ط¥ط°ط§ ظˆط¬ط¯طھ
+# ط§ط³طھط®ط¯ظ… BFG ط£ظˆ git filter-branch
 
-# 5. Verify النتائج
-git log --all -- "**/.env"  # يجب أن يكون فارغ
+# 5. Verify ط§ظ„ظ†طھط§ط¦ط¬
+git log --all -- "**/.env"  # ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ظپط§ط±ط؛
 ```
 
 ---
 
-## Task 2 — Run & Verify Docker Compose Locally 🐳
+## Task 2 â€” Run & Verify Docker Compose Locally ًںگ³
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-التأكد من أن جميع الخدمات تعمل بشكل صحيح محلياً باستخدام Docker Compose.
+ط§ظ„طھط£ظƒط¯ ظ…ظ† ط£ظ† ط¬ظ…ظٹط¹ ط§ظ„ط®ط¯ظ…ط§طھ طھط¹ظ…ظ„ ط¨ط´ظƒظ„ طµط­ظٹط­ ظ…ط­ظ„ظٹط§ظ‹ ط¨ط§ط³طھط®ط¯ط§ظ… Docker Compose.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🟠 **High** - مهمة أساسية
+ًںں  **High** - ظ…ظ‡ظ…ط© ط£ط³ط§ط³ظٹط©
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-4-6 ساعات
+4-6 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] `docker-compose up --build` يعمل بدون أخطاء
-- [ ] جميع الخدمات الأساسية تبدأ بنجاح:
+- [ ] `docker-compose up --build` ظٹط¹ظ…ظ„ ط¨ط¯ظˆظ† ط£ط®ط·ط§ط،
+- [ ] ط¬ظ…ظٹط¹ ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط© طھط¨ط¯ط£ ط¨ظ†ط¬ط§ط­:
   - [ ] PostgreSQL
   - [ ] Redis
   - [ ] auth-service
   - [ ] listing-service
   - [ ] auction-service
   - [ ] payment-service
-- [ ] جميع health endpoints تستجيب بـ 200 OK
-- [ ] يمكن الاتصال بقاعدة البيانات من الخدمات
-- [ ] لا توجد port conflicts
+- [ ] ط¬ظ…ظٹط¹ health endpoints طھط³طھط¬ظٹط¨ ط¨ظ€ 200 OK
+- [ ] ظٹظ…ظƒظ† ط§ظ„ط§طھطµط§ظ„ ط¨ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ظ…ظ† ط§ظ„ط®ط¯ظ…ط§طھ
+- [ ] ظ„ط§ طھظˆط¬ط¯ port conflicts
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
 1. **Local Setup Guide** (`LOCAL_SETUP.md`):
 
@@ -164,70 +164,70 @@ git log --all -- "**/.env"  # يجب أن يكون فارغ
    ```markdown
    | Service | Status | Health Endpoint | Response Time |
    | ------- | ------ | --------------- | ------------- |
-   | auth    | ✅     | /health         | 45ms          |
-   | listing | ✅     | /health         | 38ms          |
-   | auction | ✅     | /health         | 52ms          |
-   | payment | ✅     | /health         | 41ms          |
+   | auth    | âœ…     | /health         | 45ms          |
+   | listing | âœ…     | /health         | 38ms          |
+   | auction | âœ…     | /health         | 52ms          |
+   | payment | âœ…     | /health         | 41ms          |
    ```
 
-4. **Error Log** (إذا ظهرت أخطاء):
-   - قائمة بالأخطاء التي ظهرت
-   - الحلول المطبقة
-   - التعديلات على docker-compose.yml
+4. **Error Log** (ط¥ط°ط§ ط¸ظ‡ط±طھ ط£ط®ط·ط§ط،):
+   - ظ‚ط§ط¦ظ…ط© ط¨ط§ظ„ط£ط®ط·ط§ط، ط§ظ„طھظٹ ط¸ظ‡ط±طھ
+   - ط§ظ„ط­ظ„ظˆظ„ ط§ظ„ظ…ط·ط¨ظ‚ط©
+   - ط§ظ„طھط¹ط¯ظٹظ„ط§طھ ط¹ظ„ظ‰ docker-compose.yml
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. نسخ ملف environment
+# 1. ظ†ط³ط® ظ…ظ„ظپ environment
 cp services/auth-service/.env.example services/auth-service/.env
-# كرر لكل خدمة
+# ظƒط±ط± ظ„ظƒظ„ ط®ط¯ظ…ط©
 
-# 2. تشغيل Docker Compose
+# 2. طھط´ط؛ظٹظ„ Docker Compose
 docker-compose up --build
 
-# 3. في terminal آخر، اختبار الخدمات
+# 3. ظپظٹ terminal ط¢ط®ط±طŒ ط§ط®طھط¨ط§ط± ط§ظ„ط®ط¯ظ…ط§طھ
 curl http://localhost:3001/health  # auth-service
 curl http://localhost:3002/health  # listing-service
 curl http://localhost:3003/health  # auction-service
 curl http://localhost:3004/health  # payment-service
 
-# 4. فحص الـ logs
+# 4. ظپط­طµ ط§ظ„ظ€ logs
 docker-compose logs -f auth-service
 
-# 5. التحقق من الاتصال بقاعدة البيانات
-docker-compose exec postgres psql -U mnbara_user -d mnbara_db -c "\dt"
+# 5. ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط§طھطµط§ظ„ ط¨ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
+docker-compose exec postgres psql -U mnbarh_user -d mnbarh_db -c "\dt"
 
-# 6. إيقاف والتنظيف
+# 6. ط¥ظٹظ‚ط§ظپ ظˆط§ظ„طھظ†ط¸ظٹظپ
 docker-compose down -v
 ```
 
 ---
 
-## Task 3 — Add CI (GitHub Actions) — Basic ⚙️
+## Task 3 â€” Add CI (GitHub Actions) â€” Basic âڑ™ï¸ڈ
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-إعداد CI/CD pipeline أساسي باستخدام GitHub Actions لفحص الكود تلقائياً عند كل PR.
+ط¥ط¹ط¯ط§ط¯ CI/CD pipeline ط£ط³ط§ط³ظٹ ط¨ط§ط³طھط®ط¯ط§ظ… GitHub Actions ظ„ظپط­طµ ط§ظ„ظƒظˆط¯ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¹ظ†ط¯ ظƒظ„ PR.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🟠 **High**
+ًںں  **High**
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-3-4 ساعات
+3-4 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] GitHub Actions workflow يعمل على كل push/PR
-- [ ] يشغل lint للكود (ESLint)
-- [ ] يشغل unit tests
-- [ ] يفحص Prisma migrations
-- [ ] يفحص TypeScript compilation
-- [ ] يعرض نتائج واضحة في PR
-- [ ] يفشل PR إذا فشل أي فحص
+- [ ] GitHub Actions workflow ظٹط¹ظ…ظ„ ط¹ظ„ظ‰ ظƒظ„ push/PR
+- [ ] ظٹط´ط؛ظ„ lint ظ„ظ„ظƒظˆط¯ (ESLint)
+- [ ] ظٹط´ط؛ظ„ unit tests
+- [ ] ظٹظپط­طµ Prisma migrations
+- [ ] ظٹظپط­طµ TypeScript compilation
+- [ ] ظٹط¹ط±ط¶ ظ†طھط§ط¦ط¬ ظˆط§ط¶ط­ط© ظپظٹ PR
+- [ ] ظٹظپط´ظ„ PR ط¥ط°ط§ ظپط´ظ„ ط£ظٹ ظپط­طµ
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
 1. **CI Workflow File** (`.github/workflows/ci.yml`):
 
@@ -289,31 +289,31 @@ docker-compose down -v
              npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma
    ```
 
-2. **Badge في README.md**:
+2. **Badge ظپظٹ README.md**:
 
    ```markdown
-   ![CI Status](https://github.com/hossam-create/Mnbara-Platform/workflows/CI/badge.svg)
+   ![CI Status](https://github.com/hossam-create/mnbarh-Platform/workflows/CI/badge.svg)
    ```
 
 3. **Documentation** (`CI_SETUP.md`):
-   - شرح كيفية عمل CI
-   - كيفية إضافة tests جديدة
-   - كيفية فحص النتائج
+   - ط´ط±ط­ ظƒظٹظپظٹط© ط¹ظ…ظ„ CI
+   - ظƒظٹظپظٹط© ط¥ط¶ط§ظپط© tests ط¬ط¯ظٹط¯ط©
+   - ظƒظٹظپظٹط© ظپط­طµ ط§ظ„ظ†طھط§ط¦ط¬
 
 4. **Test Coverage Report**:
-   - إعداد CodeCov أو مماثل
-   - Badge لنسبة التغطية
+   - ط¥ط¹ط¯ط§ط¯ CodeCov ط£ظˆ ظ…ظ…ط§ط«ظ„
+   - Badge ظ„ظ†ط³ط¨ط© ط§ظ„طھط؛ط·ظٹط©
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. إنشاء مجلد workflows
+# 1. ط¥ظ†ط´ط§ط، ظ…ط¬ظ„ط¯ workflows
 mkdir -p .github/workflows
 
-# 2. إنشاء ملف ci.yml
-# (كما في الأعلى)
+# 2. ط¥ظ†ط´ط§ط، ظ…ظ„ظپ ci.yml
+# (ظƒظ…ط§ ظپظٹ ط§ظ„ط£ط¹ظ„ظ‰)
 
-# 3. إضافة npm scripts في package.json الرئيسي
+# 3. ط¥ط¶ط§ظپط© npm scripts ظپظٹ package.json ط§ظ„ط±ط¦ظٹط³ظٹ
 {
   "scripts": {
     "lint": "eslint services/*/src/**/*.ts",
@@ -327,45 +327,45 @@ git add .github/workflows/ci.yml
 git commit -m "ci: Add GitHub Actions workflow for CI"
 git push origin main
 
-# 5. التحقق من GitHub Actions tab
+# 5. ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† GitHub Actions tab
 ```
 
 ---
 
-## Task 4 — Create Postman Collection / OpenAPI 📚
+## Task 4 â€” Create Postman Collection / OpenAPI ًں“ڑ
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-توثيق شامل لجميع API endpoints باستخدام Postman Collection و OpenAPI Specification.
+طھظˆط«ظٹظ‚ ط´ط§ظ…ظ„ ظ„ط¬ظ…ظٹط¹ API endpoints ط¨ط§ط³طھط®ط¯ط§ظ… Postman Collection ظˆ OpenAPI Specification.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🟡 **Medium-High**
+ًںں، **Medium-High**
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-4-5 ساعات
+4-5 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] Postman Collection يحتوي على جميع endpoints الأساسية
-- [ ] كل endpoint له:
+- [ ] Postman Collection ظٹط­طھظˆظٹ ط¹ظ„ظ‰ ط¬ظ…ظٹط¹ endpoints ط§ظ„ط£ط³ط§ط³ظٹط©
+- [ ] ظƒظ„ endpoint ظ„ظ‡:
   - [ ] Request examples
   - [ ] Response examples
   - [ ] Authentication headers
   - [ ] Environment variables
-- [ ] OpenAPI 3.0 spec ملف كامل
-- [ ] يمكن استيراد Collection في Postman بدون أخطاء
-- [ ] Documentation واضحة ومنظمة
+- [ ] OpenAPI 3.0 spec ظ…ظ„ظپ ظƒط§ظ…ظ„
+- [ ] ظٹظ…ظƒظ† ط§ط³طھظٹط±ط§ط¯ Collection ظپظٹ Postman ط¨ط¯ظˆظ† ط£ط®ط·ط§ط،
+- [ ] Documentation ظˆط§ط¶ط­ط© ظˆظ…ظ†ط¸ظ…ط©
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
-1. **Postman Collection** (`postman/Mnbara-Platform.postman_collection.json`):
+1. **Postman Collection** (`postman/mnbarh-Platform.postman_collection.json`):
 
    ```json
    {
      "info": {
-       "name": "Mnbara Platform API",
+       "name": "mnbarh Platform API",
        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
      },
      "item": [
@@ -394,11 +394,11 @@ git push origin main
    }
    ```
 
-2. **Postman Environment** (`postman/Mnbara-Platform.postman_environment.json`):
+2. **Postman Environment** (`postman/mnbarh-Platform.postman_environment.json`):
 
    ```json
    {
-     "name": "Mnbara Local",
+     "name": "mnbarh Local",
      "values": [
        {
          "key": "base_url",
@@ -419,14 +419,14 @@ git push origin main
    ```yaml
    openapi: 3.0.3
    info:
-     title: Mnbara Platform API
+     title: mnbarh Platform API
      version: 1.0.0
      description: Crowdshipping marketplace API
 
    servers:
      - url: http://localhost:3001
        description: Local development
-     - url: https://mnbara-auth.onrender.com
+     - url: https://mnbarh-auth.onrender.com
        description: Production
 
    paths:
@@ -469,26 +469,26 @@ git push origin main
    ```
 
 4. **API Documentation** (`docs/API_DOCUMENTATION.md`):
-   - نظرة عامة على الـ API
+   - ظ†ط¸ط±ط© ط¹ط§ظ…ط© ط¹ظ„ظ‰ ط§ظ„ظ€ API
    - Authentication flow
    - Error handling
    - Rate limiting
-   - Examples لكل endpoint
+   - Examples ظ„ظƒظ„ endpoint
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. إنشاء مجلد postman
+# 1. ط¥ظ†ط´ط§ط، ظ…ط¬ظ„ط¯ postman
 mkdir -p postman docs
 
-# 2. في Postman:
+# 2. ظپظٹ Postman:
 # - Create new collection
 # - Add requests for each endpoint
 # - Add tests and examples
 # - Export as Collection v2.1
 
-# 3. إنشاء OpenAPI spec يدوياً أو باستخدام أداة
-# يمكن استخدام:
+# 3. ط¥ظ†ط´ط§ط، OpenAPI spec ظٹط¯ظˆظٹط§ظ‹ ط£ظˆ ط¨ط§ط³طھط®ط¯ط§ظ… ط£ط¯ط§ط©
+# ظٹظ…ظƒظ† ط§ط³طھط®ط¯ط§ظ…:
 # - Swagger Editor (https://editor.swagger.io/)
 # - Stoplight Studio
 # - VS Code extension
@@ -506,44 +506,44 @@ git commit -m "docs: Add Postman collection and OpenAPI spec"
 
 ---
 
-## Task 5 — Setup DB Migrations & Seed Script 🗄️
+## Task 5 â€” Setup DB Migrations & Seed Script ًں—„ï¸ڈ
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-إعداد نظام migrations منظم وseed scripts لتعبئة قاعدة البيانات ببيانات تجريبية.
+ط¥ط¹ط¯ط§ط¯ ظ†ط¸ط§ظ… migrations ظ…ظ†ط¸ظ… ظˆseed scripts ظ„طھط¹ط¨ط¦ط© ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¨ط¨ظٹط§ظ†ط§طھ طھط¬ط±ظٹط¨ظٹط©.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🟠 **High**
+ًںں  **High**
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-5-6 ساعات
+5-6 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] جميع Prisma schemas محدّثة ومتسقة
-- [ ] Migration files موجودة لكل خدمة
-- [ ] `npx prisma migrate deploy` ينفذ بنجاح محلياً
-- [ ] Seed scripts تعبئ البيانات التجريبية:
+- [ ] ط¬ظ…ظٹط¹ Prisma schemas ظ…ط­ط¯ظ‘ط«ط© ظˆظ…طھط³ظ‚ط©
+- [ ] Migration files ظ…ظˆط¬ظˆط¯ط© ظ„ظƒظ„ ط®ط¯ظ…ط©
+- [ ] `npx prisma migrate deploy` ظٹظ†ظپط° ط¨ظ†ط¬ط§ط­ ظ…ط­ظ„ظٹط§ظ‹
+- [ ] Seed scripts طھط¹ط¨ط¦ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„طھط¬ط±ظٹط¨ظٹط©:
   - [ ] Users (buyer, seller, traveler)
   - [ ] Categories
   - [ ] Sample listings
   - [ ] Sample auctions
-- [ ] CI يفحص migrations تلقائياً
-- [ ] Documentation واضحة للمطورين
+- [ ] CI ظٹظپط­طµ migrations طھظ„ظ‚ط§ط¦ظٹط§ظ‹
+- [ ] Documentation ظˆط§ط¶ط­ط© ظ„ظ„ظ…ط·ظˆط±ظٹظ†
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
-1. **Migration Files** (في كل خدمة):
+1. **Migration Files** (ظپظٹ ظƒظ„ ط®ط¯ظ…ط©):
 
    ```
    services/auth-service/prisma/migrations/
-   ├── 20250126000001_init/
-   │   └── migration.sql
-   ├── 20250126000002_add_kyc/
-   │   └── migration.sql
-   └── migration_lock.toml
+   â”œâ”€â”€ 20250126000001_init/
+   â”‚   â””â”€â”€ migration.sql
+   â”œâ”€â”€ 20250126000002_add_kyc/
+   â”‚   â””â”€â”€ migration.sql
+   â””â”€â”€ migration_lock.toml
    ```
 
 2. **Seed Scripts**:
@@ -583,7 +583,7 @@ git commit -m "docs: Add Postman collection and OpenAPI spec"
        ],
      });
 
-     console.log("✓ Users seeded");
+     console.log("âœ“ Users seeded");
    }
 
    main()
@@ -633,7 +633,7 @@ git commit -m "docs: Add Postman collection and OpenAPI spec"
 
    ```
 
-4. **Updated package.json** (في كل خدمة):
+4. **Updated package.json** (ظپظٹ ظƒظ„ ط®ط¯ظ…ط©):
 
    ```json
    {
@@ -664,31 +664,31 @@ git commit -m "docs: Add Postman collection and OpenAPI spec"
      cd ../..
    done
 
-   echo "✓ All migrations verified"
+   echo "âœ“ All migrations verified"
    ```
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. تحديث Prisma schemas
+# 1. طھط­ط¯ظٹط« Prisma schemas
 cd services/auth-service
 npx prisma format
 npx prisma validate
 
-# 2. إنشاء migration
+# 2. ط¥ظ†ط´ط§ط، migration
 npx prisma migrate dev --name initial_setup
 
-# 3. إنشاء seed script
+# 3. ط¥ظ†ط´ط§ط، seed script
 touch prisma/seed.ts
-# (أضف الكود من الأعلى)
+# (ط£ط¶ظپ ط§ظ„ظƒظˆط¯ ظ…ظ† ط§ظ„ط£ط¹ظ„ظ‰)
 
-# 4. تشغيل seed
+# 4. طھط´ط؛ظٹظ„ seed
 npx prisma db seed
 
-# 5. التحقق
-npx prisma studio  # فتح UI لقاعدة البيانات
+# 5. ط§ظ„طھط­ظ‚ظ‚
+npx prisma studio  # ظپطھط­ UI ظ„ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
 
-# 6. كرر لكل خدمة
+# 6. ظƒط±ط± ظ„ظƒظ„ ط®ط¯ظ…ط©
 # auth-service, listing-service, auction-service, payment-service,
 # crowdship-service, recommendation-service, rewards-service
 
@@ -699,48 +699,48 @@ git commit -m "db: Add migrations and seed scripts"
 
 ---
 
-## Task 6 — Add Tests for Core Flows 🧪
+## Task 6 â€” Add Tests for Core Flows ًں§ھ
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-كتابة unit tests و integration tests للوظائف الأساسية في المنصة.
+ظƒطھط§ط¨ط© unit tests ظˆ integration tests ظ„ظ„ظˆط¸ط§ط¦ظپ ط§ظ„ط£ط³ط§ط³ظٹط© ظپظٹ ط§ظ„ظ…ظ†طµط©.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🟡 **Medium-High**
+ًںں، **Medium-High**
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-8-10 ساعات
+8-10 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] Test coverage > 70% للكود الأساسي
-- [ ] جميع core flows لها tests:
+- [ ] Test coverage > 70% ظ„ظ„ظƒظˆط¯ ط§ظ„ط£ط³ط§ط³ظٹ
+- [ ] ط¬ظ…ظٹط¹ core flows ظ„ظ‡ط§ tests:
   - [ ] Auth: signup, login, JWT refresh
   - [ ] Listings: create, update, search
   - [ ] Auctions: create, bid, auto-extend
   - [ ] Payment: checkout, wallet operations
-- [ ] Tests تعمل في CI بنجاح
-- [ ] Coverage badge في README
-- [ ] Tests منظمة ونظيفة
+- [ ] Tests طھط¹ظ…ظ„ ظپظٹ CI ط¨ظ†ط¬ط§ط­
+- [ ] Coverage badge ظپظٹ README
+- [ ] Tests ظ…ظ†ط¸ظ…ط© ظˆظ†ط¸ظٹظپط©
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
 1. **Test Files Structure**:
 
    ```
    services/auth-service/
-   ├── src/
-   │   ├── controllers/
-   │   │   ├── auth.controller.ts
-   │   │   └── auth.controller.test.ts
-   │   └── services/
-   │       ├── auth.service.ts
-   │       └── auth.service.test.ts
-   └── tests/
-       └── integration/
-           └── auth.integration.test.ts
+   â”œâ”€â”€ src/
+   â”‚   â”œâ”€â”€ controllers/
+   â”‚   â”‚   â”œâ”€â”€ auth.controller.ts
+   â”‚   â”‚   â””â”€â”€ auth.controller.test.ts
+   â”‚   â””â”€â”€ services/
+   â”‚       â”œâ”€â”€ auth.service.ts
+   â”‚       â””â”€â”€ auth.service.test.ts
+   â””â”€â”€ tests/
+       â””â”€â”€ integration/
+           â””â”€â”€ auth.integration.test.ts
    ```
 
 2. **Auth Service Tests** (`services/auth-service/src/controllers/auth.controller.test.ts`):
@@ -955,10 +955,10 @@ git commit -m "db: Add migrations and seed scripts"
    };
    ```
 
-6. **Coverage Badge** في README:
+6. **Coverage Badge** ظپظٹ README:
 
    ```markdown
-   ![Coverage](https://img.shields.io/codecov/c/github/hossam-create/Mnbara-Platform)
+   ![Coverage](https://img.shields.io/codecov/c/github/hossam-create/mnbarh-Platform)
    ```
 
 7. **Test Results Summary** (`TEST_COVERAGE_REPORT.md`):
@@ -970,45 +970,45 @@ git commit -m "db: Add migrations and seed scripts"
 
    | Service         | Coverage | Tests | Status |
    | --------------- | -------- | ----- | ------ |
-   | auth-service    | 82%      | 15    | ✅     |
-   | listing-service | 78%      | 12    | ✅     |
-   | auction-service | 71%      | 10    | ✅     |
-   | payment-service | 69%      | 8     | ⚠️     |
+   | auth-service    | 82%      | 15    | âœ…     |
+   | listing-service | 78%      | 12    | âœ…     |
+   | auction-service | 71%      | 10    | âœ…     |
+   | payment-service | 69%      | 8     | âڑ ï¸ڈ     |
 
    ## Core Flow Coverage
 
-   - ✅ User Registration: 100%
-   - ✅ User Login: 100%
-   - ✅ Create Listing: 85%
-   - ✅ Search Listings: 90%
-   - ✅ Place Bid: 80%
-   - ✅ Checkout: 75%
+   - âœ… User Registration: 100%
+   - âœ… User Login: 100%
+   - âœ… Create Listing: 85%
+   - âœ… Search Listings: 90%
+   - âœ… Place Bid: 80%
+   - âœ… Checkout: 75%
    ```
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. إعداد Jest
+# 1. ط¥ط¹ط¯ط§ط¯ Jest
 npm install --save-dev jest @jest/globals @types/jest ts-jest supertest @types/supertest
 
-# 2. إنشاء jest.config.js
-# (كما في الأعلى)
+# 2. ط¥ظ†ط´ط§ط، jest.config.js
+# (ظƒظ…ط§ ظپظٹ ط§ظ„ط£ط¹ظ„ظ‰)
 
-# 3. كتابة tests لكل خدمة
+# 3. ظƒطھط§ط¨ط© tests ظ„ظƒظ„ ط®ط¯ظ…ط©
 # auth-service
 cd services/auth-service
 touch src/controllers/auth.controller.test.ts
-# (أضف الكود)
+# (ط£ط¶ظپ ط§ظ„ظƒظˆط¯)
 
-# 4. تشغيل tests
+# 4. طھط´ط؛ظٹظ„ tests
 npm test
 
-# 5. فحص coverage
+# 5. ظپط­طµ coverage
 npm run test:coverage
 
-# 6. إعداد CodeCov
-# في .github/workflows/ci.yml
-# (تم إضافته في Task 3)
+# 6. ط¥ط¹ط¯ط§ط¯ CodeCov
+# ظپظٹ .github/workflows/ci.yml
+# (طھظ… ط¥ط¶ط§ظپطھظ‡ ظپظٹ Task 3)
 
 # 7. Commit
 git add services/*/src/**/*.test.ts
@@ -1018,26 +1018,26 @@ git commit -m "test: Add unit and integration tests for core flows"
 
 ---
 
-## Task 7 — Protect Main Branch & Secrets 🔐
+## Task 7 â€” Protect Main Branch & Secrets ًں”گ
 
-### Description - الوصف
+### Description - ط§ظ„ظˆطµظپ
 
-تأمين main branch وإعداد GitHub Secrets لحماية المعلومات الحساسة.
+طھط£ظ…ظٹظ† main branch ظˆط¥ط¹ط¯ط§ط¯ GitHub Secrets ظ„ط­ظ…ط§ظٹط© ط§ظ„ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ط­ط³ط§ط³ط©.
 
-### Priority - الأولوية
+### Priority - ط§ظ„ط£ظˆظ„ظˆظٹط©
 
-🔴 **Critical**
+ًں”´ **Critical**
 
-### Estimated Time - الوقت المتوقع
+### Estimated Time - ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹
 
-2-3 ساعات
+2-3 ط³ط§ط¹ط§طھ
 
-### Acceptance Criteria - معايير القبول
+### Acceptance Criteria - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ‚ط¨ظˆظ„
 
-- [ ] Main branch محمي ولا يمكن push مباشرة
-- [ ] يتطلب PR review قبل الدمج
-- [ ] يتطلب نجاح CI checks قبل merge
-- [ ] جميع GitHub Secrets مضافة:
+- [ ] Main branch ظ…ط­ظ…ظٹ ظˆظ„ط§ ظٹظ…ظƒظ† push ظ…ط¨ط§ط´ط±ط©
+- [ ] ظٹطھط·ظ„ط¨ PR review ظ‚ط¨ظ„ ط§ظ„ط¯ظ…ط¬
+- [ ] ظٹطھط·ظ„ط¨ ظ†ط¬ط§ط­ CI checks ظ‚ط¨ظ„ merge
+- [ ] ط¬ظ…ظٹط¹ GitHub Secrets ظ…ط¶ط§ظپط©:
   - [ ] DATABASE_URL
   - [ ] REDIS_URL
   - [ ] JWT_SECRET
@@ -1046,30 +1046,30 @@ git commit -m "test: Add unit and integration tests for core flows"
   - [ ] PAYPAL_CLIENT_ID
   - [ ] PAYPAL_SECRET
   - [ ] AWS credentials (optional)
-- [ ] CI يستطيع الوصول للـ secrets
-- [ ] Documentation للمطورين الجدد
+- [ ] CI ظٹط³طھط·ظٹط¹ ط§ظ„ظˆطµظˆظ„ ظ„ظ„ظ€ secrets
+- [ ] Documentation ظ„ظ„ظ…ط·ظˆط±ظٹظ† ط§ظ„ط¬ط¯ط¯
 
-### Deliverables - المخرجات
+### Deliverables - ط§ظ„ظ…ط®ط±ط¬ط§طھ
 
 1. **Branch Protection Rules** (GitHub Settings):
 
    ```
-   Settings → Branches → Add rule
+   Settings â†’ Branches â†’ Add rule
 
    Branch name pattern: main
 
    Require a pull request before merging:
-     ✅ Require approvals: 1
-     ✅ Dismiss stale pull request approvals
-     ✅ Require review from Code Owners
+     âœ… Require approvals: 1
+     âœ… Dismiss stale pull request approvals
+     âœ… Require review from Code Owners
 
    Require status checks to pass:
-     ✅ Require branches to be up to date
-     ✅ Status checks: CI / lint, CI / test
+     âœ… Require branches to be up to date
+     âœ… Status checks: CI / lint, CI / test
 
-   Require conversation resolution before merging: ✅
+   Require conversation resolution before merging: âœ…
 
-   Do not allow bypassing the above settings: ✅
+   Do not allow bypassing the above settings: âœ…
    ```
 
 2. **GitHub Secrets Setup** (`SECRETS_SETUP.md`):
@@ -1079,7 +1079,7 @@ git commit -m "test: Add unit and integration tests for core flows"
 
    ## How to Add Secrets
 
-   1. Go to: https://github.com/hossam-create/Mnbara-Platform/settings/secrets/actions
+   1. Go to: https://github.com/hossam-create/mnbarh-Platform/settings/secrets/actions
    2. Click "New repository secret"
    3. Add each secret below
 
@@ -1090,7 +1090,7 @@ git commit -m "test: Add unit and integration tests for core flows"
    - `DATABASE_URL`
    ```
 
-   postgresql://user:password@host:5432/mnbara_db
+   postgresql://user:password@host:5432/mnbarh_db
 
    ```
 
@@ -1139,7 +1139,7 @@ git commit -m "test: Add unit and integration tests for core flows"
 
    ```
 
-   ### AWS (Optional - للنشر على AWS)
+   ### AWS (Optional - ظ„ظ„ظ†ط´ط± ط¹ظ„ظ‰ AWS)
    - `AWS_ACCESS_KEY_ID`
    - `AWS_SECRET_ACCESS_KEY`
    - `AWS_REGION`
@@ -1164,43 +1164,43 @@ git commit -m "test: Add unit and integration tests for core flows"
          - name: Check DATABASE_URL
            run: |
              if [ -z "${{ secrets.DATABASE_URL }}" ]; then
-               echo "❌ DATABASE_URL not set"
+               echo "â‌Œ DATABASE_URL not set"
                exit 1
              else
-               echo "✅ DATABASE_URL is set"
+               echo "âœ… DATABASE_URL is set"
              fi
 
          - name: Check REDIS_URL
            run: |
              if [ -z "${{ secrets.REDIS_URL }}" ]; then
-               echo "❌ REDIS_URL not set"
+               echo "â‌Œ REDIS_URL not set"
                exit 1
              else
-               echo "✅ REDIS_URL is set"
+               echo "âœ… REDIS_URL is set"
              fi
 
          - name: Check JWT_SECRET
            run: |
              if [ -z "${{ secrets.JWT_SECRET }}" ]; then
-               echo "❌ JWT_SECRET not set"
+               echo "â‌Œ JWT_SECRET not set"
                exit 1
              elif [ ${#JWT_SECRET} -lt 32 ]; then
-               echo "❌ JWT_SECRET too short (minimum 32 chars)"
+               echo "â‌Œ JWT_SECRET too short (minimum 32 chars)"
                exit 1
              else
-               echo "✅ JWT_SECRET is set and valid length"
+               echo "âœ… JWT_SECRET is set and valid length"
              fi
            env:
              JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
          - name: Summary
-           run: echo "✅ All critical secrets verified"
+           run: echo "âœ… All critical secrets verified"
    ```
 
 4. **Updated CI Workflow** (`.github/workflows/ci.yml`):
 
    ```yaml
-   # إضافة secrets للـ test job
+   # ط¥ط¶ط§ظپط© secrets ظ„ظ„ظ€ test job
    jobs:
      test:
        runs-on: ubuntu-latest
@@ -1227,7 +1227,7 @@ git commit -m "test: Add unit and integration tests for core flows"
              --health-timeout 5s
              --health-retries 5
        steps:
-         # ... (باقي الخطوات)
+         # ... (ط¨ط§ظ‚ظٹ ط§ظ„ط®ط·ظˆط§طھ)
    ```
 
 5. **Developer Onboarding Guide** (`DEVELOPER_ONBOARDING.md`):
@@ -1267,11 +1267,11 @@ git commit -m "test: Add unit and integration tests for core flows"
    - All conversations must be resolved
    ```
 
-6. **Environment Template** (`.env.example` في كل خدمة):
+6. **Environment Template** (`.env.example` ظپظٹ ظƒظ„ ط®ط¯ظ…ط©):
 
    ```bash
    # Database
-   DATABASE_URL=postgresql://mnbara_user:mnbara_pass@localhost:5432/mnbara_db
+   DATABASE_URL=postgresql://mnbarh_user:mnbarh_pass@localhost:5432/mnbarh_db
 
    # Redis
    REDIS_URL=redis://localhost:6379
@@ -1292,49 +1292,49 @@ git commit -m "test: Add unit and integration tests for core flows"
    NODE_ENV=development
    ```
 
-### Steps - الخطوات
+### Steps - ط§ظ„ط®ط·ظˆط§طھ
 
 ```bash
-# 1. إعداد Branch Protection على GitHub
-# اذهب إلى: Settings → Branches → Add rule
-# اتبع الإعدادات في Deliverable #1
+# 1. ط¥ط¹ط¯ط§ط¯ Branch Protection ط¹ظ„ظ‰ GitHub
+# ط§ط°ظ‡ط¨ ط¥ظ„ظ‰: Settings â†’ Branches â†’ Add rule
+# ط§طھط¨ط¹ ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ ظپظٹ Deliverable #1
 
-# 2. إضافة Secrets على GitHub
-# اذهب إلى: Settings → Secrets → Actions → New secret
-# أضف كل secret من القائمة
+# 2. ط¥ط¶ط§ظپط© Secrets ط¹ظ„ظ‰ GitHub
+# ط§ط°ظ‡ط¨ ط¥ظ„ظ‰: Settings â†’ Secrets â†’ Actions â†’ New secret
+# ط£ط¶ظپ ظƒظ„ secret ظ…ظ† ط§ظ„ظ‚ط§ط¦ظ…ط©
 
-# 3. Generate JWT_SECRET محلياً
+# 3. Generate JWT_SECRET ظ…ط­ظ„ظٹط§ظ‹
 openssl rand -base64 32
 
-# 4. إنشاء .env.example files
+# 4. ط¥ظ†ط´ط§ط، .env.example files
 for service in services/*; do
   if [ -d "$service" ]; then
     touch $service/.env.example
-    # أضف المتغيرات المطلوبة
+    # ط£ط¶ظپ ط§ظ„ظ…طھط؛ظٹط±ط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
   fi
 done
 
-# 5. إنشاء verification workflow
+# 5. ط¥ظ†ط´ط§ط، verification workflow
 mkdir -p .github/workflows
 touch .github/workflows/verify-secrets.yml
-# (أضف الكود من الأعلى)
+# (ط£ط¶ظپ ط§ظ„ظƒظˆط¯ ظ…ظ† ط§ظ„ط£ط¹ظ„ظ‰)
 
-# 6. تشغيل verification
-# GitHub → Actions → Verify Secrets → Run workflow
+# 6. طھط´ط؛ظٹظ„ verification
+# GitHub â†’ Actions â†’ Verify Secrets â†’ Run workflow
 
 # 7. Commit
 git add .env.example .github/workflows/verify-secrets.yml
 git commit -m "security: Add secrets verification and .env templates"
 
-# 8. إنشاء PR للتجربة
+# 8. ط¥ظ†ط´ط§ط، PR ظ„ظ„طھط¬ط±ط¨ط©
 git checkout -b test/branch-protection
 git push origin test/branch-protection
-# إنشاء PR على GitHub للتحقق من Branch Protection
+# ط¥ظ†ط´ط§ط، PR ط¹ظ„ظ‰ GitHub ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† Branch Protection
 ```
 
 ---
 
-## 📊 Progress Tracking - تتبع التقدم
+## ًں“ٹ Progress Tracking - طھطھط¨ط¹ ط§ظ„طھظ‚ط¯ظ…
 
 ### Checklist
 
@@ -1352,37 +1352,37 @@ git push origin test/branch-protection
 
 ---
 
-## 🎯 Success Metrics - معايير النجاح
+## ًںژ¯ Success Metrics - ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ†ط¬ط§ط­
 
-عند إنهاء جميع المهام، يجب تحقيق:
+ط¹ظ†ط¯ ط¥ظ†ظ‡ط§ط، ط¬ظ…ظٹط¹ ط§ظ„ظ…ظ‡ط§ظ…طŒ ظٹط¬ط¨ طھط­ظ‚ظٹظ‚:
 
-✅ **Security**: لا توجد secrets في الكود أو git history
-✅ **Local Development**: كل مطور يستطيع تشغيل المشروع محلياً بسهولة
-✅ **CI/CD**: كل PR يُفحص تلقائياً قبل الدمج
-✅ **Documentation**: كل endpoint موثق بوضوح
-✅ **Database**: نظام migrations منظم وقابل للتكرار
-✅ **Testing**: coverage > 70% للكود الأساسي
-✅ **Branch Protection**: main محمي من التعديلات المباشرة
+âœ… **Security**: ظ„ط§ طھظˆط¬ط¯ secrets ظپظٹ ط§ظ„ظƒظˆط¯ ط£ظˆ git history
+âœ… **Local Development**: ظƒظ„ ظ…ط·ظˆط± ظٹط³طھط·ظٹط¹ طھط´ط؛ظٹظ„ ط§ظ„ظ…ط´ط±ظˆط¹ ظ…ط­ظ„ظٹط§ظ‹ ط¨ط³ظ‡ظˆظ„ط©
+âœ… **CI/CD**: ظƒظ„ PR ظٹظڈظپط­طµ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ‚ط¨ظ„ ط§ظ„ط¯ظ…ط¬
+âœ… **Documentation**: ظƒظ„ endpoint ظ…ظˆط«ظ‚ ط¨ظˆط¶ظˆط­
+âœ… **Database**: ظ†ط¸ط§ظ… migrations ظ…ظ†ط¸ظ… ظˆظ‚ط§ط¨ظ„ ظ„ظ„طھظƒط±ط§ط±
+âœ… **Testing**: coverage > 70% ظ„ظ„ظƒظˆط¯ ط§ظ„ط£ط³ط§ط³ظٹ
+âœ… **Branch Protection**: main ظ…ط­ظ…ظٹ ظ…ظ† ط§ظ„طھط¹ط¯ظٹظ„ط§طھ ط§ظ„ظ…ط¨ط§ط´ط±ط©
 
 ---
 
-## 📝 Notes - ملاحظات
+## ًں“‌ Notes - ظ…ظ„ط§ط­ط¸ط§طھ
 
-### التنسيق بين المهام:
+### ط§ظ„طھظ†ط³ظٹظ‚ ط¨ظٹظ† ط§ظ„ظ…ظ‡ط§ظ…:
 
-- **Task 1** يجب أن ينفذ أولاً (أمان)
-- **Task 2, 5** يمكن تنفيذهما بالتوازي
-- **Task 3** يجب أن يكون بعد Task 6 جاهز
-- **Task 7** يمكن البدء فيه مبكراً لكن يكتمل في النهاية
+- **Task 1** ظٹط¬ط¨ ط£ظ† ظٹظ†ظپط° ط£ظˆظ„ط§ظ‹ (ط£ظ…ط§ظ†)
+- **Task 2, 5** ظٹظ…ظƒظ† طھظ†ظپظٹط°ظ‡ظ…ط§ ط¨ط§ظ„طھظˆط§ط²ظٹ
+- **Task 3** ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط¨ط¹ط¯ Task 6 ط¬ط§ظ‡ط²
+- **Task 7** ظٹظ…ظƒظ† ط§ظ„ط¨ط¯ط، ظپظٹظ‡ ظ…ط¨ظƒط±ط§ظ‹ ظ„ظƒظ† ظٹظƒطھظ…ظ„ ظپظٹ ط§ظ„ظ†ظ‡ط§ظٹط©
 
 ### Tools Recommended:
 
-- **BFG Repo-Cleaner**: لتنظيف git history
-- **Docker Desktop**: للتطوير المحلي
-- **Postman**: لتوثيق الـ API
-- **Swagger Editor**: لـ OpenAPI spec
-- **Jest**: للـ testing
-- **CodeCov**: لتتبع test coverage
+- **BFG Repo-Cleaner**: ظ„طھظ†ط¸ظٹظپ git history
+- **Docker Desktop**: ظ„ظ„طھط·ظˆظٹط± ط§ظ„ظ…ط­ظ„ظٹ
+- **Postman**: ظ„طھظˆط«ظٹظ‚ ط§ظ„ظ€ API
+- **Swagger Editor**: ظ„ظ€ OpenAPI spec
+- **Jest**: ظ„ظ„ظ€ testing
+- **CodeCov**: ظ„طھطھط¨ط¹ test coverage
 
 ### References:
 
@@ -1394,7 +1394,8 @@ git push origin test/branch-protection
 
 ---
 
-**نهاية خطة العمل** | **End of Action Plan**
+**ظ†ظ‡ط§ظٹط© ط®ط·ط© ط§ظ„ط¹ظ…ظ„** | **End of Action Plan**
 
 **Last Updated**: 2025-11-26
 **Version**: 1.0.0
+

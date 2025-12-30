@@ -1,6 +1,6 @@
-# Mnbara Platform - Comprehensive Architectural Blueprint
+﻿# mnbarh Platform - Comprehensive Architectural Blueprint
 
-This document outlines the complete technical architecture for the Mnbara Platform, integrating Crowdshipping, Marketplace, Auctions, and AI-driven Context Awareness.
+This document outlines the complete technical architecture for the mnbarh Platform, integrating Crowdshipping, Marketplace, Auctions, and AI-driven Context Awareness.
 
 ## 1. High-Level Architecture
 
@@ -113,3 +113,4 @@ The platform follows a **Microservices Architecture** to ensure scalability, fle
 *   **PCI-DSS:** For payment handling (via Stripe/Payment Service).
 *   **GDPR:** User data privacy and "Right to be Forgotten".
 *   **Encryption:** TLS 1.3 for transit, AES-256 for data at rest (Wallet/KYC).
+

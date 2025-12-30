@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# MNBara Platform - Smoke Tests
+# mnbarh Platform - Smoke Tests
 # Hour 22-23: Final Smoke Tests Before Go-Live
 
 set -e
 
-echo "🧪 MNBara Platform - Smoke Tests"
+echo "ًں§ھ mnbarh Platform - Smoke Tests"
 echo "================================="
 echo ""
 
@@ -16,8 +16,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # Configuration
-BASE_URL="${BASE_URL:-https://mnbara.com}"
-API_URL="${API_URL:-https://api.mnbara.com}"
+BASE_URL="${BASE_URL:-https://mnbarh.com}"
+API_URL="${API_URL:-https://api.mnbarh.com}"
 
 # Counters
 PASSED=0
@@ -33,17 +33,17 @@ run_test() {
     echo -n "Test $TOTAL: $test_name... "
     
     if eval "$test_command" > /dev/null 2>&1; then
-        echo -e "${GREEN}✅ PASSED${NC}"
+        echo -e "${GREEN}âœ… PASSED${NC}"
         PASSED=$((PASSED + 1))
         return 0
     else
-        echo -e "${RED}❌ FAILED${NC}"
+        echo -e "${RED}â‌Œ FAILED${NC}"
         FAILED=$((FAILED + 1))
         return 1
     fi
 }
 
-echo "🌐 Testing Production Environment"
+echo "ًںŒگ Testing Production Environment"
 echo "Base URL: $BASE_URL"
 echo "API URL: $API_URL"
 echo ""
@@ -78,11 +78,11 @@ run_test "Compliance API health" \
 
 # Test 8: SSL Certificate valid
 run_test "SSL certificate valid" \
-    "curl -f -s -o /dev/null https://mnbara.com"
+    "curl -f -s -o /dev/null https://mnbarh.com"
 
 # Test 9: DNS resolving
 run_test "DNS resolving correctly" \
-    "nslookup mnbara.com > /dev/null"
+    "nslookup mnbarh.com > /dev/null"
 
 # Test 10: Database connection
 run_test "Database connection" \
@@ -109,7 +109,7 @@ run_test "API response time < 1s" \
     "[ \$(curl -o /dev/null -s -w '%{time_total}' $API_URL/api/products | cut -d. -f1) -lt 1 ]"
 
 echo ""
-echo "📊 Test Results"
+echo "ًں“ٹ Test Results"
 echo "==============="
 echo -e "Total Tests: $TOTAL"
 echo -e "${GREEN}Passed: $PASSED${NC}"
@@ -123,9 +123,10 @@ echo ""
 
 # Final verdict
 if [ $FAILED -eq 0 ]; then
-    echo -e "${GREEN}🎉 All smoke tests passed! Ready for go-live!${NC}"
+    echo -e "${GREEN}ًںژ‰ All smoke tests passed! Ready for go-live!${NC}"
     exit 0
 else
-    echo -e "${RED}⚠️  Some tests failed. Please investigate before go-live.${NC}"
+    echo -e "${RED}âڑ ï¸ڈ  Some tests failed. Please investigate before go-live.${NC}"
     exit 1
 fi
+

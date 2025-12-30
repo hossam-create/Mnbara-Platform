@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# MNBara Platform - Go-Live Script
+# mnbarh Platform - Go-Live Script
 # Hour 23-24: Final Launch Sequence
 
 set -e
 
-echo "🚀 MNBara Platform - GO-LIVE SEQUENCE"
+echo "ًںڑ€ mnbarh Platform - GO-LIVE SEQUENCE"
 echo "======================================"
 echo ""
 
@@ -21,19 +21,19 @@ COUNTDOWN_TIME=10
 
 # Function to print colored output
 print_status() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}âœ… $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}â‌Œ $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}âڑ ï¸ڈ  $1${NC}"
 }
 
 print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}â„¹ï¸ڈ  $1${NC}"
 }
 
 # Countdown function
@@ -46,11 +46,11 @@ countdown() {
         echo -ne "${YELLOW}T-minus $i seconds...${NC}\r"
         sleep 1
     done
-    echo -e "${GREEN}GO! 🚀${NC}                    "
+    echo -e "${GREEN}GO! ًںڑ€${NC}                    "
 }
 
 # Pre-flight checks
-echo "🔍 Pre-Flight Checks"
+echo "ًں”چ Pre-Flight Checks"
 echo "===================="
 echo ""
 
@@ -101,10 +101,10 @@ print_status "Pre-flight checks complete!"
 echo ""
 
 # Final confirmation
-echo "⚠️  FINAL CONFIRMATION"
+echo "âڑ ï¸ڈ  FINAL CONFIRMATION"
 echo "====================="
 echo ""
-echo "You are about to launch MNBara Platform to production."
+echo "You are about to launch mnbarh Platform to production."
 echo "This will:"
 echo "  - Switch DNS to production servers"
 echo "  - Enable CDN"
@@ -119,7 +119,7 @@ if [ "$confirm" != "yes" ]; then
 fi
 
 echo ""
-echo "🎬 LAUNCH SEQUENCE INITIATED"
+echo "ًںژ¬ LAUNCH SEQUENCE INITIATED"
 echo "============================"
 echo ""
 
@@ -180,25 +180,25 @@ echo ""
 echo ""
 
 # GO LIVE!
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ"
 echo ""
-echo -e "${GREEN}██████╗  ██████╗        ██╗     ██╗██╗   ██╗███████╗██╗${NC}"
-echo -e "${GREEN}██╔════╝ ██╔═══██╗       ██║     ██║██║   ██║██╔════╝██║${NC}"
-echo -e "${GREEN}██║  ███╗██║   ██║ █████╗██║     ██║██║   ██║█████╗  ██║${NC}"
-echo -e "${GREEN}██║   ██║██║   ██║ ╚════╝██║     ██║╚██╗ ██╔╝██╔══╝  ╚═╝${NC}"
-echo -e "${GREEN}╚██████╔╝╚██████╔╝       ███████╗██║ ╚████╔╝ ███████╗██╗${NC}"
-echo -e "${GREEN} ╚═════╝  ╚═════╝        ╚══════╝╚═╝  ╚═══╝  ╚══════╝╚═╝${NC}"
+echo -e "${GREEN}â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—        â–ˆâ–ˆâ•—     â–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—${NC}"
+echo -e "${GREEN}â–ˆâ–ˆâ•”â•گâ•گâ•گâ•گâ•‌ â–ˆâ–ˆâ•”â•گâ•گâ•گâ–ˆâ–ˆâ•—       â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”â•گâ•گâ•گâ•گâ•‌â–ˆâ–ˆâ•‘${NC}"
+echo -e "${GREEN}â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—  â–ˆâ–ˆâ•‘${NC}"
+echo -e "${GREEN}â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘   â–ˆâ–ˆâ•‘ â•ڑâ•گâ•گâ•گâ•گâ•‌â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â•ڑâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”â•‌â–ˆâ–ˆâ•”â•گâ•گâ•‌  â•ڑâ•گâ•‌${NC}"
+echo -e "${GREEN}â•ڑâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•‌â•ڑâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•‌       â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘ â•ڑâ–ˆâ–ˆâ–ˆâ–ˆâ•”â•‌ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—${NC}"
+echo -e "${GREEN} â•ڑâ•گâ•گâ•گâ•گâ•گâ•‌  â•ڑâ•گâ•گâ•گâ•گâ•گâ•‌        â•ڑâ•گâ•گâ•گâ•گâ•گâ•گâ•‌â•ڑâ•گâ•‌  â•ڑâ•گâ•گâ•گâ•‌  â•ڑâ•گâ•گâ•گâ•گâ•گâ•گâ•‌â•ڑâ•گâ•‌${NC}"
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ"
 echo ""
 
 LAUNCH_TIME=$(date '+%Y-%m-%d %H:%M:%S')
-echo "🎉 MNBara Platform is now LIVE!"
+echo "ًںژ‰ mnbarh Platform is now LIVE!"
 echo "Launch Time: $LAUNCH_TIME"
 echo ""
 
 # Post-launch monitoring
-echo "📊 Post-Launch Monitoring"
+echo "ًں“ٹ Post-Launch Monitoring"
 echo "========================="
 echo ""
 
@@ -231,7 +231,7 @@ echo ""
 timeout 60 kubectl logs -f deployment/listing-service --tail=20 || true
 
 echo ""
-echo "📝 Next Steps"
+echo "ًں“‌ Next Steps"
 echo "============="
 echo "1. Monitor metrics in Grafana"
 echo "2. Watch error logs"
@@ -240,12 +240,12 @@ echo "4. Respond to support tickets"
 echo "5. Gather user feedback"
 echo ""
 
-print_status "Go-live sequence complete! 🎊"
+print_status "Go-live sequence complete! ًںژٹ"
 echo ""
 
 # Save launch info
 cat > ./LAUNCH_INFO.txt << EOF
-MNBara Platform - Launch Information
+mnbarh Platform - Launch Information
 ====================================
 
 Launch Date: $LAUNCH_TIME
@@ -278,4 +278,5 @@ EOF
 
 print_status "Launch information saved to LAUNCH_INFO.txt"
 echo ""
-echo "🚀 Welcome to production! Let's make this a success! 🎉"
+echo "ًںڑ€ Welcome to production! Let's make this a success! ًںژ‰"
+

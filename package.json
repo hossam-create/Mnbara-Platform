@@ -1,7 +1,7 @@
-{
-  "name": "mnbara-platform",
+﻿{
+  "name": "mnbarh-platform",
   "version": "1.0.0",
-  "description": "MNBara E-commerce Platform",
+  "description": "mnbarh E-commerce Platform",
   "scripts": {
     "setup:db": "bash scripts/setup-databases.sh",
     "setup:db:win": "scripts\\setup-databases.bat",
@@ -25,3 +25,4 @@
     "axios": "^1.6.2"
   }
 }
+

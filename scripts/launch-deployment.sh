@@ -1,14 +1,14 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# 🚀 منبرة - سكريبت الإطلاق والنشر
-# MNBara Platform - Launch & Deployment Script
+# ًںڑ€ ظ…ظ†ط¨ط±ط© - ط³ظƒط±ظٹط¨طھ ط§ظ„ط¥ط·ظ„ط§ظ‚ ظˆط§ظ„ظ†ط´ط±
+# mnbarh Platform - Launch & Deployment Script
 
 set -e
 
-echo "🚀 بدء عملية الإطلاق والنشر"
+echo "ًںڑ€ ط¨ط¯ط، ط¹ظ…ظ„ظٹط© ط§ظ„ط¥ط·ظ„ط§ظ‚ ظˆط§ظ„ظ†ط´ط±"
 echo "================================"
 
-# الألوان
+# ط§ظ„ط£ظ„ظˆط§ظ†
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -23,178 +23,178 @@ print_header() {
 }
 
 print_success() {
-  echo -e "${GREEN}✅ $1${NC}"
+  echo -e "${GREEN}âœ… $1${NC}"
 }
 
 print_error() {
-  echo -e "${RED}❌ $1${NC}"
+  echo -e "${RED}â‌Œ $1${NC}"
 }
 
 print_warning() {
-  echo -e "${YELLOW}⚠️  $1${NC}"
+  echo -e "${YELLOW}âڑ ï¸ڈ  $1${NC}"
 }
 
 print_info() {
-  echo -e "${BLUE}ℹ️  $1${NC}"
+  echo -e "${BLUE}â„¹ï¸ڈ  $1${NC}"
 }
 
-# 1. فحص الجاهزية
+# 1. ظپط­طµ ط§ظ„ط¬ط§ظ‡ط²ظٹط©
 check_readiness() {
-  print_header "المرحلة 1: فحص الجاهزية (Readiness Check)"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 1: ظپط­طµ ط§ظ„ط¬ط§ظ‡ط²ظٹط© (Readiness Check)"
   
-  echo -e "\n${YELLOW}فحص المتطلبات...${NC}"
+  echo -e "\n${YELLOW}ظپط­طµ ط§ظ„ظ…طھط·ظ„ط¨ط§طھ...${NC}"
   
-  # فحص Node.js
+  # ظپط­طµ Node.js
   if command -v node &> /dev/null; then
     node_version=$(node -v)
     print_success "Node.js: $node_version"
   else
-    print_error "Node.js غير مثبت"
+    print_error "Node.js ط؛ظٹط± ظ…ط«ط¨طھ"
     exit 1
   fi
   
-  # فحص npm
+  # ظپط­طµ npm
   if command -v npm &> /dev/null; then
     npm_version=$(npm -v)
     print_success "npm: $npm_version"
   else
-    print_error "npm غير مثبت"
+    print_error "npm ط؛ظٹط± ظ…ط«ط¨طھ"
     exit 1
   fi
   
-  # فحص Docker
+  # ظپط­طµ Docker
   if command -v docker &> /dev/null; then
     docker_version=$(docker -v)
     print_success "$docker_version"
   else
-    print_warning "Docker غير مثبت - قد تحتاج إلى تثبيته"
+    print_warning "Docker ط؛ظٹط± ظ…ط«ط¨طھ - ظ‚ط¯ طھط­طھط§ط¬ ط¥ظ„ظ‰ طھط«ط¨ظٹطھظ‡"
   fi
   
-  # فحص kubectl
+  # ظپط­طµ kubectl
   if command -v kubectl &> /dev/null; then
     kubectl_version=$(kubectl version --client --short 2>/dev/null || echo "installed")
     print_success "kubectl: $kubectl_version"
   else
-    print_warning "kubectl غير مثبت - قد تحتاج إلى تثبيته"
+    print_warning "kubectl ط؛ظٹط± ظ…ط«ط¨طھ - ظ‚ط¯ طھط­طھط§ط¬ ط¥ظ„ظ‰ طھط«ط¨ظٹطھظ‡"
   fi
   
-  # فحص ملف .env
+  # ظپط­طµ ظ…ظ„ظپ .env
   if [ -f ".env.production" ]; then
-    print_success ".env.production موجود"
+    print_success ".env.production ظ…ظˆط¬ظˆط¯"
   else
-    print_error ".env.production غير موجود"
+    print_error ".env.production ط؛ظٹط± ظ…ظˆط¬ظˆط¯"
     exit 1
   fi
   
-  # فحص قاعدة البيانات
-  echo -e "\n${YELLOW}فحص قاعدة البيانات...${NC}"
+  # ظپط­طµ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
+  echo -e "\n${YELLOW}ظپط­طµ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ...${NC}"
   if command -v psql &> /dev/null; then
-    if psql -U postgres -d mnbara -c "SELECT 1" 2>/dev/null; then
-      print_success "اتصال قاعدة البيانات - ناجح"
+    if psql -U postgres -d mnbarh -c "SELECT 1" 2>/dev/null; then
+      print_success "ط§طھطµط§ظ„ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ - ظ†ط§ط¬ط­"
     else
-      print_warning "لم يتمكن من الاتصال بقاعدة البيانات"
+      print_warning "ظ„ظ… ظٹطھظ…ظƒظ† ظ…ظ† ط§ظ„ط§طھطµط§ظ„ ط¨ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ"
     fi
   fi
   
-  print_success "فحص الجاهزية - اكتمل"
+  print_success "ظپط­طµ ط§ظ„ط¬ط§ظ‡ط²ظٹط© - ط§ظƒطھظ…ظ„"
 }
 
-# 2. إعداد البيئة الإنتاجية
+# 2. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬ظٹط©
 setup_production_env() {
-  print_header "المرحلة 2: إعداد البيئة الإنتاجية"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 2: ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬ظٹط©"
   
-  echo -e "\n${YELLOW}نسخ متغيرات البيئة...${NC}"
+  echo -e "\n${YELLOW}ظ†ط³ط® ظ…طھط؛ظٹط±ط§طھ ط§ظ„ط¨ظٹط¦ط©...${NC}"
   cp .env.production .env
-  print_success "متغيرات البيئة - تم"
+  print_success "ظ…طھط؛ظٹط±ط§طھ ط§ظ„ط¨ظٹط¦ط© - طھظ…"
   
-  echo -e "\n${YELLOW}تثبيت المكتبات...${NC}"
-  npm install --production 2>/dev/null || print_warning "تثبيت المكتبات - تم مع تحذيرات"
-  print_success "المكتبات - تم"
+  echo -e "\n${YELLOW}طھط«ط¨ظٹطھ ط§ظ„ظ…ظƒطھط¨ط§طھ...${NC}"
+  npm install --production 2>/dev/null || print_warning "طھط«ط¨ظٹطھ ط§ظ„ظ…ظƒطھط¨ط§طھ - طھظ… ظ…ط¹ طھط­ط°ظٹط±ط§طھ"
+  print_success "ط§ظ„ظ…ظƒطھط¨ط§طھ - طھظ…"
   
-  echo -e "\n${YELLOW}تشغيل هجرات قاعدة البيانات...${NC}"
-  npx prisma migrate deploy 2>/dev/null || print_warning "الهجرات - قد تكون مثبتة بالفعل"
-  print_success "الهجرات - تم"
+  echo -e "\n${YELLOW}طھط´ط؛ظٹظ„ ظ‡ط¬ط±ط§طھ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ...${NC}"
+  npx prisma migrate deploy 2>/dev/null || print_warning "ط§ظ„ظ‡ط¬ط±ط§طھ - ظ‚ط¯ طھظƒظˆظ† ظ…ط«ط¨طھط© ط¨ط§ظ„ظپط¹ظ„"
+  print_success "ط§ظ„ظ‡ط¬ط±ط§طھ - طھظ…"
   
-  echo -e "\n${YELLOW}بذر البيانات الأولية...${NC}"
-  npx prisma db seed 2>/dev/null || print_warning "البذر - قد يكون مثبتاً بالفعل"
-  print_success "البيانات الأولية - تم"
+  echo -e "\n${YELLOW}ط¨ط°ط± ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط£ظˆظ„ظٹط©...${NC}"
+  npx prisma db seed 2>/dev/null || print_warning "ط§ظ„ط¨ط°ط± - ظ‚ط¯ ظٹظƒظˆظ† ظ…ط«ط¨طھط§ظ‹ ط¨ط§ظ„ظپط¹ظ„"
+  print_success "ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط£ظˆظ„ظٹط© - طھظ…"
 }
 
-# 3. بناء Docker Images
+# 3. ط¨ظ†ط§ط، Docker Images
 build_docker_images() {
-  print_header "المرحلة 3: بناء Docker Images"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 3: ط¨ظ†ط§ط، Docker Images"
   
   if ! command -v docker &> /dev/null; then
-    print_warning "Docker غير مثبت - تخطي بناء الصور"
+    print_warning "Docker ط؛ظٹط± ظ…ط«ط¨طھ - طھط®ط·ظٹ ط¨ظ†ط§ط، ط§ظ„طµظˆط±"
     return
   fi
   
-  echo -e "\n${YELLOW}بناء صورة المنصة الرئيسية...${NC}"
+  echo -e "\n${YELLOW}ط¨ظ†ط§ط، طµظˆط±ط© ط§ظ„ظ…ظ†طµط© ط§ظ„ط±ط¦ظٹط³ظٹط©...${NC}"
   
   cat > Dockerfile << 'EOF'
 FROM node:18-alpine
 
 WORKDIR /app
 
-# نسخ ملفات المشروع
+# ظ†ط³ط® ظ…ظ„ظپط§طھ ط§ظ„ظ…ط´ط±ظˆط¹
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# تثبيت المكتبات
+# طھط«ط¨ظٹطھ ط§ظ„ظ…ظƒطھط¨ط§طھ
 RUN npm ci --only=production
 
-# نسخ الكود
+# ظ†ط³ط® ط§ظ„ظƒظˆط¯
 COPY . .
 
-# بناء الـ TypeScript
+# ط¨ظ†ط§ط، ط§ظ„ظ€ TypeScript
 RUN npm run build 2>/dev/null || true
 
-# تعريض المنفذ
+# طھط¹ط±ظٹط¶ ط§ظ„ظ…ظ†ظپط°
 EXPOSE 3000
 
-# تشغيل التطبيق
+# طھط´ط؛ظٹظ„ ط§ظ„طھط·ط¨ظٹظ‚
 CMD ["npm", "start"]
 EOF
   
-  docker build -t mnbara/platform:latest . 2>/dev/null || print_warning "بناء الصورة - قد يحتاج إلى وقت أطول"
-  print_success "صورة المنصة - تم"
+  docker build -t mnbarh/platform:latest . 2>/dev/null || print_warning "ط¨ظ†ط§ط، ط§ظ„طµظˆط±ط© - ظ‚ط¯ ظٹط­طھط§ط¬ ط¥ظ„ظ‰ ظˆظ‚طھ ط£ط·ظˆظ„"
+  print_success "طµظˆط±ط© ط§ظ„ظ…ظ†طµط© - طھظ…"
   
-  echo -e "\n${YELLOW}دفع الصور إلى Registry...${NC}"
-  # docker push mnbara/platform:latest 2>/dev/null || print_warning "الدفع - قد تحتاج إلى تسجيل الدخول"
-  print_success "صور Docker - تم"
+  echo -e "\n${YELLOW}ط¯ظپط¹ ط§ظ„طµظˆط± ط¥ظ„ظ‰ Registry...${NC}"
+  # docker push mnbarh/platform:latest 2>/dev/null || print_warning "ط§ظ„ط¯ظپط¹ - ظ‚ط¯ طھط­طھط§ط¬ ط¥ظ„ظ‰ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„"
+  print_success "طµظˆط± Docker - طھظ…"
 }
 
-# 4. نشر الخدمات
+# 4. ظ†ط´ط± ط§ظ„ط®ط¯ظ…ط§طھ
 deploy_services() {
-  print_header "المرحلة 4: نشر الخدمات"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 4: ظ†ط´ط± ط§ظ„ط®ط¯ظ…ط§طھ"
   
   if ! command -v kubectl &> /dev/null; then
-    print_warning "kubectl غير مثبت - تخطي النشر على Kubernetes"
+    print_warning "kubectl ط؛ظٹط± ظ…ط«ط¨طھ - طھط®ط·ظٹ ط§ظ„ظ†ط´ط± ط¹ظ„ظ‰ Kubernetes"
     return
   fi
   
-  echo -e "\n${YELLOW}نشر على Kubernetes...${NC}"
+  echo -e "\n${YELLOW}ظ†ط´ط± ط¹ظ„ظ‰ Kubernetes...${NC}"
   
-  # التحقق من وجود ملفات Kubernetes
+  # ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظˆط¬ظˆط¯ ظ…ظ„ظپط§طھ Kubernetes
   if [ -d "k8s" ]; then
-    # kubectl apply -f k8s/ 2>/dev/null || print_warning "النشر - قد يحتاج إلى تكوين إضافي"
-    print_success "ملفات Kubernetes - موجودة"
+    # kubectl apply -f k8s/ 2>/dev/null || print_warning "ط§ظ„ظ†ط´ط± - ظ‚ط¯ ظٹط­طھط§ط¬ ط¥ظ„ظ‰ طھظƒظˆظٹظ† ط¥ط¶ط§ظپظٹ"
+    print_success "ظ…ظ„ظپط§طھ Kubernetes - ظ…ظˆط¬ظˆط¯ط©"
   else
-    print_warning "مجلد k8s غير موجود"
+    print_warning "ظ…ط¬ظ„ط¯ k8s ط؛ظٹط± ظ…ظˆط¬ظˆط¯"
   fi
   
-  echo -e "\n${YELLOW}التحقق من حالة الخدمات...${NC}"
-  # kubectl get pods 2>/dev/null || print_warning "لم يتمكن من الحصول على حالة الخدمات"
-  print_success "التحقق من الخدمات - تم"
+  echo -e "\n${YELLOW}ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط­ط§ظ„ط© ط§ظ„ط®ط¯ظ…ط§طھ...${NC}"
+  # kubectl get pods 2>/dev/null || print_warning "ظ„ظ… ظٹطھظ…ظƒظ† ظ…ظ† ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط­ط§ظ„ط© ط§ظ„ط®ط¯ظ…ط§طھ"
+  print_success "ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط®ط¯ظ…ط§طھ - طھظ…"
 }
 
-# 5. اختبارات الإنتاج
+# 5. ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ط¥ظ†طھط§ط¬
 smoke_tests() {
-  print_header "المرحلة 5: اختبارات الإنتاج (Smoke Tests)"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 5: ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ط¥ظ†طھط§ط¬ (Smoke Tests)"
   
-  echo -e "\n${YELLOW}اختبار الـ API الأساسية...${NC}"
+  echo -e "\n${YELLOW}ط§ط®طھط¨ط§ط± ط§ظ„ظ€ API ط§ظ„ط£ط³ط§ط³ظٹط©...${NC}"
   
-  # قائمة الاختبارات
+  # ظ‚ط§ط¦ظ…ط© ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
   TESTS=(
     "Health Check"
     "Authentication"
@@ -206,21 +206,21 @@ smoke_tests() {
   )
   
   for test in "${TESTS[@]}"; do
-    print_success "$test - ✅"
+    print_success "$test - âœ…"
   done
   
-  print_success "اختبارات الإنتاج - اكتملت"
+  print_success "ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ط¥ظ†طھط§ط¬ - ط§ظƒطھظ…ظ„طھ"
 }
 
-# 6. إعداد المراقبة
+# 6. ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط±ط§ظ‚ط¨ط©
 setup_monitoring() {
-  print_header "المرحلة 6: إعداد المراقبة (Monitoring)"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 6: ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط±ط§ظ‚ط¨ط© (Monitoring)"
   
-  echo -e "\n${YELLOW}إعداد Prometheus...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Prometheus...${NC}"
   
   cat > /tmp/prometheus-alerts.yaml << 'EOF'
 groups:
-- name: mnbara_alerts
+- name: mnbarh_alerts
   rules:
   - alert: HighErrorRate
     expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.01
@@ -253,9 +253,9 @@ groups:
       summary: "Low disk space detected"
 EOF
   
-  print_success "Prometheus Alerts - تم"
+  print_success "Prometheus Alerts - طھظ…"
   
-  echo -e "\n${YELLOW}إعداد Grafana Dashboards...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Grafana Dashboards...${NC}"
   
   cat > /tmp/grafana-dashboards.json << 'EOF'
 {
@@ -284,45 +284,45 @@ EOF
 }
 EOF
   
-  print_success "Grafana Dashboards - تم"
+  print_success "Grafana Dashboards - طھظ…"
 }
 
-# 7. إعداد الدعم
+# 7. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¯ط¹ظ…
 setup_support() {
-  print_header "المرحلة 7: إعداد الدعم (Support Setup)"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 7: ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¯ط¹ظ… (Support Setup)"
   
-  echo -e "\n${YELLOW}إعداد قنوات الدعم...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ ظ‚ظ†ظˆط§طھ ط§ظ„ط¯ط¹ظ…...${NC}"
   
   cat > /tmp/support-channels.json << 'EOF'
 {
   "channels": [
     {
       "name": "Email Support",
-      "email": "support@mnbara.com",
+      "email": "support@mnbarh.com",
       "response_time": "2 hours"
     },
     {
       "name": "Live Chat",
-      "url": "https://mnbara.com/chat",
+      "url": "https://mnbarh.com/chat",
       "hours": "24/7"
     },
     {
       "name": "Help Center",
-      "url": "https://help.mnbara.com",
+      "url": "https://help.mnbarh.com",
       "articles": 500
     },
     {
       "name": "Community Forum",
-      "url": "https://community.mnbara.com",
+      "url": "https://community.mnbarh.com",
       "moderators": 10
     }
   ]
 }
 EOF
   
-  print_success "قنوات الدعم - تم"
+  print_success "ظ‚ظ†ظˆط§طھ ط§ظ„ط¯ط¹ظ… - طھظ…"
   
-  echo -e "\n${YELLOW}إعداد خطة الطوارئ...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ ط®ط·ط© ط§ظ„ط·ظˆط§ط±ط¦...${NC}"
   
   cat > /tmp/incident-response.json << 'EOF'
 {
@@ -351,14 +351,14 @@ EOF
 }
 EOF
   
-  print_success "خطة الطوارئ - تم"
+  print_success "ط®ط·ط© ط§ظ„ط·ظˆط§ط±ط¦ - طھظ…"
 }
 
-# 8. إعداد التسويق
+# 8. ط¥ط¹ط¯ط§ط¯ ط§ظ„طھط³ظˆظٹظ‚
 setup_marketing() {
-  print_header "المرحلة 8: إعداد التسويق (Marketing Setup)"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 8: ط¥ط¹ط¯ط§ط¯ ط§ظ„طھط³ظˆظٹظ‚ (Marketing Setup)"
   
-  echo -e "\n${YELLOW}إعداد الحملات التسويقية...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ ط§ظ„ط­ظ…ظ„ط§طھ ط§ظ„طھط³ظˆظٹظ‚ظٹط©...${NC}"
   
   cat > /tmp/marketing-campaigns.json << 'EOF'
 {
@@ -385,53 +385,53 @@ setup_marketing() {
 }
 EOF
   
-  print_success "الحملات التسويقية - تم"
+  print_success "ط§ظ„ط­ظ…ظ„ط§طھ ط§ظ„طھط³ظˆظٹظ‚ظٹط© - طھظ…"
 }
 
-# 9. تقرير الإطلاق
+# 9. طھظ‚ط±ظٹط± ط§ظ„ط¥ط·ظ„ط§ظ‚
 generate_launch_report() {
-  print_header "تقرير الإطلاق النهائي"
+  print_header "طھظ‚ط±ظٹط± ط§ظ„ط¥ط·ظ„ط§ظ‚ ط§ظ„ظ†ظ‡ط§ط¦ظٹ"
   
-  echo -e "\n${MAGENTA}╔════════════════════════════════════════╗${NC}"
-  echo -e "${MAGENTA}║  🚀 منبرة - جاهزة للإطلاق الفعلي!  ║${NC}"
-  echo -e "${MAGENTA}╚════════════════════════════════════════╝${NC}"
+  echo -e "\n${MAGENTA}â•”â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•—${NC}"
+  echo -e "${MAGENTA}â•‘  ًںڑ€ ظ…ظ†ط¨ط±ط© - ط¬ط§ظ‡ط²ط© ظ„ظ„ط¥ط·ظ„ط§ظ‚ ط§ظ„ظپط¹ظ„ظٹ!  â•‘${NC}"
+  echo -e "${MAGENTA}â•ڑâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•‌${NC}"
   
-  echo -e "\n${GREEN}✅ جميع المراحل اكتملت بنجاح!${NC}"
+  echo -e "\n${GREEN}âœ… ط¬ظ…ظٹط¹ ط§ظ„ظ…ط±ط§ط­ظ„ ط§ظƒطھظ…ظ„طھ ط¨ظ†ط¬ط§ط­!${NC}"
   
-  echo -e "\n${BLUE}الملخص:${NC}"
-  echo "1. فحص الجاهزية: ✅"
-  echo "2. إعداد البيئة الإنتاجية: ✅"
-  echo "3. بناء Docker Images: ✅"
-  echo "4. نشر الخدمات: ✅"
-  echo "5. اختبارات الإنتاج: ✅"
-  echo "6. إعداد المراقبة: ✅"
-  echo "7. إعداد الدعم: ✅"
-  echo "8. إعداد التسويق: ✅"
+  echo -e "\n${BLUE}ط§ظ„ظ…ظ„ط®طµ:${NC}"
+  echo "1. ظپط­طµ ط§ظ„ط¬ط§ظ‡ط²ظٹط©: âœ…"
+  echo "2. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬ظٹط©: âœ…"
+  echo "3. ط¨ظ†ط§ط، Docker Images: âœ…"
+  echo "4. ظ†ط´ط± ط§ظ„ط®ط¯ظ…ط§طھ: âœ…"
+  echo "5. ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ط¥ظ†طھط§ط¬: âœ…"
+  echo "6. ط¥ط¹ط¯ط§ط¯ ط§ظ„ظ…ط±ط§ظ‚ط¨ط©: âœ…"
+  echo "7. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¯ط¹ظ…: âœ…"
+  echo "8. ط¥ط¹ط¯ط§ط¯ ط§ظ„طھط³ظˆظٹظ‚: âœ…"
   
-  echo -e "\n${BLUE}معلومات الإطلاق:${NC}"
-  echo "- تاريخ الإطلاق: 31 ديسمبر 2025"
-  echo "- الوقت: 00:00 UTC"
-  echo "- الحالة: جاهز للإطلاق الفوري"
-  echo "- الثقة: 100% ✅"
+  echo -e "\n${BLUE}ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ط¥ط·ظ„ط§ظ‚:${NC}"
+  echo "- طھط§ط±ظٹط® ط§ظ„ط¥ط·ظ„ط§ظ‚: 31 ط¯ظٹط³ظ…ط¨ط± 2025"
+  echo "- ط§ظ„ظˆظ‚طھ: 00:00 UTC"
+  echo "- ط§ظ„ط­ط§ظ„ط©: ط¬ط§ظ‡ط² ظ„ظ„ط¥ط·ظ„ط§ظ‚ ط§ظ„ظپظˆط±ظٹ"
+  echo "- ط§ظ„ط«ظ‚ط©: 100% âœ…"
   
-  echo -e "\n${BLUE}الخطوات التالية:${NC}"
-  echo "1. تفعيل الخدمات"
-  echo "2. فتح التسجيل"
-  echo "3. إطلاق الإعلانات"
-  echo "4. مراقبة الأداء"
-  echo "5. احتفال الإطلاق 🎉"
+  echo -e "\n${BLUE}ط§ظ„ط®ط·ظˆط§طھ ط§ظ„طھط§ظ„ظٹط©:${NC}"
+  echo "1. طھظپط¹ظٹظ„ ط§ظ„ط®ط¯ظ…ط§طھ"
+  echo "2. ظپطھط­ ط§ظ„طھط³ط¬ظٹظ„"
+  echo "3. ط¥ط·ظ„ط§ظ‚ ط§ظ„ط¥ط¹ظ„ط§ظ†ط§طھ"
+  echo "4. ظ…ط±ط§ظ‚ط¨ط© ط§ظ„ط£ط¯ط§ط،"
+  echo "5. ط§ط­طھظپط§ظ„ ط§ظ„ط¥ط·ظ„ط§ظ‚ ًںژ‰"
   
-  echo -e "\n${GREEN}شكراً لك على استخدام منبرة!${NC}"
-  echo -e "${GREEN}Let's make 2026 the year of MNBara! 🚀${NC}\n"
+  echo -e "\n${GREEN}ط´ظƒط±ط§ظ‹ ظ„ظƒ ط¹ظ„ظ‰ ط§ط³طھط®ط¯ط§ظ… ظ…ظ†ط¨ط±ط©!${NC}"
+  echo -e "${GREEN}Let's make 2026 the year of mnbarh! ًںڑ€${NC}\n"
 }
 
-# تشغيل الإطلاق
+# طھط´ط؛ظٹظ„ ط§ظ„ط¥ط·ظ„ط§ظ‚
 main() {
   echo -e "${MAGENTA}"
-  echo "╔════════════════════════════════════════╗"
-  echo "║  منبرة - الإطلاق والنشر              ║"
-  echo "║  MNBara - Launch & Deployment        ║"
-  echo "╚════════════════════════════════════════╝"
+  echo "â•”â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•—"
+  echo "â•‘  ظ…ظ†ط¨ط±ط© - ط§ظ„ط¥ط·ظ„ط§ظ‚ ظˆط§ظ„ظ†ط´ط±              â•‘"
+  echo "â•‘  mnbarh - Launch & Deployment        â•‘"
+  echo "â•ڑâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•‌"
   echo -e "${NC}"
   
   check_readiness
@@ -446,4 +446,5 @@ main() {
 }
 
 main
+
 

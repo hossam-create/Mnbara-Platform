@@ -1,23 +1,23 @@
-# 🚀 دليل النشر والتحديثات - Deployment & Update Guide
+﻿# ًںڑ€ ط¯ظ„ظٹظ„ ط§ظ„ظ†ط´ط± ظˆط§ظ„طھط­ط¯ظٹط«ط§طھ - Deployment & Update Guide
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
 
 ---
 
-## 📋 جدول المحتويات
+## ًں“‹ ط¬ط¯ظˆظ„ ط§ظ„ظ…ط­طھظˆظٹط§طھ
 
-1. [النشر الأول (Initial Deployment)](#النشر-الأول)
-2. [عملية التحديث (Update Process)](#عملية-التحديث)
-3. [أنواع التحديثات](#أنواع-التحديثات)
+1. [ط§ظ„ظ†ط´ط± ط§ظ„ط£ظˆظ„ (Initial Deployment)](#ط§ظ„ظ†ط´ط±-ط§ظ„ط£ظˆظ„)
+2. [ط¹ظ…ظ„ظٹط© ط§ظ„طھط­ط¯ظٹط« (Update Process)](#ط¹ظ…ظ„ظٹط©-ط§ظ„طھط­ط¯ظٹط«)
+3. [ط£ظ†ظˆط§ط¹ ط§ظ„طھط­ط¯ظٹط«ط§طھ](#ط£ظ†ظˆط§ط¹-ط§ظ„طھط­ط¯ظٹط«ط§طھ)
 4. [CI/CD Pipeline](#cicd-pipeline)
 5. [Rollback Strategy](#rollback-strategy)
 6. [Best Practices](#best-practices)
 
 ---
 
-## 🎯 النشر الأول
+## ًںژ¯ ط§ظ„ظ†ط´ط± ط§ظ„ط£ظˆظ„
 
-### الخطوات:
+### ط§ظ„ط®ط·ظˆط§طھ:
 ```bash
 # 1. Build all services
 npm run build:all
@@ -35,142 +35,142 @@ docker-compose -f docker-compose.prod.yml push
 kubectl apply -f k8s/
 
 # 6. Verify deployment
-kubectl get pods -n mnbara
+kubectl get pods -n mnbarh
 ```
 
 ---
 
-## 🔄 عملية التحديث
+## ًں”„ ط¹ظ…ظ„ظٹط© ط§ظ„طھط­ط¯ظٹط«
 
-### الخطوة 1: إنشاء Branch جديد
+### ط§ظ„ط®ط·ظˆط© 1: ط¥ظ†ط´ط§ط، Branch ط¬ط¯ظٹط¯
 ```bash
-# من main branch
+# ظ…ظ† main branch
 git checkout main
 git pull origin main
 
-# إنشاء branch للتحديث
+# ط¥ظ†ط´ط§ط، branch ظ„ظ„طھط­ط¯ظٹط«
 git checkout -b feature/new-feature-name
-# أو
+# ط£ظˆ
 git checkout -b hotfix/bug-fix-name
-# أو
+# ط£ظˆ
 git checkout -b release/v3.3.0
 ```
 
-### الخطوة 2: عمل التغييرات
+### ط§ظ„ط®ط·ظˆط© 2: ط¹ظ…ظ„ ط§ظ„طھط؛ظٹظٹط±ط§طھ
 ```bash
-# عدل الكود المطلوب
+# ط¹ط¯ظ„ ط§ظ„ظƒظˆط¯ ط§ظ„ظ…ط·ظ„ظˆط¨
 # ...
 
-# تأكد من الاختبارات
+# طھط£ظƒط¯ ظ…ظ† ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 npm run test
 
-# تأكد من عدم وجود أخطاء
+# طھط£ظƒط¯ ظ…ظ† ط¹ط¯ظ… ظˆط¬ظˆط¯ ط£ط®ط·ط§ط،
 npm run lint
 npm run type-check
 ```
 
-### الخطوة 3: Commit و Push
+### ط§ظ„ط®ط·ظˆط© 3: Commit ظˆ Push
 ```bash
 git add .
 git commit -m "feat: add new feature description"
 git push origin feature/new-feature-name
 ```
 
-### الخطوة 4: إنشاء Pull Request
-- افتح GitHub/GitLab
-- أنشئ Pull Request من branch الجديد إلى main
-- اطلب Code Review من الفريق
-- انتظر موافقة CI/CD Pipeline
+### ط§ظ„ط®ط·ظˆط© 4: ط¥ظ†ط´ط§ط، Pull Request
+- ط§ظپطھط­ GitHub/GitLab
+- ط£ظ†ط´ط¦ Pull Request ظ…ظ† branch ط§ظ„ط¬ط¯ظٹط¯ ط¥ظ„ظ‰ main
+- ط§ط·ظ„ط¨ Code Review ظ…ظ† ط§ظ„ظپط±ظٹظ‚
+- ط§ظ†طھط¸ط± ظ…ظˆط§ظپظ‚ط© CI/CD Pipeline
 
-### الخطوة 5: Merge و Deploy
+### ط§ظ„ط®ط·ظˆط© 5: Merge ظˆ Deploy
 ```bash
-# بعد الموافقة، يتم الـ merge تلقائياً
-# CI/CD Pipeline يعمل:
+# ط¨ط¹ط¯ ط§ظ„ظ…ظˆط§ظپظ‚ط©طŒ ظٹطھظ… ط§ظ„ظ€ merge طھظ„ظ‚ط§ط¦ظٹط§ظ‹
+# CI/CD Pipeline ظٹط¹ظ…ظ„:
 # 1. Build
 # 2. Test
 # 3. Deploy to Staging
-# 4. Deploy to Production (بعد الموافقة)
+# 4. Deploy to Production (ط¨ط¹ط¯ ط§ظ„ظ…ظˆط§ظپظ‚ط©)
 ```
 
 ---
 
-## 📦 أنواع التحديثات
+## ًں“¦ ط£ظ†ظˆط§ط¹ ط§ظ„طھط­ط¯ظٹط«ط§طھ
 
-### 1️⃣ تحديث صغير (Patch) - v3.2.0 → v3.2.1
-**متى؟** إصلاح bugs بسيطة
+### 1ï¸ڈâƒ£ طھط­ط¯ظٹط« طµط؛ظٹط± (Patch) - v3.2.0 â†’ v3.2.1
+**ظ…طھظ‰طں** ط¥طµظ„ط§ط­ bugs ط¨ط³ظٹط·ط©
 ```bash
 git checkout -b hotfix/fix-login-bug
-# عدل الكود
+# ط¹ط¯ظ„ ط§ظ„ظƒظˆط¯
 git commit -m "fix: resolve login timeout issue"
 ```
 
-### 2️⃣ تحديث متوسط (Minor) - v3.2.0 → v3.3.0
-**متى؟** إضافة ميزات جديدة بدون كسر التوافقية
+### 2ï¸ڈâƒ£ طھط­ط¯ظٹط« ظ…طھظˆط³ط· (Minor) - v3.2.0 â†’ v3.3.0
+**ظ…طھظ‰طں** ط¥ط¶ط§ظپط© ظ…ظٹط²ط§طھ ط¬ط¯ظٹط¯ط© ط¨ط¯ظˆظ† ظƒط³ط± ط§ظ„طھظˆط§ظپظ‚ظٹط©
 ```bash
 git checkout -b feature/add-dark-mode
-# أضف الميزة
+# ط£ط¶ظپ ط§ظ„ظ…ظٹط²ط©
 git commit -m "feat: add dark mode support"
 ```
 
-### 3️⃣ تحديث كبير (Major) - v3.0.0 → v4.0.0
-**متى؟** تغييرات كبيرة قد تكسر التوافقية
+### 3ï¸ڈâƒ£ طھط­ط¯ظٹط« ظƒط¨ظٹط± (Major) - v3.0.0 â†’ v4.0.0
+**ظ…طھظ‰طں** طھط؛ظٹظٹط±ط§طھ ظƒط¨ظٹط±ط© ظ‚ط¯ طھظƒط³ط± ط§ظ„طھظˆط§ظپظ‚ظٹط©
 ```bash
 git checkout -b release/v4.0.0
-# تغييرات كبيرة
+# طھط؛ظٹظٹط±ط§طھ ظƒط¨ظٹط±ط©
 git commit -m "feat!: redesign payment system"
 ```
 
 ---
 
-## 🔧 تحديث كل مكون
+## ًں”§ طھط­ط¯ظٹط« ظƒظ„ ظ…ظƒظˆظ†
 
-### تحديث Backend Service
+### طھط­ط¯ظٹط« Backend Service
 ```bash
-# 1. عدل الكود في backend/services/[service-name]/
+# 1. ط¹ط¯ظ„ ط§ظ„ظƒظˆط¯ ظپظٹ backend/services/[service-name]/
 cd backend/services/auth-service
 
-# 2. اختبر محلياً
+# 2. ط§ط®طھط¨ط± ظ…ط­ظ„ظٹط§ظ‹
 npm run dev
 npm run test
 
 # 3. Build Docker image
-docker build -t mnbara/auth-service:v3.3.0 .
+docker build -t mnbarh/auth-service:v3.3.0 .
 
 # 4. Push to registry
-docker push mnbara/auth-service:v3.3.0
+docker push mnbarh/auth-service:v3.3.0
 
 # 5. Update Kubernetes deployment
 kubectl set image deployment/auth-service \
-  auth-service=mnbara/auth-service:v3.3.0 -n mnbara
+  auth-service=mnbarh/auth-service:v3.3.0 -n mnbarh
 ```
 
-### تحديث Frontend (Web)
+### طھط­ط¯ظٹط« Frontend (Web)
 ```bash
-# 1. عدل الكود في frontend/web-app/
+# 1. ط¹ط¯ظ„ ط§ظ„ظƒظˆط¯ ظپظٹ frontend/web-app/
 cd frontend/web-app
 
-# 2. اختبر محلياً
+# 2. ط§ط®طھط¨ط± ظ…ط­ظ„ظٹط§ظ‹
 npm run dev
 npm run build
 
-# 3. Build و Deploy
-docker build -t mnbara/web-app:v3.3.0 .
-docker push mnbara/web-app:v3.3.0
+# 3. Build ظˆ Deploy
+docker build -t mnbarh/web-app:v3.3.0 .
+docker push mnbarh/web-app:v3.3.0
 
 # 4. Update deployment
 kubectl set image deployment/web-app \
-  web-app=mnbara/web-app:v3.3.0 -n mnbara
+  web-app=mnbarh/web-app:v3.3.0 -n mnbarh
 ```
 
-### تحديث Flutter App
+### طھط­ط¯ظٹط« Flutter App
 ```bash
-# 1. عدل الكود في mobile/flutter_app/
+# 1. ط¹ط¯ظ„ ط§ظ„ظƒظˆط¯ ظپظٹ mobile/flutter_app/
 cd mobile/flutter_app
 
-# 2. اختبر محلياً
+# 2. ط§ط®طھط¨ط± ظ…ط­ظ„ظٹط§ظ‹
 flutter run
 
-# 3. Build للإنتاج
+# 3. Build ظ„ظ„ط¥ظ†طھط§ط¬
 # Android
 flutter build apk --release
 flutter build appbundle --release
@@ -178,14 +178,14 @@ flutter build appbundle --release
 # iOS
 flutter build ios --release
 
-# 4. رفع للمتاجر
-# Android → Google Play Console
-# iOS → App Store Connect
+# 4. ط±ظپط¹ ظ„ظ„ظ…طھط§ط¬ط±
+# Android â†’ Google Play Console
+# iOS â†’ App Store Connect
 ```
 
 ---
 
-## 🤖 CI/CD Pipeline
+## ًں¤– CI/CD Pipeline
 
 ### GitHub Actions Workflow
 ```yaml
@@ -232,116 +232,117 @@ jobs:
 
 ---
 
-## ⏪ Rollback Strategy
+## âڈھ Rollback Strategy
 
-### إذا حصل مشكلة بعد التحديث:
+### ط¥ط°ط§ ط­طµظ„ ظ…ط´ظƒظ„ط© ط¨ط¹ط¯ ط§ظ„طھط­ط¯ظٹط«:
 ```bash
-# 1. Rollback سريع في Kubernetes
-kubectl rollout undo deployment/[service-name] -n mnbara
+# 1. Rollback ط³ط±ظٹط¹ ظپظٹ Kubernetes
+kubectl rollout undo deployment/[service-name] -n mnbarh
 
-# 2. أو ارجع لـ version معين
+# 2. ط£ظˆ ط§ط±ط¬ط¹ ظ„ظ€ version ظ…ط¹ظٹظ†
 kubectl rollout undo deployment/auth-service \
-  --to-revision=5 -n mnbara
+  --to-revision=5 -n mnbarh
 
-# 3. تحقق من الحالة
-kubectl rollout status deployment/auth-service -n mnbara
+# 3. طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط­ط§ظ„ط©
+kubectl rollout status deployment/auth-service -n mnbarh
 ```
 
 ### Database Rollback
 ```bash
-# إذا في migration جديد
+# ط¥ط°ط§ ظپظٹ migration ط¬ط¯ظٹط¯
 npx prisma migrate reset
-# أو
+# ط£ظˆ
 npx prisma migrate resolve --rolled-back [migration-name]
 ```
 
 ---
 
-## 📱 تحديث التطبيق (App Store / Play Store)
+## ًں“± طھط­ط¯ظٹط« ط§ظ„طھط·ط¨ظٹظ‚ (App Store / Play Store)
 
 ### Android (Google Play)
-1. زود `versionCode` في `android/app/build.gradle`
+1. ط²ظˆط¯ `versionCode` ظپظٹ `android/app/build.gradle`
 2. Build: `flutter build appbundle --release`
-3. ارفع على Google Play Console
-4. اختر Release Track (Internal → Beta → Production)
-5. انتظر المراجعة (عادة 1-3 أيام)
+3. ط§ط±ظپط¹ ط¹ظ„ظ‰ Google Play Console
+4. ط§ط®طھط± Release Track (Internal â†’ Beta â†’ Production)
+5. ط§ظ†طھط¸ط± ط§ظ„ظ…ط±ط§ط¬ط¹ط© (ط¹ط§ط¯ط© 1-3 ط£ظٹط§ظ…)
 
 ### iOS (App Store)
-1. زود version في Xcode
+1. ط²ظˆط¯ version ظپظٹ Xcode
 2. Build: `flutter build ios --release`
-3. Archive من Xcode
-4. ارفع على App Store Connect
-5. اختر TestFlight أو Production
-6. انتظر المراجعة (عادة 1-7 أيام)
+3. Archive ظ…ظ† Xcode
+4. ط§ط±ظپط¹ ط¹ظ„ظ‰ App Store Connect
+5. ط§ط®طھط± TestFlight ط£ظˆ Production
+6. ط§ظ†طھط¸ط± ط§ظ„ظ…ط±ط§ط¬ط¹ط© (ط¹ط§ط¯ط© 1-7 ط£ظٹط§ظ…)
 
 ---
 
-## 🎛️ Feature Flags للتحديثات الآمنة
+## ًںژ›ï¸ڈ Feature Flags ظ„ظ„طھط­ط¯ظٹط«ط§طھ ط§ظ„ط¢ظ…ظ†ط©
 
-### تفعيل ميزة جديدة تدريجياً:
+### طھظپط¹ظٹظ„ ظ…ظٹط²ط© ط¬ط¯ظٹط¯ط© طھط¯ط±ظٹط¬ظٹط§ظ‹:
 ```typescript
-// في الكود
+// ظپظٹ ط§ظ„ظƒظˆط¯
 if (await featureService.isEnabled('new-checkout-flow', userId)) {
-  // الميزة الجديدة
+  // ط§ظ„ظ…ظٹط²ط© ط§ظ„ط¬ط¯ظٹط¯ط©
   return newCheckoutFlow();
 } else {
-  // الميزة القديمة
+  // ط§ظ„ظ…ظٹط²ط© ط§ظ„ظ‚ط¯ظٹظ…ط©
   return oldCheckoutFlow();
 }
 ```
 
-### من لوحة التحكم:
-1. افتح Admin Dashboard → Feature Flags
-2. أنشئ Feature Flag جديد
-3. فعّل لـ 10% من المستخدمين
-4. راقب الأداء
-5. زود النسبة تدريجياً
-6. فعّل للجميع
+### ظ…ظ† ظ„ظˆط­ط© ط§ظ„طھط­ظƒظ…:
+1. ط§ظپطھط­ Admin Dashboard â†’ Feature Flags
+2. ط£ظ†ط´ط¦ Feature Flag ط¬ط¯ظٹط¯
+3. ظپط¹ظ‘ظ„ ظ„ظ€ 10% ظ…ظ† ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ†
+4. ط±ط§ظ‚ط¨ ط§ظ„ط£ط¯ط§ط،
+5. ط²ظˆط¯ ط§ظ„ظ†ط³ط¨ط© طھط¯ط±ظٹط¬ظٹط§ظ‹
+6. ظپط¹ظ‘ظ„ ظ„ظ„ط¬ظ…ظٹط¹
 
 ---
 
-## 📊 مراقبة التحديث
+## ًں“ٹ ظ…ط±ط§ظ‚ط¨ط© ط§ظ„طھط­ط¯ظٹط«
 
-### بعد كل تحديث راقب:
+### ط¨ط¹ط¯ ظƒظ„ طھط­ط¯ظٹط« ط±ط§ظ‚ط¨:
 ```bash
-# 1. صحة الـ Pods
-kubectl get pods -n mnbara
+# 1. طµط­ط© ط§ظ„ظ€ Pods
+kubectl get pods -n mnbarh
 
 # 2. Logs
-kubectl logs -f deployment/[service-name] -n mnbara
+kubectl logs -f deployment/[service-name] -n mnbarh
 
-# 3. Metrics في Grafana
+# 3. Metrics ظپظٹ Grafana
 # - Response Time
 # - Error Rate
 # - CPU/Memory Usage
 
-# 4. Alerts في PagerDuty/Slack
+# 4. Alerts ظپظٹ PagerDuty/Slack
 ```
 
 ---
 
-## ✅ Checklist قبل كل تحديث
+## âœ… Checklist ظ‚ط¨ظ„ ظƒظ„ طھط­ط¯ظٹط«
 
-- [ ] الاختبارات ناجحة 100%
-- [ ] Code Review تم
-- [ ] Documentation محدثة
-- [ ] Database migrations جاهزة
-- [ ] Rollback plan موجود
-- [ ] Monitoring alerts مفعلة
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ ظ†ط§ط¬ط­ط© 100%
+- [ ] Code Review طھظ…
+- [ ] Documentation ظ…ط­ط¯ط«ط©
+- [ ] Database migrations ط¬ط§ظ‡ط²ط©
+- [ ] Rollback plan ظ…ظˆط¬ظˆط¯
+- [ ] Monitoring alerts ظ…ظپط¹ظ„ط©
 - [ ] Team notified
-- [ ] Backup موجود
+- [ ] Backup ظ…ظˆط¬ظˆط¯
 
 ---
 
-## 🗓️ جدول التحديثات المقترح
+## ًں—“ï¸ڈ ط¬ط¯ظˆظ„ ط§ظ„طھط­ط¯ظٹط«ط§طھ ط§ظ„ظ…ظ‚طھط±ط­
 
-| النوع | التكرار | الوقت المناسب |
+| ط§ظ„ظ†ظˆط¹ | ط§ظ„طھظƒط±ط§ط± | ط§ظ„ظˆظ‚طھ ط§ظ„ظ…ظ†ط§ط³ط¨ |
 |-------|---------|---------------|
-| Hotfix | فوري | أي وقت |
-| Patch | أسبوعي | الثلاثاء 10 صباحاً |
-| Minor | شهري | أول أسبوع |
-| Major | ربع سنوي | بداية الربع |
+| Hotfix | ظپظˆط±ظٹ | ط£ظٹ ظˆظ‚طھ |
+| Patch | ط£ط³ط¨ظˆط¹ظٹ | ط§ظ„ط«ظ„ط§ط«ط§ط، 10 طµط¨ط§ط­ط§ظ‹ |
+| Minor | ط´ظ‡ط±ظٹ | ط£ظˆظ„ ط£ط³ط¨ظˆط¹ |
+| Major | ط±ط¨ط¹ ط³ظ†ظˆظٹ | ط¨ط¯ط§ظٹط© ط§ظ„ط±ط¨ط¹ |
 
 ---
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
+

@@ -1,14 +1,14 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# ⚡ منبرة - سكريبت تحسين الأداء
-# MNBara Platform - Performance Optimization Script
+# âڑ، ظ…ظ†ط¨ط±ط© - ط³ظƒط±ظٹط¨طھ طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط،
+# mnbarh Platform - Performance Optimization Script
 
 set -e
 
-echo "⚡ بدء تحسين الأداء"
+echo "âڑ، ط¨ط¯ط، طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط،"
 echo "================================"
 
-# الألوان
+# ط§ظ„ط£ظ„ظˆط§ظ†
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -22,20 +22,20 @@ print_header() {
 }
 
 print_success() {
-  echo -e "${GREEN}✅ $1${NC}"
+  echo -e "${GREEN}âœ… $1${NC}"
 }
 
 print_info() {
-  echo -e "${BLUE}ℹ️  $1${NC}"
+  echo -e "${BLUE}â„¹ï¸ڈ  $1${NC}"
 }
 
-# 1. تحسين قاعدة البيانات
+# 1. طھط­ط³ظٹظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
 optimize_database() {
-  print_header "المرحلة 1: تحسين قاعدة البيانات"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 1: طھط­ط³ظٹظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ"
   
-  echo -e "\n${YELLOW}إنشاء الفهارس المفقودة...${NC}"
+  echo -e "\n${YELLOW}ط¥ظ†ط´ط§ط، ط§ظ„ظپظ‡ط§ط±ط³ ط§ظ„ظ…ظپظ‚ظˆط¯ط©...${NC}"
   
-  # قائمة الفهارس المطلوبة
+  # ظ‚ط§ط¦ظ…ط© ط§ظ„ظپظ‡ط§ط±ط³ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
   INDEXES=(
     "CREATE INDEX IF NOT EXISTS idx_auctions_status ON auctions(status);"
     "CREATE INDEX IF NOT EXISTS idx_auctions_ends_at ON auctions(ends_at);"
@@ -57,11 +57,11 @@ optimize_database() {
     echo "  $index"
   done
   
-  print_success "فهارس قاعدة البيانات - تم"
+  print_success "ظپظ‡ط§ط±ط³ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ - طھظ…"
   
-  echo -e "\n${YELLOW}تحسين استعلامات قاعدة البيانات...${NC}"
+  echo -e "\n${YELLOW}طھط­ط³ظٹظ† ط§ط³طھط¹ظ„ط§ظ…ط§طھ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ...${NC}"
   
-  # تحسين الاستعلامات
+  # طھط­ط³ظٹظ† ط§ظ„ط§ط³طھط¹ظ„ط§ظ…ط§طھ
   OPTIMIZATIONS=(
     "ANALYZE;"
     "VACUUM ANALYZE;"
@@ -72,14 +72,14 @@ optimize_database() {
     echo "  $opt"
   done
   
-  print_success "تحسين الاستعلامات - تم"
+  print_success "طھط­ط³ظٹظ† ط§ظ„ط§ط³طھط¹ظ„ط§ظ…ط§طھ - طھظ…"
 }
 
-# 2. تحسين الـ API
+# 2. طھط­ط³ظٹظ† ط§ظ„ظ€ API
 optimize_api() {
-  print_header "المرحلة 2: تحسين الـ API"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 2: طھط­ط³ظٹظ† ط§ظ„ظ€ API"
   
-  echo -e "\n${YELLOW}تفعيل الـ Caching...${NC}"
+  echo -e "\n${YELLOW}طھظپط¹ظٹظ„ ط§ظ„ظ€ Caching...${NC}"
   
   cat > /tmp/cache-config.json << 'EOF'
 {
@@ -101,9 +101,9 @@ optimize_api() {
 }
 EOF
   
-  print_success "إعدادات الـ Caching - تم"
+  print_success "ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ€ Caching - طھظ…"
   
-  echo -e "\n${YELLOW}تفعيل الـ Compression...${NC}"
+  echo -e "\n${YELLOW}طھظپط¹ظٹظ„ ط§ظ„ظ€ Compression...${NC}"
   
   cat > /tmp/compression-config.json << 'EOF'
 {
@@ -119,9 +119,9 @@ EOF
 }
 EOF
   
-  print_success "إعدادات الـ Compression - تم"
+  print_success "ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ€ Compression - طھظ…"
   
-  echo -e "\n${YELLOW}تحسين الـ Pagination...${NC}"
+  echo -e "\n${YELLOW}طھط­ط³ظٹظ† ط§ظ„ظ€ Pagination...${NC}"
   
   cat > /tmp/pagination-config.json << 'EOF'
 {
@@ -131,14 +131,14 @@ EOF
 }
 EOF
   
-  print_success "إعدادات الـ Pagination - تم"
+  print_success "ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ€ Pagination - طھظ…"
 }
 
-# 3. تحسين الـ Frontend
+# 3. طھط­ط³ظٹظ† ط§ظ„ظ€ Frontend
 optimize_frontend() {
-  print_header "المرحلة 3: تحسين الـ Frontend"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 3: طھط­ط³ظٹظ† ط§ظ„ظ€ Frontend"
   
-  echo -e "\n${YELLOW}تفعيل Code Splitting...${NC}"
+  echo -e "\n${YELLOW}طھظپط¹ظٹظ„ Code Splitting...${NC}"
   
   cat > /tmp/webpack-config.js << 'EOF'
 module.exports = {
@@ -162,9 +162,9 @@ module.exports = {
 };
 EOF
   
-  print_success "Code Splitting - تم"
+  print_success "Code Splitting - طھظ…"
   
-  echo -e "\n${YELLOW}تحسين الصور...${NC}"
+  echo -e "\n${YELLOW}طھط­ط³ظٹظ† ط§ظ„طµظˆط±...${NC}"
   
   cat > /tmp/image-optimization.json << 'EOF'
 {
@@ -175,9 +175,9 @@ EOF
 }
 EOF
   
-  print_success "تحسين الصور - تم"
+  print_success "طھط­ط³ظٹظ† ط§ظ„طµظˆط± - طھظ…"
   
-  echo -e "\n${YELLOW}تقليل حجم Bundle...${NC}"
+  echo -e "\n${YELLOW}طھظ‚ظ„ظٹظ„ ط­ط¬ظ… Bundle...${NC}"
   
   cat > /tmp/bundle-config.json << 'EOF'
 {
@@ -188,20 +188,20 @@ EOF
 }
 EOF
   
-  print_success "تقليل حجم Bundle - تم"
+  print_success "طھظ‚ظ„ظٹظ„ ط­ط¬ظ… Bundle - طھظ…"
 }
 
-# 4. تحسين الـ Infrastructure
+# 4. طھط­ط³ظٹظ† ط§ظ„ظ€ Infrastructure
 optimize_infrastructure() {
-  print_header "المرحلة 4: تحسين الـ Infrastructure"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 4: طھط­ط³ظٹظ† ط§ظ„ظ€ Infrastructure"
   
-  echo -e "\n${YELLOW}إعداد Auto-scaling...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Auto-scaling...${NC}"
   
   cat > /tmp/autoscaling-config.yaml << 'EOF'
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: mnbara-hpa
+  name: mnbarh-hpa
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -224,9 +224,9 @@ spec:
         averageUtilization: 80
 EOF
   
-  print_success "Auto-scaling - تم"
+  print_success "Auto-scaling - طھظ…"
   
-  echo -e "\n${YELLOW}إعداد Load Balancing...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Load Balancing...${NC}"
   
   cat > /tmp/loadbalancer-config.yaml << 'EOF'
 apiVersion: v1
@@ -244,9 +244,9 @@ spec:
   sessionAffinity: ClientIP
 EOF
   
-  print_success "Load Balancing - تم"
+  print_success "Load Balancing - طھظ…"
   
-  echo -e "\n${YELLOW}إعداد Connection Pooling...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Connection Pooling...${NC}"
   
   cat > /tmp/connection-pool-config.json << 'EOF'
 {
@@ -263,14 +263,14 @@ EOF
 }
 EOF
   
-  print_success "Connection Pooling - تم"
+  print_success "Connection Pooling - طھظ…"
 }
 
-# 5. تحسين الـ Caching Strategy
+# 5. طھط­ط³ظٹظ† ط§ظ„ظ€ Caching Strategy
 optimize_caching() {
-  print_header "المرحلة 5: تحسين استراتيجية الـ Caching"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 5: طھط­ط³ظٹظ† ط§ط³طھط±ط§طھظٹط¬ظٹط© ط§ظ„ظ€ Caching"
   
-  echo -e "\n${YELLOW}إعداد Multi-layer Caching...${NC}"
+  echo -e "\n${YELLOW}ط¥ط¹ط¯ط§ط¯ Multi-layer Caching...${NC}"
   
   cat > /tmp/caching-strategy.json << 'EOF'
 {
@@ -309,14 +309,14 @@ optimize_caching() {
 }
 EOF
   
-  print_success "Multi-layer Caching - تم"
+  print_success "Multi-layer Caching - طھظ…"
 }
 
-# 6. تحسين الـ Search
+# 6. طھط­ط³ظٹظ† ط§ظ„ظ€ Search
 optimize_search() {
-  print_header "المرحلة 6: تحسين الـ Search"
+  print_header "ط§ظ„ظ…ط±ط­ظ„ط© 6: طھط­ط³ظٹظ† ط§ظ„ظ€ Search"
   
-  echo -e "\n${YELLOW}تحسين Elasticsearch...${NC}"
+  echo -e "\n${YELLOW}طھط­ط³ظٹظ† Elasticsearch...${NC}"
   
   cat > /tmp/elasticsearch-config.json << 'EOF'
 {
@@ -333,63 +333,63 @@ optimize_search() {
 }
 EOF
   
-  print_success "Elasticsearch - تم"
+  print_success "Elasticsearch - طھظ…"
 }
 
-# 7. تقرير التحسينات
+# 7. طھظ‚ط±ظٹط± ط§ظ„طھط­ط³ظٹظ†ط§طھ
 generate_optimization_report() {
-  print_header "تقرير التحسينات النهائي"
+  print_header "طھظ‚ط±ظٹط± ط§ظ„طھط­ط³ظٹظ†ط§طھ ط§ظ„ظ†ظ‡ط§ط¦ظٹ"
   
-  echo -e "\n${GREEN}✅ تحسينات الأداء اكتملت بنجاح!${NC}"
+  echo -e "\n${GREEN}âœ… طھط­ط³ظٹظ†ط§طھ ط§ظ„ط£ط¯ط§ط، ط§ظƒطھظ…ظ„طھ ط¨ظ†ط¬ط§ط­!${NC}"
   
-  echo -e "\n${BLUE}الملخص:${NC}"
-  echo "1. تحسين قاعدة البيانات:"
-  echo "   - إضافة 14 فهرس جديد"
-  echo "   - تحسين الاستعلامات"
-  echo "   - تحسين الأداء المتوقع: 30-50%"
+  echo -e "\n${BLUE}ط§ظ„ظ…ظ„ط®طµ:${NC}"
+  echo "1. طھط­ط³ظٹظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ:"
+  echo "   - ط¥ط¶ط§ظپط© 14 ظپظ‡ط±ط³ ط¬ط¯ظٹط¯"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط§ط³طھط¹ظ„ط§ظ…ط§طھ"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 30-50%"
   
-  echo -e "\n2. تحسين الـ API:"
-  echo "   - تفعيل الـ Caching (Redis)"
-  echo "   - تفعيل الـ Compression (gzip/brotli)"
-  echo "   - تحسين الـ Pagination"
-  echo "   - تحسين الأداء المتوقع: 40-60%"
+  echo -e "\n2. طھط­ط³ظٹظ† ط§ظ„ظ€ API:"
+  echo "   - طھظپط¹ظٹظ„ ط§ظ„ظ€ Caching (Redis)"
+  echo "   - طھظپط¹ظٹظ„ ط§ظ„ظ€ Compression (gzip/brotli)"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ظ€ Pagination"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 40-60%"
   
-  echo -e "\n3. تحسين الـ Frontend:"
+  echo -e "\n3. طھط­ط³ظٹظ† ط§ظ„ظ€ Frontend:"
   echo "   - Code Splitting"
-  echo "   - تحسين الصور"
-  echo "   - تقليل حجم Bundle"
-  echo "   - تحسين الأداء المتوقع: 50-70%"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„طµظˆط±"
+  echo "   - طھظ‚ظ„ظٹظ„ ط­ط¬ظ… Bundle"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 50-70%"
   
-  echo -e "\n4. تحسين الـ Infrastructure:"
+  echo -e "\n4. طھط­ط³ظٹظ† ط§ظ„ظ€ Infrastructure:"
   echo "   - Auto-scaling (2-10 replicas)"
   echo "   - Load Balancing"
   echo "   - Connection Pooling"
-  echo "   - تحسين الأداء المتوقع: 60-80%"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 60-80%"
   
-  echo -e "\n5. تحسين الـ Caching:"
+  echo -e "\n5. طھط­ط³ظٹظ† ط§ظ„ظ€ Caching:"
   echo "   - Multi-layer Caching"
   echo "   - Browser + CDN + Redis + DB + Memory"
-  echo "   - تحسين الأداء المتوقع: 70-90%"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 70-90%"
   
-  echo -e "\n6. تحسين الـ Search:"
+  echo -e "\n6. طھط­ط³ظٹظ† ط§ظ„ظ€ Search:"
   echo "   - Elasticsearch Optimization"
   echo "   - Query Caching"
-  echo "   - تحسين الأداء المتوقع: 40-60%"
+  echo "   - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط، ط§ظ„ظ…طھظˆظ‚ط¹: 40-60%"
   
-  echo -e "\n${GREEN}النتيجة المتوقعة:${NC}"
-  echo "- Response Time: 200ms → 50-100ms"
-  echo "- Throughput: 1000 req/sec → 5000+ req/sec"
-  echo "- Error Rate: 0.1% → 0.01%"
-  echo "- Uptime: 99.9% → 99.99%"
+  echo -e "\n${GREEN}ط§ظ„ظ†طھظٹط¬ط© ط§ظ„ظ…طھظˆظ‚ط¹ط©:${NC}"
+  echo "- Response Time: 200ms â†’ 50-100ms"
+  echo "- Throughput: 1000 req/sec â†’ 5000+ req/sec"
+  echo "- Error Rate: 0.1% â†’ 0.01%"
+  echo "- Uptime: 99.9% â†’ 99.99%"
 }
 
-# تشغيل التحسينات
+# طھط´ط؛ظٹظ„ ط§ظ„طھط­ط³ظٹظ†ط§طھ
 main() {
   echo -e "${BLUE}"
-  echo "╔════════════════════════════════════════╗"
-  echo "║  منبرة - تحسين الأداء                ║"
-  echo "║  MNBara - Performance Optimization    ║"
-  echo "╚════════════════════════════════════════╝"
+  echo "â•”â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•—"
+  echo "â•‘  ظ…ظ†ط¨ط±ط© - طھط­ط³ظٹظ† ط§ظ„ط£ط¯ط§ط،                â•‘"
+  echo "â•‘  mnbarh - Performance Optimization    â•‘"
+  echo "â•ڑâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•‌"
   echo -e "${NC}"
   
   optimize_database
@@ -402,4 +402,5 @@ main() {
 }
 
 main
+
 

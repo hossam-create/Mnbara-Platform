@@ -1,14 +1,14 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# Mnbara Platform - Pre-Launch Validation Script
+# mnbarh Platform - Pre-Launch Validation Script
 # Final validation before January 1, 2026 launch
 # Status: COMPLETING FINAL 5%
 
 set -e
 
-echo "🔍 Mnbara Platform - Pre-Launch Validation"
+echo "ًں”چ mnbarh Platform - Pre-Launch Validation"
 echo "=========================================="
-echo "Launch Date: January 1, 2026 🎊"
+echo "Launch Date: January 1, 2026 ًںژٹ"
 echo "Current Date: $(date)"
 echo "Status: FINAL VALIDATION"
 
@@ -37,8 +37,8 @@ print_info() {
 }
 
 # Configuration
-DOMAIN_NAME=${DOMAIN_NAME:-"mnbara.com"}
-NAMESPACE="mnbara-production"
+DOMAIN_NAME=${DOMAIN_NAME:-"mnbarh.com"}
+NAMESPACE="mnbarh-production"
 
 # Validation counters
 TOTAL_CHECKS=0
@@ -63,7 +63,7 @@ validate_check() {
     fi
 }
 
-print_info "🎯 PRE-LAUNCH VALIDATION SUITE"
+print_info "ًںژ¯ PRE-LAUNCH VALIDATION SUITE"
 echo "==============================="
 
 # Validation Suite 1: Infrastructure Readiness
@@ -96,7 +96,7 @@ done
 # Validation Suite 3: Database Connectivity
 print_info "=== DATABASE VALIDATION ==="
 
-validate_check "PostgreSQL Connection" "kubectl exec -n $NAMESPACE deployment/postgres -- pg_isready -U mnbara_user > /dev/null 2>&1"
+validate_check "PostgreSQL Connection" "kubectl exec -n $NAMESPACE deployment/postgres -- pg_isready -U mnbarh_user > /dev/null 2>&1"
 validate_check "Redis Connection" "kubectl exec -n $NAMESPACE deployment/redis -- redis-cli ping > /dev/null 2>&1"
 validate_check "Elasticsearch Health" "kubectl exec -n $NAMESPACE deployment/elasticsearch -- curl -f -s http://localhost:9200/_cluster/health > /dev/null 2>&1"
 
@@ -118,8 +118,8 @@ validate_check "Security Headers Present" "curl -I https://$DOMAIN_NAME 2>/dev/n
 # Validation Suite 6: Monitoring and Observability
 print_info "=== MONITORING VALIDATION ==="
 
-validate_check "Prometheus Running" "kubectl get pods -n mnbara-monitoring -l app=prometheus --field-selector=status.phase=Running --no-headers | wc -l | grep -q '[1-9]'"
-validate_check "Grafana Running" "kubectl get pods -n mnbara-monitoring -l app=grafana --field-selector=status.phase=Running --no-headers | wc -l | grep -q '[1-9]'"
+validate_check "Prometheus Running" "kubectl get pods -n mnbarh-monitoring -l app=prometheus --field-selector=status.phase=Running --no-headers | wc -l | grep -q '[1-9]'"
+validate_check "Grafana Running" "kubectl get pods -n mnbarh-monitoring -l app=grafana --field-selector=status.phase=Running --no-headers | wc -l | grep -q '[1-9]'"
 validate_check "HPA Configured" "kubectl get hpa -n $NAMESPACE --no-headers | wc -l | grep -q '[1-9]'"
 
 # Validation Suite 7: Performance Benchmarks
@@ -148,7 +148,7 @@ TOTAL_CHECKS=$((TOTAL_CHECKS + 1))
 
 # Final Results
 echo ""
-print_info "🏁 PRE-LAUNCH VALIDATION RESULTS"
+print_info "ًںڈپ PRE-LAUNCH VALIDATION RESULTS"
 echo "================================="
 echo ""
 print_info "Total Checks: $TOTAL_CHECKS"
@@ -161,46 +161,46 @@ print_info "Success Rate: $SUCCESS_RATE%"
 
 if [ $SUCCESS_RATE -ge 95 ]; then
     echo ""
-    print_pass "🎉 EXCELLENT! Platform is ready for launch!"
-    print_pass "🚀 All critical systems validated"
+    print_pass "ًںژ‰ EXCELLENT! Platform is ready for launch!"
+    print_pass "ًںڑ€ All critical systems validated"
     echo ""
-    echo "✅ Launch Readiness: APPROVED"
-    echo "✅ System Health: EXCELLENT"
-    echo "✅ Performance: OPTIMAL"
-    echo "✅ Security: VALIDATED"
-    echo "✅ Infrastructure: READY"
+    echo "âœ… Launch Readiness: APPROVED"
+    echo "âœ… System Health: EXCELLENT"
+    echo "âœ… Performance: OPTIMAL"
+    echo "âœ… Security: VALIDATED"
+    echo "âœ… Infrastructure: READY"
     echo ""
-    echo "🎊 100% READY FOR JANUARY 1, 2026 LAUNCH! 🎊"
+    echo "ًںژٹ 100% READY FOR JANUARY 1, 2026 LAUNCH! ًںژٹ"
     VALIDATION_STATUS="APPROVED"
 elif [ $SUCCESS_RATE -ge 90 ]; then
     echo ""
-    print_info "⚠️  GOOD - Minor issues detected"
-    print_info "🔧 Some non-critical validations failed"
+    print_info "âڑ ï¸ڈ  GOOD - Minor issues detected"
+    print_info "ًں”§ Some non-critical validations failed"
     echo ""
-    echo "⚠️  Launch Readiness: CONDITIONAL"
-    echo "✅ System Health: GOOD"
-    echo "⚠️  Performance: ACCEPTABLE"
-    echo "✅ Security: VALIDATED"
+    echo "âڑ ï¸ڈ  Launch Readiness: CONDITIONAL"
+    echo "âœ… System Health: GOOD"
+    echo "âڑ ï¸ڈ  Performance: ACCEPTABLE"
+    echo "âœ… Security: VALIDATED"
     echo ""
-    echo "🚀 Can launch with monitoring for issues"
+    echo "ًںڑ€ Can launch with monitoring for issues"
     VALIDATION_STATUS="CONDITIONAL"
 else
     echo ""
-    print_fail "❌ CRITICAL ISSUES DETECTED"
-    print_fail "🚨 Too many validations failed for safe launch"
+    print_fail "â‌Œ CRITICAL ISSUES DETECTED"
+    print_fail "ًںڑ¨ Too many validations failed for safe launch"
     echo ""
-    echo "❌ Launch Readiness: NOT READY"
-    echo "❌ System Health: ISSUES DETECTED"
-    echo "❌ Performance: NEEDS IMPROVEMENT"
-    echo "❌ Security: REVIEW REQUIRED"
+    echo "â‌Œ Launch Readiness: NOT READY"
+    echo "â‌Œ System Health: ISSUES DETECTED"
+    echo "â‌Œ Performance: NEEDS IMPROVEMENT"
+    echo "â‌Œ Security: REVIEW REQUIRED"
     echo ""
-    echo "🔧 Fix critical issues before launch"
+    echo "ًں”§ Fix critical issues before launch"
     VALIDATION_STATUS="NOT_READY"
 fi
 
 # Save validation results
 cat > pre-launch-validation-results.txt << EOF
-Mnbara Platform - Pre-Launch Validation Results
+mnbarh Platform - Pre-Launch Validation Results
 ==============================================
 Validation Date: $(date)
 Launch Date: January 1, 2026
@@ -212,29 +212,29 @@ Summary:
 - Success Rate: $SUCCESS_RATE%
 
 Validation Categories:
-✅ Infrastructure Validation
-✅ Service Health Validation
-✅ Database Validation
-✅ SSL & Domain Validation
-✅ Security Validation
-✅ Monitoring Validation
-✅ Performance Validation
+âœ… Infrastructure Validation
+âœ… Service Health Validation
+âœ… Database Validation
+âœ… SSL & Domain Validation
+âœ… Security Validation
+âœ… Monitoring Validation
+âœ… Performance Validation
 
 Launch Readiness: $VALIDATION_STATUS
 
-Final Status: $([ $SUCCESS_RATE -ge 95 ] && echo "🚀 READY FOR LAUNCH" || ([ $SUCCESS_RATE -ge 90 ] && echo "⚠️ CONDITIONAL LAUNCH" || echo "❌ NOT READY"))
+Final Status: $([ $SUCCESS_RATE -ge 95 ] && echo "ًںڑ€ READY FOR LAUNCH" || ([ $SUCCESS_RATE -ge 90 ] && echo "âڑ ï¸ڈ CONDITIONAL LAUNCH" || echo "â‌Œ NOT READY"))
 
 Next Steps:
 1. Review any failed validations and fix issues
 2. Monitor system performance continuously
 3. Prepare launch team and support
-4. 🚀 EXECUTE LAUNCH ON JANUARY 1, 2026!
+4. ًںڑ€ EXECUTE LAUNCH ON JANUARY 1, 2026!
 
-🎊 VALIDATION COMPLETE 🎊
+ًںژٹ VALIDATION COMPLETE ًںژٹ
 EOF
 
 print_pass "Validation results saved to pre-launch-validation-results.txt"
 echo ""
-print_info "🎊 PRE-LAUNCH VALIDATION COMPLETED! 🎊"
+print_info "ًںژٹ PRE-LAUNCH VALIDATION COMPLETED! ًںژٹ"
 
 exit $([ $SUCCESS_RATE -ge 90 ] && echo 0 || echo 1)

@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "demand-forecasting-service",
   "version": "1.0.0",
-  "description": "Mnbara Demand Forecasting Service - خدمة التنبؤ بالطلب",
+  "description": "mnbarh Demand Forecasting Service - ط®ط¯ظ…ط© ط§ظ„طھظ†ط¨ط¤ ط¨ط§ظ„ط·ظ„ط¨",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -36,3 +36,4 @@
     "node": "22.20.0"
   }
 }
+

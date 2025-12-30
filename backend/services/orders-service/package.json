@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/orders-service",
+﻿{
+  "name": "@mnbarh/orders-service",
   "version": "1.0.0",
-  "description": "Mnbara Orders Service - Buyer Requests & Order Management",
+  "description": "mnbarh Orders Service - Buyer Requests & Order Management",
   "main": "dist/main.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
@@ -50,3 +50,4 @@
     "node": "22.20.0"
   }
 }
+

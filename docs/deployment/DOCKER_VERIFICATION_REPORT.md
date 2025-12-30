@@ -1,29 +1,29 @@
-# Docker Verification Report
-## Mnbara Platform - Phase 2
+﻿# Docker Verification Report
+## mnbarh Platform - Phase 2
 
 **Date**: 2025-11-30
-**Status**: ✅ VERIFIED & FIXED
+**Status**: âœ… VERIFIED & FIXED
 
 ---
 
-## 📊 Summary
+## ًں“ٹ Summary
 
 The Docker infrastructure has been verified and updated to include all microservices. The configuration is valid and ready for local development or deployment.
 
-### ✅ Verified Components
+### âœ… Verified Components
 - **Docker Compose**: Validated syntax and service definitions.
 - **Service Coverage**: All 12 active services are now included (was 9).
 - **Dockerfiles**: Created/Fixed missing Dockerfiles.
 
 ---
 
-## 🛠️ Fixes Applied
+## ًں› ï¸ڈ Fixes Applied
 
 ### 1. Missing Services Added
 The following services were missing from `docker-compose.yml` and have been added:
-- ✅ **orders-service** (Port 3009)
-- ✅ **trips-service** (Port 3010)
-- ✅ **matching-service** (Port 3011)
+- âœ… **orders-service** (Port 3009)
+- âœ… **trips-service** (Port 3010)
+- âœ… **matching-service** (Port 3011)
 
 ### 2. Dockerfile Creation
 - Created `Dockerfile` for **trips-service**.
@@ -39,28 +39,28 @@ The following services were missing from `docker-compose.yml` and have been adde
 
 ---
 
-## 🐳 Service Port Mapping
+## ًںگ³ Service Port Mapping
 
 | Service | Port | Status |
 |---------|------|--------|
-| **Postgres** | 5432 | ✅ |
-| **Redis** | 6379 | ✅ |
-| **API Gateway** | 8080 | ✅ |
-| **Auth Service** | 3001 | ✅ |
-| **Listing Service** | 3002 | ✅ |
-| **Auction Service** | 3003 | ✅ |
-| **Payment Service** | 3004 | ✅ |
-| **Crowdship Service** | 3005 | ✅ |
-| **Notification Service** | 3006 | ✅ |
-| **Recommendation Service** | 3007 | ✅ |
-| **Rewards Service** | 3008 | ✅ |
-| **Orders Service** | 3009 | ✅ (New) |
-| **Trips Service** | 3010 | ✅ (New) |
-| **Matching Service** | 3011 | ✅ (New) |
+| **Postgres** | 5432 | âœ… |
+| **Redis** | 6379 | âœ… |
+| **API Gateway** | 8080 | âœ… |
+| **Auth Service** | 3001 | âœ… |
+| **Listing Service** | 3002 | âœ… |
+| **Auction Service** | 3003 | âœ… |
+| **Payment Service** | 3004 | âœ… |
+| **Crowdship Service** | 3005 | âœ… |
+| **Notification Service** | 3006 | âœ… |
+| **Recommendation Service** | 3007 | âœ… |
+| **Rewards Service** | 3008 | âœ… |
+| **Orders Service** | 3009 | âœ… (New) |
+| **Trips Service** | 3010 | âœ… (New) |
+| **Matching Service** | 3011 | âœ… (New) |
 
 ---
 
-## 🚀 How to Run
+## ًںڑ€ How to Run
 
 To start the entire platform locally:
 
@@ -77,7 +77,7 @@ docker-compose up --build auth-service
 
 ---
 
-## ⚠️ Known Issues / Next Steps
+## âڑ ï¸ڈ Known Issues / Next Steps
 
 1. **Prisma Schema**: `orders`, `trips`, and `matching` services need their Prisma schemas generated/copied.
 2. **Environment Variables**: Ensure `.env` files are created for all services (using `.env.example`).
@@ -86,3 +86,4 @@ docker-compose up --build auth-service
 ---
 
 **Verification Complete** - Ready for CI/CD Setup.
+

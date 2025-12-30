@@ -1,10 +1,10 @@
-# CROSS-BORDER FX — RISK & REGULATORY SPECIFICATION
+﻿# CROSS-BORDER FX â€” RISK & REGULATORY SPECIFICATION
 ## FX Risk Types, Warnings, Prohibitions & Controls
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Cross-Border FX Risk & Compliance Framework  
 **Date:** December 20, 2025  
-**Classification:** Internal — Risk, Compliance & Finance
+**Classification:** Internal â€” Risk, Compliance & Finance
 
 ---
 
@@ -109,8 +109,8 @@
 | Scenario | Warning Text | Display Location |
 |----------|--------------|------------------|
 | **Standard transaction** | "Exchange rates change frequently. The rate shown is valid for 60 seconds." | Quote screen |
-| **High volatility corridor** | "⚠️ This currency pair experiences high volatility. Rates may change significantly." | Quote screen (highlighted) |
-| **Emerging market** | "⚠️ Emerging market currencies can be volatile. Consider this before proceeding." | Quote screen (highlighted) |
+| **High volatility corridor** | "âڑ ï¸ڈ This currency pair experiences high volatility. Rates may change significantly." | Quote screen (highlighted) |
+| **Emerging market** | "âڑ ï¸ڈ Emerging market currencies can be volatile. Consider this before proceeding." | Quote screen (highlighted) |
 | **Weekend/holiday** | "Markets are closed. Your rate will be set when markets reopen." | Quote screen (blocking) |
 | **Rate expiry** | "This rate has expired. Please request a new quote." | Quote screen (blocking) |
 | **Large transaction** | "Large transactions may experience different rates. Proceed carefully." | Quote screen |
@@ -139,22 +139,22 @@
 **Fee Disclosure Template:**
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ TRANSACTION BREAKDOWN                                       │
-├─────────────────────────────────────────────────────────────┤
-│ You send:                              $1,000.00 USD        │
-│                                                             │
-│ Exchange rate:                         1 USD = 50.25 EGP    │
-│ Mid-market rate:                       1 USD = 50.75 EGP    │
-│ Our margin:                            0.99%                │
-│                                                             │
-│ Platform fee:                          $2.99                │
-│ Provider fee:                          $0.00                │
-├─────────────────────────────────────────────────────────────┤
-│ Total fees:                            $7.98 (0.80%)        │
-│                                                             │
-│ Recipient gets:                        49,750.00 EGP        │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ TRANSACTION BREAKDOWN                                       â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ You send:                              $1,000.00 USD        â”‚
+â”‚                                                             â”‚
+â”‚ Exchange rate:                         1 USD = 50.25 EGP    â”‚
+â”‚ Mid-market rate:                       1 USD = 50.75 EGP    â”‚
+â”‚ Our margin:                            0.99%                â”‚
+â”‚                                                             â”‚
+â”‚ Platform fee:                          $2.99                â”‚
+â”‚ Provider fee:                          $0.00                â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Total fees:                            $7.98 (0.80%)        â”‚
+â”‚                                                             â”‚
+â”‚ Recipient gets:                        49,750.00 EGP        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 **Disclosure Rules:**
@@ -175,8 +175,8 @@
 |----------|--------------|---------|
 | **Standard settlement** | "Funds typically arrive within 1-3 business days." | Timeline |
 | **Cross-border** | "International transfers may take 2-5 business days." | Timeline |
-| **High-risk corridor** | "⚠️ Transfers to this country may experience delays of up to 7 days." | Warning |
-| **Currency controls** | "⚠️ This country has currency restrictions that may delay or block transfers." | Warning (prominent) |
+| **High-risk corridor** | "âڑ ï¸ڈ Transfers to this country may experience delays of up to 7 days." | Warning |
+| **Currency controls** | "âڑ ï¸ڈ This country has currency restrictions that may delay or block transfers." | Warning (prominent) |
 | **Compliance review** | "Your transfer is under review. This may add 1-2 business days." | Status |
 | **Bank holiday** | "Settlement delayed due to bank holiday in [country]." | Status |
 
@@ -209,11 +209,11 @@
 
 | Action | Allowed | Condition |
 |--------|---------|-----------|
-| User initiates FX | ✓ | Explicit user action |
-| User sees quote, confirms | ✓ | Quote + confirmation |
-| User chooses currency | ✓ | User makes selection |
-| Platform displays rate | ✓ | Informational only |
-| Platform suggests timing | ✗ | No rate speculation |
+| User initiates FX | âœ“ | Explicit user action |
+| User sees quote, confirms | âœ“ | Quote + confirmation |
+| User chooses currency | âœ“ | User makes selection |
+| Platform displays rate | âœ“ | Informational only |
+| Platform suggests timing | âœ— | No rate speculation |
 
 ---
 
@@ -230,7 +230,7 @@
 
 **Prohibited Copy Examples:**
 
-| ❌ Prohibited | ✅ Allowed Alternative |
+| â‌Œ Prohibited | âœ… Allowed Alternative |
 |---------------|------------------------|
 | "Great rate today!" | "Current rate: X.XX" |
 | "Rates are up 5%" | [No comparison shown] |
@@ -333,12 +333,12 @@
 
 | Override Type | L3 Ops | L4 Ops | Finance | Compliance | Legal | MLRO |
 |---------------|--------|--------|---------|------------|-------|------|
-| Rate deviation (1-2%) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Rate deviation (> 2%) | — | ✓ | ✓ | ✓ | ✓ | ✓ |
-| User cap override | — | — | — | ✓ | — | — |
-| Corridor cap override | — | — | ✓ | ✓ | — | — |
-| Corridor unblock | — | — | — | ✓ | ✓ | — |
-| Compliance release | — | — | — | — | — | ✓ |
+| Rate deviation (1-2%) | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Rate deviation (> 2%) | â€” | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| User cap override | â€” | â€” | â€” | âœ“ | â€” | â€” |
+| Corridor cap override | â€” | â€” | âœ“ | âœ“ | â€” | â€” |
+| Corridor unblock | â€” | â€” | â€” | âœ“ | âœ“ | â€” |
+| Compliance release | â€” | â€” | â€” | â€” | â€” | âœ“ |
 
 **Override Rules:**
 
@@ -347,7 +347,7 @@
 | Documentation | Every override logged with full justification |
 | Dual control | High-risk overrides require 2 approvals |
 | Audit review | Monthly review of all overrides |
-| Escalation | Rejected override → escalate to next level |
+| Escalation | Rejected override â†’ escalate to next level |
 | User communication | User notified of any override affecting them |
 
 ---
@@ -356,16 +356,16 @@
 
 | Corridor | Risk Level | Transaction Limit | Required Verification | Special Controls |
 |----------|------------|-------------------|----------------------|------------------|
-| USD → EUR | Low | $10,000 | Tier 2 | None |
-| USD → GBP | Low | $10,000 | Tier 2 | None |
-| EUR → GBP | Low | $10,000 | Tier 2 | None |
-| USD → CAD | Low | $10,000 | Tier 2 | None |
-| USD → AED | Medium | $5,000 | Tier 3 | Source of funds > $3K |
-| USD → EGP | High | $2,000 | Tier 3 | All transactions reviewed |
-| USD → TRY | High | $2,000 | Tier 3 | Rate volatility warning |
-| USD → NGN | High | $2,000 | Tier 4 | Source of funds all |
-| USD → IRR | Blocked | $0 | N/A | Sanctions block |
-| USD → RUB | Blocked | $0 | N/A | Sanctions block |
+| USD â†’ EUR | Low | $10,000 | Tier 2 | None |
+| USD â†’ GBP | Low | $10,000 | Tier 2 | None |
+| EUR â†’ GBP | Low | $10,000 | Tier 2 | None |
+| USD â†’ CAD | Low | $10,000 | Tier 2 | None |
+| USD â†’ AED | Medium | $5,000 | Tier 3 | Source of funds > $3K |
+| USD â†’ EGP | High | $2,000 | Tier 3 | All transactions reviewed |
+| USD â†’ TRY | High | $2,000 | Tier 3 | Rate volatility warning |
+| USD â†’ NGN | High | $2,000 | Tier 4 | Source of funds all |
+| USD â†’ IRR | Blocked | $0 | N/A | Sanctions block |
+| USD â†’ RUB | Blocked | $0 | N/A | Sanctions block |
 
 ---
 
@@ -384,5 +384,6 @@
 
 **Document Owner:** Risk & Compliance  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

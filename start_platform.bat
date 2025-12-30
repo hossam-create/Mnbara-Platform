@@ -1,6 +1,6 @@
-@echo off
+﻿@echo off
 echo ===================================================
-echo     MNBARA PLATFORM - PRODUCTION LAUNCHER 🚀
+echo     mnbarh PLATFORM - PRODUCTION LAUNCHER ًںڑ€
 echo ===================================================
 echo.
 echo [1/3] Checking Docker status...
@@ -23,7 +23,7 @@ echo      - Backend Services: Starting...
 echo      - Databases: Starting...
 echo.
 echo ===================================================
-echo    ✅ SYSTEM DEPLOYMENT INITIATED
+echo    âœ… SYSTEM DEPLOYMENT INITIATED
 echo ===================================================
 echo.
 echo Useful Commands:
@@ -31,3 +31,4 @@ echo  - View Logs:    docker-compose logs -f
 echo  - Stop System:  docker-compose down
 echo.
 pause
+

@@ -1,10 +1,10 @@
-# FULL AMOUNT HOLDING PHASE — SECURITY SPECIFICATION
+﻿# FULL AMOUNT HOLDING PHASE â€” SECURITY SPECIFICATION
 ## Fund Holding, Arbitration & Release Rules
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Full Amount Holding Phase Security  
 **Date:** December 20, 2025  
-**Classification:** Internal — Finance & Risk Operations
+**Classification:** Internal â€” Finance & Risk Operations
 
 ---
 
@@ -34,7 +34,7 @@
 |---------|-------------------|------------------|------------------------|
 | Traveler claims item purchased, no receipt | Photo of item + store name + price tag visible | **Request formal receipt within 48hr** | Hold until receipt provided |
 | Traveler provides handwritten receipt | Printed/digital receipt from registered business | **REJECT handwritten** | No release until valid receipt |
-| Traveler provides receipt but amount exceeds agreed price | Justification for overage (tax, shipping, unavailable model) | **If overage ≤ 10%:** Accept with buyer approval. **If > 10%:** Escalate | Buyer must approve excess release |
+| Traveler provides receipt but amount exceeds agreed price | Justification for overage (tax, shipping, unavailable model) | **If overage â‰¤ 10%:** Accept with buyer approval. **If > 10%:** Escalate | Buyer must approve excess release |
 | Traveler provides receipt from wrong country/store | Receipt must match agreed purchase location | **REJECT** | No release + request correct receipt |
 | Traveler provides duplicate receipt (used before) | Receipt hash matching against database | **REJECT + Flag traveler** | No release + TravelerRiskFlag SET |
 
@@ -69,7 +69,7 @@
 | Trigger | Required Evidence | Allowed Decision | Fund Release Direction |
 |---------|-------------------|------------------|------------------------|
 | User claims "admin approved" via message/email | Verification against admin action log | **If no log entry:** REJECT + investigate source | No release + freeze account |
-| User forwards fake email from "support@mnbara.com" | Email header analysis + DKIM/SPF verification | **If spoofed:** REJECT + report phishing | No release + security alert |
+| User forwards fake email from "support@mnbarh.com" | Email header analysis + DKIM/SPF verification | **If spoofed:** REJECT + report phishing | No release + security alert |
 | User claims phone call from admin authorizing release | Internal call log verification | **If no record:** REJECT + security review | No release + flag account |
 | User submits forged approval document | Document hash + signature verification against admin records | **If forged:** PERMANENT BAN | No release + legal escalation |
 | User bribes/colludes with actual admin | Internal audit trail + dual-control verification failure | **If detected:** Terminate admin + ban user | Freeze all funds + investigation |
@@ -95,7 +95,7 @@
 
 **Rules:**
 - Flag is SET automatically based on transaction value
-- Flag is READ-ONLY — does not block, only triggers review requirement
+- Flag is READ-ONLY â€” does not block, only triggers review requirement
 - High-value transactions require enhanced evidence (video + signature preferred)
 - No single admin can approve HIGH_VALUE_HOLD_CRITICAL or above
 
@@ -117,7 +117,7 @@
 
 **Rules:**
 - Flag is SET based on traveler origin + buyer destination
-- Flag is READ-ONLY — informs review, does not auto-block
+- Flag is READ-ONLY â€” informs review, does not auto-block
 - CROSS_BORDER_HOLD_HIGH: Requires compliance sign-off before ANY release
 - Customs seizure documentation requirements increase with flag level
 
@@ -133,7 +133,7 @@
 
 **Rules:**
 - Flag is SET based on traveler delivery history
-- Flag is READ-ONLY — extends review time, does not block
+- Flag is READ-ONLY â€” extends review time, does not block
 - First-time travelers: Maximum transaction value capped at $300
 - Funds released only after buyer confirmation + 72hr cooling period
 
@@ -145,11 +145,11 @@
 
 | Scenario | Override Allowed | Conditions |
 |----------|------------------|------------|
-| Buyer confirms delivery, traveler silent | YES — Release to traveler | Buyer confirmation logged + 24hr wait |
-| Buyer confirms partial, traveler claims full | YES — Release partial only | Buyer's stated amount is maximum release |
-| Buyer confirms but later disputes | NO — Confirmation is binding | Dispute rejected if confirmed > 24hr ago |
-| Buyer confirms under duress (alleged) | ESCALATE — Hold pending investigation | Buyer must provide evidence of duress |
-| Buyer confirms wrong transaction | ESCALATE — Freeze both | Must verify transaction ID mismatch |
+| Buyer confirms delivery, traveler silent | YES â€” Release to traveler | Buyer confirmation logged + 24hr wait |
+| Buyer confirms partial, traveler claims full | YES â€” Release partial only | Buyer's stated amount is maximum release |
+| Buyer confirms but later disputes | NO â€” Confirmation is binding | Dispute rejected if confirmed > 24hr ago |
+| Buyer confirms under duress (alleged) | ESCALATE â€” Hold pending investigation | Buyer must provide evidence of duress |
+| Buyer confirms wrong transaction | ESCALATE â€” Freeze both | Must verify transaction ID mismatch |
 
 **Rules:**
 - Buyer confirmation is binding after 24-hour window
@@ -163,16 +163,16 @@
 
 | Scenario | Override Allowed | Required Authorization |
 |----------|------------------|------------------------|
-| Both parties unresponsive for 14+ days | YES — Default to platform policy | Single admin + supervisor sign-off |
-| Both parties provide contradictory evidence | YES — Platform decides | Dual-control (2 admins required) |
-| Suspected collusion between parties | YES — Freeze and investigate | Compliance officer required |
-| Legal/regulatory requirement | YES — Immediate action | Legal team authorization |
-| Platform error caused dispute | YES — Correct and compensate | Senior admin + documentation |
+| Both parties unresponsive for 14+ days | YES â€” Default to platform policy | Single admin + supervisor sign-off |
+| Both parties provide contradictory evidence | YES â€” Platform decides | Dual-control (2 admins required) |
+| Suspected collusion between parties | YES â€” Freeze and investigate | Compliance officer required |
+| Legal/regulatory requirement | YES â€” Immediate action | Legal team authorization |
+| Platform error caused dispute | YES â€” Correct and compensate | Senior admin + documentation |
 
 **Rules:**
 - Admin override requires written justification (stored permanently)
 - Both parties notified within 24hr of override decision
-- Admin override is FINAL — no appeal except for new evidence
+- Admin override is FINAL â€” no appeal except for new evidence
 - All admin overrides logged in immutable audit trail
 
 ---
@@ -327,3 +327,4 @@
 **Version:** 1.0  
 **Classification:** Internal Use Only  
 **Date:** December 20, 2025
+

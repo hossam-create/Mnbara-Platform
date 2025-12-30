@@ -1,10 +1,10 @@
-# FX RESTRICTIONS BY COUNTRY — COMPLIANCE MATRIX
+﻿# FX RESTRICTIONS BY COUNTRY â€” COMPLIANCE MATRIX
 ## Corridor Restrictions, Licensing, Consumer Risks & Penalties
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Country FX Restrictions Matrix  
 **Date:** December 20, 2025  
-**Classification:** Internal — Compliance & Legal
+**Classification:** Internal â€” Compliance & Legal
 
 ---
 
@@ -61,19 +61,19 @@
 
 | Corridor | Risk Level | Transaction Cap | Verification Required | Special Controls |
 |----------|------------|-----------------|----------------------|------------------|
-| USD → EUR | Low | $10,000 | Tier 2 | None |
-| USD → GBP | Low | $10,000 | Tier 2 | None |
-| EUR → GBP | Low | $10,000 | Tier 2 | None |
-| USD → AED | Medium | $5,000 | Tier 3 | Source of funds > $3K |
-| USD → SAR | Medium | $5,000 | Tier 3 | Source of funds > $3K |
-| USD → EGP | High | $2,000 | Tier 3 | All transactions reviewed |
-| USD → TRY | High | $2,000 | Tier 3 | Volatility warning |
-| USD → INR | High | $2,000 | Tier 3 | LRS compliance check |
-| USD → NGN | Very High | $1,000 | Tier 4 | Enhanced due diligence |
-| USD → PKR | Very High | $1,000 | Tier 4 | Enhanced due diligence |
-| USD → CNY | Restricted | $500 | Tier 4 + EDD | SAFE documentation |
-| USD → RUB | Blocked | $0 | N/A | Sanctions block |
-| USD → IRR | Blocked | $0 | N/A | Sanctions block |
+| USD â†’ EUR | Low | $10,000 | Tier 2 | None |
+| USD â†’ GBP | Low | $10,000 | Tier 2 | None |
+| EUR â†’ GBP | Low | $10,000 | Tier 2 | None |
+| USD â†’ AED | Medium | $5,000 | Tier 3 | Source of funds > $3K |
+| USD â†’ SAR | Medium | $5,000 | Tier 3 | Source of funds > $3K |
+| USD â†’ EGP | High | $2,000 | Tier 3 | All transactions reviewed |
+| USD â†’ TRY | High | $2,000 | Tier 3 | Volatility warning |
+| USD â†’ INR | High | $2,000 | Tier 3 | LRS compliance check |
+| USD â†’ NGN | Very High | $1,000 | Tier 4 | Enhanced due diligence |
+| USD â†’ PKR | Very High | $1,000 | Tier 4 | Enhanced due diligence |
+| USD â†’ CNY | Restricted | $500 | Tier 4 + EDD | SAFE documentation |
+| USD â†’ RUB | Blocked | $0 | N/A | Sanctions block |
+| USD â†’ IRR | Blocked | $0 | N/A | Sanctions block |
 
 ---
 
@@ -84,8 +84,8 @@
 | Country | FX License Needed | License Type | Threshold | Regulator |
 |---------|-------------------|--------------|-----------|-----------|
 | **United States** | Yes | Money Transmitter License (per state) | First $ | State regulators + FinCEN |
-| **European Union** | Yes | EMI / PI License (PSD2) | First € | National authority (e.g., BaFin, AMF) |
-| **United Kingdom** | Yes | EMI / PI License (FCA) | First £ | FCA |
+| **European Union** | Yes | EMI / PI License (PSD2) | First â‚¬ | National authority (e.g., BaFin, AMF) |
+| **United Kingdom** | Yes | EMI / PI License (FCA) | First آ£ | FCA |
 | **United Arab Emirates** | Yes | Stored Value Facility | First AED | CBUAE |
 | **Saudi Arabia** | Yes | Payment Service Provider | First SAR | SAMA |
 | **Egypt** | Yes | Payment License | First EGP | CBE |
@@ -148,27 +148,27 @@
 
 | Country | Risk Flag | Description | Platform Response |
 |---------|-----------|-------------|-------------------|
-| **Argentina** | CURRENCY_CRISIS | Severe peso volatility | ⚠️ Enhanced warning, low limits |
-| **Turkey** | HIGH_VOLATILITY | Lira volatility > 3%/day | ⚠️ Volatility warning |
-| **Egypt** | CAPITAL_CONTROLS | Pound restrictions | ⚠️ Delay warning, compliance check |
-| **Nigeria** | CAPITAL_CONTROLS | Naira restrictions | ⚠️ Enhanced verification |
-| **Lebanon** | BANKING_CRISIS | Currency not functional | 🚫 Corridor blocked |
-| **Venezuela** | HYPERINFLATION | Currency not stable | 🚫 Corridor blocked |
-| **Pakistan** | ECONOMIC_STRESS | IMF program, restrictions | ⚠️ Enhanced verification |
-| **Sri Lanka** | ECONOMIC_STRESS | Recent crisis | ⚠️ Limit restrictions |
-| **Ukraine** | WAR_ZONE | Conflict, restrictions | ⚠️ Special handling |
-| **Russia** | SANCTIONS | Comprehensive sanctions | 🚫 Corridor blocked |
-| **China** | CAPITAL_CONTROLS | Strict outbound limits | ⚠️ Compliance documentation |
-| **India** | LRS_LIMITS | Liberalized but capped | ⚠️ LRS compliance check |
+| **Argentina** | CURRENCY_CRISIS | Severe peso volatility | âڑ ï¸ڈ Enhanced warning, low limits |
+| **Turkey** | HIGH_VOLATILITY | Lira volatility > 3%/day | âڑ ï¸ڈ Volatility warning |
+| **Egypt** | CAPITAL_CONTROLS | Pound restrictions | âڑ ï¸ڈ Delay warning, compliance check |
+| **Nigeria** | CAPITAL_CONTROLS | Naira restrictions | âڑ ï¸ڈ Enhanced verification |
+| **Lebanon** | BANKING_CRISIS | Currency not functional | ًںڑ« Corridor blocked |
+| **Venezuela** | HYPERINFLATION | Currency not stable | ًںڑ« Corridor blocked |
+| **Pakistan** | ECONOMIC_STRESS | IMF program, restrictions | âڑ ï¸ڈ Enhanced verification |
+| **Sri Lanka** | ECONOMIC_STRESS | Recent crisis | âڑ ï¸ڈ Limit restrictions |
+| **Ukraine** | WAR_ZONE | Conflict, restrictions | âڑ ï¸ڈ Special handling |
+| **Russia** | SANCTIONS | Comprehensive sanctions | ًںڑ« Corridor blocked |
+| **China** | CAPITAL_CONTROLS | Strict outbound limits | âڑ ï¸ڈ Compliance documentation |
+| **India** | LRS_LIMITS | Liberalized but capped | âڑ ï¸ڈ LRS compliance check |
 
 ## 3.3 Mandatory Consumer Warnings
 
 | Country | Warning Required | Text |
 |---------|------------------|------|
 | **All** | Rate volatility | "Exchange rates change frequently" |
-| **High volatility** | Enhanced warning | "⚠️ This currency experiences high volatility" |
-| **Capital controls** | Delay warning | "⚠️ Transfers may be delayed due to local regulations" |
-| **Restricted** | Block message | "🚫 Transfers to this country are not available" |
+| **High volatility** | Enhanced warning | "âڑ ï¸ڈ This currency experiences high volatility" |
+| **Capital controls** | Delay warning | "âڑ ï¸ڈ Transfers may be delayed due to local regulations" |
+| **Restricted** | Block message | "ًںڑ« Transfers to this country are not available" |
 | **EU** | Comparison | Must show mid-market rate comparison |
 | **UK** | FCA warning | "Currency exchange rates are not guaranteed" |
 | **Australia** | ASIC warning | "Exchange rate movements may affect the value" |
@@ -208,11 +208,11 @@
 
 | Violation | Penalty | Authority |
 |-----------|---------|-----------|
-| Operating without license | Up to €5M or 10% of revenue | National NCAs |
-| PSD2 violation | Up to €5M or 10% of revenue | National NCAs |
-| AML violation (AMLD6) | Up to €5M or 10% of revenue | National NCAs |
+| Operating without license | Up to â‚¬5M or 10% of revenue | National NCAs |
+| PSD2 violation | Up to â‚¬5M or 10% of revenue | National NCAs |
+| AML violation (AMLD6) | Up to â‚¬5M or 10% of revenue | National NCAs |
 | Consumer protection violation | Varies by member state | National consumer authorities |
-| GDPR violation (KYC data) | Up to €20M or 4% of revenue | Data protection authorities |
+| GDPR violation (KYC data) | Up to â‚¬20M or 4% of revenue | Data protection authorities |
 
 ## 4.3 UK Penalties
 
@@ -268,39 +268,39 @@
 
 | Country | Currency | FX Status | License Required | Recommended Action |
 |---------|----------|-----------|------------------|-------------------|
-| **United States** | USD | ✅ Open | MTL (per state) | Use licensed PSP |
-| **United Kingdom** | GBP | ✅ Open | FCA EMI/PI | Use licensed PSP |
-| **European Union** | EUR | ✅ Open | PSD2 EMI/PI | Use licensed PSP |
-| **Canada** | CAD | ✅ Open | MSB | Use licensed PSP |
-| **Australia** | AUD | ✅ Open | AFSL | Use licensed PSP |
-| **UAE** | AED | ✅ Open | CBUAE | Use local licensed partner |
-| **Saudi Arabia** | SAR | ✅ Open | SAMA | Use local licensed partner |
-| **Singapore** | SGD | ✅ Open | MAS PSA | Use licensed PSP |
-| **India** | INR | ⚠️ Restricted | RBI AD | Partner with AD bank |
-| **Egypt** | EGP | ⚠️ Restricted | CBE | Use local bank partner |
-| **Turkey** | TRY | ⚠️ Monitored | BRSA | Enhanced compliance |
-| **Nigeria** | NGN | ⚠️ Restricted | CBN IMTO | Use licensed IMTO |
-| **Pakistan** | PKR | ⚠️ Restricted | SBP | Partner with local bank |
-| **China** | CNY | 🚫 Highly Restricted | SAFE | Do not offer direct |
-| **Russia** | RUB | 🚫 Blocked | N/A | Do not offer |
-| **Iran** | IRR | 🚫 Blocked | N/A | Do not offer |
+| **United States** | USD | âœ… Open | MTL (per state) | Use licensed PSP |
+| **United Kingdom** | GBP | âœ… Open | FCA EMI/PI | Use licensed PSP |
+| **European Union** | EUR | âœ… Open | PSD2 EMI/PI | Use licensed PSP |
+| **Canada** | CAD | âœ… Open | MSB | Use licensed PSP |
+| **Australia** | AUD | âœ… Open | AFSL | Use licensed PSP |
+| **UAE** | AED | âœ… Open | CBUAE | Use local licensed partner |
+| **Saudi Arabia** | SAR | âœ… Open | SAMA | Use local licensed partner |
+| **Singapore** | SGD | âœ… Open | MAS PSA | Use licensed PSP |
+| **India** | INR | âڑ ï¸ڈ Restricted | RBI AD | Partner with AD bank |
+| **Egypt** | EGP | âڑ ï¸ڈ Restricted | CBE | Use local bank partner |
+| **Turkey** | TRY | âڑ ï¸ڈ Monitored | BRSA | Enhanced compliance |
+| **Nigeria** | NGN | âڑ ï¸ڈ Restricted | CBN IMTO | Use licensed IMTO |
+| **Pakistan** | PKR | âڑ ï¸ڈ Restricted | SBP | Partner with local bank |
+| **China** | CNY | ًںڑ« Highly Restricted | SAFE | Do not offer direct |
+| **Russia** | RUB | ًںڑ« Blocked | N/A | Do not offer |
+| **Iran** | IRR | ًںڑ« Blocked | N/A | Do not offer |
 
 ## 5.2 Corridor Priority Matrix
 
 | Corridor | Volume Potential | Regulatory Complexity | Risk Level | Priority |
 |----------|------------------|----------------------|------------|----------|
-| USD ↔ EUR | High | Low | Low | **P0 - Launch** |
-| USD ↔ GBP | High | Low | Low | **P0 - Launch** |
-| USD ↔ AED | High | Medium | Low | **P1 - Phase 1** |
-| USD ↔ SAR | Medium | Medium | Low | **P1 - Phase 1** |
-| EUR ↔ GBP | Medium | Low | Low | **P1 - Phase 1** |
-| USD ↔ CAD | Medium | Low | Low | **P1 - Phase 1** |
-| USD ↔ EGP | Medium | High | High | **P2 - Phase 2** |
-| USD ↔ TRY | Medium | Medium | High | **P2 - Phase 2** |
-| USD ↔ INR | High | High | Medium | **P2 - Phase 2** |
-| USD ↔ NGN | Medium | High | High | **P3 - Evaluate** |
-| USD ↔ PKR | Low | High | High | **P3 - Evaluate** |
-| USD ↔ CNY | High | Very High | Very High | **P4 - Not recommended** |
+| USD â†” EUR | High | Low | Low | **P0 - Launch** |
+| USD â†” GBP | High | Low | Low | **P0 - Launch** |
+| USD â†” AED | High | Medium | Low | **P1 - Phase 1** |
+| USD â†” SAR | Medium | Medium | Low | **P1 - Phase 1** |
+| EUR â†” GBP | Medium | Low | Low | **P1 - Phase 1** |
+| USD â†” CAD | Medium | Low | Low | **P1 - Phase 1** |
+| USD â†” EGP | Medium | High | High | **P2 - Phase 2** |
+| USD â†” TRY | Medium | Medium | High | **P2 - Phase 2** |
+| USD â†” INR | High | High | Medium | **P2 - Phase 2** |
+| USD â†” NGN | Medium | High | High | **P3 - Evaluate** |
+| USD â†” PKR | Low | High | High | **P3 - Evaluate** |
+| USD â†” CNY | High | Very High | Very High | **P4 - Not recommended** |
 
 ---
 
@@ -310,28 +310,29 @@
 
 | Requirement | US | UK | EU | UAE | India | Egypt |
 |-------------|----|----|----|----|-------|-------|
-| Local license or PSP partner | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| AML program registered | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Consumer disclosures | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Sanctions screening | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Local data storage | — | — | ✓ | ✓ | ✓ | ✓ |
-| Local entity | — | — | — | ✓ | ✓ | ✓ |
-| Central bank registration | — | — | — | ✓ | ✓ | ✓ |
+| Local license or PSP partner | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| AML program registered | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Consumer disclosures | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Sanctions screening | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Local data storage | â€” | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
+| Local entity | â€” | â€” | â€” | âœ“ | âœ“ | âœ“ |
+| Central bank registration | â€” | â€” | â€” | âœ“ | âœ“ | âœ“ |
 
 ## 6.2 Ongoing Compliance
 
 | Requirement | Frequency | All Countries |
 |-------------|-----------|---------------|
-| Sanctions list update | Daily | ✓ |
-| Transaction monitoring | Real-time | ✓ |
-| Regulatory reporting | Per regulation | ✓ |
-| License renewal | Annual/Per regulation | ✓ |
-| AML training | Annual | ✓ |
-| Compliance audit | Annual | ✓ |
+| Sanctions list update | Daily | âœ“ |
+| Transaction monitoring | Real-time | âœ“ |
+| Regulatory reporting | Per regulation | âœ“ |
+| License renewal | Annual/Per regulation | âœ“ |
+| AML training | Annual | âœ“ |
+| Compliance audit | Annual | âœ“ |
 
 ---
 
 **Document Owner:** Compliance & Legal  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

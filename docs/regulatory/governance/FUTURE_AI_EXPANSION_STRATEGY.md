@@ -1,4 +1,4 @@
-# Governance-Safe AI Expansion Strategy
+﻿# Governance-Safe AI Expansion Strategy
 
 **Document ID:** GOV-STRAT-EXP-001
 **Audience:** Executive Strategy, Engineering Leadership, AI Governance Committee
@@ -66,7 +66,7 @@ Deploying a new AI capability requires adhering to the **Safe Launch Protocol**:
 
 ## 6. Regulator Assurance Statement
 
-The adoption of advanced AI techniques at Mnbara serves to **augment**, not replace, our robust governance framework.
+The adoption of advanced AI techniques at mnbarh serves to **augment**, not replace, our robust governance framework.
 
 *   **We pledge** that the path to a decision will always remain explainable. If a "Black Box" model is used for detection, a "White Box" rule will be used for enforcement.
 *   **We guarantee** that the safeguards preventing autonomous financial harm (Read-Only access, Human-in-the-Loop) remain absolute, regardless of the sophistication of the risk signal.
@@ -75,3 +75,4 @@ By treating AI as a **high-precision sensor** rather than a **decision-maker**, 
 
 ---
 **Approved By:** AI Governance Committee
+

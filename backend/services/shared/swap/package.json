@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/swap",
+﻿{
+  "name": "@mnbarh/swap",
   "version": "1.0.0",
-  "description": "Swap matching service for MNBARA platform",
+  "description": "Swap matching service for mnbarh platform",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
@@ -21,8 +21,9 @@
   "keywords": [
     "swap",
     "matching",
-    "mnbara"
+    "mnbarh"
   ],
-  "author": "MNBARA Team",
+  "author": "mnbarh Team",
   "license": "MIT"
 }
+

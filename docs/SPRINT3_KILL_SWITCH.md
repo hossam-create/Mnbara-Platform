@@ -1,9 +1,9 @@
-# SPRINT 3: KILL SWITCH ARCHITECTURE
+﻿# SPRINT 3: KILL SWITCH ARCHITECTURE
 ## Emergency Control Documentation
 
 **Confidential & Privileged**
 **Classification:** Critical Operational Control
-**Sprint:** 3 — Ops & Safety
+**Sprint:** 3 â€” Ops & Safety
 **Date:** December 18, 2025
 
 ---
@@ -11,13 +11,13 @@
 ## 1. Kill Switch Philosophy
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  "THE ABILITY TO STOP IS AS IMPORTANT AS THE ABILITY TO GO."│
-│                                                             │
-│  Every AI feature must have an independent off switch.      │
-│  Every corridor must be independently disableable.          │
-│  The entire AI layer can be disconnected in < 5 minutes.    │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "THE ABILITY TO STOP IS AS IMPORTANT AS THE ABILITY TO GO."â”‚
+â”‚                                                             â”‚
+â”‚  Every AI feature must have an independent off switch.      â”‚
+â”‚  Every corridor must be independently disableable.          â”‚
+â”‚  The entire AI layer can be disconnected in < 5 minutes.    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -25,40 +25,40 @@
 ## 2. Kill Switch Hierarchy
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │         GLOBAL ADVISORY SHUTDOWN (GAS)              │   │
-│  │         "Red Button" — All AI OFF                   │   │
-│  │         Authority: CRO, CISO, CEO                   │   │
-│  │         SLA: < 5 minutes                            │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                          │                                  │
-│          ┌───────────────┼───────────────┐                  │
-│          ▼               ▼               ▼                  │
-│  ┌───────────────┐ ┌───────────────┐ ┌───────────────┐     │
-│  │ CORRIDOR      │ │ CORRIDOR      │ │ CORRIDOR      │     │
-│  │ SHUTDOWN      │ │ SHUTDOWN      │ │ SHUTDOWN      │     │
-│  │ US → EG       │ │ US → UAE      │ │ EU → KSA      │     │
-│  │               │ │               │ │               │     │
-│  │ Authority:    │ │ Authority:    │ │ Authority:    │     │
-│  │ Ops Manager   │ │ Ops Manager   │ │ Ops Manager   │     │
-│  └───────────────┘ └───────────────┘ └───────────────┘     │
-│          │               │               │                  │
-│          ▼               ▼               ▼                  │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              FEATURE FLAG KILL SWITCHES             │   │
-│  │                                                     │   │
-│  │  ☐ risk_scoring_enabled                            │   │
-│  │  ☐ trust_calculation_enabled                       │   │
-│  │  ☐ smart_matching_enabled                          │   │
-│  │  ☐ pricing_recommendations_enabled                 │   │
-│  │  ☐ route_optimization_enabled                      │   │
-│  │                                                     │   │
-│  │  Authority: Tech Lead + Ops Manager                │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ   â”‚
+â”‚  â”‚         GLOBAL ADVISORY SHUTDOWN (GAS)              â”‚   â”‚
+â”‚  â”‚         "Red Button" â€” All AI OFF                   â”‚   â”‚
+â”‚  â”‚         Authority: CRO, CISO, CEO                   â”‚   â”‚
+â”‚  â”‚         SLA: < 5 minutes                            â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک   â”‚
+â”‚                          â”‚                                  â”‚
+â”‚          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ                  â”‚
+â”‚          â–¼               â–¼               â–¼                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ     â”‚
+â”‚  â”‚ CORRIDOR      â”‚ â”‚ CORRIDOR      â”‚ â”‚ CORRIDOR      â”‚     â”‚
+â”‚  â”‚ SHUTDOWN      â”‚ â”‚ SHUTDOWN      â”‚ â”‚ SHUTDOWN      â”‚     â”‚
+â”‚  â”‚ US â†’ EG       â”‚ â”‚ US â†’ UAE      â”‚ â”‚ EU â†’ KSA      â”‚     â”‚
+â”‚  â”‚               â”‚ â”‚               â”‚ â”‚               â”‚     â”‚
+â”‚  â”‚ Authority:    â”‚ â”‚ Authority:    â”‚ â”‚ Authority:    â”‚     â”‚
+â”‚  â”‚ Ops Manager   â”‚ â”‚ Ops Manager   â”‚ â”‚ Ops Manager   â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک     â”‚
+â”‚          â”‚               â”‚               â”‚                  â”‚
+â”‚          â–¼               â–¼               â–¼                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ   â”‚
+â”‚  â”‚              FEATURE FLAG KILL SWITCHES             â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  âکگ risk_scoring_enabled                            â”‚   â”‚
+â”‚  â”‚  âکگ trust_calculation_enabled                       â”‚   â”‚
+â”‚  â”‚  âکگ smart_matching_enabled                          â”‚   â”‚
+â”‚  â”‚  âکگ pricing_recommendations_enabled                 â”‚   â”‚
+â”‚  â”‚  âکگ route_optimization_enabled                      â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  Authority: Tech Lead + Ops Manager                â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک   â”‚
+â”‚                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -80,26 +80,26 @@
 
 **When `ai_risk_scoring_enabled = FALSE`:**
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  IF ai_risk_scoring_enabled = FALSE THEN                    │
-│      risk_score = NULL                                      │
-│      risk_level = "UNKNOWN"                                 │
-│      routing = "MANUAL_REVIEW"                              │
-│      ui_message = "This transaction requires manual review" │
-│  END IF                                                     │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  IF ai_risk_scoring_enabled = FALSE THEN                    â”‚
+â”‚      risk_score = NULL                                      â”‚
+â”‚      risk_level = "UNKNOWN"                                 â”‚
+â”‚      routing = "MANUAL_REVIEW"                              â”‚
+â”‚      ui_message = "This transaction requires manual review" â”‚
+â”‚  END IF                                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 **When `ai_trust_scoring_enabled = FALSE`:**
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  IF ai_trust_scoring_enabled = FALSE THEN                   │
-│      trust_score = NULL                                     │
-│      trust_badge = "UNKNOWN" (gray)                         │
-│      trust_explanation = "Trust data temporarily unavailable"│
-│      require_acknowledgment = TRUE                          │
-│  END IF                                                     │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  IF ai_trust_scoring_enabled = FALSE THEN                   â”‚
+â”‚      trust_score = NULL                                     â”‚
+â”‚      trust_badge = "UNKNOWN" (gray)                         â”‚
+â”‚      trust_explanation = "Trust data temporarily unavailable"â”‚
+â”‚      require_acknowledgment = TRUE                          â”‚
+â”‚  END IF                                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### 3.3 Flag Change Protocol
@@ -118,9 +118,9 @@
 ### 4.1 Corridor Definition
 
 A "Corridor" is a directional trade route:
-- `US → EG` (United States to Egypt)
-- `US → UAE` (United States to UAE)
-- `EU → KSA` (Europe to Saudi Arabia)
+- `US â†’ EG` (United States to Egypt)
+- `US â†’ UAE` (United States to UAE)
+- `EU â†’ KSA` (Europe to Saudi Arabia)
 
 ### 4.2 Shutdown Triggers
 
@@ -135,33 +135,33 @@ A "Corridor" is a directional trade route:
 ### 4.3 Shutdown Procedure
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  CORRIDOR SHUTDOWN PROCEDURE                                │
-│                                                             │
-│  1. DECISION: Ops Manager confirms shutdown needed          │
-│  2. NOTIFY: Alert active users in corridor                  │
-│  3. FREEZE: Stop new transaction creation                   │
-│  4. PROTECT: Existing escrows remain protected              │
-│  5. ROUTE: In-flight transactions to manual queue           │
-│  6. DISPLAY: "This route is temporarily unavailable"        │
-│  7. LOG: Record shutdown reason and timestamp               │
-│  8. MONITOR: Track recovery conditions                      │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  CORRIDOR SHUTDOWN PROCEDURE                                â”‚
+â”‚                                                             â”‚
+â”‚  1. DECISION: Ops Manager confirms shutdown needed          â”‚
+â”‚  2. NOTIFY: Alert active users in corridor                  â”‚
+â”‚  3. FREEZE: Stop new transaction creation                   â”‚
+â”‚  4. PROTECT: Existing escrows remain protected              â”‚
+â”‚  5. ROUTE: In-flight transactions to manual queue           â”‚
+â”‚  6. DISPLAY: "This route is temporarily unavailable"        â”‚
+â”‚  7. LOG: Record shutdown reason and timestamp               â”‚
+â”‚  8. MONITOR: Track recovery conditions                      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### 4.4 User Experience During Shutdown
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  📍 US → Egypt route temporarily unavailable                │
-│                                                             │
-│  We've paused this route while we resolve an issue.         │
-│  Your existing orders are safe and will be processed.       │
-│                                                             │
-│  Try another route or check back later.                     │
-│                                                             │
-│  [ View other routes ]  [ Notify me when available ]        │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  ًں“چ US â†’ Egypt route temporarily unavailable                â”‚
+â”‚                                                             â”‚
+â”‚  We've paused this route while we resolve an issue.         â”‚
+â”‚  Your existing orders are safe and will be processed.       â”‚
+â”‚                                                             â”‚
+â”‚  Try another route or check back later.                     â”‚
+â”‚                                                             â”‚
+â”‚  [ View other routes ]  [ Notify me when available ]        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -185,13 +185,13 @@ The **Global Advisory Shutdown** is the "nuclear option" that disables ALL AI fe
 
 **Method 1: Admin Dashboard**
 ```
-Dashboard → Emergency Controls → Global Advisory Shutdown
-→ Enter reason → Confirm with 2FA → Execute
+Dashboard â†’ Emergency Controls â†’ Global Advisory Shutdown
+â†’ Enter reason â†’ Confirm with 2FA â†’ Execute
 ```
 
 **Method 2: Command Line (Break Glass)**
 ```
-$ mnbara-ctl emergency --global-ai-shutdown --reason="[reason]" --user=[admin]
+$ mnbarh-ctl emergency --global-ai-shutdown --reason="[reason]" --user=[admin]
 ```
 
 **Method 3: Physical Kill Switch (Data Center)**
@@ -204,39 +204,39 @@ Result: Immediate API disconnect
 ### 5.4 GAS Behavior
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  GLOBAL ADVISORY SHUTDOWN ACTIVE                            │
-│                                                             │
-│  State Changes:                                             │
-│  • All ai_* feature flags → FALSE                          │
-│  • All risk scores → NULL (treat as UNKNOWN)               │
-│  • All trust scores → NULL (treat as UNKNOWN)              │
-│  • All AI recommendations → HIDDEN                         │
-│  • All transactions → MANUAL REVIEW                        │
-│                                                             │
-│  Preserved:                                                 │
-│  • Escrow protection (continues)                           │
-│  • Core transaction flow (continues with manual review)    │
-│  • User accounts (accessible)                              │
-│  • Payment processing (continues with extra checks)        │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  GLOBAL ADVISORY SHUTDOWN ACTIVE                            â”‚
+â”‚                                                             â”‚
+â”‚  State Changes:                                             â”‚
+â”‚  â€¢ All ai_* feature flags â†’ FALSE                          â”‚
+â”‚  â€¢ All risk scores â†’ NULL (treat as UNKNOWN)               â”‚
+â”‚  â€¢ All trust scores â†’ NULL (treat as UNKNOWN)              â”‚
+â”‚  â€¢ All AI recommendations â†’ HIDDEN                         â”‚
+â”‚  â€¢ All transactions â†’ MANUAL REVIEW                        â”‚
+â”‚                                                             â”‚
+â”‚  Preserved:                                                 â”‚
+â”‚  â€¢ Escrow protection (continues)                           â”‚
+â”‚  â€¢ Core transaction flow (continues with manual review)    â”‚
+â”‚  â€¢ User accounts (accessible)                              â”‚
+â”‚  â€¢ Payment processing (continues with extra checks)        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### 5.5 User Experience During GAS
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  ℹ️ We're in maintenance mode                               │
-│                                                             │
-│  Some features are temporarily limited while we             │
-│  perform important updates.                                 │
-│                                                             │
-│  • Your funds are safe in escrow                           │
-│  • Your orders are being processed                         │
-│  • Some features may take longer than usual                │
-│                                                             │
-│  We'll be back to normal soon.                             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  â„¹ï¸ڈ We're in maintenance mode                               â”‚
+â”‚                                                             â”‚
+â”‚  Some features are temporarily limited while we             â”‚
+â”‚  perform important updates.                                 â”‚
+â”‚                                                             â”‚
+â”‚  â€¢ Your funds are safe in escrow                           â”‚
+â”‚  â€¢ Your orders are being processed                         â”‚
+â”‚  â€¢ Some features may take longer than usual                â”‚
+â”‚                                                             â”‚
+â”‚  We'll be back to normal soon.                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -246,13 +246,13 @@ Result: Immediate API disconnect
 ### 6.1 Human Override Principle
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  "A QUALIFIED HUMAN CAN ALWAYS OVERRIDE THE AI."            │
-│                                                             │
-│  No AI decision is final.                                   │
-│  Every AI recommendation can be rejected.                   │
-│  Human judgment supersedes algorithmic output.              │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  "A QUALIFIED HUMAN CAN ALWAYS OVERRIDE THE AI."            â”‚
+â”‚                                                             â”‚
+â”‚  No AI decision is final.                                   â”‚
+â”‚  Every AI recommendation can be rejected.                   â”‚
+â”‚  Human judgment supersedes algorithmic output.              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### 6.2 Override Authority Matrix
@@ -339,8 +339,8 @@ Every override creates an immutable audit record:
 ```
 1. Root cause confirmed resolved by CRO/CISO
 2. CEO or CRO authorizes recovery
-3. Enable AI features one by one (risk → trust → matching)
-4. Each feature: staging test → production 10% → 50% → 100%
+3. Enable AI features one by one (risk â†’ trust â†’ matching)
+4. Each feature: staging test â†’ production 10% â†’ 50% â†’ 100%
 5. Full system health check
 6. Incident post-mortem scheduled within 24 hours
 ```
@@ -362,3 +362,4 @@ Every override creates an immutable audit record:
 **Document Owner:** SRE Lead
 **Security Review:** CISO
 **Version:** 1.0 (Sprint 3)
+

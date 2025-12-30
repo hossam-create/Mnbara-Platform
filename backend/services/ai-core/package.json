@@ -1,5 +1,5 @@
-{
-  "name": "@mnbara/ai-core",
+﻿{
+  "name": "@mnbarh/ai-core",
   "version": "1.0.0",
   "description": "AI Core Nucleus - Deterministic, read-only AI advisory service",
   "main": "dist/index.js",
@@ -22,7 +22,7 @@
     "risk",
     "matching"
   ],
-  "author": "MNBARA Platform",
+  "author": "mnbarh Platform",
   "license": "UNLICENSED",
   "dependencies": {
     "cors": "^2.8.5",
@@ -43,3 +43,4 @@
     "node": ">=18.0.0"
   }
 }
+

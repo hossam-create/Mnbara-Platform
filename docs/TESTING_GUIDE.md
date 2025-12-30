@@ -1,14 +1,14 @@
-# 🧪 دليل الاختبارات - Testing Guide
+﻿# ًں§ھ ط¯ظ„ظٹظ„ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ - Testing Guide
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
 
 ---
 
-## 📋 الفرق بين أنواع الاختبارات
+## ًں“‹ ط§ظ„ظپط±ظ‚ ط¨ظٹظ† ط£ظ†ظˆط§ط¹ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 
-### ❌ Mock Tests (الاختبارات الوهمية)
+### â‌Œ Mock Tests (ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ظˆظ‡ظ…ظٹط©)
 ```typescript
-// هذا مجرد وهم - لا يختبر الكود الحقيقي
+// ظ‡ط°ط§ ظ…ط¬ط±ط¯ ظˆظ‡ظ… - ظ„ط§ ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ط­ظ‚ظٹظ‚ظٹ
 const mockService = {
   searchProducts: jest.fn().mockResolvedValue({
     products: [{ id: '1', name: 'Product' }]
@@ -17,20 +17,20 @@ const mockService = {
 
 it('should search products', async () => {
   const result = await mockService.searchProducts('test');
-  expect(result.products).toHaveLength(1); // ✅ يمر دائماً
+  expect(result.products).toHaveLength(1); // âœ… ظٹظ…ط± ط¯ط§ط¦ظ…ط§ظ‹
 });
 ```
 
-**المشاكل:**
-- لا يختبر الكود الفعلي
-- يمر دائماً حتى لو الكود كسران
-- لا فائدة منه
+**ط§ظ„ظ…ط´ط§ظƒظ„:**
+- ظ„ط§ ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ظپط¹ظ„ظٹ
+- ظٹظ…ط± ط¯ط§ط¦ظ…ط§ظ‹ ط­طھظ‰ ظ„ظˆ ط§ظ„ظƒظˆط¯ ظƒط³ط±ط§ظ†
+- ظ„ط§ ظپط§ط¦ط¯ط© ظ…ظ†ظ‡
 
 ---
 
-### ✅ Real Unit Tests (الاختبارات الحقيقية)
+### âœ… Real Unit Tests (ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ط­ظ‚ظٹظ‚ظٹط©)
 ```typescript
-// يختبر الكود الفعلي
+// ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ظپط¹ظ„ظٹ
 import { VoiceService } from '../services/voice.service';
 
 let voiceService: VoiceService;
@@ -40,9 +40,9 @@ beforeEach(() => {
 });
 
 it('should search products', async () => {
-  const result = await voiceService.searchProducts('آيفون');
+  const result = await voiceService.searchProducts('ط¢ظٹظپظˆظ†');
   
-  // يختبر الكود الحقيقي
+  // ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ط­ظ‚ظٹظ‚ظٹ
   expect(result.products).toBeDefined();
   expect(result.products.length).toBeGreaterThanOrEqual(0);
   
@@ -53,31 +53,31 @@ it('should search products', async () => {
 });
 ```
 
-**المميزات:**
-- يختبر الكود الفعلي
-- يكتشف الأخطاء الحقيقية
-- يضمن أن الكود يعمل
+**ط§ظ„ظ…ظ…ظٹط²ط§طھ:**
+- ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ظپط¹ظ„ظٹ
+- ظٹظƒطھط´ظپ ط§ظ„ط£ط®ط·ط§ط، ط§ظ„ط­ظ‚ظٹظ‚ظٹط©
+- ظٹط¶ظ…ظ† ط£ظ† ط§ظ„ظƒظˆط¯ ظٹط¹ظ…ظ„
 
 ---
 
-## 🎯 أنواع الاختبارات
+## ًںژ¯ ط£ظ†ظˆط§ط¹ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 
-### 1️⃣ Unit Tests (اختبارات الوحدة)
-**ماذا تختبر؟** دالة واحدة أو class واحد بمعزل عن الآخرين
+### 1ï¸ڈâƒ£ Unit Tests (ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„ظˆط­ط¯ط©)
+**ظ…ط§ط°ط§ طھط®طھط¨ط±طں** ط¯ط§ظ„ط© ظˆط§ط­ط¯ط© ط£ظˆ class ظˆط§ط­ط¯ ط¨ظ…ط¹ط²ظ„ ط¹ظ† ط§ظ„ط¢ط®ط±ظٹظ†
 
 ```typescript
 describe('VoiceService', () => {
   describe('detectIntent', () => {
     it('should detect SEARCH_PRODUCT intent', async () => {
-      const result = await voiceService.detectIntent('ابحث عن آيفون');
+      const result = await voiceService.detectIntent('ط§ط¨ط­ط« ط¹ظ† ط¢ظٹظپظˆظ†');
       expect(result.intent).toBe('SEARCH_PRODUCT');
     });
   });
 });
 ```
 
-### 2️⃣ Integration Tests (اختبارات التكامل)
-**ماذا تختبر؟** تفاعل عدة components مع بعضها
+### 2ï¸ڈâƒ£ Integration Tests (ط§ط®طھط¨ط§ط±ط§طھ ط§ظ„طھظƒط§ظ…ظ„)
+**ظ…ط§ط°ط§ طھط®طھط¨ط±طں** طھظپط§ط¹ظ„ ط¹ط¯ط© components ظ…ط¹ ط¨ط¹ط¶ظ‡ط§
 
 ```typescript
 describe('Payment Flow', () => {
@@ -96,14 +96,14 @@ describe('Payment Flow', () => {
 });
 ```
 
-### 3️⃣ E2E Tests (اختبارات من البداية للنهاية)
-**ماذا تختبر؟** السيناريو الكامل من واجهة المستخدم
+### 3ï¸ڈâƒ£ E2E Tests (ط§ط®طھط¨ط§ط±ط§طھ ظ…ظ† ط§ظ„ط¨ط¯ط§ظٹط© ظ„ظ„ظ†ظ‡ط§ظٹط©)
+**ظ…ط§ط°ط§ طھط®طھط¨ط±طں** ط§ظ„ط³ظٹظ†ط§ط±ظٹظˆ ط§ظ„ظƒط§ظ…ظ„ ظ…ظ† ظˆط§ط¬ظ‡ط© ط§ظ„ظ…ط³طھط®ط¯ظ…
 
 ```typescript
 describe('User Journey', () => {
   it('should complete purchase', async () => {
     // 1. Login
-    await page.goto('https://mnbara.com/login');
+    await page.goto('https://mnbarh.com/login');
     await page.fill('input[name="email"]', 'user@example.com');
     
     // 2. Search
@@ -123,9 +123,9 @@ describe('User Journey', () => {
 
 ---
 
-## 🛠️ كيفية كتابة اختبارات حقيقية
+## ًں› ï¸ڈ ظƒظٹظپظٹط© ظƒطھط§ط¨ط© ط§ط®طھط¨ط§ط±ط§طھ ط­ظ‚ظٹظ‚ظٹط©
 
-### الخطوة 1: Setup
+### ط§ظ„ط®ط·ظˆط© 1: Setup
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { VoiceService } from '../services/voice.service';
@@ -136,37 +136,37 @@ describe('VoiceService', () => {
   let prisma: PrismaClient;
 
   beforeEach(async () => {
-    // إعداد قبل كل اختبار
+    // ط¥ط¹ط¯ط§ط¯ ظ‚ط¨ظ„ ظƒظ„ ط§ط®طھط¨ط§ط±
     prisma = new PrismaClient();
     voiceService = new VoiceService(prisma);
   });
 
   afterEach(async () => {
-    // تنظيف بعد كل اختبار
+    // طھظ†ط¸ظٹظپ ط¨ط¹ط¯ ظƒظ„ ط§ط®طھط¨ط§ط±
     await prisma.$disconnect();
   });
 });
 ```
 
-### الخطوة 2: كتابة الاختبار
+### ط§ظ„ط®ط·ظˆط© 2: ظƒطھط§ط¨ط© ط§ظ„ط§ط®طھط¨ط§ط±
 ```typescript
 it('should detect intent correctly', async () => {
-  // Arrange - تحضير البيانات
-  const query = 'ابحث عن آيفون';
+  // Arrange - طھط­ط¶ظٹط± ط§ظ„ط¨ظٹط§ظ†ط§طھ
+  const query = 'ط§ط¨ط­ط« ط¹ظ† ط¢ظٹظپظˆظ†';
   
-  // Act - تنفيذ الكود
+  // Act - طھظ†ظپظٹط° ط§ظ„ظƒظˆط¯
   const result = await voiceService.detectIntent(query);
   
-  // Assert - التحقق من النتيجة
+  // Assert - ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ظ†طھظٹط¬ط©
   expect(result.intent).toBe('SEARCH_PRODUCT');
   expect(result.confidence).toBeGreaterThan(0.8);
 });
 ```
 
-### الخطوة 3: اختبار الأخطاء
+### ط§ظ„ط®ط·ظˆط© 3: ط§ط®طھط¨ط§ط± ط§ظ„ط£ط®ط·ط§ط،
 ```typescript
 it('should handle invalid input', async () => {
-  // يجب أن يرمي خطأ
+  // ظٹط¬ط¨ ط£ظ† ظٹط±ظ…ظٹ ط®ط·ط£
   await expect(voiceService.detectIntent(''))
     .rejects.toThrow('Query cannot be empty');
 });
@@ -174,84 +174,84 @@ it('should handle invalid input', async () => {
 
 ---
 
-## 📊 Coverage (تغطية الاختبارات)
+## ًں“ٹ Coverage (طھط؛ط·ظٹط© ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ)
 
-### ما هي التغطية؟
-نسبة الكود المختبر من إجمالي الكود
+### ظ…ط§ ظ‡ظٹ ط§ظ„طھط؛ط·ظٹط©طں
+ظ†ط³ط¨ط© ط§ظ„ظƒظˆط¯ ط§ظ„ظ…ط®طھط¨ط± ظ…ظ† ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظƒظˆط¯
 
 ```
-✅ 100% Coverage = كل سطر كود مختبر
-✅ 80% Coverage = 80% من الكود مختبر
-❌ 50% Coverage = نصف الكود فقط مختبر
+âœ… 100% Coverage = ظƒظ„ ط³ط·ط± ظƒظˆط¯ ظ…ط®طھط¨ط±
+âœ… 80% Coverage = 80% ظ…ظ† ط§ظ„ظƒظˆط¯ ظ…ط®طھط¨ط±
+â‌Œ 50% Coverage = ظ†طµظپ ط§ظ„ظƒظˆط¯ ظپظ‚ط· ظ…ط®طھط¨ط±
 ```
 
-### كيفية قياس التغطية؟
+### ظƒظٹظپظٹط© ظ‚ظٹط§ط³ ط§ظ„طھط؛ط·ظٹط©طں
 ```bash
 npm run test:coverage
 
-# النتيجة:
-# ✅ Statements: 85%
-# ✅ Branches: 80%
-# ✅ Functions: 90%
-# ✅ Lines: 85%
+# ط§ظ„ظ†طھظٹط¬ط©:
+# âœ… Statements: 85%
+# âœ… Branches: 80%
+# âœ… Functions: 90%
+# âœ… Lines: 85%
 ```
 
 ---
 
-## 🚀 تشغيل الاختبارات
+## ًںڑ€ طھط´ط؛ظٹظ„ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 
-### تشغيل جميع الاختبارات
+### طھط´ط؛ظٹظ„ ط¬ظ…ظٹط¹ ط§ظ„ط§ط®طھط¨ط§ط±ط§طھ
 ```bash
 npm run test
 ```
 
-### تشغيل اختبارات خدمة معينة
+### طھط´ط؛ظٹظ„ ط§ط®طھط¨ط§ط±ط§طھ ط®ط¯ظ…ط© ظ…ط¹ظٹظ†ط©
 ```bash
 cd backend/services/voice-commerce-service
 npm run test
 ```
 
-### تشغيل اختبار معين
+### طھط´ط؛ظٹظ„ ط§ط®طھط¨ط§ط± ظ…ط¹ظٹظ†
 ```bash
 npm run test -- voice.service.test.ts
 ```
 
-### تشغيل مع مراقبة التغييرات
+### طھط´ط؛ظٹظ„ ظ…ط¹ ظ…ط±ط§ظ‚ط¨ط© ط§ظ„طھط؛ظٹظٹط±ط§طھ
 ```bash
 npm run test:watch
 ```
 
-### قياس التغطية
+### ظ‚ظٹط§ط³ ط§ظ„طھط؛ط·ظٹط©
 ```bash
 npm run test:coverage
 ```
 
 ---
 
-## ✅ Checklist لكتابة اختبارات جيدة
+## âœ… Checklist ظ„ظƒطھط§ط¨ط© ط§ط®طھط¨ط§ط±ط§طھ ط¬ظٹط¯ط©
 
-- [ ] الاختبار يختبر الكود الحقيقي (ليس mock)
-- [ ] الاختبار مستقل (لا يعتمد على اختبارات أخرى)
-- [ ] الاختبار سريع (أقل من 1 ثانية)
-- [ ] الاختبار واضح (يفهم الآخرون ماذا يختبر)
-- [ ] الاختبار يغطي الحالات الناجحة والفاشلة
-- [ ] الاختبار يتعامل مع الأخطاء
-- [ ] الاختبار نظيف (بدون hardcoded values)
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظٹط®طھط¨ط± ط§ظ„ظƒظˆط¯ ط§ظ„ط­ظ‚ظٹظ‚ظٹ (ظ„ظٹط³ mock)
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظ…ط³طھظ‚ظ„ (ظ„ط§ ظٹط¹طھظ…ط¯ ط¹ظ„ظ‰ ط§ط®طھط¨ط§ط±ط§طھ ط£ط®ط±ظ‰)
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ط³ط±ظٹط¹ (ط£ظ‚ظ„ ظ…ظ† 1 ط«ط§ظ†ظٹط©)
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظˆط§ط¶ط­ (ظٹظپظ‡ظ… ط§ظ„ط¢ط®ط±ظˆظ† ظ…ط§ط°ط§ ظٹط®طھط¨ط±)
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظٹط؛ط·ظٹ ط§ظ„ط­ط§ظ„ط§طھ ط§ظ„ظ†ط§ط¬ط­ط© ظˆط§ظ„ظپط§ط´ظ„ط©
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظٹطھط¹ط§ظ…ظ„ ظ…ط¹ ط§ظ„ط£ط®ط·ط§ط،
+- [ ] ط§ظ„ط§ط®طھط¨ط§ط± ظ†ط¸ظٹظپ (ط¨ط¯ظˆظ† hardcoded values)
 
 ---
 
-## 📈 أهداف التغطية
+## ًں“ˆ ط£ظ‡ط¯ط§ظپ ط§ظ„طھط؛ط·ظٹط©
 
-| المكون | الهدف | الحالي |
+| ط§ظ„ظ…ظƒظˆظ† | ط§ظ„ظ‡ط¯ظپ | ط§ظ„ط­ط§ظ„ظٹ |
 |--------|-------|--------|
-| Services | 90% | ⏳ 70% |
-| Controllers | 85% | ⏳ 60% |
-| Utils | 95% | ⏳ 80% |
-| Models | 80% | ⏳ 75% |
+| Services | 90% | âڈ³ 70% |
+| Controllers | 85% | âڈ³ 60% |
+| Utils | 95% | âڈ³ 80% |
+| Models | 80% | âڈ³ 75% |
 
 ---
 
-## 🔄 CI/CD Integration
+## ًں”„ CI/CD Integration
 
 ### GitHub Actions
 ```yaml
@@ -271,4 +271,5 @@ jobs:
 
 ---
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
+

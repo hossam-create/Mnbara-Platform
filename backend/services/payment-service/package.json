@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "mnbarh-payment-service",
   "version": "1.0.0",
   "description": "Mnbarh Platform Payment Service - Stripe Integration",
@@ -14,7 +14,7 @@
     "stripe",
     "ecommerce",
     "marketplace",
-    "mnbara"
+    "mnbarh"
   ],
   "author": "Mnbarh Team",
   "license": "MIT",
@@ -45,6 +45,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mnbara/platform"
+    "url": "https://github.com/mnbarh/platform"
   }
 }

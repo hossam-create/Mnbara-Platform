@@ -1,10 +1,10 @@
-# REAL ESCROW & WALLET — SECURITY SPECIFICATION
+﻿# REAL ESCROW & WALLET â€” SECURITY SPECIFICATION
 ## Financial Risk, AML Compliance & Kill Switch Controls
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Escrow & Wallet Security Controls  
 **Date:** December 20, 2025  
-**Classification:** Internal — Finance, Risk & Compliance
+**Classification:** Internal â€” Finance, Risk & Compliance
 
 ---
 
@@ -14,10 +14,10 @@
 
 | Scenario | Risk | Control | Escalation |
 |----------|------|---------|------------|
-| Buyer initiates chargeback after delivery confirmed | Fund loss + traveler unpaid | Immediate escrow freeze on chargeback notification | Finance → Legal within 24hr |
+| Buyer initiates chargeback after delivery confirmed | Fund loss + traveler unpaid | Immediate escrow freeze on chargeback notification | Finance â†’ Legal within 24hr |
 | Buyer initiates chargeback before delivery | Transaction cancellation | Auto-cancel transaction, return traveler deposit | Standard process, no escalation |
 | Serial chargebacker detected (2+ in 90 days) | Pattern fraud | Account restriction + enhanced verification | Compliance review + possible ban |
-| Chargeback on released funds (post-payout) | Platform loss | Recover from traveler payout if possible; if not, platform absorbs | Finance → Legal → Recovery |
+| Chargeback on released funds (post-payout) | Platform loss | Recover from traveler payout if possible; if not, platform absorbs | Finance â†’ Legal â†’ Recovery |
 | Fraudulent chargeback (goods received, buyer lies) | Fund loss + reputation | Fight chargeback with delivery evidence | Legal + payment processor dispute |
 
 **Controls:**
@@ -81,7 +81,7 @@
 | Scenario | Risk | Control | Escalation |
 |----------|------|---------|------------|
 | Structuring (multiple transactions just under reporting threshold) | AML violation | Aggregate transaction monitoring | AML team + SAR filing |
-| Rapid in-out (deposit → transaction → withdraw) | Layering | Minimum hold periods + withdrawal delays | Compliance review |
+| Rapid in-out (deposit â†’ transaction â†’ withdraw) | Layering | Minimum hold periods + withdrawal delays | Compliance review |
 | High-value transactions from high-risk jurisdictions | Sanctions/AML risk | Enhanced due diligence (EDD) | Compliance + possible block |
 | Unusual transaction patterns (late night, round numbers) | Suspicious activity | Behavioral anomaly detection | AML review |
 | Third-party funding (someone else pays for buyer) | Source of funds unclear | Payment source verification | Block + request documentation |
@@ -102,9 +102,9 @@
 
 | Scenario | Risk | Control | Escalation |
 |----------|------|---------|------------|
-| Deposit → withdraw within hours | Testing/layering | Minimum 24hr hold on deposits | Auto-block repeat offenders |
+| Deposit â†’ withdraw within hours | Testing/layering | Minimum 24hr hold on deposits | Auto-block repeat offenders |
 | Multiple deposits from different sources, single withdrawal | Aggregation/laundering | Flag if 3+ deposit sources in 7 days | AML review |
-| Circular flow (A → B → A) | Round-tripping | Transaction graph detection | Freeze both accounts |
+| Circular flow (A â†’ B â†’ A) | Round-tripping | Transaction graph detection | Freeze both accounts |
 | Micro-deposits followed by large withdrawal | Structuring | Aggregate deposit tracking | Compliance flag |
 | Wallet used as pass-through (no actual transactions) | Money transmission | Require transaction history for large withdrawals | Compliance review |
 
@@ -140,7 +140,7 @@
 | Power User (verified) | 20-50 transactions | 51-100 | 101-150 | 151+ |
 
 **Rules:**
-- Flag is READ-ONLY — informs review, does not auto-block
+- Flag is READ-ONLY â€” informs review, does not auto-block
 - Velocity calculated on rolling 7-day and 30-day windows
 - Both transaction count AND value velocity tracked
 - Value velocity: Same thresholds applied to cumulative amounts
@@ -152,8 +152,8 @@
 | Flag State | Trigger Condition | Effect | Auto-Clear |
 |------------|-------------------|--------|------------|
 | `ROUND_TRIP_NONE` | No circular patterns detected | Standard processing | N/A |
-| `ROUND_TRIP_SUSPECTED` | A → B → A within 30 days detected | Flag for review | After 90 days no recurrence |
-| `ROUND_TRIP_CONFIRMED` | A → B → A with minimal value change (< 5%) | Compliance investigation | Manual clear after investigation |
+| `ROUND_TRIP_SUSPECTED` | A â†’ B â†’ A within 30 days detected | Flag for review | After 90 days no recurrence |
+| `ROUND_TRIP_CONFIRMED` | A â†’ B â†’ A with minimal value change (< 5%) | Compliance investigation | Manual clear after investigation |
 | `ROUND_TRIP_NETWORK` | 3+ accounts in circular flow | AML escalation | Manual clear + possible SAR |
 
 **Detection Pattern:**
@@ -162,7 +162,7 @@
 |---------|-------------|------------|
 | Simple loop | A pays B, B pays A | SUSPECTED |
 | Value-preserving loop | Loop with < 5% value loss | CONFIRMED |
-| Multi-hop loop | A → B → C → A | CONFIRMED |
+| Multi-hop loop | A â†’ B â†’ C â†’ A | CONFIRMED |
 | Complex network | 4+ accounts interconnected | NETWORK |
 
 **Rules:**
@@ -206,7 +206,7 @@
 | `CORRIDOR_STANDARD` | Low-risk country pair | Standard processing | N/A |
 | `CORRIDOR_MONITORED` | One monitored country involved | Enhanced documentation | Per-transaction |
 | `CORRIDOR_HIGH_RISK` | One high-risk country involved | Compliance review required | Per-transaction |
-| `CORRIDOR_RESTRICTED` | Sanctioned or blocked country | Transaction blocked | N/A — Cannot transact |
+| `CORRIDOR_RESTRICTED` | Sanctioned or blocked country | Transaction blocked | N/A â€” Cannot transact |
 
 **Country Risk Classification:**
 
@@ -224,7 +224,7 @@
 | Standard | $5,000 | Standard KYC |
 | Monitored | $2,000 | Standard KYC + transaction purpose |
 | High-Risk | $500 | Enhanced KYC + source of funds + purpose |
-| Restricted | $0 | N/A — Blocked |
+| Restricted | $0 | N/A â€” Blocked |
 
 **Rules:**
 - Corridor flag SET based on traveler origin + buyer destination
@@ -265,12 +265,12 @@
 
 | Condition | Result | Fund Movement |
 |-----------|--------|---------------|
-| Buyer provides proof of non-delivery + traveler has no counter-evidence | Refund buyer | Escrow → Buyer |
-| Item confirmed delivered but significantly not as described (evidence clear) | Refund buyer | Escrow → Buyer |
-| Traveler unresponsive for 14+ days + buyer requests refund | Refund buyer | Escrow → Buyer |
-| Chargeback won by buyer (bank decision) | Refund enforced | Escrow → Buyer (via bank) |
-| Traveler admits non-delivery or fault | Refund buyer | Escrow → Buyer |
-| Item confirmed illegal/prohibited (customs seizure with documentation) | Partial refund | Escrow → Buyer (minus any recovery) |
+| Buyer provides proof of non-delivery + traveler has no counter-evidence | Refund buyer | Escrow â†’ Buyer |
+| Item confirmed delivered but significantly not as described (evidence clear) | Refund buyer | Escrow â†’ Buyer |
+| Traveler unresponsive for 14+ days + buyer requests refund | Refund buyer | Escrow â†’ Buyer |
+| Chargeback won by buyer (bank decision) | Refund enforced | Escrow â†’ Buyer (via bank) |
+| Traveler admits non-delivery or fault | Refund buyer | Escrow â†’ Buyer |
+| Item confirmed illegal/prohibited (customs seizure with documentation) | Partial refund | Escrow â†’ Buyer (minus any recovery) |
 
 **Refund Decision Authority:**
 
@@ -283,7 +283,7 @@
 
 **Rules:**
 - Refund ALWAYS requires documented justification
-- Refund does not close dispute — traveler appeal window: 7 days
+- Refund does not close dispute â€” traveler appeal window: 7 days
 - Refund is reversible only if new definitive evidence emerges
 - Partial refunds allowed (pro-rata) for partial delivery
 
@@ -309,7 +309,7 @@
 | No single-person release | Mandatory freezes require dual approval to lift |
 | User notification | User notified within 24hr (except law enforcement holds) |
 | No interest accrual | Frozen funds do not earn/lose value |
-| Maximum hold without action | 90 days — then must escalate to Legal |
+| Maximum hold without action | 90 days â€” then must escalate to Legal |
 | Appeal process | User may appeal after 14 days with new evidence |
 
 ---
@@ -332,7 +332,7 @@
 | User notification | Required within 24hr (standard) or withheld (law enforcement) |
 | Maximum duration | 90 days without escalation to Legal |
 | Partial operations | Specify exactly what is frozen (deposits, withdrawals, transactions) |
-| Emergency override | CEO only — logged + justified |
+| Emergency override | CEO only â€” logged + justified |
 
 ---
 
@@ -369,10 +369,10 @@
 
 | Metric | Formula | Threshold |
 |--------|---------|-----------|
-| Fraud Rate | (Confirmed fraud transactions / Total transactions) × 100 | > 5% = RESTRICT |
-| Dispute Rate | (Disputes / Total transactions) × 100 | > 15% = MONITOR |
-| Chargeback Rate | (Chargebacks / Total transactions) × 100 | > 2% = RESTRICT |
-| Loss Rate | (Platform losses / GMV) × 100 | > 1% = SUSPEND_NEW |
+| Fraud Rate | (Confirmed fraud transactions / Total transactions) أ— 100 | > 5% = RESTRICT |
+| Dispute Rate | (Disputes / Total transactions) أ— 100 | > 15% = MONITOR |
+| Chargeback Rate | (Chargebacks / Total transactions) أ— 100 | > 2% = RESTRICT |
+| Loss Rate | (Platform losses / GMV) أ— 100 | > 1% = SUSPEND_NEW |
 
 **Corridor Suspension Rules:**
 
@@ -412,7 +412,7 @@
 | Status page | Public status page updated immediately |
 | Investor notification | Board notified within 4hr |
 | Maximum duration | GLOBAL_FULL_HALT: 72hr max before resolution plan required |
-| Reversal process | Staged reversal: HALT → RESTRICT → MONITOR → NORMAL |
+| Reversal process | Staged reversal: HALT â†’ RESTRICT â†’ MONITOR â†’ NORMAL |
 
 ---
 
@@ -420,15 +420,15 @@
 
 | Action | L2 | L3 | L4 | Compliance | Finance | Legal | CEO |
 |--------|----|----|----|----|---------|-------|-----|
-| User Wallet Freeze | — | — | ✓ | ✓ | — | — | ✓ |
-| Escrow Transaction Freeze | ✓ | ✓ | ✓ | ✓ | — | — | ✓ |
-| Escrow User Freeze | — | ✓ | ✓ | ✓ | — | — | ✓ |
-| Corridor Restrict | — | — | — | ✓ | ✓ | — | ✓ |
-| Corridor Suspend | — | — | — | ✓ | — | ✓ | ✓ |
-| Global Deposit Halt | — | — | — | — | ✓ | — | ✓ |
-| Global Withdrawal Halt | — | — | — | — | ✓ | — | ✓ |
-| Global Transaction Halt | — | — | — | — | — | ✓ | ✓ |
-| Global Full Halt | — | — | — | — | — | — | ✓ (+ Board) |
+| User Wallet Freeze | â€” | â€” | âœ“ | âœ“ | â€” | â€” | âœ“ |
+| Escrow Transaction Freeze | âœ“ | âœ“ | âœ“ | âœ“ | â€” | â€” | âœ“ |
+| Escrow User Freeze | â€” | âœ“ | âœ“ | âœ“ | â€” | â€” | âœ“ |
+| Corridor Restrict | â€” | â€” | â€” | âœ“ | âœ“ | â€” | âœ“ |
+| Corridor Suspend | â€” | â€” | â€” | âœ“ | â€” | âœ“ | âœ“ |
+| Global Deposit Halt | â€” | â€” | â€” | â€” | âœ“ | â€” | âœ“ |
+| Global Withdrawal Halt | â€” | â€” | â€” | â€” | âœ“ | â€” | âœ“ |
+| Global Transaction Halt | â€” | â€” | â€” | â€” | â€” | âœ“ | âœ“ |
+| Global Full Halt | â€” | â€” | â€” | â€” | â€” | â€” | âœ“ (+ Board) |
 
 ---
 
@@ -448,5 +448,6 @@
 
 **Document Owner:** Finance, Risk & Compliance Operations  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

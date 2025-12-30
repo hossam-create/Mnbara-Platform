@@ -1,7 +1,7 @@
-{
-  "name": "mnbara-ui-config-service",
+﻿{
+  "name": "mnbarh-ui-config-service",
   "version": "1.0.0",
-  "description": "Dynamic UI Configuration Service for Mnbara Platform - Real-time UI updates without app store releases",
+  "description": "Dynamic UI Configuration Service for mnbarh Platform - Real-time UI updates without app store releases",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -61,3 +61,4 @@
     "node": "22.20.0"
   }
 }
+

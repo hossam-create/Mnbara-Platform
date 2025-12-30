@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/ledger",
+﻿{
+  "name": "@mnbarh/ledger",
   "version": "1.0.0",
-  "description": "Immutable ledger service for MNBARA platform",
+  "description": "Immutable ledger service for mnbarh platform",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {
@@ -21,8 +21,9 @@
   "keywords": [
     "ledger",
     "audit",
-    "mnbara"
+    "mnbarh"
   ],
-  "author": "MNBARA Team",
+  "author": "mnbarh Team",
   "license": "MIT"
 }
+

@@ -1,22 +1,22 @@
-# Sprint 4: Market 1 Product & Ops Enablement
+﻿# Sprint 4: Market 1 Product & Ops Enablement
 
 ## Overview
 
 Market 1 activation from a PRODUCT & OPS angle.
 
-- Market 0 already live (US → MENA)
-- Market 1 = EU → MENA (UK, DE, FR → EG, AE, SA)
+- Market 0 already live (US â†’ MENA)
+- Market 1 = EU â†’ MENA (UK, DE, FR â†’ EG, AE, SA)
 - Same trust-first, human-confirmed principles
 
 ## Constraints (STRICTLY ENFORCED)
 
 | Constraint | Status |
 |------------|--------|
-| ❌ No new user powers | ENFORCED |
-| ❌ No automation | ENFORCED |
-| ❌ No payments | ENFORCED |
-| ✅ Advisory only | ENFORCED |
-| ✅ Human confirmation required | ENFORCED |
+| â‌Œ No new user powers | ENFORCED |
+| â‌Œ No automation | ENFORCED |
+| â‌Œ No payments | ENFORCED |
+| âœ… Advisory only | ENFORCED |
+| âœ… Human confirmation required | ENFORCED |
 
 ---
 
@@ -26,30 +26,30 @@ Market 1 activation from a PRODUCT & OPS angle.
 
 | Intent | Allowed | Confirmation Required | Trust Requirement |
 |--------|---------|----------------------|-------------------|
-| `BUY_FROM_ABROAD` | ✅ | Yes | STANDARD |
-| `TRAVEL_MATCH` | ✅ | Yes | TRUSTED |
-| `PRICE_VERIFY` | ✅ | No | ANY |
-| `BROWSE` | ✅ | No | ANY |
-| `COMPARE` | ✅ | No | ANY |
+| `BUY_FROM_ABROAD` | âœ… | Yes | STANDARD |
+| `TRAVEL_MATCH` | âœ… | Yes | TRUSTED |
+| `PRICE_VERIFY` | âœ… | No | ANY |
+| `BROWSE` | âœ… | No | ANY |
+| `COMPARE` | âœ… | No | ANY |
 
 ### 1.2 Blocked Intents
 
 | Intent | Blocked | Reason |
 |--------|---------|--------|
-| `AUTO_MATCH` | ✅ | No automation |
-| `AUTO_PURCHASE` | ✅ | No automation |
-| `BULK_ORDER` | ✅ | Not available in Market 1 |
-| `RESALE` | ✅ | Not supported |
+| `AUTO_MATCH` | âœ… | No automation |
+| `AUTO_PURCHASE` | âœ… | No automation |
+| `BULK_ORDER` | âœ… | Not available in Market 1 |
+| `RESALE` | âœ… | Not supported |
 
 ### 1.3 Blocked Flows
 
 | Flow | Blocked | User Message |
 |------|---------|--------------|
-| Payment Execution | ✅ | "Payment processing is not yet available for this corridor." |
-| Escrow Execution | ✅ | "Escrow services are recommended but not yet executable." |
-| Auto Matching | ✅ | "Please manually review and confirm traveler matches." |
-| Background Actions | ✅ | "All actions require your explicit confirmation." |
-| Ranking Suppression | ✅ | "All recommendations are transparent with explanations." |
+| Payment Execution | âœ… | "Payment processing is not yet available for this corridor." |
+| Escrow Execution | âœ… | "Escrow services are recommended but not yet executable." |
+| Auto Matching | âœ… | "Please manually review and confirm traveler matches." |
+| Background Actions | âœ… | "All actions require your explicit confirmation." |
+| Ranking Suppression | âœ… | "All recommendations are transparent with explanations." |
 
 ---
 
@@ -82,10 +82,10 @@ Each transaction shows:
 
 | Corridor | Customs Complexity | High-Value Threshold |
 |----------|-------------------|---------------------|
-| UK → EG | 1.25 (Medium) | $200 |
-| UK → AE | 1.05 (Low) | $200 |
-| DE → EG | 1.30 (Medium-High) | $200 |
-| FR → AE | 1.10 (Low-Medium) | $200 |
+| UK â†’ EG | 1.25 (Medium) | $200 |
+| UK â†’ AE | 1.05 (Low) | $200 |
+| DE â†’ EG | 1.30 (Medium-High) | $200 |
+| FR â†’ AE | 1.10 (Low-Medium) | $200 |
 
 ---
 
@@ -94,7 +94,7 @@ Each transaction shows:
 ### 3.1 Review Flow
 
 ```
-Intent Review → Trust Review → Corridor Review → Log Decision
+Intent Review â†’ Trust Review â†’ Corridor Review â†’ Log Decision
 ```
 
 See: `docs/ops/MARKET_1_OPS_PLAYBOOK.md`
@@ -102,15 +102,15 @@ See: `docs/ops/MARKET_1_OPS_PLAYBOOK.md`
 ### 3.2 Escalation Path
 
 ```
-L1: Ops Team (15 min) → L2: Ops Lead → L3: Engineering → L4: Emergency
+L1: Ops Team (15 min) â†’ L2: Ops Lead â†’ L3: Engineering â†’ L4: Emergency
 ```
 
 | Level | Trigger | Contact |
 |-------|---------|---------|
-| L1 | User complaint | ops-market1@mnbara.com |
-| L2 | Multiple complaints (>3/hour) | ops-lead@mnbara.com |
-| L3 | System error >5% | oncall-crowdship@mnbara.com |
-| L4 | Emergency (>10% error) | emergency@mnbara.com |
+| L1 | User complaint | ops-market1@mnbarh.com |
+| L2 | Multiple complaints (>3/hour) | ops-lead@mnbarh.com |
+| L3 | System error >5% | oncall-crowdship@mnbarh.com |
+| L4 | Emergency (>10% error) | emergency@mnbarh.com |
 
 ---
 
@@ -249,4 +249,5 @@ kubectl rollout restart deployment/crowdship-service
 - [x] No payments
 - [x] Same principles as Market 0
 
-## Sprint 4: COMPLETE ✅
+## Sprint 4: COMPLETE âœ…
+

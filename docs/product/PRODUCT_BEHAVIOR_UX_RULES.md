@@ -1,7 +1,7 @@
-# PRODUCT BEHAVIOR & UX RULES
+﻿# PRODUCT BEHAVIOR & UX RULES
 ## Trust-First Commerce with eBay-Inspired Patterns
 
-**Platform:** Mnbara  
+**Platform:** mnbarh  
 **Date:** December 20, 2025
 
 ---
@@ -9,18 +9,18 @@
 ## CORE BEHAVIORAL PRINCIPLES
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│  TRUST-FIRST COMMERCE                                           │
-│                                                                 │
-│  1. Every action is user-initiated                              │
-│  2. Every decision shows its reasoning                          │
-│  3. Every confirmation is explicit                              │
-│  4. Every exit is available                                     │
-└─────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚  TRUST-FIRST COMMERCE                                           â”‚
+â”‚                                                                 â”‚
+â”‚  1. Every action is user-initiated                              â”‚
+â”‚  2. Every decision shows its reasoning                          â”‚
+â”‚  3. Every confirmation is explicit                              â”‚
+â”‚  4. Every exit is available                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### Anti-Pattern Prohibitions
-| ❌ Prohibited | ✅ Required Instead |
+| â‌Œ Prohibited | âœ… Required Instead |
 |---------------|---------------------|
 | Auto-submit anything | Explicit tap required |
 | Auto-accept offers | User reviews and confirms |
@@ -55,7 +55,7 @@
 ### Decision Visibility
 ```
 "Why am I seeing this?"
-→ Not applicable on home (no algorithmic content)
+â†’ Not applicable on home (no algorithmic content)
 ```
 
 ---
@@ -83,9 +83,9 @@
 "Why am I seeing these results?"
 
 Results are sorted by:
-• Route match (closest to your destination)
-• Traveler availability (soonest arrival)
-• Trust level (verified travelers first)
+â€¢ Route match (closest to your destination)
+â€¢ Traveler availability (soonest arrival)
+â€¢ Trust level (verified travelers first)
 
 We don't promote paid listings.
 ```
@@ -116,8 +116,8 @@ We don't promote paid listings.
 "Why is this marked [Trust Level]?"
 
 [Traveler Name] has:
-✅ [List of positive factors]
-⏳ [List of developing factors]
+âœ… [List of positive factors]
+âڈ³ [List of developing factors]
 
 Trust is based on verified history.
 It doesn't guarantee future behavior.
@@ -139,8 +139,8 @@ It doesn't guarantee future behavior.
 | Element | Text |
 |---------|------|
 | Empty state | `No requests yet. Create one to get started.` |
-| Status: Active | `Active — Visible to travelers` |
-| Status: Pending | `Pending — Waiting for traveler` |
+| Status: Active | `Active â€” Visible to travelers` |
+| Status: Pending | `Pending â€” Waiting for traveler` |
 | Status: Completed | `Completed` |
 | Edit button | `Edit Request` |
 | Cancel button | `Cancel Request` |
@@ -171,7 +171,7 @@ It doesn't guarantee future behavior.
 "Why are offers shown in this order?"
 
 Offers are listed by:
-• When they were received (newest first)
+â€¢ When they were received (newest first)
 
 We don't rank offers. You review and decide.
 ```
@@ -190,22 +190,22 @@ We don't rank offers. You review and decide.
 
 ### Confirmation Checkpoint
 ```
-┌─────────────────────────────────────────────────┐
-│ ✋ CONFIRM YOUR CHOICE                          │
-│                                                 │
-│ You're accepting this offer from:               │
-│ 👤 [Name] • [Trust Badge]                       │
-│ ✈️ Arriving: [Date]                             │
-│ 💵 Fee: $[Amount]                               │
-│                                                 │
-│ ┌─────────────────────────────────────────────┐ │
-│ │ 🔒 Your money is protected                  │ │
-│ │ Funds go to escrow until you confirm        │ │
-│ │ delivery. Full refund if not delivered.     │ │
-│ └─────────────────────────────────────────────┘ │
-│                                                 │
-│ [ Go Back ]            [ Accept & Continue ]    │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âœ‹ CONFIRM YOUR CHOICE                          â”‚
+â”‚                                                 â”‚
+â”‚ You're accepting this offer from:               â”‚
+â”‚ ًں‘¤ [Name] â€¢ [Trust Badge]                       â”‚
+â”‚ âœˆï¸ڈ Arriving: [Date]                             â”‚
+â”‚ ًں’µ Fee: $[Amount]                               â”‚
+â”‚                                                 â”‚
+â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ â”‚
+â”‚ â”‚ ًں”’ Your money is protected                  â”‚ â”‚
+â”‚ â”‚ Funds go to escrow until you confirm        â”‚ â”‚
+â”‚ â”‚ delivery. Full refund if not delivered.     â”‚ â”‚
+â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک â”‚
+â”‚                                                 â”‚
+â”‚ [ Go Back ]            [ Accept & Continue ]    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -236,12 +236,12 @@ We don't rank offers. You review and decide.
 "Why am I seeing these requests?"
 
 Requests are filtered by:
-• Your travel route
-• Your travel dates
+â€¢ Your travel route
+â€¢ Your travel dates
 
 Results are sorted by:
-• Fee amount (highest first)
-• Buyer trust level
+â€¢ Fee amount (highest first)
+â€¢ Buyer trust level
 ```
 
 ---
@@ -289,21 +289,21 @@ Results are sorted by:
 
 ### Confirmation Checkpoint
 ```
-┌─────────────────────────────────────────────────┐
-│ ✋ CONFIRM YOUR OFFER                           │
-│                                                 │
-│ You're offering to deliver:                     │
-│ 📱 [Item Name]                                  │
-│                                                 │
-│ Your fee: $[Amount]                             │
-│ Arriving: [Date]                                │
-│                                                 │
-│ The buyer will review your offer and decide     │
-│ whether to accept. You'll be notified either    │
-│ way.                                            │
-│                                                 │
-│ [ Go Back ]              [ Send Offer ]         │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âœ‹ CONFIRM YOUR OFFER                           â”‚
+â”‚                                                 â”‚
+â”‚ You're offering to deliver:                     â”‚
+â”‚ ًں“± [Item Name]                                  â”‚
+â”‚                                                 â”‚
+â”‚ Your fee: $[Amount]                             â”‚
+â”‚ Arriving: [Date]                                â”‚
+â”‚                                                 â”‚
+â”‚ The buyer will review your offer and decide     â”‚
+â”‚ whether to accept. You'll be notified either    â”‚
+â”‚ way.                                            â”‚
+â”‚                                                 â”‚
+â”‚ [ Go Back ]              [ Send Offer ]         â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -322,8 +322,8 @@ Results are sorted by:
 | Element | Text |
 |---------|------|
 | Empty state | `You haven't made any offers yet.` |
-| Status: Pending | `Pending — Waiting for buyer` |
-| Status: Accepted | `Accepted — Ready to shop` |
+| Status: Pending | `Pending â€” Waiting for buyer` |
+| Status: Accepted | `Accepted â€” Ready to shop` |
 | Status: Declined | `Not selected` |
 | Withdraw button | `Withdraw Offer` |
 
@@ -353,29 +353,29 @@ Results are sorted by:
 ### When to Trigger
 | Condition | Trigger |
 |-----------|---------|
-| Item value ≥ $1000 | ⚠️ Caution banner |
-| Item value ≥ $2500 | ⚠️ Warning + checkbox |
-| Counterparty new (< 3 txns) | ℹ️ Info banner |
-| Counterparty new + high value | ⚠️ Warning + checkbox |
-| Unverified ID + high value | ⚠️ Warning + checkbox |
+| Item value â‰¥ $1000 | âڑ ï¸ڈ Caution banner |
+| Item value â‰¥ $2500 | âڑ ï¸ڈ Warning + checkbox |
+| Counterparty new (< 3 txns) | â„¹ï¸ڈ Info banner |
+| Counterparty new + high value | âڑ ï¸ڈ Warning + checkbox |
+| Unverified ID + high value | âڑ ï¸ڈ Warning + checkbox |
 
 ### Checkpoint Template
 ```
-┌─────────────────────────────────────────────────┐
-│ ⚠️ BEFORE YOU PROCEED                          │
-│                                                 │
-│ We noticed:                                     │
-│ • [Risk Factor 1]                               │
-│ • [Risk Factor 2]                               │
-│                                                 │
-│ This doesn't mean something is wrong.           │
-│ We just want you to be aware.                   │
-│                                                 │
-│ ☐ I've reviewed this and want to proceed        │
-│                                                 │
-│ [ See Alternatives ]   [ Continue ]             │
-│                         (enabled when checked)  │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âڑ ï¸ڈ BEFORE YOU PROCEED                          â”‚
+â”‚                                                 â”‚
+â”‚ We noticed:                                     â”‚
+â”‚ â€¢ [Risk Factor 1]                               â”‚
+â”‚ â€¢ [Risk Factor 2]                               â”‚
+â”‚                                                 â”‚
+â”‚ This doesn't mean something is wrong.           â”‚
+â”‚ We just want you to be aware.                   â”‚
+â”‚                                                 â”‚
+â”‚ âکگ I've reviewed this and want to proceed        â”‚
+â”‚                                                 â”‚
+â”‚ [ See Alternatives ]   [ Continue ]             â”‚
+â”‚                         (enabled when checked)  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -386,7 +386,7 @@ Results are sorted by:
 
 ### Network Error
 ```
-📶 No connection
+ًں“¶ No connection
 
 Check your internet and try again.
 
@@ -395,7 +395,7 @@ Check your internet and try again.
 
 ### Server Error
 ```
-😕 Something went wrong
+ًںک• Something went wrong
 
 We're having trouble on our end.
 Please try again in a moment.
@@ -407,14 +407,14 @@ Please try again in a moment.
 ```
 Field-level errors shown inline:
 
-• "Please enter an item name"
-• "Please select a valid date"
-• "Price must be a number"
+â€¢ "Please enter an item name"
+â€¢ "Please select a valid date"
+â€¢ "Price must be a number"
 ```
 
 ### Action Failed
 ```
-😕 Couldn't complete that
+ًںک• Couldn't complete that
 
 [Specific reason if known]
 
@@ -425,7 +425,7 @@ Your information has been saved.
 
 ### Session Expired
 ```
-🔐 Session expired
+ًں”گ Session expired
 
 For your security, please sign in again.
 
@@ -434,7 +434,7 @@ For your security, please sign in again.
 
 ### Not Found
 ```
-🔍 Not found
+ًں”چ Not found
 
 This [request/offer/user] doesn't exist
 or has been removed.
@@ -462,34 +462,34 @@ or has been removed.
 
 ### No Search Results
 ```
-📭 No matches found
+ًں“­ No matches found
 
 We couldn't find travelers for "[Query]"
 
 Try:
-• Using different keywords
-• Checking your spelling
-• Browsing categories instead
+â€¢ Using different keywords
+â€¢ Checking your spelling
+â€¢ Browsing categories instead
 
 [ Clear Search ]   [ Browse Categories ]
 ```
 
 ### No Requests on Route
 ```
-📭 No requests on this route
+ًں“­ No requests on this route
 
 No one needs items from [Origin] to [Destination] right now.
 
 Check back later, or try:
-• Expanding your dates
-• Nearby destinations
+â€¢ Expanding your dates
+â€¢ Nearby destinations
 
 [ Change Route ]
 ```
 
 ### No Offers Received
 ```
-📬 No offers yet
+ًں“¬ No offers yet
 
 Travelers are reviewing your request.
 We'll notify you when someone makes an offer.
@@ -501,7 +501,7 @@ Average response time: 4-8 hours
 
 ### No Requests Created (Buyer)
 ```
-📦 No requests yet
+ًں“¦ No requests yet
 
 Create a request to find travelers who can
 bring you what you're looking for.
@@ -511,7 +511,7 @@ bring you what you're looking for.
 
 ### No Offers Made (Traveler)
 ```
-✈️ No offers yet
+âœˆï¸ڈ No offers yet
 
 Browse requests matching your travel route
 and make offers to start earning.
@@ -521,7 +521,7 @@ and make offers to start earning.
 
 ### No Transaction History
 ```
-📋 No history yet
+ًں“‹ No history yet
 
 Your completed transactions will appear here.
 
@@ -555,9 +555,9 @@ Your completed transactions will appear here.
 ### Trust Badges
 | Level | Badge | Color |
 |-------|-------|-------|
-| High | `Verified` or `High Trust` | 💚 Green |
-| Medium | `Building Trust` | 🟡 Yellow |
-| New | `New` | 🔴 Red (soft) |
+| High | `Verified` or `High Trust` | ًں’ڑ Green |
+| Medium | `Building Trust` | ًںں، Yellow |
+| New | `New` | ًں”´ Red (soft) |
 
 ---
 
@@ -567,13 +567,13 @@ Your completed transactions will appear here.
 
 [Username] has:
 
-✅ ID verified
-✅ [X] successful transactions
-✅ [X.X] average rating
-✅ Member since [Year]
-✅ No unresolved disputes
+âœ… ID verified
+âœ… [X] successful transactions
+âœ… [X.X] average rating
+âœ… Member since [Year]
+âœ… No unresolved disputes
 
-─────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 Trust is based on verified history.
 It doesn't guarantee future behavior.
@@ -587,16 +587,16 @@ You're always protected by escrow.
 "Why am I seeing this warning?"
 
 We noticed:
-• [Specific factor 1]
-• [Specific factor 2]
+â€¢ [Specific factor 1]
+â€¢ [Specific factor 2]
 
 This doesn't mean something is wrong.
 It's information to help you decide.
 
 Your protections:
-• Funds held in escrow
-• Support available 24/7
-• Dispute resolution if needed
+â€¢ Funds held in escrow
+â€¢ Support available 24/7
+â€¢ Dispute resolution if needed
 ```
 
 ---
@@ -616,7 +616,7 @@ Your protections:
 | Method | When to Use |
 |--------|-------------|
 | Inline text | Always visible context |
-| `ℹ️` icon tap | Secondary details |
+| `â„¹ï¸ڈ` icon tap | Secondary details |
 | "Why?" link | Full breakdown |
 | Tooltip | Quick definitions |
 
@@ -689,3 +689,4 @@ Your protections:
 **Document Owner:** Product Team  
 **Version:** 1.0  
 **Date:** December 20, 2025
+

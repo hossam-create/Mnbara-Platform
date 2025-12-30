@@ -1,7 +1,7 @@
-# FUTURE LICENSING PREPARATION
+﻿# FUTURE LICENSING PREPARATION
 ## Strategic Regulatory Roadmap & Triggers
 
-**Classification:** CONFIDENTIAL — Strategic Planning
+**Classification:** CONFIDENTIAL â€” Strategic Planning
 **Status:** Forward-Looking Guidance
 **Date:** December 19, 2025
 **Document Owner:** General Counsel
@@ -56,7 +56,7 @@ Licensing becomes **MANDATORY** immediately upon any of the following triggers (
 
 *   **Definition:** Use Stripe, Adyen, PayPal, etc.
 *   **Obligations:** Pass data correctly, prevent fraud, KYC collection (delegated).
-*   **Cost:** Transaction fees (2.9% + 30¢), no license cost.
+*   **Cost:** Transaction fees (2.9% + 30آ¢), no license cost.
 *   **Time:** Immediate.
 *   **Risk:** Low (Liability sits with Partner).
 *   **Pros:** Fast, low capex, focus on product.
@@ -100,7 +100,7 @@ Licensing becomes **MANDATORY** immediately upon any of the following triggers (
 *   **Structure:** Fragmented. Federal (FinCEN) + 50 State Regulators.
 *   **Challenge:** "Money Transmission" is defined differently in every state. Most restrict holding funds.
 *   **Compliance:** Must register as MSB with FinCEN immediately if touching funds. Then get state licenses.
-*   **Risk:** Operating without a license is a federal crime (18 USC § 1960). Punishment includes prison.
+*   **Risk:** Operating without a license is a federal crime (18 USC آ§ 1960). Punishment includes prison.
 
 ### 4.2 European Union (EU)
 *   **Structure:** Harmonized (PSD2 / EMD2).
@@ -120,17 +120,17 @@ Licensing becomes **MANDATORY** immediately upon any of the following triggers (
 
 ### 5.1 "What We Are" (Must be visible)
 
-> "Mnbara is a technology platform that connects buyers and travelers. We provide the marketplace, verification tools, and communication services."
+> "mnbarh is a technology platform that connects buyers and travelers. We provide the marketplace, verification tools, and communication services."
 
 ### 5.2 "What We Are NOT" (Must be explicit)
 
-> "Mnbara is **NOT** a bank, financial institution, money transmitter, or insurance provider.
+> "mnbarh is **NOT** a bank, financial institution, money transmitter, or insurance provider.
 >
-> All financial transactions are processed by third-party licensed payment service providers. Mnbara does not hold, store, or transmit funds."
+> All financial transactions are processed by third-party licensed payment service providers. mnbarh does not hold, store, or transmit funds."
 
 ### 5.3 Triggered Disclosures (If using wallet features via partner)
 
-> "Wallet services are provided by [Partner Name], a licensed financial institution. Your funds are held by [Partner Name], not by Mnbara."
+> "Wallet services are provided by [Partner Name], a licensed financial institution. Your funds are held by [Partner Name], not by mnbarh."
 
 ---
 
@@ -158,3 +158,4 @@ If any product feature proposal includes the following, **STOP** and involve Leg
 This document serves as a strategic guide. It does NOT constitute legal advice for specific situations. Future licensing projects require dedicated outside counsel.
 
 **Review Cycle:** Semi-Annual.
+

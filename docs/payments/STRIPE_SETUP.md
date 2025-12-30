@@ -1,11 +1,11 @@
-# Stripe Integration Guide - Mnbara Platform
+﻿# Stripe Integration Guide - mnbarh Platform
 
-## 📘 Overview
-This guide will help you integrate Stripe payment processing into the Mnbara platform for handling escrow, payouts, and wallet top-ups.
+## ًں“ک Overview
+This guide will help you integrate Stripe payment processing into the mnbarh platform for handling escrow, payouts, and wallet top-ups.
 
 ---
 
-## 🔑 Step 1: Get Stripe API Keys
+## ًں”‘ Step 1: Get Stripe API Keys
 
 ### 1.1 Create Stripe Account
 1. Go to [https://stripe.com](https://stripe.com)
@@ -16,7 +16,7 @@ This guide will help you integrate Stripe payment processing into the Mnbara pla
 ### 1.2 Access Test Mode Dashboard
 1. Login to [https://dashboard.stripe.com](https://dashboard.stripe.com)
 2. Toggle **Test Mode** switch (top right) - should be **ON** (orange)
-3. Navigate to **Developers** → **API Keys**
+3. Navigate to **Developers** â†’ **API Keys**
 
 ### 1.3 Copy Your Keys
 You'll see two keys:
@@ -32,26 +32,26 @@ You'll see two keys:
 
 ---
 
-## 🪝 Step 2: Setup Webhooks
+## ًںھ‌ Step 2: Setup Webhooks
 
 Webhooks allow Stripe to notify your server about payment events.
 
 ### 2.1 Add Webhook Endpoint
-1. Go to **Developers** → **Webhooks**
+1. Go to **Developers** â†’ **Webhooks**
 2. Click **Add endpoint**
 3. Enter endpoint URL:
    - **Local Testing:** `https://your-ngrok-url.ngrok.io/api/payments/webhook/stripe`
-   - **Production:** `https://api.mnbara.com/api/payments/webhook/stripe`
+   - **Production:** `https://api.mnbarh.com/api/payments/webhook/stripe`
 
 ### 2.2 Select Events to Listen
 Select these events:
-- ✅ `payment_intent.succeeded`
-- ✅ `payment_intent.payment_failed`
-- ✅ `charge.succeeded`
-- ✅ `charge.refunded`
-- ✅ `transfer.created`
-- ✅ `payout.paid`
-- ✅ `payout.failed`
+- âœ… `payment_intent.succeeded`
+- âœ… `payment_intent.payment_failed`
+- âœ… `charge.succeeded`
+- âœ… `charge.refunded`
+- âœ… `transfer.created`
+- âœ… `payout.paid`
+- âœ… `payout.failed`
 
 ### 2.3 Copy Webhook Secret
 After creating the endpoint:
@@ -61,7 +61,7 @@ After creating the endpoint:
 
 ---
 
-## 🛠️ Step 3: Configure Mnbara Platform
+## ًں› ï¸ڈ Step 3: Configure mnbarh Platform
 
 ### 3.1 Update .env File
 Copy `backend/services/payment-service/.env.example` to `.env`:
@@ -79,11 +79,11 @@ STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_ACTUAL_PUBLISHABLE_KEY_HERE
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_ACTUAL_WEBHOOK_SECRET_HERE
 ```
 
-**⚠️ IMPORTANT:** Never commit `.env` to Git! It's already in `.gitignore`.
+**âڑ ï¸ڈ IMPORTANT:** Never commit `.env` to Git! It's already in `.gitignore`.
 
 ---
 
-## 🧪 Step 4: Test Payment Flow
+## ًں§ھ Step 4: Test Payment Flow
 
 ### 4.1 Use Test Cards
 Stripe provides test card numbers for different scenarios:
@@ -129,7 +129,7 @@ curl -X POST http://localhost:3004/api/escrow/refund \
 
 ---
 
-## 🔒 Step 5: Security Best Practices
+## ًں”’ Step 5: Security Best Practices
 
 ### 5.1 Verify Webhook Signatures
 Always verify Stripe webhooks to prevent fake requests:
@@ -148,13 +148,13 @@ const event = stripe.webhooks.constructEvent(
 Stripe requires HTTPS for webhooks in production.
 
 ### 5.3 Never Log Sensitive Data
-- ❌ Don't log full card numbers
-- ❌ Don't log CVV codes
-- ✅ Log only: last 4 digits, brand, transaction ID
+- â‌Œ Don't log full card numbers
+- â‌Œ Don't log CVV codes
+- âœ… Log only: last 4 digits, brand, transaction ID
 
 ---
 
-## 📊 Step 6: Monitor Payments
+## ًں“ٹ Step 6: Monitor Payments
 
 ### 6.1 Stripe Dashboard
 Monitor all transactions at: [https://dashboard.stripe.com/test/payments](https://dashboard.stripe.com/test/payments)
@@ -164,7 +164,7 @@ Check webhook delivery status at: [https://dashboard.stripe.com/test/webhooks](h
 
 ---
 
-## 🚀 Step 7: Go Live (Production)
+## ًںڑ€ Step 7: Go Live (Production)
 
 When ready for production:
 
@@ -185,12 +185,12 @@ TEST_MODE=false
 ### 7.3 Update Webhook URL
 Change webhook endpoint to production domain:
 ```
-https://api.mnbara.com/api/payments/webhook/stripe
+https://api.mnbarh.com/api/payments/webhook/stripe
 ```
 
 ---
 
-## 🐛 Troubleshooting
+## ًںگ› Troubleshooting
 
 ### Issue: "Invalid API Key provided"
 - Check that you copied the correct key
@@ -207,7 +207,7 @@ https://api.mnbara.com/api/payments/webhook/stripe
 
 ---
 
-## 📚 Additional Resources
+## ًں“ڑ Additional Resources
 
 - [Stripe API Docs](https://stripe.com/docs/api)
 - [Stripe Testing Guide](https://stripe.com/docs/testing)
@@ -216,6 +216,7 @@ https://api.mnbara.com/api/payments/webhook/stripe
 
 ---
 
-**Need Help?** Contact support@mnbara.com or check our Discord community.
+**Need Help?** Contact support@mnbarh.com or check our Discord community.
 
 **Last Updated:** 2025-12-01
+

@@ -1,4 +1,4 @@
-# Second-Line AI Oversight Model
+﻿# Second-Line AI Oversight Model
 
 **Document ID:** GOV-2LOD-001
 **Purpose:** Establishing Independent Risk & Compliance Oversight (Second Line of Defense)
@@ -10,7 +10,7 @@
 
 ## 1. Governance Structure: The Three Lines of Defense
 
-To ensure robust governance of the AI Trust & Risk Operating System, Mnbara adopts the standard "Three Lines of Defense" model:
+To ensure robust governance of the AI Trust & Risk Operating System, mnbarh adopts the standard "Three Lines of Defense" model:
 
 1.  **First Line (Operations & Tech):** The Trust & Safety agents and Engineering teams who build/operate the system daily. They "own" the risk.
 2.  **Second Line (Risk & Compliance):** The independent function defined in this document. They "oversee" and challenge the risk.
@@ -71,3 +71,4 @@ This reporting line ensures that the Board receives an unvarnished view of AI sa
 **Approved By:**
 Board Risk Committee
 Chief Risk Officer
+

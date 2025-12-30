@@ -1,17 +1,17 @@
-# Market 1 Human Ops Playbook
+﻿# Market 1 Human Ops Playbook
 
 ## Overview
 
-Market 1 = EU → MENA corridors (UK, DE, FR → EG, AE, SA)
+Market 1 = EU â†’ MENA corridors (UK, DE, FR â†’ EG, AE, SA)
 
 Same trust-first, human-confirmed principles as Market 0.
 
 **CONSTRAINTS:**
-- ❌ No new user powers
-- ❌ No automation
-- ❌ No payments
-- ✅ Advisory only
-- ✅ Human confirmation required everywhere
+- â‌Œ No new user powers
+- â‌Œ No automation
+- â‌Œ No payments
+- âœ… Advisory only
+- âœ… Human confirmation required everywhere
 
 ---
 
@@ -27,17 +27,17 @@ Same trust-first, human-confirmed principles as Market 0.
 | 4 | Log review decision | System |
 
 **Allowed Intents:**
-- `BUY_FROM_ABROAD` ✓
-- `TRAVEL_MATCH` ✓
-- `PRICE_VERIFY` ✓
-- `BROWSE` ✓
-- `COMPARE` ✓
+- `BUY_FROM_ABROAD` âœ“
+- `TRAVEL_MATCH` âœ“
+- `PRICE_VERIFY` âœ“
+- `BROWSE` âœ“
+- `COMPARE` âœ“
 
 **Blocked Intents:**
-- `AUTO_MATCH` ✗
-- `AUTO_PURCHASE` ✗
-- `BULK_ORDER` ✗
-- `RESALE` ✗
+- `AUTO_MATCH` âœ—
+- `AUTO_PURCHASE` âœ—
+- `BULK_ORDER` âœ—
+- `RESALE` âœ—
 
 ### 1.2 Trust Review
 
@@ -75,7 +75,7 @@ Same trust-first, human-confirmed principles as Market 0.
 - Provide explanation to user
 - Escalate if unresolved in 15 minutes
 
-**Contact:** ops-market1@mnbara.com
+**Contact:** ops-market1@mnbarh.com
 
 ### Level 2: Ops Lead (Escalation)
 
@@ -90,7 +90,7 @@ Same trust-first, human-confirmed principles as Market 0.
 - Coordinate with engineering if needed
 - Decision: continue, throttle, or escalate
 
-**Contact:** ops-lead@mnbara.com
+**Contact:** ops-lead@mnbarh.com
 
 ### Level 3: Engineering On-Call
 
@@ -104,7 +104,7 @@ Same trust-first, human-confirmed principles as Market 0.
 - Hotfix if needed
 - Coordinate with ops on user communication
 
-**Contact:** oncall-crowdship@mnbara.com
+**Contact:** oncall-crowdship@mnbarh.com
 
 ### Level 4: Emergency (Kill Switch)
 
@@ -119,7 +119,7 @@ Same trust-first, human-confirmed principles as Market 0.
 - Notify all stakeholders
 - Post-incident review required
 
-**Contact:** emergency@mnbara.com + Slack #incident-response
+**Contact:** emergency@mnbarh.com + Slack #incident-response
 
 ---
 
@@ -131,8 +131,8 @@ Same trust-first, human-confirmed principles as Market 0.
 1. Check ops dashboard for user's requestId
 2. Review intent classification
 3. Review trust gating result
-4. If blocked legitimately → explain to user
-5. If system error → escalate to L3
+4. If blocked legitimately â†’ explain to user
+5. If system error â†’ escalate to L3
 ```
 
 ### Scenario B: High Trust Rejection Rate
@@ -199,12 +199,12 @@ Same trust-first, human-confirmed principles as Market 0.
 
 | Action | Why |
 |--------|-----|
-| ❌ Manually approve blocked intents | No automation bypass |
-| ❌ Override trust gating | Trust is deterministic |
-| ❌ Process payments | No payments in Market 1 |
-| ❌ Auto-match users | Human confirmation required |
-| ❌ Hide recommendations | Transparency required |
-| ❌ Suppress rankings without explanation | All changes must be visible |
+| â‌Œ Manually approve blocked intents | No automation bypass |
+| â‌Œ Override trust gating | Trust is deterministic |
+| â‌Œ Process payments | No payments in Market 1 |
+| â‌Œ Auto-match users | Human confirmation required |
+| â‌Œ Hide recommendations | Transparency required |
+| â‌Œ Suppress rankings without explanation | All changes must be visible |
 
 ---
 
@@ -212,10 +212,10 @@ Same trust-first, human-confirmed principles as Market 0.
 
 | Role | Contact | Hours |
 |------|---------|-------|
-| Ops Team | ops-market1@mnbara.com | 24/7 |
-| Ops Lead | ops-lead@mnbara.com | Business hours |
-| Engineering | oncall-crowdship@mnbara.com | 24/7 |
-| Emergency | emergency@mnbara.com | 24/7 |
+| Ops Team | ops-market1@mnbarh.com | 24/7 |
+| Ops Lead | ops-lead@mnbarh.com | Business hours |
+| Engineering | oncall-crowdship@mnbarh.com | 24/7 |
+| Emergency | emergency@mnbarh.com | 24/7 |
 | Slack | #market1-ops | 24/7 |
 
 ---
@@ -252,3 +252,4 @@ export FF_EMERGENCY_DISABLE_ALL=true
 # Restart service to apply
 kubectl rollout restart deployment/crowdship-service
 ```
+

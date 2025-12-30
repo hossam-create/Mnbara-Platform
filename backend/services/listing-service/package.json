@@ -1,5 +1,5 @@
-{
-    "name": "@mnbara/listing-service",
+﻿{
+    "name": "@mnbarh/listing-service",
     "version": "1.0.0",
     "description": "Mnbarh Listing Service - Product & Classified Ads Management",
     "main": "dist/index.js",
@@ -49,3 +49,4 @@
         "node": "22.20.0"
     }
 }
+

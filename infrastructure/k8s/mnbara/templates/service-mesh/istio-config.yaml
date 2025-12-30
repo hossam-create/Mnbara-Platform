@@ -9,10 +9,10 @@
 apiVersion: security.istio.io/v1beta1
 kind: PeerAuthentication
 metadata:
-  name: {{ include "mnbara.fullname" . }}-mtls
+  name: {{ include "mnbarh.fullname" . }}-mtls
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   mtls:
     mode: {{ .Values.serviceMesh.istio.mtls.mode | default "STRICT" }}
@@ -22,10 +22,10 @@ spec:
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-deny-all
+  name: {{ include "mnbarh.fullname" . }}-deny-all
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   {}  # Empty spec means deny all
 
@@ -34,20 +34,20 @@ spec:
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-allow-api-gateway
+  name: {{ include "mnbarh.fullname" . }}-allow-api-gateway
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/part-of: mnbara-platform
+      app.kubernetes.io/part-of: mnbarh-platform
   action: ALLOW
   rules:
     - from:
         - source:
             principals:
-              - "cluster.local/ns/{{ .Values.namespace }}/sa/{{ include "mnbara.serviceAccountName" . }}"
+              - "cluster.local/ns/{{ .Values.namespace }}/sa/{{ include "mnbarh.serviceAccountName" . }}"
         - source:
             namespaces:
               - "istio-system"
@@ -58,10 +58,10 @@ spec:
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-allow-ingress
+  name: {{ include "mnbarh.fullname" . }}-allow-ingress
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -85,7 +85,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}-destination
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.apiGateway.name }}.{{ .Values.namespace }}.svc.cluster.local
   trafficPolicy:
@@ -116,7 +116,7 @@ metadata:
   name: {{ .Values.authService.name }}-destination
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.authService.name }}.{{ .Values.namespace }}.svc.cluster.local
   trafficPolicy:
@@ -139,7 +139,7 @@ metadata:
   name: {{ .Values.auctionService.name }}-destination
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.auctionService.name }}.{{ .Values.namespace }}.svc.cluster.local
   trafficPolicy:
@@ -171,7 +171,7 @@ metadata:
   name: {{ .Values.paymentService.name }}-destination
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.paymentService.name }}.{{ .Values.namespace }}.svc.cluster.local
   trafficPolicy:
@@ -202,7 +202,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}-vs
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   hosts:
     - {{ .Values.apiGateway.name }}

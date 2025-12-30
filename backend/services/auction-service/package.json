@@ -1,5 +1,5 @@
-{
-    "name": "@mnbara/auction-service",
+﻿{
+    "name": "@mnbarh/auction-service",
     "version": "1.0.0",
     "description": "Mnbarh Auction Service - Real-time Bidding Engine",
     "main": "dist/index.js",

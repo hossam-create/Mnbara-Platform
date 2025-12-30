@@ -1,10 +1,10 @@
-# BANK LICENSING PATH — RISK & COMPLIANCE SPECIFICATION
+﻿# BANK LICENSING PATH â€” RISK & COMPLIANCE SPECIFICATION
 ## Regulatory Readiness, Risk Register & Decision Criteria
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Bank Licensing Compliance Assessment  
 **Date:** December 20, 2025  
-**Classification:** Internal — Legal, Compliance & Executive
+**Classification:** Internal â€” Legal, Compliance & Executive
 
 ---
 
@@ -15,22 +15,22 @@
 | Requirement | Current State | Target State | Gap | Priority |
 |-------------|---------------|--------------|-----|----------|
 | **Individual Identity Verification** | | | | |
-| ☐ Government ID verification (automated) | — | Required | — | Critical |
-| ☐ Liveness detection (biometric) | — | Required | — | Critical |
-| ☐ Address verification (utility bill/bank statement) | — | Required | — | High |
-| ☐ PEP/Sanctions screening | — | Required | — | Critical |
-| ☐ Adverse media screening | — | Required | — | High |
-| ☐ Ongoing monitoring (re-verification) | — | Annual minimum | — | Medium |
+| âکگ Government ID verification (automated) | â€” | Required | â€” | Critical |
+| âکگ Liveness detection (biometric) | â€” | Required | â€” | Critical |
+| âکگ Address verification (utility bill/bank statement) | â€” | Required | â€” | High |
+| âکگ PEP/Sanctions screening | â€” | Required | â€” | Critical |
+| âکگ Adverse media screening | â€” | Required | â€” | High |
+| âکگ Ongoing monitoring (re-verification) | â€” | Annual minimum | â€” | Medium |
 | **Business Verification (Travelers as Merchants)** | | | | |
-| ☐ Business registration verification | — | Required if > $10K/year | — | High |
-| ☐ Beneficial ownership identification | — | Required if > $10K/year | — | High |
-| ☐ Ultimate beneficial owner (UBO) verification | — | 25%+ ownership threshold | — | High |
-| ☐ Business address verification | — | Required | — | Medium |
+| âکگ Business registration verification | â€” | Required if > $10K/year | â€” | High |
+| âکگ Beneficial ownership identification | â€” | Required if > $10K/year | â€” | High |
+| âکگ Ultimate beneficial owner (UBO) verification | â€” | 25%+ ownership threshold | â€” | High |
+| âکگ Business address verification | â€” | Required | â€” | Medium |
 | **Documentation** | | | | |
-| ☐ KYC policy document | — | Board-approved | — | Critical |
-| ☐ Customer acceptance policy | — | Documented | — | Critical |
-| ☐ Risk-based approach documentation | — | Required | — | Critical |
-| ☐ Record retention policy (5+ years) | — | Required | — | Critical |
+| âکگ KYC policy document | â€” | Board-approved | â€” | Critical |
+| âکگ Customer acceptance policy | â€” | Documented | â€” | Critical |
+| âکگ Risk-based approach documentation | â€” | Required | â€” | Critical |
+| âکگ Record retention policy (5+ years) | â€” | Required | â€” | Critical |
 
 **Maturity Scoring:**
 
@@ -49,24 +49,24 @@
 | Requirement | Current State | Target State | Gap | Priority |
 |-------------|---------------|--------------|-----|----------|
 | **Transaction Screening** | | | | |
-| ☐ Real-time sanctions list screening | — | Required | — | Critical |
-| ☐ Watchlist screening (OFAC, EU, UN) | — | Required | — | Critical |
-| ☐ PEP transaction flagging | — | Required | — | Critical |
-| ☐ Cross-border transaction monitoring | — | Required | — | Critical |
+| âکگ Real-time sanctions list screening | â€” | Required | â€” | Critical |
+| âکگ Watchlist screening (OFAC, EU, UN) | â€” | Required | â€” | Critical |
+| âکگ PEP transaction flagging | â€” | Required | â€” | Critical |
+| âکگ Cross-border transaction monitoring | â€” | Required | â€” | Critical |
 | **Pattern Detection** | | | | |
-| ☐ Structuring detection (threshold avoidance) | — | Required | — | High |
-| ☐ Velocity anomaly detection | — | Required | — | High |
-| ☐ Round-trip payment detection | — | Required | — | High |
-| ☐ Unusual pattern flagging | — | Required | — | Medium |
+| âکگ Structuring detection (threshold avoidance) | â€” | Required | â€” | High |
+| âکگ Velocity anomaly detection | â€” | Required | â€” | High |
+| âکگ Round-trip payment detection | â€” | Required | â€” | High |
+| âکگ Unusual pattern flagging | â€” | Required | â€” | Medium |
 | **Case Management** | | | | |
-| ☐ Alert investigation workflow | — | Required | — | Critical |
-| ☐ Case documentation system | — | Required | — | Critical |
-| ☐ Escalation procedures | — | Required | — | Critical |
-| ☐ Management reporting | — | Monthly | — | High |
+| âکگ Alert investigation workflow | â€” | Required | â€” | Critical |
+| âکگ Case documentation system | â€” | Required | â€” | Critical |
+| âکگ Escalation procedures | â€” | Required | â€” | Critical |
+| âکگ Management reporting | â€” | Monthly | â€” | High |
 | **Personnel** | | | | |
-| ☐ Designated MLRO (Money Laundering Reporting Officer) | — | Required | — | Critical |
-| ☐ AML-trained staff | — | 100% relevant staff | — | Critical |
-| ☐ Annual AML training program | — | Required | — | High |
+| âکگ Designated MLRO (Money Laundering Reporting Officer) | â€” | Required | â€” | Critical |
+| âکگ AML-trained staff | â€” | 100% relevant staff | â€” | Critical |
+| âکگ Annual AML training program | â€” | Required | â€” | High |
 
 ---
 
@@ -75,20 +75,20 @@
 | Requirement | Current State | Target State | Gap | Priority |
 |-------------|---------------|--------------|-----|----------|
 | **Threshold Monitoring** | | | | |
-| ☐ Single transaction threshold (> $3,000) | — | Auto-flag | — | Critical |
-| ☐ Aggregate threshold (> $10,000 / 30 days) | — | Auto-flag | — | Critical |
-| ☐ Cross-border threshold (> $1,000) | — | Enhanced review | — | High |
-| ☐ High-risk corridor monitoring | — | Real-time | — | Critical |
+| âکگ Single transaction threshold (> $3,000) | â€” | Auto-flag | â€” | Critical |
+| âکگ Aggregate threshold (> $10,000 / 30 days) | â€” | Auto-flag | â€” | Critical |
+| âکگ Cross-border threshold (> $1,000) | â€” | Enhanced review | â€” | High |
+| âکگ High-risk corridor monitoring | â€” | Real-time | â€” | Critical |
 | **Behavioral Monitoring** | | | | |
-| ☐ Unusual transaction timing | — | Flagging | — | Medium |
-| ☐ Deviation from stated purpose | — | Flagging | — | High |
-| ☐ Geographic inconsistencies | — | Flagging | — | High |
-| ☐ Dormant account reactivation | — | Flagging | — | Medium |
+| âکگ Unusual transaction timing | â€” | Flagging | â€” | Medium |
+| âکگ Deviation from stated purpose | â€” | Flagging | â€” | High |
+| âکگ Geographic inconsistencies | â€” | Flagging | â€” | High |
+| âکگ Dormant account reactivation | â€” | Flagging | â€” | Medium |
 | **System Capabilities** | | | | |
-| ☐ Real-time transaction monitoring | — | Required | — | Critical |
-| ☐ Historical transaction analysis | — | 5+ year lookback | — | High |
-| ☐ Link analysis (network detection) | — | Required | — | High |
-| ☐ Risk scoring per transaction | — | Required | — | Medium |
+| âکگ Real-time transaction monitoring | â€” | Required | â€” | Critical |
+| âکگ Historical transaction analysis | â€” | 5+ year lookback | â€” | High |
+| âکگ Link analysis (network detection) | â€” | Required | â€” | High |
+| âکگ Risk scoring per transaction | â€” | Required | â€” | Medium |
 
 ---
 
@@ -97,20 +97,20 @@
 | Requirement | Current State | Target State | Gap | Priority |
 |-------------|---------------|--------------|-----|----------|
 | **Suspicious Activity Reports (SAR)** | | | | |
-| ☐ SAR filing capability | — | Required | — | Critical |
-| ☐ SAR filing within regulatory timeline (24-72hr) | — | Required | — | Critical |
-| ☐ SAR documentation retention (5+ years) | — | Required | — | Critical |
-| ☐ Tipping-off prevention training | — | Required | — | Critical |
+| âکگ SAR filing capability | â€” | Required | â€” | Critical |
+| âکگ SAR filing within regulatory timeline (24-72hr) | â€” | Required | â€” | Critical |
+| âکگ SAR documentation retention (5+ years) | â€” | Required | â€” | Critical |
+| âکگ Tipping-off prevention training | â€” | Required | â€” | Critical |
 | **Regulatory Reports** | | | | |
-| ☐ Currency Transaction Reports (CTR) if applicable | — | Per jurisdiction | — | High |
-| ☐ Cross-border transfer reports | — | Required | — | High |
-| ☐ Annual AML compliance report | — | Required | — | High |
-| ☐ Quarterly risk assessment report | — | Required | — | Medium |
+| âکگ Currency Transaction Reports (CTR) if applicable | â€” | Per jurisdiction | â€” | High |
+| âکگ Cross-border transfer reports | â€” | Required | â€” | High |
+| âکگ Annual AML compliance report | â€” | Required | â€” | High |
+| âکگ Quarterly risk assessment report | â€” | Required | â€” | Medium |
 | **Internal Reports** | | | | |
-| ☐ Board-level AML reporting | — | Quarterly | — | High |
-| ☐ MLRO activity report | — | Monthly | — | High |
-| ☐ Training completion reports | — | Annual | — | Medium |
-| ☐ Audit findings tracking | — | Ongoing | — | High |
+| âکگ Board-level AML reporting | â€” | Quarterly | â€” | High |
+| âکگ MLRO activity report | â€” | Monthly | â€” | High |
+| âکگ Training completion reports | â€” | Annual | â€” | Medium |
+| âکگ Audit findings tracking | â€” | Ongoing | â€” | High |
 
 ---
 
@@ -130,10 +130,10 @@
 | **Compliance screening** | Run sanctions/PEP checks | As agent of licensed PSP | Delegated screening |
 
 **Key Limitations:**
-- ☐ NO holding funds in platform accounts
-- ☐ NO custody without license
-- ☐ NO payment processing without PSP
-- ☐ NO issuing payment instruments
+- âکگ NO holding funds in platform accounts
+- âکگ NO custody without license
+- âکگ NO payment processing without PSP
+- âکگ NO issuing payment instruments
 
 ---
 
@@ -312,23 +312,23 @@
 | Criterion | Threshold | Evidence Required | Status |
 |-----------|-----------|-------------------|--------|
 | **Volume** | | | |
-| ☐ Monthly transaction volume | > $1M / month sustained 6 months | Transaction reports | — |
-| ☐ Active users | > 10,000 monthly active | User metrics | — |
-| ☐ Cross-border volume | > 30% of transactions | Transaction reports | — |
+| âکگ Monthly transaction volume | > $1M / month sustained 6 months | Transaction reports | â€” |
+| âکگ Active users | > 10,000 monthly active | User metrics | â€” |
+| âکگ Cross-border volume | > 30% of transactions | Transaction reports | â€” |
 | **Operational Maturity** | | | |
-| ☐ KYC Level 4 achieved | Full automation + ongoing monitoring | Audit report | — |
-| ☐ AML program established | MLRO + training + SAR capability | Policy documents | — |
-| ☐ Dispute resolution SLA | < 7 days average resolution | Case metrics | — |
-| ☐ Fraud rate | < 0.5% of GMV | Fraud reports | — |
+| âکگ KYC Level 4 achieved | Full automation + ongoing monitoring | Audit report | â€” |
+| âکگ AML program established | MLRO + training + SAR capability | Policy documents | â€” |
+| âکگ Dispute resolution SLA | < 7 days average resolution | Case metrics | â€” |
+| âکگ Fraud rate | < 0.5% of GMV | Fraud reports | â€” |
 | **Financial Readiness** | | | |
-| ☐ Initial capital | €350,000 (EU EMI) or jurisdiction equivalent | Bank statement | — |
-| ☐ Ongoing capital | 2% of average outstanding e-money | Financial projections | — |
-| ☐ Insurance/guarantee | Per regulatory requirements | Insurance policy | — |
+| âکگ Initial capital | â‚¬350,000 (EU EMI) or jurisdiction equivalent | Bank statement | â€” |
+| âکگ Ongoing capital | 2% of average outstanding e-money | Financial projections | â€” |
+| âکگ Insurance/guarantee | Per regulatory requirements | Insurance policy | â€” |
 | **Governance** | | | |
-| ☐ Board with regulatory experience | At least 1 director | CVs | — |
-| ☐ Compliance officer appointed | Full-time, qualified | Employment contract | — |
-| ☐ MLRO appointed | Full-time, qualified | Employment contract | — |
-| ☐ External audit | Big 4 or equivalent | Engagement letter | — |
+| âکگ Board with regulatory experience | At least 1 director | CVs | â€” |
+| âکگ Compliance officer appointed | Full-time, qualified | Employment contract | â€” |
+| âکگ MLRO appointed | Full-time, qualified | Employment contract | â€” |
+| âکگ External audit | Big 4 or equivalent | Engagement letter | â€” |
 
 **EMI Application GO = ALL criteria met**
 
@@ -446,5 +446,6 @@
 
 **Document Owner:** Legal & Compliance  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

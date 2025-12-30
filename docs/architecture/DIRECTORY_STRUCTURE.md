@@ -1,108 +1,108 @@
-# Mnbara Platform - Directory Structure
+﻿# mnbarh Platform - Directory Structure
 
 ## Current Clean Structure (After Reorganization)
 
 ```
-mnbara-platform/
-├── 📁 backend/                    # Backend microservices
-│   └── services/                  # ⚠️ To be moved from root/services/
-│       ├── api-gateway/
-│       ├── auth-service/
-│       ├── listing-service/
-│       ├── auction-service/
-│       ├── payment-service/
-│       ├── orders-service/
-│       ├── trips-service/
-│       ├── matching-service/
-│       ├── crowdship-service/
-│       ├── notification-service/
-│       ├── recommendation-service/
-│       ├── rewards-service/
-│       └── shared/
-│
-├── 📁 frontend/                   # ✅ Frontend applications
-│   ├── web/                       # React + Vite web app
-│   └── mobile/                    # React Native (iOS/Android)
-│       └── mnbara-app/
-│
-├── 📁 infrastructure/             # ✅ Deployment configs
-│   ├── docker/
-│   │   └── docker-compose.yml
-│   ├── render.yaml
-│   └── aws/                       # (if exists)
-│
-├── 📁 scripts/                    # ✅ Organized utility scripts
-│   ├── database/                  # Database management
-│   │   ├── reset-database.bat
-│   │   ├── migrate-all-services.bat
-│   │   ├── migrate-docker.bat
-│   │   └── run-seed-direct.js
-│   │
-│   ├── ebay/                      # eBay category tools
-│   │   ├── fetch-ebay-categories.ts
-│   │   ├── parse-ebay-categories-file.ts
-│   │   ├── generate-category-seeds.ts
-│   │   ├── parse-ebay-simple.js
-│   │   ├── parse-categories.bat
-│   │   └── README-EBAY-CATEGORIES.md
-│   │
-│   └── deployment/                # Deployment helpers
-│       └── setup_local.bat
-│
-├── 📁 data/                       # ✅ Data files
-│   ├── categories/
-│   │   └── ebay-categories-raw.txt
-│   └── seeds/
-│
-├── 📁 docs/                       # ✅ All documentation
-│   ├── LEGACY_FEATURES_REVIEW.md
-│   ├── SECURITY_SETUP.md
-│   │
-│   ├── planning/
-│   │   └── ACTION_PLAN.md
-│   │
-│   ├── deployment/
-│   │   ├── AWS_DEPLOYMENT.md
-│   │   └── RENDER_DEPLOYMENT.md
-│   │
-│   ├── security/
-│   │   ├── SECURITY_AUDIT.md
-│   │   ├── GITHUB_SECURITY_SETUP.md
-│   │   └── README.md
-│   │
-│   ├── api/                       # (future: OpenAPI, Postman)
-│   └── architecture/              # (future: system design)
-│
-├── 📁 archive/                    # ✅ Historical files
-│   ├── historical-docs/           # All task completions, PR guides
-│   │   ├── TASK*.md (7 files)
-│   │   ├── PR*.md  (7 files)
-│   │   ├── QUICK*.md
-│   │   ├── SECURITY*.md (5 files)
-│   │   ├── CODEQL_FIX_REPORT.md
-│   │   ├── commit_msg*.txt
-│   │   └── ...
-│   │
-│   └── temp-scripts/              # Temporary/debug scripts
-│       ├── find-password.js
-│       ├── test-db-conn.js
-│       ├── fix-*.js
-│       ├── convert-*.js
-│       ├── count.sql
-│       └── *.ps1 (upload scripts)
-│
-├── 📁 .github/                    # GitHub workflows
-│   └── workflows/
-│
-├── 📄 README.md                   # Main documentation
-├── 📄 CHANGELOG.md                # ✅ Project changelog
-├── 📄 package.json                # Root package.json
-├── 📄 .gitignore
-├── 📄 .eslintrc.json
-└── 📄 .eslintignore
+mnbarh-platform/
+â”œâ”€â”€ ًں“پ backend/                    # Backend microservices
+â”‚   â””â”€â”€ services/                  # âڑ ï¸ڈ To be moved from root/services/
+â”‚       â”œâ”€â”€ api-gateway/
+â”‚       â”œâ”€â”€ auth-service/
+â”‚       â”œâ”€â”€ listing-service/
+â”‚       â”œâ”€â”€ auction-service/
+â”‚       â”œâ”€â”€ payment-service/
+â”‚       â”œâ”€â”€ orders-service/
+â”‚       â”œâ”€â”€ trips-service/
+â”‚       â”œâ”€â”€ matching-service/
+â”‚       â”œâ”€â”€ crowdship-service/
+â”‚       â”œâ”€â”€ notification-service/
+â”‚       â”œâ”€â”€ recommendation-service/
+â”‚       â”œâ”€â”€ rewards-service/
+â”‚       â””â”€â”€ shared/
+â”‚
+â”œâ”€â”€ ًں“پ frontend/                   # âœ… Frontend applications
+â”‚   â”œâ”€â”€ web/                       # React + Vite web app
+â”‚   â””â”€â”€ mobile/                    # React Native (iOS/Android)
+â”‚       â””â”€â”€ mnbarh-app/
+â”‚
+â”œâ”€â”€ ًں“پ infrastructure/             # âœ… Deployment configs
+â”‚   â”œâ”€â”€ docker/
+â”‚   â”‚   â””â”€â”€ docker-compose.yml
+â”‚   â”œâ”€â”€ render.yaml
+â”‚   â””â”€â”€ aws/                       # (if exists)
+â”‚
+â”œâ”€â”€ ًں“پ scripts/                    # âœ… Organized utility scripts
+â”‚   â”œâ”€â”€ database/                  # Database management
+â”‚   â”‚   â”œâ”€â”€ reset-database.bat
+â”‚   â”‚   â”œâ”€â”€ migrate-all-services.bat
+â”‚   â”‚   â”œâ”€â”€ migrate-docker.bat
+â”‚   â”‚   â””â”€â”€ run-seed-direct.js
+â”‚   â”‚
+â”‚   â”œâ”€â”€ ebay/                      # eBay category tools
+â”‚   â”‚   â”œâ”€â”€ fetch-ebay-categories.ts
+â”‚   â”‚   â”œâ”€â”€ parse-ebay-categories-file.ts
+â”‚   â”‚   â”œâ”€â”€ generate-category-seeds.ts
+â”‚   â”‚   â”œâ”€â”€ parse-ebay-simple.js
+â”‚   â”‚   â”œâ”€â”€ parse-categories.bat
+â”‚   â”‚   â””â”€â”€ README-EBAY-CATEGORIES.md
+â”‚   â”‚
+â”‚   â””â”€â”€ deployment/                # Deployment helpers
+â”‚       â””â”€â”€ setup_local.bat
+â”‚
+â”œâ”€â”€ ًں“پ data/                       # âœ… Data files
+â”‚   â”œâ”€â”€ categories/
+â”‚   â”‚   â””â”€â”€ ebay-categories-raw.txt
+â”‚   â””â”€â”€ seeds/
+â”‚
+â”œâ”€â”€ ًں“پ docs/                       # âœ… All documentation
+â”‚   â”œâ”€â”€ LEGACY_FEATURES_REVIEW.md
+â”‚   â”œâ”€â”€ SECURITY_SETUP.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€ planning/
+â”‚   â”‚   â””â”€â”€ ACTION_PLAN.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€ deployment/
+â”‚   â”‚   â”œâ”€â”€ AWS_DEPLOYMENT.md
+â”‚   â”‚   â””â”€â”€ RENDER_DEPLOYMENT.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€ security/
+â”‚   â”‚   â”œâ”€â”€ SECURITY_AUDIT.md
+â”‚   â”‚   â”œâ”€â”€ GITHUB_SECURITY_SETUP.md
+â”‚   â”‚   â””â”€â”€ README.md
+â”‚   â”‚
+â”‚   â”œâ”€â”€ api/                       # (future: OpenAPI, Postman)
+â”‚   â””â”€â”€ architecture/              # (future: system design)
+â”‚
+â”œâ”€â”€ ًں“پ archive/                    # âœ… Historical files
+â”‚   â”œâ”€â”€ historical-docs/           # All task completions, PR guides
+â”‚   â”‚   â”œâ”€â”€ TASK*.md (7 files)
+â”‚   â”‚   â”œâ”€â”€ PR*.md  (7 files)
+â”‚   â”‚   â”œâ”€â”€ QUICK*.md
+â”‚   â”‚   â”œâ”€â”€ SECURITY*.md (5 files)
+â”‚   â”‚   â”œâ”€â”€ CODEQL_FIX_REPORT.md
+â”‚   â”‚   â”œâ”€â”€ commit_msg*.txt
+â”‚   â”‚   â””â”€â”€ ...
+â”‚   â”‚
+â”‚   â””â”€â”€ temp-scripts/              # Temporary/debug scripts
+â”‚       â”œâ”€â”€ find-password.js
+â”‚       â”œâ”€â”€ test-db-conn.js
+â”‚       â”œâ”€â”€ fix-*.js
+â”‚       â”œâ”€â”€ convert-*.js
+â”‚       â”œâ”€â”€ count.sql
+â”‚       â””â”€â”€ *.ps1 (upload scripts)
+â”‚
+â”œâ”€â”€ ًں“پ .github/                    # GitHub workflows
+â”‚   â””â”€â”€ workflows/
+â”‚
+â”œâ”€â”€ ًں“„ README.md                   # Main documentation
+â”œâ”€â”€ ًں“„ CHANGELOG.md                # âœ… Project changelog
+â”œâ”€â”€ ًں“„ package.json                # Root package.json
+â”œâ”€â”€ ًں“„ .gitignore
+â”œâ”€â”€ ًں“„ .eslintrc.json
+â””â”€â”€ ًں“„ .eslintignore
 ```
 
-## ⚠️ Pending Actions
+## âڑ ï¸ڈ Pending Actions
 
 ### Services Migration (Blocked by IDE)
 The `services/` folder needs to be moved to `backend/services/` but is currently locked by your IDE.
@@ -112,30 +112,30 @@ The `services/` folder needs to be moved to `backend/services/` but is currently
 2. Run: `Move-Item -Force services backend\`
 
 ### Legacy Frontend Archive (Pending)
-The `web/mnbara-web-legacy/` folder has been archived to `archive/mnbara-web-legacy/`
+The `web/mnbarh-web-legacy/` folder has been archived to `archive/mnbarh-web-legacy/`
 
-## ✅ Completed Moves
+## âœ… Completed Moves
 
 ### Documentation (30+ files moved)
-- ✅ `ACTION_PLAN.md` → `docs/planning/`
-- ✅ `AWS_DEPLOYMENT.md`, `RENDER_DEPLOYMENT.md` → `docs/deployment/`
-- ✅ `SECURITY_AUDIT.md`, `GITHUB_SECURITY_SETUP.md` → `docs/security/`
-- ✅ All `TASK*.md`, `PR*.md`, `QUICK*.md` → `archive/historical-docs/`
-- ✅ All security reports → `archive/historical-docs/`
+- âœ… `ACTION_PLAN.md` â†’ `docs/planning/`
+- âœ… `AWS_DEPLOYMENT.md`, `RENDER_DEPLOYMENT.md` â†’ `docs/deployment/`
+- âœ… `SECURITY_AUDIT.md`, `GITHUB_SECURITY_SETUP.md` â†’ `docs/security/`
+- âœ… All `TASK*.md`, `PR*.md`, `QUICK*.md` â†’ `archive/historical-docs/`
+- âœ… All security reports â†’ `archive/historical-docs/`
 
 ### Scripts (12 files moved)
-- ✅ eBay tools → `scripts/ebay/`
-- ✅ Database tools → `scripts/database/`
-- ✅ Setup scripts → `scripts/deployment/`
-- ✅ Temporary/debug scripts → `archive/temp-scripts/`
-- ✅ PowerShell upload scripts → `archive/temp-scripts/`
+- âœ… eBay tools â†’ `scripts/ebay/`
+- âœ… Database tools â†’ `scripts/database/`
+- âœ… Setup scripts â†’ `scripts/deployment/`
+- âœ… Temporary/debug scripts â†’ `archive/temp-scripts/`
+- âœ… PowerShell upload scripts â†’ `archive/temp-scripts/`
 
 ### Data & Infrastructure
-- ✅ `ebay catogery.txt` → `data/categories/ebay-categories-raw.txt`
-- ✅ `docker-compose.yml` → `infrastructure/docker/`
-- ✅ `render.yaml` → `infrastructure/`
-- ✅ `web/` → `frontend/web/`
-- ✅ `mobile/` → `frontend/mobile/`
+- âœ… `ebay catogery.txt` â†’ `data/categories/ebay-categories-raw.txt`
+- âœ… `docker-compose.yml` â†’ `infrastructure/docker/`
+- âœ… `render.yaml` â†’ `infrastructure/`
+- âœ… `web/` â†’ `frontend/web/`
+- âœ… `mobile/` â†’ `frontend/mobile/`
 
 ## Clean Root Directory
 
@@ -156,8 +156,9 @@ After cleanup, root directory contains only:
 ## Next Steps
 
 1. User closes IDE files
-2. Move `services/` → `backend/services/`
+2. Move `services/` â†’ `backend/services/`
 3. Archive legacy frontend
 4. Update import paths in code
 5. Test Docker Compose with new structure
 6. Update README.md
+

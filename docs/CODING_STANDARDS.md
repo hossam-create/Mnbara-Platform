@@ -1,12 +1,12 @@
-# Mnbara Platform - Coding Standards
+﻿# Mnbarh Platform - Coding Standards
 
 **Version:** 1.0  
 **Last Updated:** 2025-12-22  
-**Status:** 🔴 IN PROGRESS
+**Status:** ًں”´ IN PROGRESS
 
 ---
 
-## 📋 Table of Contents
+## ًں“‹ Table of Contents
 
 1. [General Principles](#general-principles)
 2. [JavaScript/TypeScript Standards](#javascripttypescript-standards)
@@ -21,7 +21,7 @@
 
 ---
 
-## 🎯 General Principles
+## ًںژ¯ General Principles
 
 ### 1. Code Quality
 - **Readability:** Code should be self-documenting
@@ -49,19 +49,19 @@
 
 ---
 
-## 🔤 JavaScript/TypeScript Standards
+## ًں”¤ JavaScript/TypeScript Standards
 
 ### File Structure
 ```
 src/
-├── services/          # Business logic
-├── controllers/       # Request handlers
-├── models/           # Data models
-├── middleware/       # Express middleware
-├── utils/            # Utility functions
-├── config/           # Configuration
-├── types/            # TypeScript types
-└── tests/            # Test files
+â”œâ”€â”€ services/          # Business logic
+â”œâ”€â”€ controllers/       # Request handlers
+â”œâ”€â”€ models/           # Data models
+â”œâ”€â”€ middleware/       # Express middleware
+â”œâ”€â”€ utils/            # Utility functions
+â”œâ”€â”€ config/           # Configuration
+â”œâ”€â”€ types/            # TypeScript types
+â””â”€â”€ tests/            # Test files
 ```
 
 ### Naming Conventions
@@ -122,18 +122,18 @@ enum UserRole {
 - Use backticks for template literals
 
 ```typescript
-// ✅ Good
+// âœ… Good
 const message = 'Hello, World!';
 const greeting = `Hello, ${name}!`;
 
-// ❌ Bad
+// â‌Œ Bad
 const message = "Hello, World!";
 const greeting = `Hello, ${name}`;
 ```
 
 #### Spacing
 ```typescript
-// ✅ Good
+// âœ… Good
 if (condition) {
   doSomething();
 }
@@ -142,7 +142,7 @@ function add(a: number, b: number): number {
   return a + b;
 }
 
-// ❌ Bad
+// â‌Œ Bad
 if(condition){
   doSomething();
 }
@@ -156,12 +156,12 @@ function add(a:number,b:number):number{
 
 #### Type Annotations
 ```typescript
-// ✅ Good - Always annotate function parameters and return types
+// âœ… Good - Always annotate function parameters and return types
 function getUserById(id: string): Promise<User> {
   return db.users.findById(id);
 }
 
-// ❌ Bad - Missing type annotations
+// â‌Œ Bad - Missing type annotations
 function getUserById(id) {
   return db.users.findById(id);
 }
@@ -183,17 +183,17 @@ type Result<T> = Success<T> | Error;
 
 #### Null/Undefined Handling
 ```typescript
-// ✅ Good - Use optional chaining and nullish coalescing
+// âœ… Good - Use optional chaining and nullish coalescing
 const name = user?.profile?.name ?? 'Unknown';
 
-// ❌ Bad - Unsafe access
+// â‌Œ Bad - Unsafe access
 const name = user.profile.name;
 ```
 
 ### Error Handling
 
 ```typescript
-// ✅ Good - Specific error handling
+// âœ… Good - Specific error handling
 try {
   const user = await getUserById(id);
   if (!user) {
@@ -209,7 +209,7 @@ try {
   throw new InternalServerError('Failed to get user');
 }
 
-// ❌ Bad - Generic error handling
+// â‌Œ Bad - Generic error handling
 try {
   return await getUserById(id);
 } catch (error) {
@@ -221,7 +221,7 @@ try {
 ### Async/Await
 
 ```typescript
-// ✅ Good - Use async/await
+// âœ… Good - Use async/await
 async function fetchUserData(id: string): Promise<User> {
   try {
     const user = await db.users.findById(id);
@@ -231,7 +231,7 @@ async function fetchUserData(id: string): Promise<User> {
   }
 }
 
-// ❌ Bad - Callback hell
+// â‌Œ Bad - Callback hell
 function fetchUserData(id, callback) {
   db.users.findById(id, (err, user) => {
     if (err) callback(err);
@@ -242,17 +242,17 @@ function fetchUserData(id, callback) {
 
 ---
 
-## 🐍 Python Standards
+## ًںگچ Python Standards
 
 ### File Structure
 ```
 src/
-├── services/          # Business logic
-├── models/           # Data models
-├── utils/            # Utility functions
-├── config/           # Configuration
-├── tests/            # Test files
-└── main.py          # Entry point
+â”œâ”€â”€ services/          # Business logic
+â”œâ”€â”€ models/           # Data models
+â”œâ”€â”€ utils/            # Utility functions
+â”œâ”€â”€ config/           # Configuration
+â”œâ”€â”€ tests/            # Test files
+â””â”€â”€ main.py          # Entry point
 ```
 
 ### Naming Conventions
@@ -302,7 +302,7 @@ class PaymentProcessor:
 
 #### Imports
 ```python
-# ✅ Good - Organized imports
+# âœ… Good - Organized imports
 import os
 import sys
 from typing import List, Optional
@@ -317,14 +317,14 @@ from src.utils import validate_email
 ### Type Hints
 
 ```python
-# ✅ Good - Always use type hints
+# âœ… Good - Always use type hints
 def get_user_by_id(user_id: str) -> Optional[User]:
     return db.users.find_by_id(user_id)
 
 def process_users(users: List[User]) -> Dict[str, int]:
     return {user.id: user.age for user in users}
 
-# ❌ Bad - Missing type hints
+# â‌Œ Bad - Missing type hints
 def get_user_by_id(user_id):
     return db.users.find_by_id(user_id)
 ```
@@ -332,7 +332,7 @@ def get_user_by_id(user_id):
 ### Error Handling
 
 ```python
-# ✅ Good - Specific exception handling
+# âœ… Good - Specific exception handling
 try:
     user = get_user_by_id(user_id)
     if not user:
@@ -345,7 +345,7 @@ except Exception as e:
     logger.error(f'Unexpected error: {e}')
     raise InternalServerError('Failed to get user')
 
-# ❌ Bad - Generic exception handling
+# â‌Œ Bad - Generic exception handling
 try:
     return get_user_by_id(user_id)
 except:
@@ -355,18 +355,18 @@ except:
 
 ---
 
-## 🎨 Dart/Flutter Standards
+## ًںژ¨ Dart/Flutter Standards
 
 ### File Structure
 ```
 lib/
-├── screens/          # UI screens
-├── widgets/          # Reusable widgets
-├── services/         # Business logic
-├── models/           # Data models
-├── providers/        # State management
-├── utils/            # Utility functions
-└── config/           # Configuration
+â”œâ”€â”€ screens/          # UI screens
+â”œâ”€â”€ widgets/          # Reusable widgets
+â”œâ”€â”€ services/         # Business logic
+â”œâ”€â”€ models/           # Data models
+â”œâ”€â”€ providers/        # State management
+â”œâ”€â”€ utils/            # Utility functions
+â””â”€â”€ config/           # Configuration
 ```
 
 ### Naming Conventions
@@ -402,14 +402,14 @@ const String apiBaseUrl = 'https://api.example.com';
 
 #### Spacing
 ```dart
-// ✅ Good
+// âœ… Good
 class UserService {
   Future<User> getUserById(String id) async {
     return await api.get('/users/$id');
   }
 }
 
-// ❌ Bad
+// â‌Œ Bad
 class UserService{
   Future<User> getUserById(String id)async{
     return await api.get('/users/$id');
@@ -420,27 +420,27 @@ class UserService{
 ### Null Safety
 
 ```dart
-// ✅ Good - Use null safety
+// âœ… Good - Use null safety
 String? userName;
 final String name = user?.name ?? 'Unknown';
 
-// ❌ Bad - Unsafe null access
+// â‌Œ Bad - Unsafe null access
 String userName;
 final String name = user.name;
 ```
 
 ---
 
-## 🔗 Solidity Standards
+## ًں”— Solidity Standards
 
 ### File Structure
 ```
 contracts/
-├── core/             # Core contracts
-├── interfaces/       # Interface definitions
-├── libraries/        # Reusable libraries
-├── mocks/            # Mock contracts for testing
-└── test/             # Test files
+â”œâ”€â”€ core/             # Core contracts
+â”œâ”€â”€ interfaces/       # Interface definitions
+â”œâ”€â”€ libraries/        # Reusable libraries
+â”œâ”€â”€ mocks/            # Mock contracts for testing
+â””â”€â”€ test/             # Test files
 ```
 
 ### Naming Conventions
@@ -482,7 +482,7 @@ address constant ZERO_ADDRESS = address(0);
 
 #### Visibility
 ```solidity
-// ✅ Good - Explicit visibility
+// âœ… Good - Explicit visibility
 contract PaymentProcessor {
   uint256 private totalAmount;
   
@@ -491,7 +491,7 @@ contract PaymentProcessor {
   }
 }
 
-// ❌ Bad - Implicit visibility
+// â‌Œ Bad - Implicit visibility
 contract PaymentProcessor {
   uint256 totalAmount;
   
@@ -504,7 +504,7 @@ contract PaymentProcessor {
 ### Security Best Practices
 
 ```solidity
-// ✅ Good - Checks-Effects-Interactions pattern
+// âœ… Good - Checks-Effects-Interactions pattern
 function withdraw(uint256 amount) external {
   require(balances[msg.sender] >= amount, 'Insufficient balance');
   balances[msg.sender] -= amount;
@@ -512,7 +512,7 @@ function withdraw(uint256 amount) external {
   require(success, 'Transfer failed');
 }
 
-// ❌ Bad - Vulnerable to reentrancy
+// â‌Œ Bad - Vulnerable to reentrancy
 function withdraw(uint256 amount) external {
   (bool success, ) = msg.sender.call{value: amount}('');
   require(success, 'Transfer failed');
@@ -522,7 +522,7 @@ function withdraw(uint256 amount) external {
 
 ---
 
-## 🗄️ Database Standards
+## ًں—„ï¸ڈ Database Standards
 
 ### Table Naming
 - Use `snake_case` for table names
@@ -534,7 +534,7 @@ function withdraw(uint256 amount) external {
 
 ### Schema Design
 ```sql
--- ✅ Good
+-- âœ… Good
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) NOT NULL UNIQUE,
@@ -544,7 +544,7 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- ❌ Bad
+-- â‌Œ Bad
 CREATE TABLE user (
   id INT PRIMARY KEY AUTO_INCREMENT,
   email VARCHAR(255),
@@ -566,7 +566,7 @@ CREATE TABLE user (
 
 ---
 
-## 🔌 API Standards
+## ًں”Œ API Standards
 
 ### Endpoint Naming
 ```
@@ -579,7 +579,7 @@ DELETE /api/v1/users/:id          # Delete user
 
 ### Request/Response Format
 ```json
-// ✅ Good - Consistent format
+// âœ… Good - Consistent format
 {
   "status": "success",
   "data": {
@@ -612,20 +612,20 @@ DELETE /api/v1/users/:id          # Delete user
 
 ---
 
-## ✅ Testing Standards
+## âœ… Testing Standards
 
 ### Test Structure
 ```
 tests/
-├── unit/             # Unit tests
-├── integration/      # Integration tests
-├── e2e/              # End-to-end tests
-└── fixtures/         # Test data
+â”œâ”€â”€ unit/             # Unit tests
+â”œâ”€â”€ integration/      # Integration tests
+â”œâ”€â”€ e2e/              # End-to-end tests
+â””â”€â”€ fixtures/         # Test data
 ```
 
 ### Test Naming
 ```typescript
-// ✅ Good - Descriptive test names
+// âœ… Good - Descriptive test names
 describe('UserService', () => {
   describe('getUserById', () => {
     it('should return user when user exists', () => {});
@@ -634,7 +634,7 @@ describe('UserService', () => {
   });
 });
 
-// ❌ Bad - Vague test names
+// â‌Œ Bad - Vague test names
 describe('UserService', () => {
   it('test 1', () => {});
   it('test 2', () => {});
@@ -656,15 +656,15 @@ describe('UserService', () => {
 
 ---
 
-## 📚 Documentation Standards
+## ًں“ڑ Documentation Standards
 
 ### Code Comments
 ```typescript
-// ✅ Good - Explain WHY, not WHAT
+// âœ… Good - Explain WHY, not WHAT
 // We cache the user for 5 minutes to reduce database load
 const cachedUser = await cache.get(`user:${id}`);
 
-// ❌ Bad - Obvious comments
+// â‌Œ Bad - Obvious comments
 // Get the user from cache
 const cachedUser = await cache.get(`user:${id}`);
 ```
@@ -693,7 +693,7 @@ async function getUserById(id: string): Promise<User> {
 
 ---
 
-## 🔀 Git Standards
+## ًں”€ Git Standards
 
 ### Commit Messages
 ```
@@ -738,7 +738,7 @@ refactor/database-queries
 
 ---
 
-## 🔍 Code Review Checklist
+## ًں”چ Code Review Checklist
 
 - [ ] Code follows established standards
 - [ ] No hardcoded values or secrets
@@ -751,6 +751,7 @@ refactor/database-queries
 
 ---
 
-**Status:** 🔴 IN PROGRESS  
+**Status:** ًں”´ IN PROGRESS  
 **Last Updated:** 2025-12-22  
 **Next Review:** 2025-12-29
+

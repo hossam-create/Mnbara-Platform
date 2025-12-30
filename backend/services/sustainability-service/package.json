@@ -1,5 +1,5 @@
-{
-  "name": "@mnbara/sustainability-service",
+﻿{
+  "name": "@mnbarh/sustainability-service",
   "version": "1.0.0",
   "description": "Sustainability Service - Second Life Marketplace, Carbon Footprint Tracking",
   "main": "dist/index.js",
@@ -36,3 +36,4 @@
     "node": ">=18.0.0"
   }
 }
+

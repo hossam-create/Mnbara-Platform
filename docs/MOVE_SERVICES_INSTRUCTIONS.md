@@ -1,4 +1,4 @@
-# Steps to Complete Services Move
+﻿# Steps to Complete Services Move
 
 ## Current Issue
 The `services/` folder cannot be moved because files are currently open in your IDE.
@@ -7,10 +7,10 @@ The `services/` folder cannot be moved because files are currently open in your 
 
 Based on your open documents, please close these files in your IDE:
 
-1. ❌ `services/auth-service/.env`
-2. ❌ `services/auth-service/seed-categories.bat`
-3. ❌ `services/payment-service/src/controllers/escrow.controller.ts`
-4. ❌ `services/payment-service/src/routes/escrow.routes.ts`
+1. â‌Œ `services/auth-service/.env`
+2. â‌Œ `services/auth-service/seed-categories.bat`
+3. â‌Œ `services/payment-service/src/controllers/escrow.controller.ts`
+4. â‌Œ `services/payment-service/src/routes/escrow.routes.ts`
 
 Also close:
 - Any other files from the `services/` folder
@@ -34,8 +34,8 @@ Also close:
 ### Option 3: Manual Move (If automated fails)
 1. Close IDE completely
 2. Manually move `services/` folder to `backend/` using File Explorer:
-   - Cut: `E:\...\mnbara-platform\services\`
-   - Paste into: `E:\...\mnbara-platform\backend\`
+   - Cut: `E:\...\mnbarh-platform\services\`
+   - Paste into: `E:\...\mnbarh-platform\backend\`
 3. Reopen IDE
 
 ## After Moving Services
@@ -53,3 +53,4 @@ context: ../backend/services/auth-service
 ## Ready to Continue?
 
 Please choose an option above and let me know when files are closed or folder is moved.
+

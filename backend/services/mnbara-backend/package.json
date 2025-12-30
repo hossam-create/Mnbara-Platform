@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/mnbara-backend",
+﻿{
+  "name": "@mnbarh/mnbarh-backend",
   "version": "1.0.0",
-  "description": "Mnbara Backend Service - Main Backend API",
+  "description": "mnbarh Backend Service - Main Backend API",
   "main": "dist/main.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",

@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# MNBara Platform - Monitoring Setup
+# mnbarh Platform - Monitoring Setup
 # Prometheus + Grafana + Alerting
 
 set -e
 
-echo "📊 MNBara Platform - Monitoring Setup"
+echo "ًں“ٹ mnbarh Platform - Monitoring Setup"
 echo "======================================"
 echo ""
 
@@ -15,11 +15,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 print_status() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}âœ… $1${NC}"
 }
 
 print_info() {
-    echo -e "${YELLOW}ℹ️  $1${NC}"
+    echo -e "${YELLOW}â„¹ï¸ڈ  $1${NC}"
 }
 
 # Step 1: Deploy Prometheus
@@ -51,7 +51,7 @@ print_info "Setting up alerts..."
 
 cat > /tmp/alert-rules.yaml << 'EOF'
 groups:
-  - name: mnbara_alerts
+  - name: mnbarh_alerts
     interval: 30s
     rules:
       - alert: HighResponseTime
@@ -105,7 +105,7 @@ print_status "Alerts configured"
 
 # Step 5: Display Access Information
 echo ""
-echo "📊 Monitoring Access Information"
+echo "ًں“ٹ Monitoring Access Information"
 echo "================================="
 echo ""
 
@@ -138,7 +138,7 @@ print_info "Creating default dashboards..."
 cat > /tmp/system-health-dashboard.json << 'EOF'
 {
   "dashboard": {
-    "title": "MNBara System Health",
+    "title": "mnbarh System Health",
     "panels": [
       {
         "title": "Request Rate",
@@ -191,7 +191,7 @@ echo ""
 print_status "Monitoring setup complete!"
 echo ""
 
-echo "📝 Next Steps:"
+echo "ًں“‌ Next Steps:"
 echo "1. Access Grafana and change default password"
 echo "2. Configure alert notifications (email, Slack, etc.)"
 echo "3. Create custom dashboards for your metrics"
@@ -200,7 +200,7 @@ echo ""
 
 # Save monitoring info
 cat > ./MONITORING_INFO.txt << EOF
-MNBara Platform - Monitoring Information
+mnbarh Platform - Monitoring Information
 =========================================
 
 Prometheus:
@@ -239,3 +239,4 @@ Configuration Files:
 EOF
 
 print_status "Monitoring information saved to MONITORING_INFO.txt"
+

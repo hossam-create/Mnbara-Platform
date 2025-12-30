@@ -1,8 +1,8 @@
-# AWS Microservices Deployment Guide
+﻿# AWS Microservices Deployment Guide
 
-## 🏗️ Architecture Overview
+## ًںڈ—ï¸ڈ Architecture Overview
 
-This Mnbara platform is designed for deployment on **AWS Microservices Architecture** using:
+This mnbarh platform is designed for deployment on **AWS Microservices Architecture** using:
 
 - **Amazon ECS (Elastic Container Service)** - Container orchestration
 - **Amazon RDS** - PostgreSQL database with PostGIS extension
@@ -16,7 +16,7 @@ This Mnbara platform is designed for deployment on **AWS Microservices Architect
 
 ---
 
-## 📦 Services to Deploy
+## ًں“¦ Services to Deploy
 
 | Service | Port | Container | Database | Description |
 |---------|------|-----------|----------|-------------|
@@ -32,7 +32,7 @@ This Mnbara platform is designed for deployment on **AWS Microservices Architect
 
 ---
 
-## 🚀 Deployment Steps
+## ًںڑ€ Deployment Steps
 
 ### Phase 1: Infrastructure Setup
 
@@ -151,16 +151,16 @@ aws ecs create-service \
 ```bash
 aws apigateway create-rest-api \
   --name mnbarh-api \
-  --description "Mnbara Marketplace API" \
+  --description "mnbarh Marketplace API" \
   --endpoint-configuration types=REGIONAL
 ```
 
 #### 2. Configure Routes
-- `/auth/*` → Auth Service (ECS)
-- `/listings/*` → Listing Service (ECS)
-- `/auctions/*` → Auction Service (ECS)
-- `/payments/*` → Payment Service (ECS)
-- `/recommendations/*` → Recommendation Service (ECS)
+- `/auth/*` â†’ Auth Service (ECS)
+- `/listings/*` â†’ Listing Service (ECS)
+- `/auctions/*` â†’ Auction Service (ECS)
+- `/payments/*` â†’ Payment Service (ECS)
+- `/recommendations/*` â†’ Recommendation Service (ECS)
 
 ---
 
@@ -208,7 +208,7 @@ aws cloudfront create-distribution \
 
 ---
 
-## 🔐 Security Configuration
+## ًں”گ Security Configuration
 
 ### Secrets Manager
 ```bash
@@ -229,10 +229,10 @@ aws secretsmanager create-secret \
 
 ---
 
-## 📊 Monitoring & Logging
+## ًں“ٹ Monitoring & Logging
 
 ### CloudWatch
-- Container logs → CloudWatch Logs
+- Container logs â†’ CloudWatch Logs
 - Metrics: CPU, Memory, Request Count
 - Alarms: High error rate, latency > 2s
 
@@ -241,11 +241,11 @@ Enable distributed tracing for all services.
 
 ---
 
-## 💰 Cost Estimation (Monthly)
+## ًں’° Cost Estimation (Monthly)
 
 | Resource | Configuration | Est. Cost |
 |----------|---------------|-----------|
-| ECS Fargate (8 services × 2 tasks) | 0.5 vCPU, 1GB RAM | ~$150 |
+| ECS Fargate (8 services أ— 2 tasks) | 0.5 vCPU, 1GB RAM | ~$150 |
 | RDS PostgreSQL | db.t3.medium, Multi-AZ | ~$120 |
 | ElastiCache Redis | cache.t3.medium | ~$65 |
 | S3 + CloudFront | 100GB storage, 1TB transfer | ~$40 |
@@ -256,7 +256,7 @@ Enable distributed tracing for all services.
 
 ---
 
-## 🔄 CI/CD Pipeline
+## ًں”„ CI/CD Pipeline
 
 ### GitHub Actions Workflow
 See `.github/workflows/deploy.yml`
@@ -271,7 +271,7 @@ Pipeline stages:
 
 ---
 
-## 📱 Mobile App Backend
+## ًں“± Mobile App Backend
 
 The same AWS infrastructure serves both web and mobile apps (iOS/Android).
 
@@ -282,7 +282,7 @@ Mobile-specific considerations:
 
 ---
 
-## 🌍 Multi-Region Setup (Future)
+## ًںŒچ Multi-Region Setup (Future)
 
 For global deployment:
 1. Deploy to multiple AWS regions (us-east-1, eu-west-1, ap-southeast-1)
@@ -292,7 +292,7 @@ For global deployment:
 
 ---
 
-## 📞 Support
+## ًں“‍ Support
 
 For deployment assistance:
 - Check CloudWatch Logs
@@ -303,3 +303,4 @@ For deployment assistance:
 ---
 
 **Next:** See `infrastructure/aws/cloudformation/` for Infrastructure-as-Code templates.
+

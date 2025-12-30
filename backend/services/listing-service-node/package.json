@@ -1,7 +1,7 @@
-{
-  "name": "mnbara-listing-service",
+﻿{
+  "name": "mnbarh-listing-service",
   "version": "1.0.0",
-  "description": "eBay-Level Product Listing Service for Mnbara Platform",
+  "description": "eBay-Level Product Listing Service for mnbarh Platform",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
@@ -25,7 +25,7 @@
     "search",
     "ebay-level"
   ],
-  "author": "Mnbara Platform Team",
+  "author": "mnbarh Platform Team",
   "license": "PROPRIETARY",
   "dependencies": {
     "express": "^4.18.2",

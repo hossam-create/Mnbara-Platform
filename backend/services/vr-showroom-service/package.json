@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "vr-showroom-service",
   "version": "1.0.0",
-  "description": "Mnbara VR Showroom Service - خدمة صالة العرض الافتراضية",
+  "description": "mnbarh VR Showroom Service - ط®ط¯ظ…ط© طµط§ظ„ط© ط§ظ„ط¹ط±ط¶ ط§ظ„ط§ظپطھط±ط§ط¶ظٹط©",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -32,3 +32,4 @@
     "node": "22.20.0"
   }
 }
+

@@ -1,7 +1,7 @@
-# BUYER-SIDE COPY & LOGIC SPECIFICATION
+﻿# BUYER-SIDE COPY & LOGIC SPECIFICATION
 ## Complete Copy Library and UX Decision Rules
 
-**Platform:** Mnbara  
+**Platform:** mnbarh  
 **Audience:** Frontend, Product, Content Teams  
 **Date:** December 20, 2025
 
@@ -18,14 +18,14 @@
 
 ### Voice Examples
 ```
-✅ GOOD: "This traveler is new. They're still building history."
-❌ BAD:  "Warning! Unverified traveler. Proceed with caution!"
+âœ… GOOD: "This traveler is new. They're still building history."
+â‌Œ BAD:  "Warning! Unverified traveler. Proceed with caution!"
 
-✅ GOOD: "Your money stays in escrow until you confirm delivery."
-❌ BAD:  "Protect yourself! Never send money directly!"
+âœ… GOOD: "Your money stays in escrow until you confirm delivery."
+â‌Œ BAD:  "Protect yourself! Never send money directly!"
 
-✅ GOOD: "Take your time reviewing offers."
-❌ BAD:  "Don't miss out! 3 travelers are waiting!"
+âœ… GOOD: "Take your time reviewing offers."
+â‌Œ BAD:  "Don't miss out! 3 travelers are waiting!"
 ```
 
 ---
@@ -67,17 +67,17 @@
 
 ## Warning Levels
 
-### Level 1: Info (ℹ️)
+### Level 1: Info (â„¹ï¸ڈ)
 Low priority, informational only. Dismissible.
 
 | Trigger | Copy |
 |---------|------|
-| New traveler | `This traveler is new to Mnbara. They're still building history on the platform.` |
+| New traveler | `This traveler is new to mnbarh. They're still building history on the platform.` |
 | New buyer | `This buyer is new. They haven't completed many purchases yet.` |
 | First-time action | `This is your first request. We'll guide you through each step.` |
 | Cross-border | `This item comes from another country. Delivery times may vary.` |
 
-### Level 2: Caution (⚠️)
+### Level 2: Caution (âڑ ï¸ڈ)
 Worth noting. Requires acknowledgment to dismiss.
 
 | Trigger | Copy |
@@ -87,7 +87,7 @@ Worth noting. Requires acknowledgment to dismiss.
 | Unusual price | `This price is different from similar items. Make sure it's what you expect.` |
 | Longer delivery time | `Delivery is expected to take longer than usual for this route.` |
 
-### Level 3: Warning (⚠️ Orange)
+### Level 3: Warning (âڑ ï¸ڈ Orange)
 Important notice. Requires checkbox acknowledgment.
 
 | Trigger | Copy |
@@ -102,40 +102,40 @@ Important notice. Requires checkbox acknowledgment.
 
 ### Info Banner
 ```
-┌─────────────────────────────────────────────────┐
-│ ℹ️ [TITLE]                                      │
-│                                                 │
-│ [Explanation text]                              │
-│                                                 │
-│                                    [ Got It ]   │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ â„¹ï¸ڈ [TITLE]                                      â”‚
+â”‚                                                 â”‚
+â”‚ [Explanation text]                              â”‚
+â”‚                                                 â”‚
+â”‚                                    [ Got It ]   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### Caution Banner
 ```
-┌─────────────────────────────────────────────────┐
-│ ⚠️ [TITLE]                              [ ℹ️ ]  │
-│                                                 │
-│ [Explanation text including "why" context]      │
-│                                                 │
-│                             [ I Understand ]    │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âڑ ï¸ڈ [TITLE]                              [ â„¹ï¸ڈ ]  â”‚
+â”‚                                                 â”‚
+â”‚ [Explanation text including "why" context]      â”‚
+â”‚                                                 â”‚
+â”‚                             [ I Understand ]    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### Warning Banner (Inline)
 ```
-┌─────────────────────────────────────────────────┐
-│ ⚠️ [TITLE]                                      │
-│                                                 │
-│ [Explanation text]                              │
-│                                                 │
-│ Why we're showing this:                         │
-│ • [Reason 1]                                    │
-│ • [Reason 2]                                    │
-│                                                 │
-│ This doesn't mean something is wrong.           │
-│ We just want you to be aware.                   │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âڑ ï¸ڈ [TITLE]                                      â”‚
+â”‚                                                 â”‚
+â”‚ [Explanation text]                              â”‚
+â”‚                                                 â”‚
+â”‚ Why we're showing this:                         â”‚
+â”‚ â€¢ [Reason 1]                                    â”‚
+â”‚ â€¢ [Reason 2]                                    â”‚
+â”‚                                                 â”‚
+â”‚ This doesn't mean something is wrong.           â”‚
+â”‚ We just want you to be aware.                   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -144,52 +144,52 @@ Important notice. Requires checkbox acknowledgment.
 
 ## Trust Level Copy
 
-### High Trust (💚)
+### High Trust (ًں’ڑ)
 **Badge Label:** `Verified` or `High Trust`
 
 **Expanded Explanation:**
 ```
-This user has a strong history on Mnbara.
+This user has a strong history on mnbarh.
 
 Here's what we know:
-✅ ID verified
-✅ [X] completed transactions
-✅ [X.X] average rating
-✅ Member since [Year]
-✅ No unresolved disputes
+âœ… ID verified
+âœ… [X] completed transactions
+âœ… [X.X] average rating
+âœ… Member since [Year]
+âœ… No unresolved disputes
 
 Higher trust means more verified history. 
 It doesn't guarantee future behavior.
 ```
 
-### Medium Trust (🟡)
+### Medium Trust (ًںں،)
 **Badge Label:** `Building Trust`
 
 **Expanded Explanation:**
 ```
-This user is building their history on Mnbara.
+This user is building their history on mnbarh.
 
 Here's what we know:
-✅ ID verified
-⏳ [X] completed transactions (fewer than 10)
-✅ [X.X] average rating
-✅ Member since [Month Year]
+âœ… ID verified
+âڈ³ [X] completed transactions (fewer than 10)
+âœ… [X.X] average rating
+âœ… Member since [Month Year]
 
 They're still establishing their track record.
 Standard protections apply to all transactions.
 ```
 
-### New User (🔴)
+### New User (ًں”´)
 **Badge Label:** `New`
 
 **Expanded Explanation:**
 ```
-This user is new to Mnbara.
+This user is new to mnbarh.
 
 Here's what we know:
-✅ Account created
-⏳ Limited transaction history
-⏳ Still building ratings
+âœ… Account created
+âڈ³ Limited transaction history
+âڈ³ Still building ratings
 
 Everyone starts somewhere. Standard protections 
 apply to all transactions, including this one.
@@ -214,7 +214,7 @@ apply to all transactions, including this one.
 **Permanent footer on all trust panels:**
 ```
 Why we show this:
-Trust is based on verified history—completed transactions, 
+Trust is based on verified historyâ€”completed transactions, 
 ratings, and account verification. It helps you make 
 informed decisions, but it doesn't guarantee outcomes.
 You're always protected by escrow.
@@ -226,19 +226,19 @@ You're always protected by escrow.
 
 ## Modal Structure
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    [ICON] [TITLE]                               │
-│                                                 │
-│    [Summary of what will happen]                │
-│                                                 │
-│    [Protection/Context box - if applicable]     │
-│                                                 │
-│    [Checkbox acknowledgment - if high-risk]     │
-│                                                 │
-│    [ Secondary Action ]    [ Primary Action ]   │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    [ICON] [TITLE]                               â”‚
+â”‚                                                 â”‚
+â”‚    [Summary of what will happen]                â”‚
+â”‚                                                 â”‚
+â”‚    [Protection/Context box - if applicable]     â”‚
+â”‚                                                 â”‚
+â”‚    [Checkbox acknowledgment - if high-risk]     â”‚
+â”‚                                                 â”‚
+â”‚    [ Secondary Action ]    [ Primary Action ]   â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -247,30 +247,30 @@ You're always protected by escrow.
 **Trigger:** User submits a new purchase request
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    📦 SUBMIT YOUR REQUEST                       │
-│                                                 │
-│    You're requesting:                           │
-│    [Item Name]                                  │
-│    From: [Location]                             │
-│    To: [Destination]                            │
-│    Traveler fee: $[Amount]                      │
-│                                                 │
-│    ┌─────────────────────────────────────────┐  │
-│    │ What happens next:                      │  │
-│    │                                         │  │
-│    │ Your request becomes visible to         │  │
-│    │ travelers. They'll send you offers,     │  │
-│    │ and you choose which one works best.    │  │
-│    │                                         │  │
-│    │ You can edit or cancel anytime before   │  │
-│    │ accepting an offer.                     │  │
-│    └─────────────────────────────────────────┘  │
-│                                                 │
-│    [ Go Back ]           [ Submit Request ]     │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    ًں“¦ SUBMIT YOUR REQUEST                       â”‚
+â”‚                                                 â”‚
+â”‚    You're requesting:                           â”‚
+â”‚    [Item Name]                                  â”‚
+â”‚    From: [Location]                             â”‚
+â”‚    To: [Destination]                            â”‚
+â”‚    Traveler fee: $[Amount]                      â”‚
+â”‚                                                 â”‚
+â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ  â”‚
+â”‚    â”‚ What happens next:                      â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ Your request becomes visible to         â”‚  â”‚
+â”‚    â”‚ travelers. They'll send you offers,     â”‚  â”‚
+â”‚    â”‚ and you choose which one works best.    â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ You can edit or cancel anytime before   â”‚  â”‚
+â”‚    â”‚ accepting an offer.                     â”‚  â”‚
+â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک  â”‚
+â”‚                                                 â”‚
+â”‚    [ Go Back ]           [ Submit Request ]     â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -279,27 +279,27 @@ You're always protected by escrow.
 **Trigger:** User accepts a traveler's offer
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    ✋ CONFIRM YOUR CHOICE                       │
-│                                                 │
-│    You're accepting this offer:                 │
-│                                                 │
-│    👤 [Traveler Name]                           │
-│    ✈️ Arriving: [Date]                          │
-│    💵 Traveler fee: $[Amount]                   │
-│                                                 │
-│    ┌─────────────────────────────────────────┐  │
-│    │ 🔒 YOUR MONEY IS PROTECTED              │  │
-│    │                                         │  │
-│    │ • Funds go to escrow, not the traveler  │  │
-│    │ • Released only when you confirm        │  │
-│    │ • Full refund if item isn't delivered   │  │
-│    └─────────────────────────────────────────┘  │
-│                                                 │
-│    [ Go Back ]       [ Accept & Continue ]      │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    âœ‹ CONFIRM YOUR CHOICE                       â”‚
+â”‚                                                 â”‚
+â”‚    You're accepting this offer:                 â”‚
+â”‚                                                 â”‚
+â”‚    ًں‘¤ [Traveler Name]                           â”‚
+â”‚    âœˆï¸ڈ Arriving: [Date]                          â”‚
+â”‚    ًں’µ Traveler fee: $[Amount]                   â”‚
+â”‚                                                 â”‚
+â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ  â”‚
+â”‚    â”‚ ًں”’ YOUR MONEY IS PROTECTED              â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ â€¢ Funds go to escrow, not the traveler  â”‚  â”‚
+â”‚    â”‚ â€¢ Released only when you confirm        â”‚  â”‚
+â”‚    â”‚ â€¢ Full refund if item isn't delivered   â”‚  â”‚
+â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک  â”‚
+â”‚                                                 â”‚
+â”‚    [ Go Back ]       [ Accept & Continue ]      â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -308,33 +308,33 @@ You're always protected by escrow.
 **Trigger:** User accepts offer with risk flags
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    ⚠️ BEFORE YOU ACCEPT                        │
-│                                                 │
-│    We noticed a few things:                     │
-│                                                 │
-│    • This is a high-value item ($[Amount])      │
-│    • This traveler is new ([X] deliveries)      │
-│                                                 │
-│    This doesn't mean something is wrong.        │
-│    We just want you to be aware.                │
-│                                                 │
-│    ┌─────────────────────────────────────────┐  │
-│    │ 💡 You might also consider:             │  │
-│    │                                         │  │
-│    │ • Reviewing the traveler's profile      │  │
-│    │ • Messaging them with questions         │  │
-│    │ • Waiting for offers from more          │  │
-│    │   experienced travelers                 │  │
-│    └─────────────────────────────────────────┘  │
-│                                                 │
-│    ☐ I've reviewed this and want to proceed    │
-│                                                 │
-│    [ See Other Offers ]   [ Accept Anyway ]     │
-│                            (enabled when checked)│
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    âڑ ï¸ڈ BEFORE YOU ACCEPT                        â”‚
+â”‚                                                 â”‚
+â”‚    We noticed a few things:                     â”‚
+â”‚                                                 â”‚
+â”‚    â€¢ This is a high-value item ($[Amount])      â”‚
+â”‚    â€¢ This traveler is new ([X] deliveries)      â”‚
+â”‚                                                 â”‚
+â”‚    This doesn't mean something is wrong.        â”‚
+â”‚    We just want you to be aware.                â”‚
+â”‚                                                 â”‚
+â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ  â”‚
+â”‚    â”‚ ًں’، You might also consider:             â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ â€¢ Reviewing the traveler's profile      â”‚  â”‚
+â”‚    â”‚ â€¢ Messaging them with questions         â”‚  â”‚
+â”‚    â”‚ â€¢ Waiting for offers from more          â”‚  â”‚
+â”‚    â”‚   experienced travelers                 â”‚  â”‚
+â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک  â”‚
+â”‚                                                 â”‚
+â”‚    âکگ I've reviewed this and want to proceed    â”‚
+â”‚                                                 â”‚
+â”‚    [ See Other Offers ]   [ Accept Anyway ]     â”‚
+â”‚                            (enabled when checked)â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -343,23 +343,23 @@ You're always protected by escrow.
 **Trigger:** User cancels their own request
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    ❌ CANCEL YOUR REQUEST                       │
-│                                                 │
-│    Are you sure you want to cancel?             │
-│                                                 │
-│    📱 [Item Name]                               │
-│                                                 │
-│    This will:                                   │
-│    • Remove your request from listings          │
-│    • Decline any pending offers                 │
-│                                                 │
-│    You can create a new request anytime.        │
-│                                                 │
-│    [ Keep Request ]       [ Yes, Cancel ]       │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    â‌Œ CANCEL YOUR REQUEST                       â”‚
+â”‚                                                 â”‚
+â”‚    Are you sure you want to cancel?             â”‚
+â”‚                                                 â”‚
+â”‚    ًں“± [Item Name]                               â”‚
+â”‚                                                 â”‚
+â”‚    This will:                                   â”‚
+â”‚    â€¢ Remove your request from listings          â”‚
+â”‚    â€¢ Decline any pending offers                 â”‚
+â”‚                                                 â”‚
+â”‚    You can create a new request anytime.        â”‚
+â”‚                                                 â”‚
+â”‚    [ Keep Request ]       [ Yes, Cancel ]       â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -368,27 +368,27 @@ You're always protected by escrow.
 **Trigger:** User confirms item received
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    ✅ CONFIRM DELIVERY                          │
-│                                                 │
-│    Did you receive your item?                   │
-│                                                 │
-│    📱 [Item Name]                               │
-│    👤 Delivered by: [Traveler Name]             │
-│                                                 │
-│    ┌─────────────────────────────────────────┐  │
-│    │ When you confirm:                       │  │
-│    │                                         │  │
-│    │ • Funds will be released to the         │  │
-│    │   traveler                              │  │
-│    │ • You'll be asked to leave a rating     │  │
-│    │ • The transaction will be complete      │  │
-│    └─────────────────────────────────────────┘  │
-│                                                 │
-│    [ Not Yet ]           [ Yes, I Received It ] │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    âœ… CONFIRM DELIVERY                          â”‚
+â”‚                                                 â”‚
+â”‚    Did you receive your item?                   â”‚
+â”‚                                                 â”‚
+â”‚    ًں“± [Item Name]                               â”‚
+â”‚    ًں‘¤ Delivered by: [Traveler Name]             â”‚
+â”‚                                                 â”‚
+â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ  â”‚
+â”‚    â”‚ When you confirm:                       â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ â€¢ Funds will be released to the         â”‚  â”‚
+â”‚    â”‚   traveler                              â”‚  â”‚
+â”‚    â”‚ â€¢ You'll be asked to leave a rating     â”‚  â”‚
+â”‚    â”‚ â€¢ The transaction will be complete      â”‚  â”‚
+â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک  â”‚
+â”‚                                                 â”‚
+â”‚    [ Not Yet ]           [ Yes, I Received It ] â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -397,30 +397,30 @@ You're always protected by escrow.
 **Trigger:** User reports a problem
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│    🚨 REPORT AN ISSUE                           │
-│                                                 │
-│    What's happening?                            │
-│                                                 │
-│    ○ Item not received                          │
-│    ○ Item is different from description         │
-│    ○ Item is damaged                            │
-│    ○ Communication problem                      │
-│    ○ Something else                             │
-│                                                 │
-│    ┌─────────────────────────────────────────┐  │
-│    │ What happens when you report:           │  │
-│    │                                         │  │
-│    │ • Funds stay in escrow                  │  │
-│    │ • Our support team will review          │  │
-│    │ • We'll contact both parties            │  │
-│    │ • Most issues resolve in 24-48 hours    │  │
-│    └─────────────────────────────────────────┘  │
-│                                                 │
-│    [ Cancel ]              [ Report Issue ]     │
-│                                                 │
-└─────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                                                 â”‚
+â”‚    ًںڑ¨ REPORT AN ISSUE                           â”‚
+â”‚                                                 â”‚
+â”‚    What's happening?                            â”‚
+â”‚                                                 â”‚
+â”‚    â—‹ Item not received                          â”‚
+â”‚    â—‹ Item is different from description         â”‚
+â”‚    â—‹ Item is damaged                            â”‚
+â”‚    â—‹ Communication problem                      â”‚
+â”‚    â—‹ Something else                             â”‚
+â”‚                                                 â”‚
+â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ  â”‚
+â”‚    â”‚ What happens when you report:           â”‚  â”‚
+â”‚    â”‚                                         â”‚  â”‚
+â”‚    â”‚ â€¢ Funds stay in escrow                  â”‚  â”‚
+â”‚    â”‚ â€¢ Our support team will review          â”‚  â”‚
+â”‚    â”‚ â€¢ We'll contact both parties            â”‚  â”‚
+â”‚    â”‚ â€¢ Most issues resolve in 24-48 hours    â”‚  â”‚
+â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک  â”‚
+â”‚                                                 â”‚
+â”‚    [ Cancel ]              [ Report Issue ]     â”‚
+â”‚                                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -431,8 +431,8 @@ You're always protected by escrow.
 
 | Condition | Action |
 |-----------|--------|
-| Item value ≥ $1000 | Show Caution banner |
-| Item value ≥ $2500 | Show Warning banner + checkbox |
+| Item value â‰¥ $1000 | Show Caution banner |
+| Item value â‰¥ $2500 | Show Warning banner + checkbox |
 | Traveler deliveries < 5 | Show Info banner |
 | Traveler deliveries < 2 | Show Caution banner |
 | Traveler not ID verified | Show Caution banner |
@@ -460,17 +460,17 @@ You're always protected by escrow.
 
 | Trigger | Show Alternatives |
 |---------|-------------------|
-| Accepting offer from new traveler | ✅ Yes |
-| High-value + medium/low trust | ✅ Yes |
-| User hesitates (30+ seconds on modal) | ✅ Yes (subtle) |
-| Standard transaction | ❌ No |
+| Accepting offer from new traveler | âœ… Yes |
+| High-value + medium/low trust | âœ… Yes |
+| User hesitates (30+ seconds on modal) | âœ… Yes (subtle) |
+| Standard transaction | â‌Œ No |
 
 **Alternatives Copy:**
 ```
 You might also consider:
-• [X] other travelers have made offers
-• [X] of them have higher trust ratings
-• [ See Other Offers ]
+â€¢ [X] other travelers have made offers
+â€¢ [X] of them have higher trust ratings
+â€¢ [ See Other Offers ]
 ```
 
 ---
@@ -502,7 +502,7 @@ You might also consider:
 
 ## Prohibited Copy Patterns
 
-| ❌ Never Use | ✅ Use Instead |
+| â‌Œ Never Use | âœ… Use Instead |
 |--------------|----------------|
 | "Warning!" / "Danger!" | "We noticed..." |
 | "Beware" / "Watch out" | "Here's what we know" |
@@ -536,7 +536,7 @@ Every screen must provide:
 
 ### No Offers Yet
 ```
-📬 No offers yet
+ًں“¬ No offers yet
 
 Travelers are reviewing your request.
 We'll notify you when someone makes an offer.
@@ -546,22 +546,22 @@ Average response time: 4-8 hours
 
 ### No Matching Travelers
 ```
-📭 No travelers on this route
+ًں“­ No travelers on this route
 
 No travelers are currently going from
 [Origin] to [Destination].
 
 You can:
-• Create a request and wait for matches
-• Try a nearby destination
-• Check back later
+â€¢ Create a request and wait for matches
+â€¢ Try a nearby destination
+â€¢ Check back later
 
 [ Create Request ]
 ```
 
 ### No Requests Created
 ```
-📦 No requests yet
+ًں“¦ No requests yet
 
 You haven't created any purchase requests.
 
@@ -577,7 +577,7 @@ create a request and travelers will send offers.
 
 ### Submission Failed
 ```
-😕 Couldn't submit your request
+ًںک• Couldn't submit your request
 
 Something went wrong on our end.
 Your information has been saved.
@@ -589,7 +589,7 @@ If this keeps happening, contact support.
 
 ### Action Failed
 ```
-😕 That didn't work
+ًںک• That didn't work
 
 We couldn't complete this action.
 Please try again.
@@ -603,9 +603,9 @@ Field: [Field Name]
 Error: [Specific helpful message]
 
 Examples:
-• "Please enter an item name"
-• "This doesn't look like a valid URL"
-• "Please select a date"
+â€¢ "Please enter an item name"
+â€¢ "This doesn't look like a valid URL"
+â€¢ "Please select a date"
 ```
 
 ---
@@ -613,3 +613,4 @@ Examples:
 **Document Owner:** Content & UX Teams  
 **Version:** 1.0  
 **Date:** December 20, 2025
+

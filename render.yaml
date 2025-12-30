@@ -1,4 +1,4 @@
-# Mnbara Platform - Render Deployment Configuration
+﻿# mnbarh Platform - Render Deployment Configuration
 # Comprehensive microservices deployment
 
 services:
@@ -166,3 +166,4 @@ databases:
   - name: mnbarh-redis
     plan: free
     ipAllowList: []
+

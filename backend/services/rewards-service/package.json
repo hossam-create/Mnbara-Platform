@@ -1,5 +1,5 @@
-{
-    "name": "@mnbara/rewards-service",
+﻿{
+    "name": "@mnbarh/rewards-service",
     "version": "1.0.0",
     "description": "Rewards and referral program service",
     "main": "src/index.js",

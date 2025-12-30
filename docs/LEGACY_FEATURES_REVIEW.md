@@ -1,5 +1,5 @@
-# Legacy Frontend Features Review
-## mnbara-web-legacy Analysis
+﻿# Legacy Frontend Features Review
+## mnbarh-web-legacy Analysis
 
 ### Technology Stack
 - **Framework**: Next.js 16.0.3 (App Router)
@@ -10,13 +10,13 @@
 
 ### File Structure
 ```
-mnbara-web-legacy/
-├── app/
-│   ├── layout.tsx  # Root layout
-│   └── page.tsx    # Home page
-├── lib/
-│   └── utils.ts    # Utility functions (cn helper)
-└── package.json
+mnbarh-web-legacy/
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ layout.tsx  # Root layout
+â”‚   â””â”€â”€ page.tsx    # Home page
+â”œâ”€â”€ lib/
+â”‚   â””â”€â”€ utils.ts    # Utility functions (cn helper)
+â””â”€â”€ package.json
 ```
 
 ### Components Found
@@ -28,7 +28,7 @@ mnbara-web-legacy/
 ### Features to Preserve
 1. **Tailwind CSS setup** - Already in main web/ folder
 2. **cn() utility** - Standard pattern, already in web/src/lib/utils.ts
-3. **Arabic Marketplace UI Components** ⭐ (VALUABLE!)
+3. **Arabic Marketplace UI Components** â­گ (VALUABLE!)
    - Live Auctions grid with countdown timers
    - Hot Deals section with discount badges
    - Featured Products showcase
@@ -50,8 +50,9 @@ mnbara-web-legacy/
 
 **Recommendation**: 
 - Extract component patterns to docs/ui-patterns/
-- Archive entire folder to `archive/mnbara-web-legacy/` for reference
+- Archive entire folder to `archive/mnbarh-web-legacy/` for reference
 - Implement similar components in main React app when building marketplace UI
 
 ### Decision
-⚠️ **Archive with documentation** - components are valuable for future UI development
+âڑ ï¸ڈ **Archive with documentation** - components are valuable for future UI development
+

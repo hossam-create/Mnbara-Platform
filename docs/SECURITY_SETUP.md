@@ -1,10 +1,10 @@
-# 🔐 Security & Environment Setup Guide
+﻿# ًں”گ Security & Environment Setup Guide
 
 ## Environment Variables Configuration
 
 ### Critical Security Notice
 
-⚠️ **NEVER commit `.env` files to Git!**
+âڑ ï¸ڈ **NEVER commit `.env` files to Git!**
 
 All `.env` files have been removed from this repository for security reasons. Each developer and deployment environment must create their own `.env` files locally.
 
@@ -46,7 +46,7 @@ openssl rand -hex 32
 #### 2. Database Connection
 
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/mnbara_db?schema=public"
+DATABASE_URL="postgresql://username:password@localhost:5432/mnbarh_db?schema=public"
 ```
 
 #### 3. Redis Connection
@@ -130,3 +130,4 @@ Before pushing code, verify:
 If you encounter security-related issues, contact the security team immediately.
 
 **Do NOT post security issues publicly!**
+

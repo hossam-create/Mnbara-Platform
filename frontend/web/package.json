@@ -1,5 +1,5 @@
-{
-  "name": "mnbara-web",
+﻿{
+  "name": "mnbarh-web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -52,3 +52,4 @@
     "vitest": "^4.0.14"
   }
 }
+

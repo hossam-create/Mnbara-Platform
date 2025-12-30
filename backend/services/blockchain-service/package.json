@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/blockchain-service",
+﻿{
+  "name": "@mnbarh/blockchain-service",
   "version": "1.0.0",
-  "description": "Mnbara Blockchain Service - Smart Contract Integration",
+  "description": "mnbarh Blockchain Service - Smart Contract Integration",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -43,3 +43,4 @@
     "node": "22.20.0"
   }
 }
+

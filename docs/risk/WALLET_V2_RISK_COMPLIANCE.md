@@ -1,10 +1,10 @@
-# WALLET V2 — RISK & COMPLIANCE SPECIFICATION
+﻿# WALLET V2 â€” RISK & COMPLIANCE SPECIFICATION
 ## Risk Map, Controls, Kill Switches & Compliance Boundaries
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Wallet v2 Risk & Compliance Framework  
 **Date:** December 20, 2025  
-**Classification:** Internal — Risk, Compliance & Product
+**Classification:** Internal â€” Risk, Compliance & Product
 
 ---
 
@@ -246,7 +246,7 @@
 |------|-------------|
 | In-flight protection | Active transactions complete under PAUSE_NEW |
 | User notification | 24hr notice before RESTRICT or higher |
-| Escalation path | MONITOR → SLOW → RESTRICT → PAUSE_NEW → BLOCK |
+| Escalation path | MONITOR â†’ SLOW â†’ RESTRICT â†’ PAUSE_NEW â†’ BLOCK |
 | Review cycle | Weekly review during any corridor action |
 | Geographic scope | Can apply to country, route, or region |
 
@@ -279,7 +279,7 @@
 | Status page | Public status updated immediately |
 | Investor notification | Board notified within 4hr |
 | Maximum duration | LOCKDOWN: 72hr max before resolution plan |
-| Staged reversal | LOCKDOWN → PAUSE → MONITOR → NORMAL |
+| Staged reversal | LOCKDOWN â†’ PAUSE â†’ MONITOR â†’ NORMAL |
 
 ---
 
@@ -433,15 +433,15 @@
 
 | Control | L1 Support | L2 Trust | L3 Trust | L4 Trust | Compliance | Legal | CEO |
 |---------|------------|----------|----------|----------|------------|-------|-----|
-| View user wallet | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Freeze inbound | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Freeze outbound | — | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Freeze full | — | — | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Unfreeze | — | — | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Override limits | — | — | — | — | ✓ | — | ✓ |
-| Corridor freeze | — | — | — | ✓ | ✓ | ✓ | ✓ |
-| Global pause | — | — | — | — | — | ✓ | ✓ |
-| Global lockdown | — | — | — | — | — | — | ✓ (+ Board) |
+| View user wallet | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Freeze inbound | â€” | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Freeze outbound | â€” | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Freeze full | â€” | â€” | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Unfreeze | â€” | â€” | âœ“ | âœ“ | âœ“ | âœ“ | âœ“ |
+| Override limits | â€” | â€” | â€” | â€” | âœ“ | â€” | âœ“ |
+| Corridor freeze | â€” | â€” | â€” | âœ“ | âœ“ | âœ“ | âœ“ |
+| Global pause | â€” | â€” | â€” | â€” | â€” | âœ“ | âœ“ |
+| Global lockdown | â€” | â€” | â€” | â€” | â€” | â€” | âœ“ (+ Board) |
 
 ---
 
@@ -461,5 +461,6 @@
 
 **Document Owner:** Risk & Compliance  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

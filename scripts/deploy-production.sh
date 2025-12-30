@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# MNBara Platform - Production Deployment Script
+# mnbarh Platform - Production Deployment Script
 # Hour 18-22: Deployment Phase
 
 set -e
 
-echo "🚀 MNBara Platform - Production Deployment"
+echo "ًںڑ€ mnbarh Platform - Production Deployment"
 echo "=========================================="
 echo ""
 
@@ -22,15 +22,15 @@ BACKUP_FILE="$BACKUP_DIR/backup_$TIMESTAMP.sql"
 
 # Function to print colored output
 print_status() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}âœ… $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}â‌Œ $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}âڑ ï¸ڈ  $1${NC}"
 }
 
 # Function to check if command exists
@@ -39,7 +39,7 @@ command_exists() {
 }
 
 # Check prerequisites
-echo "📋 Checking prerequisites..."
+echo "ًں“‹ Checking prerequisites..."
 if ! command_exists kubectl; then
     print_error "kubectl not found. Please install kubectl."
     exit 1
@@ -54,7 +54,7 @@ print_status "Prerequisites check passed"
 echo ""
 
 # Step 1: Backup Database
-echo "💾 Step 1: Backing up database..."
+echo "ًں’¾ Step 1: Backing up database..."
 mkdir -p $BACKUP_DIR
 
 if [ -n "$DATABASE_URL" ]; then
@@ -66,7 +66,7 @@ fi
 echo ""
 
 # Step 2: Build Docker Images
-echo "🐳 Step 2: Building Docker images..."
+echo "ًںگ³ Step 2: Building Docker images..."
 services=(
     "listing-service-node"
     "cart-service"
@@ -78,19 +78,19 @@ services=(
 
 for service in "${services[@]}"; do
     echo "Building $service..."
-    docker build -t mnbara/$service:latest ./backend/services/$service
-    docker tag mnbara/$service:latest mnbara/$service:v1.0
+    docker build -t mnbarh/$service:latest ./backend/services/$service
+    docker tag mnbarh/$service:latest mnbarh/$service:v1.0
     print_status "$service built successfully"
 done
 echo ""
 
 # Step 3: Push Images to Registry
-echo "📤 Step 3: Pushing images to registry..."
+echo "ًں“¤ Step 3: Pushing images to registry..."
 if [ -n "$DOCKER_REGISTRY" ]; then
     for service in "${services[@]}"; do
         echo "Pushing $service..."
-        docker push mnbara/$service:latest
-        docker push mnbara/$service:v1.0
+        docker push mnbarh/$service:latest
+        docker push mnbarh/$service:v1.0
         print_status "$service pushed successfully"
     done
 else
@@ -99,7 +99,7 @@ fi
 echo ""
 
 # Step 4: Apply Kubernetes Configurations
-echo "☸️  Step 4: Deploying to Kubernetes..."
+echo "âک¸ï¸ڈ  Step 4: Deploying to Kubernetes..."
 
 # Deploy in order
 echo "Deploying ConfigMaps and Secrets..."
@@ -139,13 +139,13 @@ print_status "HPA deployed"
 echo ""
 
 # Step 5: Wait for Deployments
-echo "⏳ Step 5: Waiting for deployments to be ready..."
+echo "âڈ³ Step 5: Waiting for deployments to be ready..."
 kubectl wait --for=condition=available --timeout=600s deployment --all
 print_status "All deployments are ready"
 echo ""
 
 # Step 6: Run Database Migrations
-echo "🗄️  Step 6: Running database migrations..."
+echo "ًں—„ï¸ڈ  Step 6: Running database migrations..."
 for service in "${services[@]}"; do
     if [ -d "./backend/services/$service/prisma" ]; then
         echo "Running migrations for $service..."
@@ -158,7 +158,7 @@ done
 echo ""
 
 # Step 7: Verify Deployments
-echo "✅ Step 7: Verifying deployments..."
+echo "âœ… Step 7: Verifying deployments..."
 echo ""
 echo "Pods:"
 kubectl get pods
@@ -171,12 +171,12 @@ kubectl get ingress
 echo ""
 
 # Step 8: Health Checks
-echo "🏥 Step 8: Running health checks..."
+echo "ًںڈ¥ Step 8: Running health checks..."
 SERVICES_TO_CHECK=(
-    "http://api.mnbara.com/health"
-    "http://api.mnbara.com/products/health"
-    "http://api.mnbara.com/cart/health"
-    "http://api.mnbara.com/payments/health"
+    "http://api.mnbarh.com/health"
+    "http://api.mnbarh.com/products/health"
+    "http://api.mnbarh.com/cart/health"
+    "http://api.mnbarh.com/payments/health"
 )
 
 for url in "${SERVICES_TO_CHECK[@]}"; do
@@ -190,7 +190,7 @@ done
 echo ""
 
 # Step 9: Display Summary
-echo "📊 Deployment Summary"
+echo "ًں“ٹ Deployment Summary"
 echo "===================="
 echo "Timestamp: $TIMESTAMP"
 echo "Backup: $BACKUP_FILE"
@@ -200,19 +200,20 @@ print_status "Production deployment complete!"
 echo ""
 
 # Step 10: Next Steps
-echo "📝 Next Steps:"
+echo "ًں“‌ Next Steps:"
 echo "1. Run smoke tests: npm run test:smoke"
 echo "2. Monitor logs: kubectl logs -f deployment/listing-service"
 echo "3. Check metrics: kubectl top pods"
-echo "4. Access dashboard: https://mnbara.com"
+echo "4. Access dashboard: https://mnbarh.com"
 echo ""
 
 # Rollback instructions
-echo "🔄 Rollback Instructions (if needed):"
+echo "ًں”„ Rollback Instructions (if needed):"
 echo "kubectl rollout undo deployment/listing-service"
 echo "kubectl rollout undo deployment/cart-service"
 echo "kubectl rollout undo deployment/payment-service"
 echo "psql \$DATABASE_URL < $BACKUP_FILE"
 echo ""
 
-print_status "Deployment script completed successfully! 🎉"
+print_status "Deployment script completed successfully! ًںژ‰"
+

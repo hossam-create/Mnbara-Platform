@@ -1,54 +1,54 @@
-# خطة تنفيذ الثلاث صفحات الرئيسية - Mnbara vs eBay
+﻿# ط®ط·ط© طھظ†ظپظٹط° ط§ظ„ط«ظ„ط§ط« طµظپط­ط§طھ ط§ظ„ط±ط¦ظٹط³ظٹط© - Mnbarh vs eBay
 
-## 📋 ملخص الصفحات الثلاث
+## ًں“‹ ظ…ظ„ط®طµ ط§ظ„طµظپط­ط§طھ ط§ظ„ط«ظ„ط§ط«
 
-### 1️⃣ **Homepage (الصفحة الأولى)**
-- **الحالة الحالية:** 90% مكتملة
-- **الأقسام الموجودة:** Hero, Categories, Live Deals, Auctions, Trending Searches, Featured Products, Recently Viewed, Recommendations, Reviews, Trust Badges, CTAs
-- **الناقص:** Trending Products Section، بعض التحسينات البصرية
+### 1ï¸ڈâƒ£ **Homepage (ط§ظ„طµظپط­ط© ط§ظ„ط£ظˆظ„ظ‰)**
+- **ط§ظ„ط­ط§ظ„ط© ط§ظ„ط­ط§ظ„ظٹط©:** 90% ظ…ظƒطھظ…ظ„ط©
+- **ط§ظ„ط£ظ‚ط³ط§ظ… ط§ظ„ظ…ظˆط¬ظˆط¯ط©:** Hero, Categories, Live Deals, Auctions, Trending Searches, Featured Products, Recently Viewed, Recommendations, Reviews, Trust Badges, CTAs
+- **ط§ظ„ظ†ط§ظ‚طµ:** Trending Products SectionطŒ ط¨ط¹ط¶ ط§ظ„طھط­ط³ظٹظ†ط§طھ ط§ظ„ط¨طµط±ظٹط©
 
-### 2️⃣ **Product Page (صفحة المنتج)**
-- **الحالة الحالية:** موجودة لكن قد تحتاج تحسينات
-- **الأقسام الرئيسية:** Product Images، Product Details، Seller Info، Price، Wishlist، Similar Items
+### 2ï¸ڈâƒ£ **Product Page (طµظپط­ط© ط§ظ„ظ…ظ†طھط¬)**
+- **ط§ظ„ط­ط§ظ„ط© ط§ظ„ط­ط§ظ„ظٹط©:** ظ…ظˆط¬ظˆط¯ط© ظ„ظƒظ† ظ‚ط¯ طھط­طھط§ط¬ طھط­ط³ظٹظ†ط§طھ
+- **ط§ظ„ط£ظ‚ط³ط§ظ… ط§ظ„ط±ط¦ظٹط³ظٹط©:** Product ImagesطŒ Product DetailsطŒ Seller InfoطŒ PriceطŒ WishlistطŒ Similar Items
 
-### 3️⃣ **Search Results Page (صفحة البحث)**
-- **الحالة الحالية:** موجودة (SearchPage.tsx)
-- **الأقسام الرئيسية:** Search Bar، Left Sidebar Filters، Product Listings، Sort/View Options
+### 3ï¸ڈâƒ£ **Search Results Page (طµظپط­ط© ط§ظ„ط¨ط­ط«)**
+- **ط§ظ„ط­ط§ظ„ط© ط§ظ„ط­ط§ظ„ظٹط©:** ظ…ظˆط¬ظˆط¯ط© (SearchPage.tsx)
+- **ط§ظ„ط£ظ‚ط³ط§ظ… ط§ظ„ط±ط¦ظٹط³ظٹط©:** Search BarطŒ Left Sidebar FiltersطŒ Product ListingsطŒ Sort/View Options
 
 ---
 
-## 🎯 الأولويات والتحسينات المطلوبة
+## ًںژ¯ ط§ظ„ط£ظˆظ„ظˆظٹط§طھ ظˆط§ظ„طھط­ط³ظٹظ†ط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
 
-### **Priority 1: Homepage Improvements** (عالي جداً)
+### **Priority 1: Homepage Improvements** (ط¹ط§ظ„ظٹ ط¬ط¯ط§ظ‹)
 
-#### 1.1 إضافة "Trending Products" Section
-**الوصف:** عرض منتجات trending مع صور دائرية (مثل eBay)
+#### 1.1 ط¥ط¶ط§ظپط© "Trending Products" Section
+**ط§ظ„ظˆطµظپ:** ط¹ط±ط¶ ظ…ظ†طھط¬ط§طھ trending ظ…ط¹ طµظˆط± ط¯ط§ط¦ط±ظٹط© (ظ…ط«ظ„ eBay)
 
-**الملفات المطلوبة:**
-- `frontend/web-app/src/components/home/TrendingProducts.tsx` (جديد)
-- تحديث `frontend/web-app/src/pages/HomePage.tsx`
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- `frontend/web-app/src/components/home/TrendingProducts.tsx` (ط¬ط¯ظٹط¯)
+- طھط­ط¯ظٹط« `frontend/web-app/src/pages/HomePage.tsx`
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
-- Section Title: "Trending on Mnbara"
-- Grid of circular product images (8-10 منتجات)
+- Section Title: "Trending on Mnbarh"
+- Grid of circular product images (8-10 ظ…ظ†طھط¬ط§طھ)
 - Product categories: Tech, Motors, Luxury, Collectibles, Home & Garden, Trading Cards, Health & Beauty
 - Hover effects
 - Click to category/search
 ```
 
-**الوقت المتوقع:** 1-2 ساعة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط©
 
 ---
 
-#### 1.2 تحسين "Featured Categories" Section
-**الوصف:** إضافة "The Future in Your Hands" section مع صور دائرية
+#### 1.2 طھط­ط³ظٹظ† "Featured Categories" Section
+**ط§ظ„ظˆطµظپ:** ط¥ط¶ط§ظپط© "The Future in Your Hands" section ظ…ط¹ طµظˆط± ط¯ط§ط¦ط±ظٹط©
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/components/home/Categories.tsx`
-- أو إنشاء `frontend/web-app/src/components/home/FeaturedCategories.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/components/home/Categories.tsx`
+- ط£ظˆ ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/home/FeaturedCategories.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Section Title: "The Future in Your Hands"
 - Circular images for: Laptops, Computer parts, Smartphones, Enterprise networking, Tablets, Storage, Lenses
@@ -56,17 +56,17 @@
 - Navigation arrows (optional)
 ```
 
-**الوقت المتوقع:** 1 ساعة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1 ط³ط§ط¹ط©
 
 ---
 
-#### 1.3 تحسين "Live Deals" Carousel
-**الوصف:** إضافة Navigation Arrows و Pause Button
+#### 1.3 طھط­ط³ظٹظ† "Live Deals" Carousel
+**ط§ظ„ظˆطµظپ:** ط¥ط¶ط§ظپط© Navigation Arrows ظˆ Pause Button
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/components/home/LiveDealsSection.tsx`
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/components/home/LiveDealsSection.tsx`
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Previous/Next Arrows
 - Pause/Play Button
@@ -74,17 +74,17 @@
 - Auto-scroll functionality
 ```
 
-**الوقت المتوقع:** 1 ساعة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1 ط³ط§ط¹ط©
 
 ---
 
-#### 1.4 تحسين Footer
-**الوصف:** تحديث Footer ليطابق eBay
+#### 1.4 طھط­ط³ظٹظ† Footer
+**ط§ظ„ظˆطµظپ:** طھط­ط¯ظٹط« Footer ظ„ظٹط·ط§ط¨ظ‚ eBay
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/components/layout/Footer.tsx`
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/components/layout/Footer.tsx`
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Multiple columns: Buy, Sell, Tools & apps, About, Help & Contact, Community
 - Social Media Links
@@ -93,20 +93,20 @@
 - Accessibility, Privacy, Terms of Use
 ```
 
-**الوقت المتوقع:** 1-2 ساعات
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط§طھ
 
 ---
 
-### **Priority 2: Product Page Improvements** (عالي)
+### **Priority 2: Product Page Improvements** (ط¹ط§ظ„ظٹ)
 
-#### 2.1 تحسين Product Images Section
-**الوصف:** تحسين عرض الصور والتفاعلات
+#### 2.1 طھط­ط³ظٹظ† Product Images Section
+**ط§ظ„ظˆطµظپ:** طھط­ط³ظٹظ† ط¹ط±ط¶ ط§ظ„طµظˆط± ظˆط§ظ„طھظپط§ط¹ظ„ط§طھ
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/pages/ProductPage.tsx`
-- إنشاء `frontend/web-app/src/components/product/ProductImageGallery.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/pages/ProductPage.tsx`
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/product/ProductImageGallery.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Large main image
 - Thumbnail gallery on left/bottom
@@ -116,18 +116,18 @@
 - Video icon (if applicable)
 ```
 
-**الوقت المتوقع:** 1-2 ساعات
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط§طھ
 
 ---
 
-#### 2.2 تحسين Product Details Section
-**الوصف:** تحسين عرض تفاصيل المنتج
+#### 2.2 طھط­ط³ظٹظ† Product Details Section
+**ط§ظ„ظˆطµظپ:** طھط­ط³ظٹظ† ط¹ط±ط¶ طھظپط§طµظٹظ„ ط§ظ„ظ…ظ†طھط¬
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/pages/ProductPage.tsx`
-- إنشاء `frontend/web-app/src/components/product/ProductDetails.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/pages/ProductPage.tsx`
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/product/ProductDetails.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Product Title
 - Seller Info (Name, Rating, Positive %, Contact Seller)
@@ -140,17 +140,17 @@
 - Similar Items Link
 ```
 
-**الوقت المتوقع:** 1-2 ساعات
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط§طھ
 
 ---
 
-#### 2.3 إضافة "Similar Items" Section
-**الوصف:** عرض منتجات مشابهة
+#### 2.3 ط¥ط¶ط§ظپط© "Similar Items" Section
+**ط§ظ„ظˆطµظپ:** ط¹ط±ط¶ ظ…ظ†طھط¬ط§طھ ظ…ط´ط§ط¨ظ‡ط©
 
-**الملفات المطلوبة:**
-- إنشاء `frontend/web-app/src/components/product/SimilarItems.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/product/SimilarItems.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - "Find similar items from [Seller]" section
 - Seller store link
@@ -158,19 +158,19 @@
 - Product cards
 ```
 
-**الوقت المتوقع:** 1 ساعة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1 ط³ط§ط¹ط©
 
 ---
 
-### **Priority 3: Search Results Page Improvements** (عالي)
+### **Priority 3: Search Results Page Improvements** (ط¹ط§ظ„ظٹ)
 
-#### 3.1 تحسين Left Sidebar Filters
-**الوصف:** تحسين عرض الفلاتر
+#### 3.1 طھط­ط³ظٹظ† Left Sidebar Filters
+**ط§ظ„ظˆطµظپ:** طھط­ط³ظٹظ† ط¹ط±ط¶ ط§ظ„ظپظ„ط§طھط±
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/components/search/SearchFilters.tsx`
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/components/search/SearchFilters.tsx`
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Category Filter (Expandable)
 - Price Range Filter
@@ -181,17 +181,17 @@
 - More Filters (Expandable)
 ```
 
-**الوقت المتوقع:** 1-2 ساعات
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط§طھ
 
 ---
 
-#### 3.2 تحسين Search Results Display
-**الوصف:** تحسين عرض نتائج البحث
+#### 3.2 طھط­ط³ظٹظ† Search Results Display
+**ط§ظ„ظˆطµظپ:** طھط­ط³ظٹظ† ط¹ط±ط¶ ظ†طھط§ط¦ط¬ ط§ظ„ط¨ط­ط«
 
-**الملفات المطلوبة:**
-- تحديث `frontend/web-app/src/components/search/SearchResults.tsx`
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- طھط­ط¯ظٹط« `frontend/web-app/src/components/search/SearchResults.tsx`
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Results count
 - Save search button
@@ -202,17 +202,17 @@
 - Pagination
 ```
 
-**الوقت المتوقع:** 1-2 ساعات
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1-2 ط³ط§ط¹ط§طھ
 
 ---
 
-#### 3.3 إضافة Sponsored Ads Section
-**الوصف:** إضافة قسم الإعلانات المدفوعة
+#### 3.3 ط¥ط¶ط§ظپط© Sponsored Ads Section
+**ط§ظ„ظˆطµظپ:** ط¥ط¶ط§ظپط© ظ‚ط³ظ… ط§ظ„ط¥ط¹ظ„ط§ظ†ط§طھ ط§ظ„ظ…ط¯ظپظˆط¹ط©
 
-**الملفات المطلوبة:**
-- إنشاء `frontend/web-app/src/components/search/SponsoredAds.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/search/SponsoredAds.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Sponsored ad banner
 - Ad image
@@ -222,18 +222,18 @@
 - "Sponsored" label
 ```
 
-**الوقت المتوقع:** 30 دقيقة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 30 ط¯ظ‚ظٹظ‚ط©
 
 ---
 
-#### 3.4 إضافة Right Sidebar - Google Ads Column
-**الوصف:** إضافة عامود Google Ads على اليمين (مثل eBay)
+#### 3.4 ط¥ط¶ط§ظپط© Right Sidebar - Google Ads Column
+**ط§ظ„ظˆطµظپ:** ط¥ط¶ط§ظپط© ط¹ط§ظ…ظˆط¯ Google Ads ط¹ظ„ظ‰ ط§ظ„ظٹظ…ظٹظ† (ظ…ط«ظ„ eBay)
 
-**الملفات المطلوبة:**
-- إنشاء `frontend/web-app/src/components/search/GoogleAdsColumn.tsx` (جديد)
-- إنشاء `frontend/web-app/src/components/search/PromotionBanner.tsx` (جديد)
+**ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©:**
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/search/GoogleAdsColumn.tsx` (ط¬ط¯ظٹط¯)
+- ط¥ظ†ط´ط§ط، `frontend/web-app/src/components/search/PromotionBanner.tsx` (ط¬ط¯ظٹط¯)
 
-**المكونات:**
+**ط§ظ„ظ…ظƒظˆظ†ط§طھ:**
 ```
 - Google Ads Section (Right Sidebar)
   - Ad Banner 1
@@ -249,13 +249,13 @@
   - Other promotional banners
 ```
 
-**الوقت المتوقع:** 1 ساعة
+**ط§ظ„ظˆظ‚طھ ط§ظ„ظ…طھظˆظ‚ط¹:** 1 ط³ط§ط¹ط©
 
 ---
 
-## 📊 ملخص الملفات المطلوبة
+## ًں“ٹ ظ…ظ„ط®طµ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط·ظ„ظˆط¨ط©
 
-### ملفات جديدة (11 ملف):
+### ظ…ظ„ظپط§طھ ط¬ط¯ظٹط¯ط© (11 ظ…ظ„ظپ):
 1. `frontend/web-app/src/components/home/TrendingProducts.tsx`
 2. `frontend/web-app/src/components/home/FeaturedCategories.tsx`
 3. `frontend/web-app/src/components/product/ProductImageGallery.tsx`
@@ -264,7 +264,7 @@
 6. `frontend/web-app/src/components/search/SponsoredAds.tsx`
 7. `frontend/web-app/src/components/search/PromotionBanner.tsx`
 
-### ملفات للتحديث (7 ملفات):
+### ظ…ظ„ظپط§طھ ظ„ظ„طھط­ط¯ظٹط« (7 ظ…ظ„ظپط§طھ):
 1. `frontend/web-app/src/pages/HomePage.tsx`
 2. `frontend/web-app/src/components/home/Categories.tsx`
 3. `frontend/web-app/src/components/home/LiveDealsSection.tsx`
@@ -275,80 +275,81 @@
 
 ---
 
-## ⏱️ الوقت الإجمالي المتوقع
+## âڈ±ï¸ڈ ط§ظ„ظˆظ‚طھ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…طھظˆظ‚ط¹
 
-| الأولوية | المهمة | الوقت |
+| ط§ظ„ط£ظˆظ„ظˆظٹط© | ط§ظ„ظ…ظ‡ظ…ط© | ط§ظ„ظˆظ‚طھ |
 |---------|--------|------|
-| Priority 1 | Homepage Improvements | 5-7 ساعات |
-| Priority 2 | Product Page Improvements | 3-5 ساعات |
-| Priority 3 | Search Results Improvements | 3-4 ساعات |
-| **الإجمالي** | **جميع التحسينات** | **11-16 ساعة** |
+| Priority 1 | Homepage Improvements | 5-7 ط³ط§ط¹ط§طھ |
+| Priority 2 | Product Page Improvements | 3-5 ط³ط§ط¹ط§طھ |
+| Priority 3 | Search Results Improvements | 3-4 ط³ط§ط¹ط§طھ |
+| **ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ** | **ط¬ظ…ظٹط¹ ط§ظ„طھط­ط³ظٹظ†ط§طھ** | **11-16 ط³ط§ط¹ط©** |
 
 ---
 
-## 🚀 خطة التنفيذ المقترحة
+## ًںڑ€ ط®ط·ط© ط§ظ„طھظ†ظپظٹط° ط§ظ„ظ…ظ‚طھط±ط­ط©
 
-### **المرحلة 1: Homepage (اليوم)** - 5-7 ساعات
-1. إضافة Trending Products Section
-2. تحسين Featured Categories
-3. تحسين Live Deals Carousel
-4. تحسين Footer
+### **ط§ظ„ظ…ط±ط­ظ„ط© 1: Homepage (ط§ظ„ظٹظˆظ…)** - 5-7 ط³ط§ط¹ط§طھ
+1. ط¥ط¶ط§ظپط© Trending Products Section
+2. طھط­ط³ظٹظ† Featured Categories
+3. طھط­ط³ظٹظ† Live Deals Carousel
+4. طھط­ط³ظٹظ† Footer
 
-### **المرحلة 2: Product Page (غداً)** - 3-5 ساعات
-1. تحسين Product Images Gallery
-2. تحسين Product Details
-3. إضافة Similar Items Section
+### **ط§ظ„ظ…ط±ط­ظ„ط© 2: Product Page (ط؛ط¯ط§ظ‹)** - 3-5 ط³ط§ط¹ط§طھ
+1. طھط­ط³ظٹظ† Product Images Gallery
+2. طھط­ط³ظٹظ† Product Details
+3. ط¥ط¶ط§ظپط© Similar Items Section
 
-### **المرحلة 3: Search Results (بعد غد)** - 3-4 ساعات
-1. تحسين Left Sidebar Filters
-2. تحسين Search Results Display
-3. إضافة Sponsored Ads
-4. إضافة Right Sidebar Promotions
+### **ط§ظ„ظ…ط±ط­ظ„ط© 3: Search Results (ط¨ط¹ط¯ ط؛ط¯)** - 3-4 ط³ط§ط¹ط§طھ
+1. طھط­ط³ظٹظ† Left Sidebar Filters
+2. طھط­ط³ظٹظ† Search Results Display
+3. ط¥ط¶ط§ظپط© Sponsored Ads
+4. ط¥ط¶ط§ظپط© Right Sidebar Promotions
 
 ---
 
-## ✅ معايير النجاح
+## âœ… ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ†ط¬ط§ط­
 
-- [ ] Homepage تطابق eBay بنسبة 95%+
-- [ ] Product Page تطابق eBay بنسبة 90%+
-- [ ] Search Results Page تطابق eBay بنسبة 90%+
-- [ ] جميع الصفحات responsive على mobile/tablet/desktop
+- [ ] Homepage طھط·ط§ط¨ظ‚ eBay ط¨ظ†ط³ط¨ط© 95%+
+- [ ] Product Page طھط·ط§ط¨ظ‚ eBay ط¨ظ†ط³ط¨ط© 90%+
+- [ ] Search Results Page طھط·ط§ط¨ظ‚ eBay ط¨ظ†ط³ط¨ط© 90%+
+- [ ] ط¬ظ…ظٹط¹ ط§ظ„طµظپط­ط§طھ responsive ط¹ظ„ظ‰ mobile/tablet/desktop
 - [ ] Dark mode support
 - [ ] Performance optimization
 - [ ] Accessibility compliance
 
 ---
 
-## 📝 ملاحظات إضافية
+## ًں“‌ ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¶ط§ظپظٹط©
 
-1. **Reusable Components:** استخدام components موجودة قدر الإمكان
-2. **Styling:** استخدام Tailwind CSS للتناسق
-3. **State Management:** استخدام Redux للبيانات المشتركة
-4. **API Integration:** التأكد من ربط جميع البيانات بـ APIs
-5. **Testing:** اختبار جميع الصفحات على أجهزة مختلفة
-
----
-
-## 🎨 Design Guidelines
-
-- **Colors:** استخدام نفس الألوان الموجودة في Mnbara
-- **Typography:** استخدام نفس الخطوط الموجودة
-- **Spacing:** اتباع نفس نمط المسافات
-- **Icons:** استخدام Heroicons (موجود بالفعل)
-- **Animations:** إضافة hover effects و transitions سلسة
+1. **Reusable Components:** ط§ط³طھط®ط¯ط§ظ… components ظ…ظˆط¬ظˆط¯ط© ظ‚ط¯ط± ط§ظ„ط¥ظ…ظƒط§ظ†
+2. **Styling:** ط§ط³طھط®ط¯ط§ظ… Tailwind CSS ظ„ظ„طھظ†ط§ط³ظ‚
+3. **State Management:** ط§ط³طھط®ط¯ط§ظ… Redux ظ„ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط´طھط±ظƒط©
+4. **API Integration:** ط§ظ„طھط£ظƒط¯ ظ…ظ† ط±ط¨ط· ط¬ظ…ظٹط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¨ظ€ APIs
+5. **Testing:** ط§ط®طھط¨ط§ط± ط¬ظ…ظٹط¹ ط§ظ„طµظپط­ط§طھ ط¹ظ„ظ‰ ط£ط¬ظ‡ط²ط© ظ…ط®طھظ„ظپط©
 
 ---
 
-## 🔗 الملفات المرجعية
+## ًںژ¨ Design Guidelines
 
-- `frontend/web-app/src/pages/HomePage.tsx` - الصفحة الأولى الحالية
-- `frontend/web-app/src/pages/SearchPage.tsx` - صفحة البحث الحالية
-- `frontend/web-app/src/pages/ProductPage.tsx` - صفحة المنتج الحالية
-- `frontend/web-app/src/components/product/ProductCard.tsx` - بطاقة المنتج
-- `frontend/web-app/src/components/layout/Footer.tsx` - الفوتر الحالي
+- **Colors:** ط§ط³طھط®ط¯ط§ظ… ظ†ظپط³ ط§ظ„ط£ظ„ظˆط§ظ† ط§ظ„ظ…ظˆط¬ظˆط¯ط© ظپظٹ Mnbarh
+- **Typography:** ط§ط³طھط®ط¯ط§ظ… ظ†ظپط³ ط§ظ„ط®ط·ظˆط· ط§ظ„ظ…ظˆط¬ظˆط¯ط©
+- **Spacing:** ط§طھط¨ط§ط¹ ظ†ظپط³ ظ†ظ…ط· ط§ظ„ظ…ط³ط§ظپط§طھ
+- **Icons:** ط§ط³طھط®ط¯ط§ظ… Heroicons (ظ…ظˆط¬ظˆط¯ ط¨ط§ظ„ظپط¹ظ„)
+- **Animations:** ط¥ط¶ط§ظپط© hover effects ظˆ transitions ط³ظ„ط³ط©
 
 ---
 
-## 📞 التواصل والدعم
+## ًں”— ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط±ط¬ط¹ظٹط©
 
-في حالة وجود أي استفسارات أو مشاكل، يرجى التواصل مع فريق التطوير.
+- `frontend/web-app/src/pages/HomePage.tsx` - ط§ظ„طµظپط­ط© ط§ظ„ط£ظˆظ„ظ‰ ط§ظ„ط­ط§ظ„ظٹط©
+- `frontend/web-app/src/pages/SearchPage.tsx` - طµظپط­ط© ط§ظ„ط¨ط­ط« ط§ظ„ط­ط§ظ„ظٹط©
+- `frontend/web-app/src/pages/ProductPage.tsx` - طµظپط­ط© ط§ظ„ظ…ظ†طھط¬ ط§ظ„ط­ط§ظ„ظٹط©
+- `frontend/web-app/src/components/product/ProductCard.tsx` - ط¨ط·ط§ظ‚ط© ط§ظ„ظ…ظ†طھط¬
+- `frontend/web-app/src/components/layout/Footer.tsx` - ط§ظ„ظپظˆطھط± ط§ظ„ط­ط§ظ„ظٹ
+
+---
+
+## ًں“‍ ط§ظ„طھظˆط§طµظ„ ظˆط§ظ„ط¯ط¹ظ…
+
+ظپظٹ ط­ط§ظ„ط© ظˆط¬ظˆط¯ ط£ظٹ ط§ط³طھظپط³ط§ط±ط§طھ ط£ظˆ ظ…ط´ط§ظƒظ„طŒ ظٹط±ط¬ظ‰ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ظپط±ظٹظ‚ ط§ظ„طھط·ظˆظٹط±.
+

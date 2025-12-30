@@ -1,7 +1,7 @@
-{
-  "name": "@mnbara/trips-service",
+﻿{
+  "name": "@mnbarh/trips-service",
   "version": "1.0.0",
-  "description": "Mnbara Trips Service - Traveler Availability & Route Management",
+  "description": "mnbarh Trips Service - Traveler Availability & Route Management",
   "main": "dist/main.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
@@ -39,3 +39,4 @@
     "node": "22.20.0"
   }
 }
+

@@ -1,52 +1,52 @@
-# 🆔 نظام معرفات العملاء - Customer ID System
+﻿# ًں†” ظ†ط¸ط§ظ… ظ…ط¹ط±ظپط§طھ ط§ظ„ط¹ظ…ظ„ط§ط، - Customer ID System
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
 
 ---
 
-## 📋 نظرة عامة
+## ًں“‹ ظ†ط¸ط±ط© ط¹ط§ظ…ط©
 
-نظام معرفات فريدة وسهلة التتبع لكل عميل في منبرة. كل عميل يحصل على 4 صيغ مختلفة من المعرف:
+ظ†ط¸ط§ظ… ظ…ط¹ط±ظپط§طھ ظپط±ظٹط¯ط© ظˆط³ظ‡ظ„ط© ط§ظ„طھطھط¨ط¹ ظ„ظƒظ„ ط¹ظ…ظٹظ„ ظپظٹ ظ…ظ†ط¨ط±ط©. ظƒظ„ ط¹ظ…ظٹظ„ ظٹط­طµظ„ ط¹ظ„ظ‰ 4 طµظٹط؛ ظ…ط®طھظ„ظپط© ظ…ظ† ط§ظ„ظ…ط¹ط±ظپ:
 
-| الصيغة | المثال | الاستخدام |
+| ط§ظ„طµظٹط؛ط© | ط§ظ„ظ…ط«ط§ظ„ | ط§ظ„ط§ط³طھط®ط¯ط§ظ… |
 |--------|--------|-----------|
-| **Standard** | `MNB-2025-001234` | الفواتير والتقارير |
-| **Short** | `MNB001234` | الرسائل والإشعارات |
-| **UUID** | `mnb_550e8400-e29b-41d4-a716-446655440000` | قاعدة البيانات والـ APIs |
-| **Numeric** | `1704067200001234` | الباركود والـ QR Code |
+| **Standard** | `MNB-2025-001234` | ط§ظ„ظپظˆط§طھظٹط± ظˆط§ظ„طھظ‚ط§ط±ظٹط± |
+| **Short** | `MNB001234` | ط§ظ„ط±ط³ط§ط¦ظ„ ظˆط§ظ„ط¥ط´ط¹ط§ط±ط§طھ |
+| **UUID** | `mnb_550e8400-e29b-41d4-a716-446655440000` | ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ظˆط§ظ„ظ€ APIs |
+| **Numeric** | `1704067200001234` | ط§ظ„ط¨ط§ط±ظƒظˆط¯ ظˆط§ظ„ظ€ QR Code |
 
 ---
 
-## 🎯 الميزات
+## ًںژ¯ ط§ظ„ظ…ظٹط²ط§طھ
 
-### 1️⃣ معرفات فريدة وسهلة التذكر
+### 1ï¸ڈâƒ£ ظ…ط¹ط±ظپط§طھ ظپط±ظٹط¯ط© ظˆط³ظ‡ظ„ط© ط§ظ„طھط°ظƒط±
 ```
-MNB-2025-001234  ← سهل التذكر والكتابة
-```
-
-### 2️⃣ تتبع سهل
-```
-MNB = Mnbara
-2025 = السنة
-001234 = الرقم التسلسلي
+MNB-2025-001234  â†گ ط³ظ‡ظ„ ط§ظ„طھط°ظƒط± ظˆط§ظ„ظƒطھط§ط¨ط©
 ```
 
-### 3️⃣ دعم أنواع مختلفة من العملاء
-- 👤 Buyer (المشتري)
-- 🏪 Seller (البائع)
-- 🚗 Traveler (المسافر/الشحن)
-
-### 4️⃣ QR Code و Barcode
+### 2ï¸ڈâƒ£ طھطھط¨ط¹ ط³ظ‡ظ„
 ```
-QR Code: https://mnbara.com/customer/MNB-2025-001234
+MNB = Mnbarh
+2025 = ط§ظ„ط³ظ†ط©
+001234 = ط§ظ„ط±ظ‚ظ… ط§ظ„طھط³ظ„ط³ظ„ظٹ
+```
+
+### 3ï¸ڈâƒ£ ط¯ط¹ظ… ط£ظ†ظˆط§ط¹ ظ…ط®طھظ„ظپط© ظ…ظ† ط§ظ„ط¹ظ…ظ„ط§ط،
+- ًں‘¤ Buyer (ط§ظ„ظ…ط´طھط±ظٹ)
+- ًںڈھ Seller (ط§ظ„ط¨ط§ط¦ط¹)
+- ًںڑ— Traveler (ط§ظ„ظ…ط³ط§ظپط±/ط§ظ„ط´ط­ظ†)
+
+### 4ï¸ڈâƒ£ QR Code ظˆ Barcode
+```
+QR Code: https://mnbarh.com/customer/MNB-2025-001234
 Barcode: MNB001234
 ```
 
 ---
 
-## 🚀 الاستخدام
+## ًںڑ€ ط§ظ„ط§ط³طھط®ط¯ط§ظ…
 
-### إنشاء معرف عميل جديد
+### ط¥ظ†ط´ط§ط، ظ…ط¹ط±ظپ ط¹ظ…ظٹظ„ ط¬ط¯ظٹط¯
 ```bash
 POST /api/customer-id/generate
 Content-Type: application/json
@@ -57,7 +57,7 @@ Content-Type: application/json
 }
 ```
 
-**الرد:**
+**ط§ظ„ط±ط¯:**
 ```json
 {
   "success": true,
@@ -69,27 +69,27 @@ Content-Type: application/json
     "numericID": "1704067200001234",
     "sequentialNumber": 1234,
     "createdAt": "2025-12-25T10:00:00Z",
-    "qrCode": "https://mnbara.com/customer/MNB-2025-001234",
+    "qrCode": "https://mnbarh.com/customer/MNB-2025-001234",
     "barcode": "MNB001234"
   }
 }
 ```
 
-### البحث عن عميل
+### ط§ظ„ط¨ط­ط« ط¹ظ† ط¹ظ…ظٹظ„
 ```bash
 GET /api/customer-id/MNB-2025-001234
-# أو
+# ط£ظˆ
 GET /api/customer-id/MNB001234
-# أو
+# ط£ظˆ
 GET /api/customer-id/mnb_550e8400-e29b-41d4-a716-446655440000
 ```
 
-### الإحصائيات
+### ط§ظ„ط¥ط­طµط§ط¦ظٹط§طھ
 ```bash
 GET /api/customer-id/stats/overview
 ```
 
-**الرد:**
+**ط§ظ„ط±ط¯:**
 ```json
 {
   "success": true,
@@ -105,18 +105,18 @@ GET /api/customer-id/stats/overview
 }
 ```
 
-### تصدير المعرفات
+### طھطµط¯ظٹط± ط§ظ„ظ…ط¹ط±ظپط§طھ
 ```bash
 GET /api/customer-id/export/csv?limit=1000
 ```
 
 ---
 
-## 💡 الاقتراحات والإضافات
+## ًں’، ط§ظ„ط§ظ‚طھط±ط§ط­ط§طھ ظˆط§ظ„ط¥ط¶ط§ظپط§طھ
 
-### 1️⃣ Loyalty Program Integration
+### 1ï¸ڈâƒ£ Loyalty Program Integration
 ```typescript
-// ربط مع برنامج الولاء
+// ط±ط¨ط· ظ…ط¹ ط¨ط±ظ†ط§ظ…ط¬ ط§ظ„ظˆظ„ط§ط،
 interface CustomerLoyalty {
   customerId: string;
   points: number;
@@ -126,20 +126,20 @@ interface CustomerLoyalty {
 }
 ```
 
-### 2️⃣ Customer Tier System
+### 2ï¸ڈâƒ£ Customer Tier System
 ```
-🥉 Bronze: 0-1000 نقطة
-🥈 Silver: 1001-5000 نقطة
-🥇 Gold: 5001-10000 نقطة
-💎 Platinum: 10000+ نقطة
+ًں¥‰ Bronze: 0-1000 ظ†ظ‚ط·ط©
+ًں¥ˆ Silver: 1001-5000 ظ†ظ‚ط·ط©
+ًں¥‡ Gold: 5001-10000 ظ†ظ‚ط·ط©
+ًں’ژ Platinum: 10000+ ظ†ظ‚ط·ط©
 ```
 
-**الفوائد:**
-- خصومات تدريجية
-- أولوية في الدعم
-- عروض حصرية
+**ط§ظ„ظپظˆط§ط¦ط¯:**
+- ط®طµظˆظ…ط§طھ طھط¯ط±ظٹط¬ظٹط©
+- ط£ظˆظ„ظˆظٹط© ظپظٹ ط§ظ„ط¯ط¹ظ…
+- ط¹ط±ظˆط¶ ط­طµط±ظٹط©
 
-### 3️⃣ Customer Referral Program
+### 3ï¸ڈâƒ£ Customer Referral Program
 ```typescript
 interface Referral {
   referrerId: string;
@@ -149,23 +149,23 @@ interface Referral {
 }
 ```
 
-**الآلية:**
-- كل عميل يحصل على رابط إحالة فريد
-- عند إحالة عميل جديد: +100 نقطة
-- العميل الجديد: +50 نقطة
+**ط§ظ„ط¢ظ„ظٹط©:**
+- ظƒظ„ ط¹ظ…ظٹظ„ ظٹط­طµظ„ ط¹ظ„ظ‰ ط±ط§ط¨ط· ط¥ط­ط§ظ„ط© ظپط±ظٹط¯
+- ط¹ظ†ط¯ ط¥ط­ط§ظ„ط© ط¹ظ…ظٹظ„ ط¬ط¯ظٹط¯: +100 ظ†ظ‚ط·ط©
+- ط§ظ„ط¹ظ…ظٹظ„ ط§ظ„ط¬ط¯ظٹط¯: +50 ظ†ظ‚ط·ط©
 
-### 4️⃣ Customer Segmentation
+### 4ï¸ڈâƒ£ Customer Segmentation
 ```typescript
 enum CustomerSegment {
-  VIP = 'vip',                    // أعلى المشترين
-  FREQUENT = 'frequent',          // المشترون المتكررون
-  OCCASIONAL = 'occasional',      // المشترون العرضيون
-  INACTIVE = 'inactive',          // غير نشطين
-  AT_RISK = 'at_risk',           // قد يتركون المنصة
+  VIP = 'vip',                    // ط£ط¹ظ„ظ‰ ط§ظ„ظ…ط´طھط±ظٹظ†
+  FREQUENT = 'frequent',          // ط§ظ„ظ…ط´طھط±ظˆظ† ط§ظ„ظ…طھظƒط±ط±ظˆظ†
+  OCCASIONAL = 'occasional',      // ط§ظ„ظ…ط´طھط±ظˆظ† ط§ظ„ط¹ط±ط¶ظٹظˆظ†
+  INACTIVE = 'inactive',          // ط؛ظٹط± ظ†ط´ط·ظٹظ†
+  AT_RISK = 'at_risk',           // ظ‚ط¯ ظٹطھط±ظƒظˆظ† ط§ظ„ظ…ظ†طµط©
 }
 ```
 
-### 5️⃣ Personalized Offers
+### 5ï¸ڈâƒ£ Personalized Offers
 ```typescript
 interface PersonalizedOffer {
   customerId: string;
@@ -177,18 +177,18 @@ interface PersonalizedOffer {
 }
 ```
 
-### 6️⃣ Customer Analytics Dashboard
+### 6ï¸ڈâƒ£ Customer Analytics Dashboard
 ```
-📊 Dashboard يعرض:
-- عدد المشتريات
-- إجمالي الإنفاق
-- المنتجات المفضلة
-- تاريخ آخر شراء
-- معدل الرضا
-- النقاط المتراكمة
+ًں“ٹ Dashboard ظٹط¹ط±ط¶:
+- ط¹ط¯ط¯ ط§ظ„ظ…ط´طھط±ظٹط§طھ
+- ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¥ظ†ظپط§ظ‚
+- ط§ظ„ظ…ظ†طھط¬ط§طھ ط§ظ„ظ…ظپط¶ظ„ط©
+- طھط§ط±ظٹط® ط¢ط®ط± ط´ط±ط§ط،
+- ظ…ط¹ط¯ظ„ ط§ظ„ط±ط¶ط§
+- ط§ظ„ظ†ظ‚ط§ط· ط§ظ„ظ…طھط±ط§ظƒظ…ط©
 ```
 
-### 7️⃣ SMS/Email Notifications
+### 7ï¸ڈâƒ£ SMS/Email Notifications
 ```typescript
 interface CustomerNotification {
   customerId: string;
@@ -198,20 +198,20 @@ interface CustomerNotification {
   variables: Record<string, any>;
 }
 
-// مثال:
+// ظ…ط«ط§ظ„:
 {
   customerId: "MNB-2025-001234",
   type: "sms",
-  message: "مرحباً {name}، لديك عرض خاص بقيمة {discount}%",
+  message: "ظ…ط±ط­ط¨ط§ظ‹ {name}طŒ ظ„ط¯ظٹظƒ ط¹ط±ط¶ ط®ط§طµ ط¨ظ‚ظٹظ…ط© {discount}%",
   template: "special_offer",
   variables: {
-    name: "أحمد",
+    name: "ط£ط­ظ…ط¯",
     discount: 20
   }
 }
 ```
 
-### 8️⃣ Birthday/Anniversary Rewards
+### 8ï¸ڈâƒ£ Birthday/Anniversary Rewards
 ```typescript
 interface SpecialDateReward {
   customerId: string;
@@ -221,7 +221,7 @@ interface SpecialDateReward {
 }
 ```
 
-### 9️⃣ Customer Support Ticket Integration
+### 9ï¸ڈâƒ£ Customer Support Ticket Integration
 ```typescript
 interface SupportTicket {
   ticketId: string;
@@ -233,7 +233,7 @@ interface SupportTicket {
 }
 ```
 
-### 🔟 Fraud Detection
+### ًں”ں Fraud Detection
 ```typescript
 interface FraudAlert {
   customerId: string;
@@ -242,7 +242,7 @@ interface FraudAlert {
   action: 'block' | 'verify' | 'monitor';
 }
 
-// مثال:
+// ظ…ط«ط§ظ„:
 {
   customerId: "MNB-2025-001234",
   riskScore: 85,
@@ -253,11 +253,11 @@ interface FraudAlert {
 
 ---
 
-## 📱 Mobile App Integration
+## ًں“± Mobile App Integration
 
-### عرض معرف العميل
+### ط¹ط±ط¶ ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„
 ```dart
-// في Flutter App
+// ظپظٹ Flutter App
 class CustomerIDCard extends StatelessWidget {
   final String customerId;
   
@@ -266,12 +266,12 @@ class CustomerIDCard extends StatelessWidget {
     return Card(
       child: Column(
         children: [
-          Text('معرف العميل', style: TextStyle(fontSize: 18)),
+          Text('ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„', style: TextStyle(fontSize: 18)),
           Text(customerId, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          QrImage(data: 'https://mnbara.com/customer/$customerId'),
+          QrImage(data: 'https://mnbarh.com/customer/$customerId'),
           ElevatedButton(
             onPressed: () => _shareCustomerId(),
-            child: Text('مشاركة'),
+            child: Text('ظ…ط´ط§ط±ظƒط©'),
           ),
         ],
       ),
@@ -282,64 +282,65 @@ class CustomerIDCard extends StatelessWidget {
 
 ---
 
-## 🔐 الأمان
+## ًں”گ ط§ظ„ط£ظ…ط§ظ†
 
-### حماية معرف العميل
-- ✅ تشفير في قاعدة البيانات
-- ✅ HTTPS فقط للـ APIs
-- ✅ Rate limiting على الطلبات
-- ✅ Audit logging لكل عملية
+### ط­ظ…ط§ظٹط© ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„
+- âœ… طھط´ظپظٹط± ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
+- âœ… HTTPS ظپظ‚ط· ظ„ظ„ظ€ APIs
+- âœ… Rate limiting ط¹ظ„ظ‰ ط§ظ„ط·ظ„ط¨ط§طھ
+- âœ… Audit logging ظ„ظƒظ„ ط¹ظ…ظ„ظٹط©
 
 ---
 
-## 📊 الإحصائيات المتوقعة
+## ًں“ٹ ط§ظ„ط¥ط­طµط§ط¦ظٹط§طھ ط§ظ„ظ…طھظˆظ‚ط¹ط©
 
-| المقياس | القيمة |
+| ط§ظ„ظ…ظ‚ظٹط§ط³ | ط§ظ„ظ‚ظٹظ…ط© |
 |--------|--------|
-| عملاء جدد يومياً | 500-1000 |
-| معرفات مُنشأة | 100,000+ |
-| معدل الاستخدام | 95%+ |
-| وقت الاستجابة | <100ms |
+| ط¹ظ…ظ„ط§ط، ط¬ط¯ط¯ ظٹظˆظ…ظٹط§ظ‹ | 500-1000 |
+| ظ…ط¹ط±ظپط§طھ ظ…ظڈظ†ط´ط£ط© | 100,000+ |
+| ظ…ط¹ط¯ظ„ ط§ظ„ط§ط³طھط®ط¯ط§ظ… | 95%+ |
+| ظˆظ‚طھ ط§ظ„ط§ط³طھط¬ط§ط¨ط© | <100ms |
 
 ---
 
-## 🎁 حالات الاستخدام
+## ًںژپ ط­ط§ظ„ط§طھ ط§ظ„ط§ط³طھط®ط¯ط§ظ…
 
-### 1. الفواتير والإيصالات
+### 1. ط§ظ„ظپظˆط§طھظٹط± ظˆط§ظ„ط¥ظٹطµط§ظ„ط§طھ
 ```
-الفاتورة رقم: INV-2025-001234
-معرف العميل: MNB-2025-001234
-```
-
-### 2. برنامج الولاء
-```
-نقاطك: 2,500
-المستوى: Gold
-معرف العميل: MNB-2025-001234
+ط§ظ„ظپط§طھظˆط±ط© ط±ظ‚ظ…: INV-2025-001234
+ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„: MNB-2025-001234
 ```
 
-### 3. الدعم الفني
+### 2. ط¨ط±ظ†ط§ظ…ط¬ ط§ظ„ظˆظ„ط§ط،
 ```
-تذكرة الدعم: TKT-2025-001234
-معرف العميل: MNB-2025-001234
+ظ†ظ‚ط§ط·ظƒ: 2,500
+ط§ظ„ظ…ط³طھظˆظ‰: Gold
+ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„: MNB-2025-001234
 ```
 
-### 4. الشحن والتتبع
+### 3. ط§ظ„ط¯ط¹ظ… ط§ظ„ظپظ†ظٹ
 ```
-رقم الشحنة: SHP-2025-001234
-معرف العميل: MNB-2025-001234
+طھط°ظƒط±ط© ط§ظ„ط¯ط¹ظ…: TKT-2025-001234
+ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„: MNB-2025-001234
+```
+
+### 4. ط§ظ„ط´ط­ظ† ظˆط§ظ„طھطھط¨ط¹
+```
+ط±ظ‚ظ… ط§ظ„ط´ط­ظ†ط©: SHP-2025-001234
+ظ…ط¹ط±ظپ ط§ظ„ط¹ظ…ظٹظ„: MNB-2025-001234
 ```
 
 ---
 
-## 🚀 الخطوات التالية
+## ًںڑ€ ط§ظ„ط®ط·ظˆط§طھ ط§ظ„طھط§ظ„ظٹط©
 
-1. ✅ إنشاء نظام المعرفات الأساسي
-2. ⏳ إضافة برنامج الولاء
-3. ⏳ تطبيق نظام الإحالات
-4. ⏳ إضافة التحليلات المتقدمة
-5. ⏳ تكامل مع الدعم الفني
+1. âœ… ط¥ظ†ط´ط§ط، ظ†ط¸ط§ظ… ط§ظ„ظ…ط¹ط±ظپط§طھ ط§ظ„ط£ط³ط§ط³ظٹ
+2. âڈ³ ط¥ط¶ط§ظپط© ط¨ط±ظ†ط§ظ…ط¬ ط§ظ„ظˆظ„ط§ط،
+3. âڈ³ طھط·ط¨ظٹظ‚ ظ†ط¸ط§ظ… ط§ظ„ط¥ط­ط§ظ„ط§طھ
+4. âڈ³ ط¥ط¶ط§ظپط© ط§ظ„طھط­ظ„ظٹظ„ط§طھ ط§ظ„ظ…طھظ‚ط¯ظ…ط©
+5. âڈ³ طھظƒط§ظ…ظ„ ظ…ط¹ ط§ظ„ط¯ط¹ظ… ط§ظ„ظپظ†ظٹ
 
 ---
 
-**آخر تحديث:** 25 ديسمبر 2025
+**ط¢ط®ط± طھط­ط¯ظٹط«:** 25 ط¯ظٹط³ظ…ط¨ط± 2025
+

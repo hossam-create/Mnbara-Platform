@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "fraud-detection-service",
   "version": "1.0.0",
-  "description": "Mnbara Fraud Detection System - نظام كشف الاحتيال",
+  "description": "mnbarh Fraud Detection System - ظ†ط¸ط§ظ… ظƒط´ظپ ط§ظ„ط§ط­طھظٹط§ظ„",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -40,3 +40,4 @@
     "node": "22.20.0"
   }
 }
+

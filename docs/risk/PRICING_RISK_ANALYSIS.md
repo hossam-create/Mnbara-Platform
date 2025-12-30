@@ -1,10 +1,10 @@
-# PRICING RISK ANALYSIS
+﻿# PRICING RISK ANALYSIS
 ## Consumer Harm, Spread Caps, Regulatory Red Lines & Audit Requirements
 
-**Platform:** Mnbara  
+**Platform:** Mnbarh  
 **Document:** Pricing Risk Framework  
 **Date:** December 20, 2025  
-**Classification:** Internal — Compliance, Finance & Product
+**Classification:** Internal â€” Compliance, Finance & Product
 
 ---
 
@@ -12,45 +12,45 @@
 
 ## 1.1 Rate Manipulation Risks
 
-- **Inflated spreads without disclosure** — Marking up FX rate without clear disclosure to user
-- **Bait-and-switch rates** — Showing attractive rate at quote, executing at worse rate
-- **Dynamic pricing discrimination** — Charging different rates based on user profile without justification
-- **Hidden provider markups** — PSP adds margin on top of platform margin, user sees only final rate
-- **Stale rate exploitation** — Quoting outdated rate, profiting from rate movement
-- **Off-market execution** — Executing at rates significantly worse than market mid-rate
+- **Inflated spreads without disclosure** â€” Marking up FX rate without clear disclosure to user
+- **Bait-and-switch rates** â€” Showing attractive rate at quote, executing at worse rate
+- **Dynamic pricing discrimination** â€” Charging different rates based on user profile without justification
+- **Hidden provider markups** â€” PSP adds margin on top of platform margin, user sees only final rate
+- **Stale rate exploitation** â€” Quoting outdated rate, profiting from rate movement
+- **Off-market execution** â€” Executing at rates significantly worse than market mid-rate
 
 ## 1.2 Fee Transparency Risks
 
-- **Unbundled fee confusion** — Splitting fees to obscure total cost (platform fee + FX fee + transfer fee)
-- **Percentage vs. absolute mismatch** — Showing low percentage but high absolute amount
-- **Recipient amount unclear** — User doesn't know exact amount recipient will receive
-- **Fee-in-rate hiding** — Embedding fees in exchange rate without explicit disclosure
-- **Currency-dependent fee variation** — Charging more for certain corridors without clear rationale
-- **Minimum fee exploitation** — Using minimum fees that disproportionately affect small transfers
+- **Unbundled fee confusion** â€” Splitting fees to obscure total cost (platform fee + FX fee + transfer fee)
+- **Percentage vs. absolute mismatch** â€” Showing low percentage but high absolute amount
+- **Recipient amount unclear** â€” User doesn't know exact amount recipient will receive
+- **Fee-in-rate hiding** â€” Embedding fees in exchange rate without explicit disclosure
+- **Currency-dependent fee variation** â€” Charging more for certain corridors without clear rationale
+- **Minimum fee exploitation** â€” Using minimum fees that disproportionately affect small transfers
 
 ## 1.3 Timing Exploitation Risks
 
-- **Execution delay arbitrage** — Delaying execution to capture favorable rate movement for platform
-- **Weekend/holiday rate exploitation** — Charging worse rates during market closures
-- **Volatility exploitation** — Widening spreads during high volatility without user notice
-- **Quote expiry manipulation** — Short quote windows forcing hasty decisions
-- **Settlement timing advantage** — Platform settles at better rate than quoted
+- **Execution delay arbitrage** â€” Delaying execution to capture favorable rate movement for platform
+- **Weekend/holiday rate exploitation** â€” Charging worse rates during market closures
+- **Volatility exploitation** â€” Widening spreads during high volatility without user notice
+- **Quote expiry manipulation** â€” Short quote windows forcing hasty decisions
+- **Settlement timing advantage** â€” Platform settles at better rate than quoted
 
 ## 1.4 Vulnerable User Risks
 
-- **Migrant worker exploitation** — Higher fees for remittance corridors (regulatory focus)
-- **First-time user confusion** — Lack of price literacy leading to poor decisions
-- **Urgency-based exploitation** — Higher prices for "instant" without clear value-cost tradeoff
-- **Low-value transfer penalty** — Minimum fees that make small transfers uneconomical
-- **Repeat user complacency** — Users stop comparing prices, locked into worse rates
+- **Migrant worker exploitation** â€” Higher fees for remittance corridors (regulatory focus)
+- **First-time user confusion** â€” Lack of price literacy leading to poor decisions
+- **Urgency-based exploitation** â€” Higher prices for "instant" without clear value-cost tradeoff
+- **Low-value transfer penalty** â€” Minimum fees that make small transfers uneconomical
+- **Repeat user complacency** â€” Users stop comparing prices, locked into worse rates
 
 ## 1.5 Comparison Shopping Obstruction
 
-- **Non-standard fee presentation** — Making comparison with competitors difficult
-- **Bundled pricing** — Combining unrelated services to obscure individual costs
-- **Dynamic pricing opacity** — Rates change based on unpublished factors
-- **No benchmark reference** — Not showing mid-market rate for comparison
-- **Loyalty penalty** — Regular users pay more than new users (hidden churn discount)
+- **Non-standard fee presentation** â€” Making comparison with competitors difficult
+- **Bundled pricing** â€” Combining unrelated services to obscure individual costs
+- **Dynamic pricing opacity** â€” Rates change based on unpublished factors
+- **No benchmark reference** â€” Not showing mid-market rate for comparison
+- **Loyalty penalty** â€” Regular users pay more than new users (hidden churn discount)
 
 ---
 
@@ -59,31 +59,31 @@
 ## 2.1 Maximum Spread by Corridor Type
 
 **Major Pairs (High Liquidity):**
-- USD/EUR — Maximum 1.5% above mid-market
-- USD/GBP — Maximum 1.5% above mid-market
-- EUR/GBP — Maximum 1.5% above mid-market
-- USD/JPY — Maximum 1.5% above mid-market
-- USD/CAD — Maximum 1.5% above mid-market
-- USD/AUD — Maximum 1.5% above mid-market
-- USD/CHF — Maximum 1.5% above mid-market
+- USD/EUR â€” Maximum 1.5% above mid-market
+- USD/GBP â€” Maximum 1.5% above mid-market
+- EUR/GBP â€” Maximum 1.5% above mid-market
+- USD/JPY â€” Maximum 1.5% above mid-market
+- USD/CAD â€” Maximum 1.5% above mid-market
+- USD/AUD â€” Maximum 1.5% above mid-market
+- USD/CHF â€” Maximum 1.5% above mid-market
 
 **Cross Pairs (Medium Liquidity):**
-- EUR/JPY — Maximum 2.0% above mid-market
-- GBP/CHF — Maximum 2.0% above mid-market
-- AUD/NZD — Maximum 2.0% above mid-market
+- EUR/JPY â€” Maximum 2.0% above mid-market
+- GBP/CHF â€” Maximum 2.0% above mid-market
+- AUD/NZD â€” Maximum 2.0% above mid-market
 
 **Minor Pairs (Lower Liquidity):**
-- USD/AED — Maximum 2.5% above mid-market
-- USD/SAR — Maximum 2.5% above mid-market
-- USD/SGD — Maximum 2.5% above mid-market
-- EUR/TRY — Maximum 3.0% above mid-market
+- USD/AED â€” Maximum 2.5% above mid-market
+- USD/SAR â€” Maximum 2.5% above mid-market
+- USD/SGD â€” Maximum 2.5% above mid-market
+- EUR/TRY â€” Maximum 3.0% above mid-market
 
 **Exotic Pairs (Low Liquidity):**
-- USD/EGP — Maximum 3.5% above mid-market
-- USD/NGN — Maximum 4.0% above mid-market
-- USD/PKR — Maximum 4.0% above mid-market
-- USD/TRY — Maximum 3.5% above mid-market
-- USD/INR — Maximum 3.0% above mid-market
+- USD/EGP â€” Maximum 3.5% above mid-market
+- USD/NGN â€” Maximum 4.0% above mid-market
+- USD/PKR â€” Maximum 4.0% above mid-market
+- USD/TRY â€” Maximum 3.5% above mid-market
+- USD/INR â€” Maximum 3.0% above mid-market
 
 **Absolute Maximum:**
 - No corridor may exceed 5% total markup under any circumstances
@@ -122,11 +122,11 @@
 - Review: Annual pricing review
 
 **Remittance Focus Corridors (Regulatory Scrutiny):**
-- US → Mexico: Maximum 2.0% total cost
-- US → Philippines: Maximum 2.5% total cost
-- UK → India: Maximum 2.5% total cost
-- UAE → India: Maximum 2.5% total cost
-- UAE → Pakistan: Maximum 3.0% total cost
+- US â†’ Mexico: Maximum 2.0% total cost
+- US â†’ Philippines: Maximum 2.5% total cost
+- UK â†’ India: Maximum 2.5% total cost
+- UAE â†’ India: Maximum 2.5% total cost
+- UAE â†’ Pakistan: Maximum 3.0% total cost
 
 ---
 
@@ -134,32 +134,32 @@
 
 ## 3.1 Absolute Prohibitions
 
-- **No hidden fees** — Every fee component must be disclosed before transaction
-- **No fee-in-rate obfuscation** — If margin is in rate, must disclose separately
-- **No price discrimination without justification** — Cannot charge different prices without objective criteria
-- **No bait-and-switch** — Executed rate must match quoted rate (within stated tolerance)
-- **No deceptive advertising** — "No fees" claims prohibited if margin in rate
-- **No bundling without itemization** — Each service must be priced separately
-- **No minimum fee exploitation** — Minimum fees must be proportionate
-- **No loyalty penalty** — Returning users cannot pay more than new users for same service
+- **No hidden fees** â€” Every fee component must be disclosed before transaction
+- **No fee-in-rate obfuscation** â€” If margin is in rate, must disclose separately
+- **No price discrimination without justification** â€” Cannot charge different prices without objective criteria
+- **No bait-and-switch** â€” Executed rate must match quoted rate (within stated tolerance)
+- **No deceptive advertising** â€” "No fees" claims prohibited if margin in rate
+- **No bundling without itemization** â€” Each service must be priced separately
+- **No minimum fee exploitation** â€” Minimum fees must be proportionate
+- **No loyalty penalty** â€” Returning users cannot pay more than new users for same service
 
 ## 3.2 Disclosure Requirements (EU/UK)
 
-- **Total cost disclosure** — Show total cost including all fees and margins before confirmation
-- **Mid-market rate comparison** — Must show benchmark rate for comparison
-- **Fee breakdown** — Itemize: platform fee, FX margin, provider fee, delivery fee
-- **Recipient amount** — Must show exact amount recipient will receive in destination currency
-- **Exchange rate source** — Must disclose rate source and update frequency
-- **Quote validity** — Must state how long quoted rate is valid
-- **Settlement timeline** — Must disclose expected delivery time
+- **Total cost disclosure** â€” Show total cost including all fees and margins before confirmation
+- **Mid-market rate comparison** â€” Must show benchmark rate for comparison
+- **Fee breakdown** â€” Itemize: platform fee, FX margin, provider fee, delivery fee
+- **Recipient amount** â€” Must show exact amount recipient will receive in destination currency
+- **Exchange rate source** â€” Must disclose rate source and update frequency
+- **Quote validity** â€” Must state how long quoted rate is valid
+- **Settlement timeline** â€” Must disclose expected delivery time
 
 ## 3.3 Disclosure Requirements (US)
 
-- **Remittance Rule (CFPB)** — Must disclose: exchange rate, fees, total, recipient amount
-- **Pre-payment disclosure** — Full disclosure before consumer pays
-- **Receipt requirement** — Written receipt with all terms
-- **Error resolution** — Must have 30-minute cancellation window
-- **Truth in advertising** — No misleading claims about "low fees" or "best rates"
+- **Remittance Rule (CFPB)** â€” Must disclose: exchange rate, fees, total, recipient amount
+- **Pre-payment disclosure** â€” Full disclosure before consumer pays
+- **Receipt requirement** â€” Written receipt with all terms
+- **Error resolution** â€” Must have 30-minute cancellation window
+- **Truth in advertising** â€” No misleading claims about "low fees" or "best rates"
 
 ## 3.4 Pricing-Specific Regulatory Triggers
 
@@ -183,12 +183,12 @@
 
 ## 3.5 Regulatory Safe Harbors
 
-- **Clear fee disclosure** — Prominently displayed before confirmation
-- **Benchmark comparison** — Mid-market rate shown alongside platform rate
-- **Competitive pricing** — Within 1% of top 3 competitors
-- **Complaint resolution** — Effective complaint handling with refund capability
-- **Regular pricing review** — Documented periodic pricing reviews
-- **Audit trail** — Every quote and execution logged with timestamps
+- **Clear fee disclosure** â€” Prominently displayed before confirmation
+- **Benchmark comparison** â€” Mid-market rate shown alongside platform rate
+- **Competitive pricing** â€” Within 1% of top 3 competitors
+- **Complaint resolution** â€” Effective complaint handling with refund capability
+- **Regular pricing review** â€” Documented periodic pricing reviews
+- **Audit trail** â€” Every quote and execution logged with timestamps
 
 ---
 
@@ -353,5 +353,6 @@
 
 **Document Owner:** Finance & Compliance  
 **Version:** 1.0  
-**Classification:** Internal — Restricted Distribution  
+**Classification:** Internal â€” Restricted Distribution  
 **Date:** December 20, 2025
+

@@ -1,4 +1,4 @@
-# Seller-Side UX Rules
+﻿# Seller-Side UX Rules
 
 Rules for seller/traveler listing creation and management. Transparency first, no hidden mechanics.
 
@@ -37,14 +37,14 @@ Warnings inform but don't block. Seller can proceed.
 ### Warning UI Pattern
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ ⚠️ Heads up                                                 │
-│                                                             │
-│ Your price ($50) is lower than similar items ($75-$120).    │
-│ Make sure this is intentional.                              │
-│                                                             │
-│ [Continue anyway]                                           │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ âڑ ï¸ڈ Heads up                                                 â”‚
+â”‚                                                             â”‚
+â”‚ Your price ($50) is lower than similar items ($75-$120).    â”‚
+â”‚ Make sure this is intentional.                              â”‚
+â”‚                                                             â”‚
+â”‚ [Continue anyway]                                           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -71,16 +71,16 @@ Blocks prevent submission until fixed. Always explain why.
 ### Block UI Pattern
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ 🚫 Can't submit yet                                         │
-│                                                             │
-│ Please verify your identity before listing items over $500. │
-│                                                             │
-│ Why? High-value listings require verified sellers to        │
-│ protect buyers.                                             │
-│                                                             │
-│ [Verify Now]  [List a lower-value item instead]             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ ًںڑ« Can't submit yet                                         â”‚
+â”‚                                                             â”‚
+â”‚ Please verify your identity before listing items over $500. â”‚
+â”‚                                                             â”‚
+â”‚ Why? High-value listings require verified sellers to        â”‚
+â”‚ protect buyers.                                             â”‚
+â”‚                                                             â”‚
+â”‚ [Verify Now]  [List a lower-value item instead]             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -108,10 +108,10 @@ What this means:
 - Your first transactions build your reputation
 
 How to level up:
-□ Verify your email (done)
-□ Verify your phone
-□ Complete your first transaction
-□ Maintain a good rating
+â–، Verify your email (done)
+â–، Verify your phone
+â–، Complete your first transaction
+â–، Maintain a good rating
 ```
 
 **For Restricted Actions:**
@@ -134,24 +134,24 @@ How to get there:
 ### Trust Display in Listing Form
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ Your Seller Profile                                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│ Trust Level: Standard ⭐⭐⭐                                 │
-│ Rating: 4.2 (12 reviews)                                    │
-│ Completed: 15 transactions                                  │
-│                                                             │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ What buyers see:                                        │ │
-│ │ • Your trust level badge                                │ │
-│ │ • Your rating and review count                          │ │
-│ │ • How long you've been on the platform                  │ │
-│ │ • Your response rate                                    │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                                                             │
-│ [View full profile] [Improve your trust level]              │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ Your Seller Profile                                         â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                             â”‚
+â”‚ Trust Level: Standard â­گâ­گâ­گ                                 â”‚
+â”‚ Rating: 4.2 (12 reviews)                                    â”‚
+â”‚ Completed: 15 transactions                                  â”‚
+â”‚                                                             â”‚
+â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ â”‚
+â”‚ â”‚ What buyers see:                                        â”‚ â”‚
+â”‚ â”‚ â€¢ Your trust level badge                                â”‚ â”‚
+â”‚ â”‚ â€¢ Your rating and review count                          â”‚ â”‚
+â”‚ â”‚ â€¢ How long you've been on the platform                  â”‚ â”‚
+â”‚ â”‚ â€¢ Your response rate                                    â”‚ â”‚
+â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک â”‚
+â”‚                                                             â”‚
+â”‚ [View full profile] [Improve your trust level]              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -165,27 +165,27 @@ Always explain why listings appear where they do.
 **Visibility Factors (Show All):**
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ How your listing ranks in search                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│ Factors that help:                                          │
-│ ✓ Complete profile (+15%)                                   │
-│ ✓ Verified phone (+10%)                                     │
-│ ✓ Good rating 4.2★ (+12%)                                   │
-│ ✓ Fast response rate (+8%)                                  │
-│                                                             │
-│ Factors that could improve:                                 │
-│ ○ Add photos (+20% if added)                                │
-│ ○ Longer description (+5% if expanded)                      │
-│ ○ Verify ID (+15% if verified)                              │
-│                                                             │
-│ Your estimated visibility: 45/100                           │
-│ Average for similar listings: 52/100                        │
-│                                                             │
-│ This is an estimate. Actual ranking depends on buyer        │
-│ searches and preferences.                                   │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ How your listing ranks in search                            â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                             â”‚
+â”‚ Factors that help:                                          â”‚
+â”‚ âœ“ Complete profile (+15%)                                   â”‚
+â”‚ âœ“ Verified phone (+10%)                                     â”‚
+â”‚ âœ“ Good rating 4.2âک… (+12%)                                   â”‚
+â”‚ âœ“ Fast response rate (+8%)                                  â”‚
+â”‚                                                             â”‚
+â”‚ Factors that could improve:                                 â”‚
+â”‚ â—‹ Add photos (+20% if added)                                â”‚
+â”‚ â—‹ Longer description (+5% if expanded)                      â”‚
+â”‚ â—‹ Verify ID (+15% if verified)                              â”‚
+â”‚                                                             â”‚
+â”‚ Your estimated visibility: 45/100                           â”‚
+â”‚ Average for similar listings: 52/100                        â”‚
+â”‚                                                             â”‚
+â”‚ This is an estimate. Actual ranking depends on buyer        â”‚
+â”‚ searches and preferences.                                   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ### Ranking Explanation Copy
@@ -215,24 +215,24 @@ Always explain why listings appear where they do.
 **Review Status Copy:**
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ 🔍 Listing under review                                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│ Your listing is being reviewed by our team.                 │
-│                                                             │
-│ Why? This is your first listing. We review all first        │
-│ listings to keep the marketplace safe.                      │
-│                                                             │
-│ What happens:                                               │
-│ • We'll review within 24 hours (usually faster)             │
-│ • You'll get a notification when it's approved              │
-│ • If there's an issue, we'll explain what to fix            │
-│                                                             │
-│ Status: Submitted 2 hours ago                               │
-│ Estimated review: Within 22 hours                           │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ ًں”چ Listing under review                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                             â”‚
+â”‚ Your listing is being reviewed by our team.                 â”‚
+â”‚                                                             â”‚
+â”‚ Why? This is your first listing. We review all first        â”‚
+â”‚ listings to keep the marketplace safe.                      â”‚
+â”‚                                                             â”‚
+â”‚ What happens:                                               â”‚
+â”‚ â€¢ We'll review within 24 hours (usually faster)             â”‚
+â”‚ â€¢ You'll get a notification when it's approved              â”‚
+â”‚ â€¢ If there's an issue, we'll explain what to fix            â”‚
+â”‚                                                             â”‚
+â”‚ Status: Submitted 2 hours ago                               â”‚
+â”‚ Estimated review: Within 22 hours                           â”‚
+â”‚                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 **After Review - Approved:**
@@ -243,8 +243,8 @@ Always explain why listings appear where they do.
 Your listing needs changes before it can go live.
 
 What we found:
-• Description mentions "guaranteed delivery" - we can't guarantee delivery times
-• Price seems unusually low for this item - please confirm it's correct
+â€¢ Description mentions "guaranteed delivery" - we can't guarantee delivery times
+â€¢ Price seems unusually low for this item - please confirm it's correct
 
 Please update your listing and resubmit.
 [Edit Listing]
@@ -257,8 +257,8 @@ We can't approve this listing.
 Reason: This item type isn't allowed on our platform.
 
 What you can do:
-• Review our prohibited items list
-• Contact support if you think this is a mistake
+â€¢ Review our prohibited items list
+â€¢ Contact support if you think this is a mistake
 
 [View Prohibited Items] [Contact Support]
 ```
@@ -284,13 +284,13 @@ What you can do:
 
 ```
 Title: iPhone 15 Pro Max 256GB
-       ✓ Good length (24 characters)
+       âœ“ Good length (24 characters)
 
 Description: Brand new, sealed in box.
-             ⚠️ Consider adding more detail (28 characters, 50 recommended)
+             âڑ ï¸ڈ Consider adding more detail (28 characters, 50 recommended)
 
 Price: $1199
-       ✓ Within typical range for this category ($900-$1400)
+       âœ“ Within typical range for this category ($900-$1400)
 ```
 
 ---
@@ -301,14 +301,14 @@ Price: $1199
 
 | Status | Badge | Explanation |
 |--------|-------|-------------|
-| Draft | 📝 | "Not visible to buyers. Finish and publish when ready." |
-| Under Review | 🔍 | "Being reviewed by our team. Usually takes less than 24 hours." |
-| Active | ✅ | "Live and visible to buyers." |
-| Paused | ⏸️ | "Hidden from search. You can reactivate anytime." |
-| Matched | 🤝 | "A buyer is interested. Check your messages." |
-| Completed | ✓ | "Transaction complete. Thanks for using MNBARA!" |
-| Expired | ⏰ | "This listing has expired. Renew to make it active again." |
-| Removed | 🚫 | "This listing was removed. [See why]" |
+| Draft | ًں“‌ | "Not visible to buyers. Finish and publish when ready." |
+| Under Review | ًں”چ | "Being reviewed by our team. Usually takes less than 24 hours." |
+| Active | âœ… | "Live and visible to buyers." |
+| Paused | âڈ¸ï¸ڈ | "Hidden from search. You can reactivate anytime." |
+| Matched | ًں¤‌ | "A buyer is interested. Check your messages." |
+| Completed | âœ“ | "Transaction complete. Thanks for using MNBARH!" |
+| Expired | âڈ° | "This listing has expired. Renew to make it active again." |
+| Removed | ًںڑ« | "This listing was removed. [See why]" |
 
 ---
 
@@ -317,29 +317,29 @@ Price: $1199
 ### Performance Transparency
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ Your Seller Performance                                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│ This Month                                                  │
-│ ─────────────────────────────────────────────────────────── │
-│ Views: 234          (↑ 12% vs last month)                   │
-│ Inquiries: 18       (↓ 5% vs last month)                    │
-│ Completed: 3        (same as last month)                    │
-│                                                             │
-│ Your Metrics                                                │
-│ ─────────────────────────────────────────────────────────── │
-│ Response rate: 92%  (Great! Buyers appreciate fast replies) │
-│ Response time: 2h   (Faster than 78% of sellers)            │
-│ Completion rate: 94% (3% above average)                     │
-│                                                             │
-│ What This Means                                             │
-│ ─────────────────────────────────────────────────────────── │
-│ Your response rate and completion rate are strong.          │
-│ Inquiries are slightly down - consider refreshing your      │
-│ listing photos or adjusting prices.                         │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚ Your Seller Performance                                     â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                             â”‚
+â”‚ This Month                                                  â”‚
+â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ â”‚
+â”‚ Views: 234          (â†‘ 12% vs last month)                   â”‚
+â”‚ Inquiries: 18       (â†“ 5% vs last month)                    â”‚
+â”‚ Completed: 3        (same as last month)                    â”‚
+â”‚                                                             â”‚
+â”‚ Your Metrics                                                â”‚
+â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ â”‚
+â”‚ Response rate: 92%  (Great! Buyers appreciate fast replies) â”‚
+â”‚ Response time: 2h   (Faster than 78% of sellers)            â”‚
+â”‚ Completion rate: 94% (3% above average)                     â”‚
+â”‚                                                             â”‚
+â”‚ What This Means                                             â”‚
+â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ â”‚
+â”‚ Your response rate and completion rate are strong.          â”‚
+â”‚ Inquiries are slightly down - consider refreshing your      â”‚
+â”‚ listing photos or adjusting prices.                         â”‚
+â”‚                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
 ```
 
 ---
@@ -350,14 +350,14 @@ Price: $1199
 
 ```
 Is it a safety issue?
-├─ Yes → BLOCK
-└─ No
-   └─ Is it a policy violation?
-      ├─ Yes → BLOCK
-      └─ No
-         └─ Could it hurt the seller's success?
-            ├─ Yes → WARN
-            └─ No → Allow silently
+â”œâ”€ Yes â†’ BLOCK
+â””â”€ No
+   â””â”€ Is it a policy violation?
+      â”œâ”€ Yes â†’ BLOCK
+      â””â”€ No
+         â””â”€ Could it hurt the seller's success?
+            â”œâ”€ Yes â†’ WARN
+            â””â”€ No â†’ Allow silently
 ```
 
 ### Copy Tone Guidelines
@@ -386,4 +386,5 @@ Is it a safety issue?
 *Document Version: 1.0*
 *Last Updated: December 2025*
 *Owner: Product & UX Team*
+
 

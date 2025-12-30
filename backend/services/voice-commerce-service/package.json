@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "voice-commerce-service",
   "version": "1.0.0",
-  "description": "Mnbara Voice Commerce Service - خدمة التجارة الصوتية",
+  "description": "mnbarh Voice Commerce Service - ط®ط¯ظ…ط© ط§ظ„طھط¬ط§ط±ط© ط§ظ„طµظˆطھظٹط©",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -38,3 +38,4 @@
     "node": "22.20.0"
   }
 }
+

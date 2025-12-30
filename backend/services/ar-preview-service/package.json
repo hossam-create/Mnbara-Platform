@@ -1,7 +1,7 @@
-{
+﻿{
   "name": "ar-preview-service",
   "version": "1.0.0",
-  "description": "Mnbara AR Product Preview Service - خدمة معاينة المنتجات بالواقع المعزز",
+  "description": "mnbarh AR Product Preview Service - ط®ط¯ظ…ط© ظ…ط¹ط§ظٹظ†ط© ط§ظ„ظ…ظ†طھط¬ط§طھ ط¨ط§ظ„ظˆط§ظ‚ط¹ ط§ظ„ظ…ط¹ط²ط²",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -34,3 +34,4 @@
     "node": "22.20.0"
   }
 }
+

@@ -1,4 +1,4 @@
-# Mnbara Platform - Render.com Deployment Guide
+﻿# mnbarh Platform - Render.com Deployment Guide
 
 ## Prerequisites
 
@@ -18,10 +18,10 @@ git init
 git add .
 
 # Commit
-git commit -m "Initial commit - Mnbara Platform"
+git commit -m "Initial commit - mnbarh Platform"
 
 # Add remote (replace with your repository URL)
-git remote add origin https://github.com/YOUR_USERNAME/mnbara-platform.git
+git remote add origin https://github.com/YOUR_USERNAME/mnbarh-platform.git
 
 # Push to GitHub
 git push -u origin main
@@ -34,7 +34,7 @@ git push -u origin main
 ### Option A: Using render.yaml (Recommended)
 
 1. Go to https://dashboard.render.com/
-2. Click **"New +"** → **"Blueprint"**
+2. Click **"New +"** â†’ **"Blueprint"**
 3. Connect your GitHub repository
 4. Render will automatically detect `render.yaml`
 5. Click **"Apply"**
@@ -44,18 +44,18 @@ git push -u origin main
 
 #### 2.1 Create PostgreSQL Database
 
-1. Click **"New +"** → **"PostgreSQL"**
-2. Name: `mnbara-postgres`
-3. Database: `mnbara_db`
-4. User: `mnbara_user`
+1. Click **"New +"** â†’ **"PostgreSQL"**
+2. Name: `mnbarh-postgres`
+3. Database: `mnbarh_db`
+4. User: `mnbarh_user`
 5. Plan: **Free**
 6. Click **"Create Database"**
 7. **Copy the Internal Database URL** (you'll need this)
 
 #### 2.2 Create Redis Instance
 
-1. Click **"New +"** → **"Redis"**
-2. Name: `mnbara-redis`
+1. Click **"New +"** â†’ **"Redis"**
+2. Name: `mnbarh-redis`
 3. Plan: **Free**
 4. Click **"Create Redis"**
 5. **Copy the Internal Redis URL**
@@ -64,10 +64,10 @@ git push -u origin main
 
 For each service (auth, listing, auction, payment, crowdship, notification, recommendation, rewards):
 
-1. Click **"New +"** → **"Web Service"**
+1. Click **"New +"** â†’ **"Web Service"**
 2. Connect your GitHub repository
 3. Configure:
-   - **Name**: `mnbara-[service-name]`
+   - **Name**: `mnbarh-[service-name]`
    - **Root Directory**: `services/[service-name]`
    - **Environment**: `Node`
    - **Build Command**:
@@ -114,15 +114,15 @@ After all services are deployed:
 
 Each service will have a URL like:
 
-- Auth: `https://mnbara-auth.onrender.com`
-- Listing: `https://mnbara-listing.onrender.com`
+- Auth: `https://mnbarh-auth.onrender.com`
+- Listing: `https://mnbarh-listing.onrender.com`
 - etc.
 
 Test health endpoints:
 
 ```bash
-curl https://mnbara-auth.onrender.com/health
-curl https://mnbara-listing.onrender.com/health
+curl https://mnbarh-auth.onrender.com/health
+curl https://mnbarh-listing.onrender.com/health
 ```
 
 ---
@@ -169,12 +169,12 @@ For production use, upgrade to **Starter ($7/month per service)**:
 
 ## Next Steps
 
-1. ✅ Deploy all services
-2. ✅ Run migrations
-3. ✅ Test endpoints
-4. 📱 Connect mobile app to Render URLs
-5. 🌐 Set up custom domain (optional)
-6. 🔒 Add SSL certificates (automatic on Render)
+1. âœ… Deploy all services
+2. âœ… Run migrations
+3. âœ… Test endpoints
+4. ًں“± Connect mobile app to Render URLs
+5. ًںŒگ Set up custom domain (optional)
+6. ًں”’ Add SSL certificates (automatic on Render)
 
 ---
 
@@ -182,11 +182,12 @@ For production use, upgrade to **Starter ($7/month per service)**:
 
 ```bash
 # View logs
-# Go to service → Logs tab in Render dashboard
+# Go to service â†’ Logs tab in Render dashboard
 
 # Restart service
-# Go to service → Manual Deploy → Deploy latest commit
+# Go to service â†’ Manual Deploy â†’ Deploy latest commit
 
 # Run migrations
-# Go to service → Shell → npx prisma migrate deploy
+# Go to service â†’ Shell â†’ npx prisma migrate deploy
 ```
+

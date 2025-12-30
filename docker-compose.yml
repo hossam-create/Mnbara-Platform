@@ -1,4 +1,4 @@
-# Mnbara Platform - Unified Infrastructure Setup
+﻿# mnbarh Platform - Unified Infrastructure Setup
 version: '3.8'
 
 services:
@@ -707,7 +707,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Mnbara AI Engine - Custom AI like Siri (Open Source Models)
+  # mnbarh AI Engine - Custom AI like Siri (Open Source Models)
   mnbarh-ai-engine:
     build:
       context: ./backend/services/mnbarh-ai-engine

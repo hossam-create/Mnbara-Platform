@@ -1,23 +1,23 @@
-# GitHub Security Setup Guide
+﻿# GitHub Security Setup Guide
 
-# دليل إعداد الأمان على GitHub
+# ط¯ظ„ظٹظ„ ط¥ط¹ط¯ط§ط¯ ط§ظ„ط£ظ…ط§ظ† ط¹ظ„ظ‰ GitHub
 
-## Prerequisites - المتطلبات
+## Prerequisites - ط§ظ„ظ…طھط·ظ„ط¨ط§طھ
 
-- Repository: https://github.com/hossam-create/Mnbara-Platform
+- Repository: https://github.com/hossam-create/Mnbarh-Platform
 - Admin access to repository
 - Branch protection will be configured in Task 7
 
 ---
 
-## 1. Enable Secret Scanning - تفعيل فحص الأسرار
+## 1. Enable Secret Scanning - طھظپط¹ظٹظ„ ظپط­طµ ط§ظ„ط£ط³ط±ط§ط±
 
 ### Steps:
 
 1. Go to repository settings:
 
    ```
-   https://github.com/hossam-create/Mnbara-Platform/settings/security_analysis
+   https://github.com/hossam-create/Mnbarh-Platform/settings/security_analysis
    ```
 
 2. Find **"Secret scanning"** section
@@ -25,14 +25,14 @@
 3. Click **"Enable"** button
 
 4. **Enable push protection** (Recommended):
-   - ✅ Block commits that contain secrets
-   - ✅ Alert before pushing
-   - ✅ Scan for 200+ secret patterns
+   - âœ… Block commits that contain secrets
+   - âœ… Alert before pushing
+   - âœ… Scan for 200+ secret patterns
 
 ### Verification:
 
-- Check **"Secret scanning"** shows **"Enabled"** ✅
-- Check **"Push protection"** shows **"Enabled"** ✅
+- Check **"Secret scanning"** shows **"Enabled"** âœ…
+- Check **"Push protection"** shows **"Enabled"** âœ…
 
 ### What it does:
 
@@ -43,22 +43,22 @@
 
 ---
 
-## 2. Enable Code Scanning (CodeQL) - فحص الكود
+## 2. Enable Code Scanning (CodeQL) - ظپط­طµ ط§ظ„ظƒظˆط¯
 
 ### Method 1: Using GitHub UI (Easiest)
 
 1. Go to **Security** tab:
 
    ```
-   https://github.com/hossam-create/Mnbara-Platform/security/code-scanning
+   https://github.com/hossam-create/Mnbarh-Platform/security/code-scanning
    ```
 
 2. Click **"Set up code scanning"**
 
 3. Choose **"Default setup"**:
-   - ✅ JavaScript/TypeScript
-   - ✅ Runs on: push, pull_request
-   - ✅ Automated scheduling
+   - âœ… JavaScript/TypeScript
+   - âœ… Runs on: push, pull_request
+   - âœ… Automated scheduling
 
 4. Click **"Enable CodeQL"**
 
@@ -109,8 +109,8 @@ jobs:
 
 ### Verification:
 
-- Go to **Security** → **Code scanning**
-- Should show **"CodeQL enabled"** ✅
+- Go to **Security** â†’ **Code scanning**
+- Should show **"CodeQL enabled"** âœ…
 - First scan will run on next push
 
 ### What it does:
@@ -123,14 +123,14 @@ jobs:
 
 ---
 
-## 3. Enable Dependabot - تفعيل Dependabot
+## 3. Enable Dependabot - طھظپط¹ظٹظ„ Dependabot
 
 ### Security Updates:
 
 1. Go to Settings:
 
    ```
-   https://github.com/hossam-create/Mnbara-Platform/settings/security_analysis
+   https://github.com/hossam-create/Mnbarh-Platform/settings/security_analysis
    ```
 
 2. Find **"Dependabot security updates"**
@@ -171,14 +171,14 @@ updates:
 
   # Web App
   - package-ecosystem: "npm"
-    directory: "/web/mnbara-web"
+    directory: "/web/mnbarh-web"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
 
   # Mobile App
   - package-ecosystem: "npm"
-    directory: "/mobile/mnbara-app"
+    directory: "/mobile/mnbarh-app"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
@@ -198,7 +198,7 @@ updates:
 
 ### Verification:
 
-- Check **"Dependabot"** → **"Enabled"** ✅
+- Check **"Dependabot"** â†’ **"Enabled"** âœ…
 - PRs will be created for outdated dependencies
 
 ### What it does:
@@ -210,11 +210,11 @@ updates:
 
 ---
 
-## 4. Repository Security Settings - إعدادات أمان المستودع
+## 4. Repository Security Settings - ط¥ط¹ط¯ط§ط¯ط§طھ ط£ظ…ط§ظ† ط§ظ„ظ…ط³طھظˆط¯ط¹
 
 ### Enable All Recommended Features:
 
-Go to: **Settings** → **Code security and analysis**
+Go to: **Settings** â†’ **Code security and analysis**
 
 Enable:
 
@@ -228,7 +228,7 @@ Enable:
 
 ---
 
-## 5. Security Policies - سياسات الأمان
+## 5. Security Policies - ط³ظٹط§ط³ط§طھ ط§ظ„ط£ظ…ط§ظ†
 
 ### Create SECURITY.md:
 
@@ -249,9 +249,9 @@ In repository root, create `SECURITY.md`:
 
 Instead, please report them via:
 
-- Email: security@mnbara.com (replace with actual)
+- Email: security@mnbarh.com (replace with actual)
 - Or use GitHub Security Advisories:
-  https://github.com/hossam-create/Mnbara-Platform/security/advisories/new
+  https://github.com/hossam-create/Mnbarh-Platform/security/advisories/new
 
 You should receive a response within 48 hours.
 
@@ -282,24 +282,24 @@ We will:
 
 ---
 
-## 6. Verification Checklist - قائمة التحقق
+## 6. Verification Checklist - ظ‚ط§ط¦ظ…ط© ط§ظ„طھط­ظ‚ظ‚
 
 After setup, verify:
 
 ### Security Tab:
 
 ```
-https://github.com/hossam-create/Mnbara-Platform/security
+https://github.com/hossam-create/Mnbarh-Platform/security
 ```
 
 Should show:
 
-- [x] Code scanning: **Enabled** ✅
-- [x] Secret scanning: **Enabled** ✅
-- [x] Dependabot: **Enabled** ✅
-- [x] Security policy: **Published** ✅
+- [x] Code scanning: **Enabled** âœ…
+- [x] Secret scanning: **Enabled** âœ…
+- [x] Dependabot: **Enabled** âœ…
+- [x] Security policy: **Published** âœ…
 
-### Settings → Code security:
+### Settings â†’ Code security:
 
 - [x] Dependency graph: **On**
 - [x] Dependabot alerts: **On**
@@ -310,12 +310,12 @@ Should show:
 
 ### Workflows:
 
-- [x] `.github/workflows/ci.yml` - Running ✅
-- [x] `.github/workflows/codeql.yml` - Running ✅ (if manual setup)
+- [x] `.github/workflows/ci.yml` - Running âœ…
+- [x] `.github/workflows/codeql.yml` - Running âœ… (if manual setup)
 
 ---
 
-## 7. Testing Security Features - اختبار الميزات
+## 7. Testing Security Features - ط§ط®طھط¨ط§ط± ط§ظ„ظ…ظٹط²ط§طھ
 
 ### Test Secret Scanning:
 
@@ -329,14 +329,14 @@ git commit -m "test"
 git push
 ```
 
-Expected: ❌ **Push blocked** with secret detected message
+Expected: â‌Œ **Push blocked** with secret detected message
 
 ### Test Code Scanning:
 
 Create a PR and check:
 
 ```
-Security → Code scanning alerts
+Security â†’ Code scanning alerts
 ```
 
 Should analyze code and show results
@@ -346,14 +346,14 @@ Should analyze code and show results
 Check:
 
 ```
-Security → Dependabot
+Security â†’ Dependabot
 ```
 
 Should show dependency alerts (if any)
 
 ---
 
-## 8. Maintenance - الصيانة
+## 8. Maintenance - ط§ظ„طµظٹط§ظ†ط©
 
 ### Weekly:
 
@@ -375,11 +375,11 @@ Should show dependency alerts (if any)
 
 ---
 
-## 9. Alerts & Notifications - التنبيهات
+## 9. Alerts & Notifications - ط§ظ„طھظ†ط¨ظٹظ‡ط§طھ
 
 ### Configure Notifications:
 
-Settings → Notifications → Security alerts
+Settings â†’ Notifications â†’ Security alerts
 
 Enable:
 
@@ -391,7 +391,7 @@ Enable:
 
 ---
 
-## 10. Additional Security Tools - أدوات إضافية
+## 10. Additional Security Tools - ط£ط¯ظˆط§طھ ط¥ط¶ط§ظپظٹط©
 
 ### Consider Adding:
 
@@ -409,7 +409,7 @@ Enable:
 
 ---
 
-## Support Resources - موارد الدعم
+## Support Resources - ظ…ظˆط§ط±ط¯ ط§ظ„ط¯ط¹ظ…
 
 - [GitHub Secret Scanning](https://docs.github.com/en/code-security/secret-scanning)
 - [GitHub Code Scanning](https://docs.github.com/en/code-security/code-scanning)
@@ -420,3 +420,4 @@ Enable:
 
 **Last Updated**: 2025-11-26  
 **Maintained By**: Security Team
+

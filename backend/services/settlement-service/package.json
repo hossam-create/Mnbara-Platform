@@ -1,5 +1,5 @@
-{
-  "name": "@mnbara/settlement-service",
+﻿{
+  "name": "@mnbarh/settlement-service",
   "version": "1.0.0",
   "description": "Local Settlement Matching Service - P2P Money Transfer",
   "main": "dist/index.js",
@@ -37,3 +37,4 @@
     "node": "22.20.0"
   }
 }
+
