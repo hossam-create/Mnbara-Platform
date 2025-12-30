@@ -75,9 +75,9 @@ if [ -f "$DATABASE_SECRETS_FILE" ]; then
     fi
     
     # Test 4: Dynamic roles are defined
-    HAS_READONLY=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbara-readonly" || true)
-    HAS_READWRITE=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbara-readwrite" || true)
-    HAS_ADMIN=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbara-admin" || true)
+    HAS_READONLY=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbarh-readonly" || true)
+    HAS_READWRITE=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbarh-readwrite" || true)
+    HAS_ADMIN=$(echo "$DATABASE_CONTENT" | grep -c "database/roles/mnbarh-admin" || true)
     
     if [ "$HAS_READONLY" -gt 0 ] && [ "$HAS_READWRITE" -gt 0 ] && [ "$HAS_ADMIN" -gt 0 ]; then
         test_result "All database roles are defined (readonly, readwrite, admin)" "true"
@@ -96,14 +96,14 @@ if [ -f "$DATABASE_SECRETS_FILE" ]; then
     fi
     
     # Test 6: Readonly role has appropriate TTL (1h default, 24h max)
-    if echo "$DATABASE_CONTENT" | grep -A 20 "mnbara-readonly" | grep -q 'default_ttl="1h"'; then
+    if echo "$DATABASE_CONTENT" | grep -A 20 "mnbarh-readonly" | grep -q 'default_ttl="1h"'; then
         test_result "Readonly role has appropriate TTL (1h/24h)" "true"
     else
         test_result "Readonly role has appropriate TTL (1h/24h)" "false" "Expected default_ttl=1h for readonly role"
     fi
     
     # Test 7: Admin role has shorter TTL for security (30m default, 2h max)
-    if echo "$DATABASE_CONTENT" | grep -A 20 "mnbara-admin" | grep -q 'default_ttl="30m"'; then
+    if echo "$DATABASE_CONTENT" | grep -A 20 "mnbarh-admin" | grep -q 'default_ttl="30m"'; then
         test_result "Admin role has shorter TTL for security (30m/2h)" "true"
     else
         test_result "Admin role has shorter TTL for security (30m/2h)" "false" "Expected default_ttl=30m for admin role"
@@ -175,22 +175,22 @@ if [ -f "$PKI_FILE" ]; then
     fi
     
     # Test 16: Service certificate role is defined
-    if echo "$PKI_CONTENT" | grep -q "pki_int/roles/mnbara-service"; then
+    if echo "$PKI_CONTENT" | grep -q "pki_int/roles/mnbarh-service"; then
         test_result "Service certificate role is defined" "true"
     else
-        test_result "Service certificate role is defined" "false" "mnbara-service PKI role not found"
+        test_result "Service certificate role is defined" "false" "mnbarh-service PKI role not found"
     fi
     
     # Test 17: Internal service role is defined with shorter TTL
-    if echo "$PKI_CONTENT" | grep -q "pki_int/roles/mnbara-internal"; then
+    if echo "$PKI_CONTENT" | grep -q "pki_int/roles/mnbarh-internal"; then
         test_result "Internal service certificate role is defined" "true"
     else
-        test_result "Internal service certificate role is defined" "false" "mnbara-internal PKI role not found"
+        test_result "Internal service certificate role is defined" "false" "mnbarh-internal PKI role not found"
     fi
     
     # Test 18: Service certificates have reasonable TTL (72h default)
-    HAS_SERVICE_TTL=$(echo "$PKI_CONTENT" | grep -A 20 "mnbara-service" | grep -c "ttl=72h" || true)
-    HAS_SERVICE_MAX_TTL=$(echo "$PKI_CONTENT" | grep -A 20 "mnbara-service" | grep -c "max_ttl=720h" || true)
+    HAS_SERVICE_TTL=$(echo "$PKI_CONTENT" | grep -A 20 "mnbarh-service" | grep -c "ttl=72h" || true)
+    HAS_SERVICE_MAX_TTL=$(echo "$PKI_CONTENT" | grep -A 20 "mnbarh-service" | grep -c "max_ttl=720h" || true)
     if [ "$HAS_SERVICE_TTL" -gt 0 ] && [ "$HAS_SERVICE_MAX_TTL" -gt 0 ]; then
         test_result "Service certificates have 72h/720h TTL" "true"
     else
@@ -198,7 +198,7 @@ if [ -f "$PKI_FILE" ]; then
     fi
     
     # Test 19: Internal certificates have shorter TTL (24h default)
-    if echo "$PKI_CONTENT" | grep -A 20 "mnbara-internal" | grep -q "ttl=24h"; then
+    if echo "$PKI_CONTENT" | grep -A 20 "mnbarh-internal" | grep -q "ttl=24h"; then
         test_result "Internal certificates have 24h TTL for frequent rotation" "true"
     else
         test_result "Internal certificates have 24h TTL for frequent rotation" "false" "Expected ttl=24h for internal certificates"
