@@ -293,7 +293,7 @@ Storage: 1TB SSD
 ```bash
 # Production .env
 NODE_ENV=production
-DATABASE_URL=postgresql://prod-db:5432/mnbara
+DATABASE_URL=postgresql://prod-db:5432/mnbarh
 REDIS_URL=redis://prod-redis:6379
 STRIPE_SECRET_KEY=sk_live_xxxxx
 JWT_SECRET=<64-char-secure-key>
@@ -306,7 +306,7 @@ JWT_SECRET=<64-char-secure-key>
 ### Migration Strategy:
 ```bash
 # 1. Backup current database
-pg_dump -h localhost -U mnbara > backup_$(date +%Y%m%d).sql
+pg_dump -h localhost -U mnbarh > backup_$(date +%Y%m%d).sql
 
 # 2. Run migrations
 npm run migrate:production
@@ -333,12 +333,12 @@ npm run verify:database
 ### Deployment Process:
 ```bash
 # Build Docker images
-docker build -t mnbara/api-gateway:v1.0 .
-docker build -t mnbara/product-service:v1.0 .
-docker build -t mnbara/payment-service:v1.0 .
+docker build -t mnbarh/api-gateway:v1.0 .
+docker build -t mnbarh/product-service:v1.0 .
+docker build -t mnbarh/payment-service:v1.0 .
 
 # Push to registry
-docker push mnbara/api-gateway:v1.0
+docker push mnbarh/api-gateway:v1.0
 
 # Deploy to Kubernetes
 kubectl apply -f k8s/
@@ -352,10 +352,10 @@ kubectl get services
 ### Health Checks:
 ```bash
 # Check all services
-curl https://api.mnbara.com/health
-curl https://api.mnbara.com/products/health
-curl https://api.mnbara.com/payments/health
-curl https://api.mnbara.com/sellers/health
+curl https://api.mnbarh.com/health
+curl https://api.mnbarh.com/products/health
+curl https://api.mnbarh.com/payments/health
+curl https://api.mnbarh.com/sellers/health
 
 # Expected: All return 200 OK
 ```
@@ -366,22 +366,22 @@ curl https://api.mnbara.com/sellers/health
 
 ### DNS Records:
 ```
-A     mnbara.com              → 1.2.3.4
-A     www.mnbara.com          → 1.2.3.4
-A     api.mnbara.com          → 1.2.3.5
-CNAME admin.mnbara.com        → api.mnbara.com
-CNAME seller.mnbara.com       → api.mnbara.com
+A     mnbarh.com              → 1.2.3.4
+A     www.mnbarh.com          → 1.2.3.4
+A     api.mnbarh.com          → 1.2.3.5
+CNAME admin.mnbarh.com        → api.mnbarh.com
+CNAME seller.mnbarh.com       → api.mnbarh.com
 ```
 
 ### SSL Certificates:
 ```bash
 # Let's Encrypt SSL
 certbot certonly --dns-cloudflare \
-  -d mnbara.com \
-  -d www.mnbara.com \
-  -d api.mnbara.com \
-  -d admin.mnbara.com \
-  -d seller.mnbara.com
+  -d mnbarh.com \
+  -d www.mnbarh.com \
+  -d api.mnbarh.com \
+  -d admin.mnbarh.com \
+  -d seller.mnbarh.com
 
 # Auto-renewal
 0 0 * * * certbot renew --quiet
@@ -504,10 +504,10 @@ Alerts:
 - **Product Manager**: Monitoring feedback
 
 ### Support Channels:
-- Email: support@mnbara.com
+- Email: support@mnbarh.com
 - Live Chat: On website
 - Phone: +1-XXX-XXX-XXXX
-- Status Page: status.mnbara.com
+- Status Page: status.mnbarh.com
 
 ### Incident Response:
 ```
