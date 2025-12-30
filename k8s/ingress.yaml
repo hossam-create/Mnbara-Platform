@@ -2,8 +2,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mnbara-ingress
-  namespace: mnbara-production
+  name: mnbarh-ingress
+  namespace: mnbarh-production
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -15,11 +15,11 @@ metadata:
 spec:
   tls:
   - hosts:
-    - mnbara.com
-    - www.mnbara.com
-    secretName: mnbara-tls
+    - mnbarh.com
+    - www.mnbarh.com
+    secretName: mnbarh-tls
   rules:
-  - host: mnbara.com
+  - host: mnbarh.com
     http:
       paths:
       - path: /api/auth
@@ -64,7 +64,7 @@ spec:
             name: frontend-service
             port:
               number: 3000
-  - host: www.mnbara.com
+  - host: www.mnbarh.com
     http:
       paths:
       - path: /
@@ -81,7 +81,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: monitoring-ingress
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -92,10 +92,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - monitoring.mnbara.com
+    - monitoring.mnbarh.com
     secretName: monitoring-tls
   rules:
-  - host: monitoring.mnbara.com
+  - host: monitoring.mnbarh.com
     http:
       paths:
       - path: /grafana
@@ -119,7 +119,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: status-ingress
-  namespace: mnbara-production
+  namespace: mnbarh-production
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -127,10 +127,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - status.mnbara.com
+    - status.mnbarh.com
     secretName: status-tls
   rules:
-  - host: status.mnbara.com
+  - host: status.mnbarh.com
     http:
       paths:
       - path: /
