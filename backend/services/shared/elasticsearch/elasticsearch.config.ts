@@ -31,35 +31,35 @@ export const elasticsearchConfig: ElasticsearchConfig = {
 
 // Index names
 export const INDICES = {
-  PRODUCTS: 'mnbara_products',
-  LISTINGS: 'mnbara_listings',
-  AUCTIONS: 'mnbara_auctions',
-  USERS: 'mnbara_users',
-  CATEGORIES: 'mnbara_categories',
+  PRODUCTS: 'mnbarh_products',
+  LISTINGS: 'mnbarh_listings',
+  AUCTIONS: 'mnbarh_auctions',
+  USERS: 'mnbarh_users',
+  CATEGORIES: 'mnbarh_categories',
 } as const;
 
 // Analyzer configurations for multi-language support
 export const ANALYZERS = {
   // Custom analyzer for product titles and descriptions
-  mnbara_text: {
+  mnbarh_text: {
     type: 'custom' as const,
     tokenizer: 'standard',
-    filter: ['lowercase', 'asciifolding', 'mnbara_stemmer', 'mnbara_synonyms'],
+    filter: ['lowercase', 'asciifolding', 'mnbarh_stemmer', 'mnbarh_synonyms'],
   },
   // Analyzer for autocomplete suggestions
-  mnbara_autocomplete: {
+  mnbarh_autocomplete: {
     type: 'custom' as const,
-    tokenizer: 'mnbara_autocomplete_tokenizer',
+    tokenizer: 'mnbarh_autocomplete_tokenizer',
     filter: ['lowercase', 'asciifolding'],
   },
   // Search analyzer for autocomplete (no edge ngram on search)
-  mnbara_autocomplete_search: {
+  mnbarh_autocomplete_search: {
     type: 'custom' as const,
     tokenizer: 'standard',
     filter: ['lowercase', 'asciifolding'],
   },
   // Arabic text analyzer
-  mnbara_arabic: {
+  mnbarh_arabic: {
     type: 'custom' as const,
     tokenizer: 'standard',
     filter: ['lowercase', 'arabic_normalization', 'arabic_stemmer'],
@@ -68,7 +68,7 @@ export const ANALYZERS = {
 
 // Tokenizer configurations
 export const TOKENIZERS = {
-  mnbara_autocomplete_tokenizer: {
+  mnbarh_autocomplete_tokenizer: {
     type: 'edge_ngram' as const,
     min_gram: 2,
     max_gram: 20,
@@ -78,11 +78,11 @@ export const TOKENIZERS = {
 
 // Filter configurations
 export const FILTERS = {
-  mnbara_stemmer: {
+  mnbarh_stemmer: {
     type: 'stemmer' as const,
     language: 'english',
   },
-  mnbara_synonyms: {
+  mnbarh_synonyms: {
     type: 'synonym' as const,
     synonyms: [
       'phone, mobile, cellphone, smartphone',
