@@ -16,7 +16,7 @@ This module provides centralized Elasticsearch configuration, indexing, and sear
 ### 1. Initialize Indices
 
 ```typescript
-import { initializeIndices } from '@mnbara/shared/elasticsearch';
+import { initializeIndices } from '@mnbarh/shared/elasticsearch';
 
 // Run once on application startup
 await initializeIndices();
@@ -25,7 +25,7 @@ await initializeIndices();
 ### 2. Index Documents
 
 ```typescript
-import { IndexingService } from '@mnbara/shared/elasticsearch';
+import { IndexingService } from '@mnbarh/shared/elasticsearch';
 
 const indexingService = new IndexingService();
 
@@ -53,7 +53,7 @@ console.log(`Indexed ${result.successful} products, ${result.failed} failed`);
 ### 3. Search Products
 
 ```typescript
-import { SearchService } from '@mnbara/shared/elasticsearch';
+import { SearchService } from '@mnbarh/shared/elasticsearch';
 
 const searchService = new SearchService();
 
@@ -77,19 +77,19 @@ const suggestions = await searchService.autocomplete('iph', 10);
 
 ## Index Structure
 
-### Products Index (`mnbara_products`)
+### Products Index (`mnbarh_products`)
 - Full product catalog with all details
 - Used for product search and browsing
 
-### Listings Index (`mnbara_listings`)
+### Listings Index (`mnbarh_listings`)
 - Active marketplace listings (fixed price + auctions)
 - Includes pricing and timing information
 
-### Auctions Index (`mnbara_auctions`)
+### Auctions Index (`mnbarh_auctions`)
 - Specialized auction data with bid information
 - Optimized for auction-specific queries
 
-### Categories Index (`mnbara_categories`)
+### Categories Index (`mnbarh_categories`)
 - Category hierarchy for browsing and filtering
 - Supports autocomplete for category search
 
@@ -105,20 +105,20 @@ ELASTICSEARCH_PASSWORD=changeme
 
 ## Analyzers
 
-### `mnbara_text`
+### `mnbarh_text`
 Standard text analyzer with:
 - Lowercase filter
 - ASCII folding (accent removal)
 - English stemming
 - Synonym expansion
 
-### `mnbara_autocomplete`
+### `mnbarh_autocomplete`
 Edge n-gram analyzer for instant search:
 - Min gram: 2
 - Max gram: 20
 - Lowercase and ASCII folding
 
-### `mnbara_arabic`
+### `mnbarh_arabic`
 Arabic text analyzer with:
 - Arabic normalization
 - Arabic stemming
@@ -137,8 +137,8 @@ Pre-configured synonyms include:
 For real-time index updates, integrate with RabbitMQ events:
 
 ```typescript
-import { IndexingService } from '@mnbara/shared/elasticsearch';
-import { RabbitMQService } from '@mnbara/shared/rabbitmq';
+import { IndexingService } from '@mnbarh/shared/elasticsearch';
+import { RabbitMQService } from '@mnbarh/shared/rabbitmq';
 
 const indexingService = new IndexingService();
 const rabbitmq = new RabbitMQService();
