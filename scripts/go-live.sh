@@ -90,7 +90,7 @@ fi
 
 # Check 4: SSL certificates valid
 print_info "Checking SSL certificates..."
-if curl -f -s -o /dev/null https://mnbara.com; then
+if curl -f -s -o /dev/null https://mnbarh.com; then
     print_status "SSL certificates valid"
 else
     print_warning "SSL check failed"
@@ -163,7 +163,7 @@ countdown 1 "T-minus 1 minute: Final health check"
 echo ""
 
 print_info "Running final health check..."
-if curl -f -s -o /dev/null https://mnbara.com/health; then
+if curl -f -s -o /dev/null https://mnbarh.com/health; then
     print_status "Health check passed"
 else
     print_warning "Health check warning"
@@ -210,16 +210,16 @@ kubectl get pods | grep -E "NAME|Running"
 echo ""
 
 echo "Service Endpoints:"
-echo "  - Homepage: https://mnbara.com"
-echo "  - API: https://api.mnbara.com"
-echo "  - Admin: https://admin.mnbara.com"
-echo "  - Seller: https://seller.mnbara.com"
+echo "  - Homepage: https://mnbarh.com"
+echo "  - API: https://api.mnbarh.com"
+echo "  - Admin: https://admin.mnbarh.com"
+echo "  - Seller: https://seller.mnbarh.com"
 echo ""
 
 echo "Monitoring Dashboards:"
-echo "  - Grafana: https://grafana.mnbara.com"
-echo "  - Prometheus: https://prometheus.mnbara.com"
-echo "  - Status Page: https://status.mnbara.com"
+echo "  - Grafana: https://grafana.mnbarh.com"
+echo "  - Prometheus: https://prometheus.mnbarh.com"
+echo "  - Status Page: https://status.mnbarh.com"
 echo ""
 
 # Watch for first users
@@ -253,20 +253,20 @@ Status: LIVE
 Version: 1.0.0
 
 Endpoints:
-- Homepage: https://mnbara.com
-- API: https://api.mnbara.com
-- Admin: https://admin.mnbara.com
-- Seller: https://seller.mnbara.com
+- Homepage: https://mnbarh.com
+- API: https://api.mnbarh.com
+- Admin: https://admin.mnbarh.com
+- Seller: https://seller.mnbarh.com
 
 Monitoring:
-- Grafana: https://grafana.mnbara.com
-- Prometheus: https://prometheus.mnbara.com
-- Status: https://status.mnbara.com
+- Grafana: https://grafana.mnbarh.com
+- Prometheus: https://prometheus.mnbarh.com
+- Status: https://status.mnbarh.com
 
 Support:
-- Email: support@mnbara.com
+- Email: support@mnbarh.com
 - Phone: +1-XXX-XXX-XXXX
-- Status Page: https://status.mnbara.com
+- Status Page: https://status.mnbarh.com
 
 Backup Location: ./backups/pre-launch-backup_$TIMESTAMP.sql
 
