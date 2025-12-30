@@ -39,7 +39,7 @@
 #### Migration Steps:
 1. **Backup Current Database**
    ```bash
-   pg_dump -h localhost -U mnbara > backup_20251230.sql
+   pg_dump -h localhost -U mnbarh > backup_20251230.sql
    ```
    Status: ✅ Complete
 
@@ -110,22 +110,22 @@ kubectl apply -f k8s/ingress.yaml
 
 #### DNS Records:
 ```
-A     mnbara.com              → 1.2.3.4
-A     www.mnbara.com          → 1.2.3.4
-A     api.mnbara.com          → 1.2.3.5
-CNAME admin.mnbara.com        → api.mnbara.com
-CNAME seller.mnbara.com       → api.mnbara.com
+A     mnbarh.com              → 1.2.3.4
+A     www.mnbarh.com          → 1.2.3.4
+A     api.mnbarh.com          → 1.2.3.5
+CNAME admin.mnbarh.com        → api.mnbarh.com
+CNAME seller.mnbarh.com       → api.mnbarh.com
 ```
 
 #### SSL Certificates:
 ```bash
 # Let's Encrypt SSL
 certbot certonly --dns-cloudflare \
-  -d mnbara.com \
-  -d www.mnbara.com \
-  -d api.mnbara.com \
-  -d admin.mnbara.com \
-  -d seller.mnbara.com
+  -d mnbarh.com \
+  -d www.mnbarh.com \
+  -d api.mnbarh.com \
+  -d admin.mnbarh.com \
+  -d seller.mnbarh.com
 ```
 
 **SSL Configuration**:
@@ -247,10 +247,10 @@ Prometheus + Grafana:
 - Product Manager: Monitoring feedback
 
 #### Support Channels:
-- Email: support@mnbara.com
+- Email: support@mnbarh.com
 - Live Chat: On website
 - Phone: +1-XXX-XXX-XXXX
-- Status Page: status.mnbara.com
+- Status Page: status.mnbarh.com
 
 #### Incident Response:
 ```
@@ -284,7 +284,7 @@ Severity 4 (Low): < 24 hours response
 ### Production .env:
 ```bash
 NODE_ENV=production
-DATABASE_URL=postgresql://prod-db:5432/mnbara
+DATABASE_URL=postgresql://prod-db:5432/mnbarh
 REDIS_URL=redis://prod-redis:6379
 STRIPE_SECRET_KEY=sk_live_xxxxx
 JWT_SECRET=<64-char-secure-key>
@@ -306,7 +306,7 @@ kubectl rollout undo deployment/cart-service
 kubectl rollout undo deployment/payment-service
 
 # 2. Restore database backup
-psql -h localhost -U mnbara < backup_20251230.sql
+psql -h localhost -U mnbarh < backup_20251230.sql
 
 # 3. Switch DNS back to staging
 # Update DNS records to point to staging
