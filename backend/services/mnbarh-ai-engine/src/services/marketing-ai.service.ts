@@ -50,7 +50,7 @@ Topic: ${request.topic}
 Tone: ${request.tone}
 ${guide ? `Platform guidelines: ${guide}` : ''}
 
-For Mnbara - a marketplace combining e-commerce with crowdshipping (travelers deliver items).
+For Mmnbarh - a marketplace combining e-commerce with crowdshipping (travelers deliver items).
 
 Respond with JSON:
 {
@@ -77,7 +77,7 @@ Respond with JSON:
     } catch {
       return {
         content: 'Content generation failed',
-        callToAction: 'Try Mnbara today!'
+        callToAction: 'Try Mmnbarh today!'
       };
     }
   }
@@ -92,7 +92,7 @@ Respond with JSON:
       time: string;
     }>;
   }> {
-    const prompt = `Create a social media content calendar for ${month}/${year} for Mnbara marketplace.
+    const prompt = `Create a social media content calendar for ${month}/${year} for Mmnbarh marketplace.
 Platforms: ${platforms.join(', ')}
 
 Include:
@@ -136,14 +136,14 @@ Respond with JSON array of posts with date, platform, content, type, and best po
     cta: string;
   }> {
     const templates = {
-      welcome: 'Welcome new user to Mnbara, explain benefits',
+      welcome: 'Welcome new user to Mmnbarh, explain benefits',
       promotional: `Promote ${data.product || 'products'} with ${data.discount || 10}% discount`,
       abandoned_cart: 'Remind user about items in cart, create urgency',
       reengagement: 'Win back inactive user with special offer',
       newsletter: 'Weekly updates, trending products, travel tips'
     };
 
-    const prompt = `Generate email campaign for Mnbara marketplace:
+    const prompt = `Generate email campaign for Mmnbarh marketplace:
 Type: ${data.type}
 Goal: ${templates[data.type]}
 Audience: ${data.audience}
@@ -160,7 +160,7 @@ Respond with JSON including subject, preheader, body, and CTA in both English an
       return JSON.parse(response.generated_text);
     } catch {
       return {
-        subject: 'Welcome to Mnbara!',
+        subject: 'Welcome to Mmnbarh!',
         subjectAr: 'مرحباً بك في منبرة!',
         preheader: 'Your shopping journey starts here',
         body: 'Email generation failed',
@@ -243,7 +243,7 @@ Respond with JSON including subject, preheader, body, and CTA in both English an
     const prompt = `Generate 3 A/B test variations for this ${type}:
 Original: "${original}"
 
-For Mnbara marketplace. Make variations that test different psychological triggers:
+For Mmnbarh marketplace. Make variations that test different psychological triggers:
 1. Urgency
 2. Social proof
 3. Value proposition
@@ -278,7 +278,7 @@ Respond with JSON: {"variations": ["v1", "v2", "v3"], "hypothesis": ["h1", "h2",
       messaging: string;
     }>;
   }> {
-    const prompt = `Create 4 audience segments for marketing ${productCategory} on Mnbara:
+    const prompt = `Create 4 audience segments for marketing ${productCategory} on Mmnbarh:
 
 Consider:
 - Shoppers looking for deals
@@ -373,7 +373,7 @@ Respond with JSON.`;
       timeline: string;
     }>;
   }> {
-    const prompt = `Generate 5 growth hacking ideas for Mnbara marketplace:
+    const prompt = `Generate 5 growth hacking ideas for Mmnbarh marketplace:
 Current metrics: ${currentMetrics.users} users, $${currentMetrics.revenue} revenue, ${currentMetrics.growth}% growth
 
 Focus on:
