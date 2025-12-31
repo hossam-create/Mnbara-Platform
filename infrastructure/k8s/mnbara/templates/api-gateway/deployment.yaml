@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
 spec:
   {{- if not .Values.apiGateway.autoscaling.enabled }}
   replicas: {{ .Values.apiGateway.replicaCount }}
@@ -17,17 +17,17 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 8 }}
+        {{- include "mnbarh.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.apiGateway.service.port }}"
         prometheus.io/path: "/metrics"
     spec:
-      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      serviceAccountName: {{ include "mnbarh.serviceAccountName" . }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -39,10 +39,10 @@ spec:
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
-              {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 14 }}
+              {{- include "mnbarh.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 14 }}
       containers:
         - name: {{ .Values.apiGateway.name }}
-          image: {{ include "mnbara.image" (dict "root" . "service" .Values.apiGateway) }}
+          image: {{ include "mnbarh.image" (dict "root" . "service" .Values.apiGateway) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             allowPrivilegeEscalation: false
@@ -64,10 +64,10 @@ spec:
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ default (printf "%s-jwt" (include "mnbara.fullname" .)) .Values.secrets.jwt.existingSecret }}
+                  name: {{ default (printf "%s-jwt" (include "mnbarh.fullname" .)) .Values.secrets.jwt.existingSecret }}
                   key: jwt-secret
             - name: REDIS_URL
-              value: {{ include "mnbara.redisUrl" . | quote }}
+              value: {{ include "mnbarh.redisUrl" . | quote }}
             - name: CORS_ORIGINS
               value: {{ .Values.apiGateway.env.CORS_ORIGINS | default "http://localhost:3000" | quote }}
             # Service URLs
@@ -97,7 +97,7 @@ spec:
               value: "http://{{ .Values.adminService.name }}:{{ .Values.adminService.service.port }}"
           envFrom:
             - configMapRef:
-                name: {{ include "mnbara.fullname" . }}-common
+                name: {{ include "mnbarh.fullname" . }}-common
           resources:
             {{- toYaml .Values.apiGateway.resources | nindent 12 }}
           livenessProbe:
