@@ -63,7 +63,7 @@ This authentication service provides eBay-level security features including:
    export DB_HOST=localhost
    export DB_PORT=5432
    export DB_NAME=auth_db
-   export DB_USER=mnbara
+   export DB_USER=mnbarh
    export DB_PASSWORD=your_password
    export REDIS_HOST=localhost
    export REDIS_PORT=6379
@@ -224,7 +224,7 @@ Key configuration options in `application.yml`:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/auth_db
-    username: mnbara
+    username: mnbarh
     password: your_password
     hikari:
       maximum-pool-size: 20
@@ -262,7 +262,7 @@ rate-limit:
 | `DB_HOST` | PostgreSQL host | localhost |
 | `DB_PORT` | PostgreSQL port | 5432 |
 | `DB_NAME` | Database name | auth_db |
-| `DB_USER` | Database user | mnbara |
+| `DB_USER` | Database user | mnbarh |
 | `DB_PASSWORD` | Database password | - |
 | `REDIS_HOST` | Redis host | localhost |
 | `REDIS_PORT` | Redis port | 6379 |
@@ -369,7 +369,7 @@ curl -X POST http://localhost:3001/api/auth/login \
    
    logging:
      level:
-       com.mnbara.auth: INFO
+       com.mnbarh.auth: INFO
        org.springframework.security: WARN
    ```
 
@@ -393,7 +393,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 FROM eclipse-temurin:17-jre-alpine
 
 # Security: non-root user
-USER mnbara
+USER mnbarh
 
 # Health checks
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
