@@ -98,7 +98,7 @@ kubectl apply -f alertmanager/
 kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 # Prometheus
-kubectl port-forward -n monitoring svc/prometheus-mnbara 9090:9090
+kubectl port-forward -n monitoring svc/prometheus-mnbarh 9090:9090
 
 # Jaeger
 kubectl port-forward -n monitoring svc/jaeger-query 16686:16686
@@ -107,7 +107,7 @@ kubectl port-forward -n monitoring svc/jaeger-query 16686:16686
 kubectl port-forward -n monitoring svc/kibana 5601:5601
 
 # Alertmanager
-kubectl port-forward -n monitoring svc/alertmanager-mnbara 9093:9093
+kubectl port-forward -n monitoring svc/alertmanager-mnbarh 9093:9093
 ```
 
 ## Alert Configuration
@@ -122,7 +122,7 @@ kubectl port-forward -n monitoring svc/alertmanager-mnbara 9093:9093
 
 ### Slack Integration
 
-1. Create Slack incoming webhooks for `#mnbara-alerts` and `#mnbara-critical`
+1. Create Slack incoming webhooks for `#mnbarh-alerts` and `#mnbarh-critical`
 2. Update the secrets:
    ```yaml
    slack-webhook-url: "https://hooks.slack.com/services/YOUR/WEBHOOK"
@@ -175,7 +175,7 @@ Backend services should initialize tracing at startup:
 
 ```typescript
 // First import in your service
-import { initTracing } from '@mnbara/shared/tracing';
+import { initTracing } from '@mnbarh/shared/tracing';
 
 initTracing({
   serviceName: 'your-service-name',
