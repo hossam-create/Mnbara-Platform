@@ -5,9 +5,9 @@ services:
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: mnbara
-      POSTGRES_PASSWORD: mnbara_dev
-      POSTGRES_DB: mnbara_dev
+      POSTGRES_USER: mnbarh
+      POSTGRES_PASSWORD: mnbarh_dev
+      POSTGRES_DB: mnbarh_dev
     ports:
       - "5432:5432"
     volumes:
@@ -29,7 +29,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      DATABASE_URL: postgresql://mnbarh:mnbarh_dev@postgres:5432/mnbarh_dev
       PORT: 3001
       JWT_SECRET: dev-secret-key
     depends_on:
@@ -46,7 +46,7 @@ services:
     ports:
       - "3002:3002"
     environment:
-      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      DATABASE_URL: postgresql://mnbarh:mnbarh_dev@postgres:5432/mnbarh_dev
       REDIS_URL: redis://redis:6379
       PORT: 3002
       JWT_SECRET: dev-secret-key
@@ -65,7 +65,7 @@ services:
     ports:
       - "3003:3003"
     environment:
-      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      DATABASE_URL: postgresql://mnbarh:mnbarh_dev@postgres:5432/mnbarh_dev
       PORT: 3003
       JWT_SECRET: dev-secret-key
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
@@ -83,7 +83,7 @@ services:
     ports:
       - "3004:3004"
     environment:
-      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      DATABASE_URL: postgresql://mnbarh:mnbarh_dev@postgres:5432/mnbarh_dev
       PORT: 3004
       JWT_SECRET: dev-secret-key
     depends_on:
@@ -100,7 +100,7 @@ services:
     ports:
       - "3005:3005"
     environment:
-      DATABASE_URL: postgresql://mnbara:mnbara_dev@postgres:5432/mnbara_dev
+      DATABASE_URL: postgresql://mnbarh:mnbarh_dev@postgres:5432/mnbarh_dev
       PORT: 3005
       JWT_SECRET: dev-secret-key
     depends_on:
