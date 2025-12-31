@@ -5,23 +5,23 @@ metadata:
   name: {{ .Values.listingService.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
 spec:
   {{- if not .Values.listingService.autoscaling.enabled }}
   replicas: {{ .Values.listingService.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "mnbara.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 8 }}
+        {{- include "mnbarh.serviceSelectorLabels" (list . .Values.listingService.name) | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "mnbara.serviceAccountName" . }}
+      serviceAccountName: {{ include "mnbarh.serviceAccountName" . }}
       containers:
         - name: {{ .Values.listingService.name }}
-          image: {{ include "mnbara.image" (dict "root" . "service" .Values.listingService) }}
+          image: {{ include "mnbarh.image" (dict "root" . "service" .Values.listingService) }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -35,20 +35,20 @@ spec:
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ default (printf "%s-database" (include "mnbara.fullname" .)) .Values.secrets.database.existingSecret }}
+                  name: {{ default (printf "%s-database" (include "mnbarh.fullname" .)) .Values.secrets.database.existingSecret }}
                   key: password
             - name: DATABASE_URL
-              value: {{ include "mnbara.databaseUrl" . | quote }}
+              value: {{ include "mnbarh.databaseUrl" . | quote }}
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ default (printf "%s-redis" (include "mnbara.fullname" .)) .Values.secrets.redis.existingSecret }}
+                  name: {{ default (printf "%s-redis" (include "mnbarh.fullname" .)) .Values.secrets.redis.existingSecret }}
                   key: redis-password
             - name: REDIS_URL
-              value: {{ include "mnbara.redisUrl" . | quote }}
+              value: {{ include "mnbarh.redisUrl" . | quote }}
           envFrom:
             - configMapRef:
-                name: {{ include "mnbara.fullname" . }}-common
+                name: {{ include "mnbarh.fullname" . }}-common
           resources:
             {{- toYaml .Values.listingService.resources | nindent 12 }}
           livenessProbe:
