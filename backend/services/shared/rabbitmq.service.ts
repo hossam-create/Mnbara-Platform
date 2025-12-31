@@ -78,11 +78,19 @@ export class RabbitMQService {
     }
 
 
-    private static async reconnect() {
-        this.channel = null;
+    private static async reconnect(): Promise<void> {
+        if (this.isConnecting) return;
+        
         this.connection = null;
-        await this.connect();
+        this.channel = null;
+        
+        const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+        this.reconnectAttempts++;
+        
+        console.log(`🔄 Reconnecting to RabbitMQ in ${delay/1000}s...`);
+        setTimeout(() => this.connect(), delay);
     }
+    private static reconnectAttempts = 0;
 
     /**
      * Publish message to queue
@@ -117,24 +125,29 @@ export class RabbitMQService {
      */
     static async consume(
         queue: string,
-        callback: (message: any) => Promise<void>
+        callback: (msg: any) => Promise<void>,
+        options: { noAck?: boolean } = {}
     ): Promise<void> {
         try {
             const channel = await this.connect();
-            await channel.consume(queue, async (msg) => {
+            await channel.consume(queue, async (msg: any) => {
                 if (msg) {
                     try {
                         const content = JSON.parse(msg.content.toString());
                         await callback(content);
-                        channel.ack(msg);
+                        if (!options.noAck) {
+                            channel.ack(msg);
+                        }
                     } catch (error) {
                         console.error(`[RabbitMQ] Error processing message from ${queue}:`, error);
-                        // Optional: Move to Dead Letter Queue instead of just NACK
-                        channel.nack(msg, false, false);
+                        if (!options.noAck) {
+                            channel.nack(msg, false, false);
+                        }
                     }
                 }
-            });
-            console.log(`[RabbitMQ] Consuming from: ${queue}`);
+            }, { noAck: options.noAck });
+            
+            console.log(`[RabbitMQ] Consuming from queue: ${queue}`);
         } catch (error) {
             console.error('[RabbitMQ] Consume error:', error);
         }
@@ -145,13 +158,17 @@ export class RabbitMQService {
      */
     static async close(): Promise<void> {
         try {
-            if (this.channel) await this.channel.close();
-            if (this.connection) await this.connection.close();
-            this.channel = null;
-            this.connection = null;
+            if (this.channel) {
+                await this.channel.close();
+                this.channel = null;
+            }
+            if (this.connection) {
+                await this.connection.close();
+                this.connection = null;
+            }
             console.log('✅ RabbitMQ connection closed');
         } catch (error) {
-            console.error('❌ RabbitMQ close error:', error);
+            console.error('[RabbitMQ] Close error:', error);
         }
     }
 }
