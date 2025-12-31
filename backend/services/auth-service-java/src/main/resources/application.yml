@@ -6,13 +6,13 @@ server:
 
 spring:
   application:
-    name: mnbara-auth-service
+    name: mnbarh-auth-service
   
   # Database Configuration (PostgreSQL)
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:auth_db}
-    username: ${DB_USER:mnbara}
-    password: ${DB_PASSWORD:mnbara_dev_password}
+    username: ${DB_USER:mnbarh}
+    password: ${DB_PASSWORD:mnbarh_dev_password}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -69,7 +69,7 @@ jwt:
   refresh-secret: ${JWT_REFRESH_SECRET:your-super-secret-refresh-key-change-in-production-256-bit}
   expiration: 3600000 # 1 hour
   refresh-expiration: 604800000 # 7 days
-  issuer: mnbara-platform
+  issuer: mnbarh-platform
 
 # MFA Configuration
 mfa:
@@ -105,7 +105,7 @@ management:
 # Logging
 logging:
   level:
-    com.mnbara.auth: INFO
+    com.mnbarh.auth: INFO
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG
   pattern:
