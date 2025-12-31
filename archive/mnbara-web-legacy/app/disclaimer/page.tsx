@@ -134,7 +134,7 @@ export default function DisclaimerPage() {
             📞 Contact Information
           </h3>
           <p className="text-blue-700">
-            For disclaimer-related inquiries: legal@mnbara.com
+            For disclaimer-related inquiries: legal@mnbarh.com
           </p>
         </div>
       </div>
