@@ -73,7 +73,7 @@ data:
     </filter>
     
     # Filter: Parse JSON logs from MNBARA services
-    <filter kubernetes.var.log.containers.mnbara**>
+    <filter kubernetes.var.log.containers.mnbarh**>
       @type parser
       key_name log
       reserve_data true
@@ -93,7 +93,7 @@ data:
         namespace ${record.dig("kubernetes", "namespace_name") || "unknown"}
         pod_name ${record.dig("kubernetes", "pod_name") || "unknown"}
         container_name ${record.dig("kubernetes", "container_name") || "unknown"}
-        cluster "mnbara-production"
+        cluster "mnbarh-production"
         environment "#{ENV['ENVIRONMENT'] || 'production'}"
       </record>
     </filter>
@@ -120,11 +120,11 @@ data:
       
       # Index naming
       logstash_format true
-      logstash_prefix mnbara-logs
+      logstash_prefix mnbarh-logs
       logstash_dateformat %Y.%m.%d
       
       # Index lifecycle management
-      ilm_policy_id mnbara-logs-policy
+      ilm_policy_id mnbarh-logs-policy
       ilm_policy_overwrite true
       ilm_policy {
         "policy": {
@@ -176,20 +176,20 @@ data:
     </match>
     
     # Output: Send MNBARA service logs to separate index
-    <match kubernetes.var.log.containers.mnbara**>
+    <match kubernetes.var.log.containers.mnbarh**>
       @type elasticsearch
-      @id out_es_mnbara
+      @id out_es_mnbarh
       host elasticsearch-logs
       port 9200
       scheme http
       
       logstash_format true
-      logstash_prefix mnbara-services
+      logstash_prefix mnbarh-services
       logstash_dateformat %Y.%m.%d
       
       <buffer>
         @type file
-        path /var/log/fluentd-buffers/mnbara.buffer
+        path /var/log/fluentd-buffers/mnbarh.buffer
         flush_mode interval
         flush_interval 5s
         chunk_limit_size 2M
@@ -204,7 +204,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: fluentd
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 spec:
   selector:
     matchLabels:
