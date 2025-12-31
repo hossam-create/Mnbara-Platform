@@ -1,14 +1,14 @@
-package com.mnbara.auth.service;
+package com.mnbarh.auth.service;
 
-import com.mnbara.auth.dto.AuthRequest.*;
-import com.mnbara.auth.dto.AuthResponse.*;
-import com.mnbara.auth.model.User;
-import com.mnbara.auth.model.Role;
-import com.mnbara.auth.repository.UserRepository;
-import com.mnbara.auth.repository.RoleRepository;
-import com.mnbara.auth.exception.AuthenticationException;
-import com.mnbara.auth.exception.UserAlreadyExistsException;
-import com.mnbara.auth.exception.UserNotFoundException;
+import com.mnbarh.auth.dto.AuthRequest.*;
+import com.mnbarh.auth.dto.AuthResponse.*;
+import com.mnbarh.auth.model.User;
+import com.mnbarh.auth.model.Role;
+import com.mnbarh.auth.repository.UserRepository;
+import com.mnbarh.auth.repository.RoleRepository;
+import com.mnbarh.auth.exception.AuthenticationException;
+import com.mnbarh.auth.exception.UserAlreadyExistsException;
+import com.mnbarh.auth.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
