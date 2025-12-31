@@ -79,8 +79,8 @@ data:
     
     # Create role for MNBARA services
     echo "Creating PKI role for MNBARA services..."
-    vault write pki_int/roles/mnbara-service \
-      allowed_domains="mnbara.svc.cluster.local,mnbara.svc,mnbara,localhost" \
+    vault write pki_int/roles/mnbarh-service \
+      allowed_domains="mnbarh.svc.cluster.local,mnbarh.svc,mnbarh,localhost" \
       allow_subdomains=true \
       allow_bare_domains=true \
       allow_glob_domains=true \
@@ -99,8 +99,8 @@ data:
     
     # Create role for internal services (shorter TTL)
     echo "Creating PKI role for internal services..."
-    vault write pki_int/roles/mnbara-internal \
-      allowed_domains="*.mnbara.svc.cluster.local,*.vault.svc.cluster.local" \
+    vault write pki_int/roles/mnbarh-internal \
+      allowed_domains="*.mnbarh.svc.cluster.local,*.vault.svc.cluster.local" \
       allow_subdomains=true \
       allow_bare_domains=false \
       allow_glob_domains=true \
@@ -113,8 +113,8 @@ data:
     
     # Create role for client certificates
     echo "Creating PKI role for client certificates..."
-    vault write pki_int/roles/mnbara-client \
-      allowed_domains="mnbara.com,*.mnbara.com" \
+    vault write pki_int/roles/mnbarh-client \
+      allowed_domains="mnbarh.com,*.mnbarh.com" \
       allow_subdomains=true \
       allow_bare_domains=true \
       client_flag=true \
