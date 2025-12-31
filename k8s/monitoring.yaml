@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: prometheus
     tier: monitoring
@@ -67,7 +67,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-service
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: prometheus
 spec:
@@ -83,7 +83,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: prometheus-pvc
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
 spec:
   accessModes:
     - ReadWriteOnce
@@ -98,7 +98,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: grafana
     tier: monitoring
@@ -120,7 +120,7 @@ spec:
         - containerPort: 3000
         env:
         - name: GF_SECURITY_ADMIN_PASSWORD
-          value: "mnbara_admin_2026"
+          value: "mnbarh_admin_2026"
         - name: GF_INSTALL_PLUGINS
           value: "grafana-piechart-panel,grafana-worldmap-panel"
         volumeMounts:
@@ -160,7 +160,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana-service
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: grafana
 spec:
@@ -176,7 +176,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: grafana-pvc
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
 spec:
   accessModes:
     - ReadWriteOnce
@@ -191,7 +191,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: node-exporter
     tier: monitoring
@@ -249,7 +249,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: node-exporter-service
-  namespace: mnbara-monitoring
+  namespace: mnbarh-monitoring
   labels:
     app: node-exporter
 spec:
