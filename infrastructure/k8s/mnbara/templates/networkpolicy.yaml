@@ -3,10 +3,10 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-default-deny
+  name: {{ include "mnbarh.fullname" . }}-default-deny
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector: {}
   policyTypes:
@@ -16,14 +16,14 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-allow-gateway
+  name: {{ include "mnbarh.fullname" . }}-allow-gateway
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/part-of: mnbara-platform
+      app.kubernetes.io/part-of: mnbarh-platform
   policyTypes:
     - Ingress
   ingress:
@@ -61,10 +61,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-allow-external-gateway
+  name: {{ include "mnbarh.fullname" . }}-allow-external-gateway
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -80,10 +80,10 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: {{ include "mnbara.fullname" . }}-allow-external-web
+  name: {{ include "mnbarh.fullname" . }}-allow-external-web
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
