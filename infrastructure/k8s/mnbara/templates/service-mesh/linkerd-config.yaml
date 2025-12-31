@@ -12,7 +12,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}-server
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -28,7 +28,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}-auth
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   server:
     name: {{ .Values.apiGateway.name }}-server
@@ -49,7 +49,7 @@ metadata:
   name: {{ .Values.authService.name }}-server
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -68,7 +68,7 @@ spec:
   client:
     meshTLS:
       serviceAccounts:
-        - name: {{ include "mnbara.serviceAccountName" . }}
+        - name: {{ include "mnbarh.serviceAccountName" . }}
 {{- end }}
 
 ---
@@ -80,7 +80,7 @@ metadata:
   name: {{ .Values.auctionService.name }}-server
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -99,7 +99,7 @@ spec:
   client:
     meshTLS:
       serviceAccounts:
-        - name: {{ include "mnbara.serviceAccountName" . }}
+        - name: {{ include "mnbarh.serviceAccountName" . }}
 {{- end }}
 
 ---
@@ -111,7 +111,7 @@ metadata:
   name: {{ .Values.paymentService.name }}-server
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   podSelector:
     matchLabels:
@@ -130,7 +130,7 @@ spec:
   client:
     meshTLS:
       serviceAccounts:
-        - name: {{ include "mnbara.serviceAccountName" . }}
+        - name: {{ include "mnbarh.serviceAccountName" . }}
 {{- end }}
 
 ---
@@ -141,7 +141,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}.{{ .Values.namespace }}.svc.cluster.local
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   routes:
     - name: health
@@ -175,7 +175,7 @@ metadata:
   name: {{ .Values.auctionService.name }}.{{ .Values.namespace }}.svc.cluster.local
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   routes:
     - name: websocket
@@ -210,7 +210,7 @@ metadata:
   name: {{ .Values.paymentService.name }}.{{ .Values.namespace }}.svc.cluster.local
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.labels" . | nindent 4 }}
+    {{- include "mnbarh.labels" . | nindent 4 }}
 spec:
   routes:
     - name: webhooks
