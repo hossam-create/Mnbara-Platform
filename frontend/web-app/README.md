@@ -61,7 +61,7 @@ A modern, scalable React + Redux web application built with TypeScript, Vite, an
 ### Setup
 ```bash
 # Clone the repository
-git clone https://github.com/mnbara/platform.git
+git clone https://github.com/mnbarh/platform.git
 cd platform/frontend/web-app
 
 # Install dependencies
@@ -284,9 +284,9 @@ This project is proprietary software owned by Mnbara Platform Team.
 ## 🆘 Support
 
 For support and questions:
-- Email: support@mnbara.com
-- Documentation: https://docs.mnbara.com
-- Issues: https://github.com/mnbara/platform/issues
+- Email: support@mnbarh.com
+- Documentation: https://docs.mnbarh.com
+- Issues: https://github.com/mnbarh/platform/issues
 
 ---
 
