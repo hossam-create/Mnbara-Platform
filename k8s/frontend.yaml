@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: frontend-service
     tier: frontend
@@ -20,22 +20,22 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: mnbara/frontend:latest
+        image: mnbarh/frontend:latest
         ports:
         - containerPort: 3000
         env:
         - name: NODE_ENV
           value: "production"
         - name: REACT_APP_API_URL
-          value: "https://mnbara.com/api"
+          value: "https://mnbarh.com/api"
         - name: REACT_APP_AUTH_SERVICE_URL
-          value: "https://mnbara.com/api/auth"
+          value: "https://mnbarh.com/api/auth"
         - name: REACT_APP_LISTING_SERVICE_URL
-          value: "https://mnbara.com/api/products"
+          value: "https://mnbarh.com/api/products"
         - name: REACT_APP_PAYMENT_SERVICE_URL
-          value: "https://mnbara.com/api/payments"
+          value: "https://mnbarh.com/api/payments"
         - name: REACT_APP_ORDER_SERVICE_URL
-          value: "https://mnbara.com/api/orders"
+          value: "https://mnbarh.com/api/orders"
         - name: REACT_APP_STRIPE_PUBLISHABLE_KEY
           value: "pk_test_stripe_publishable_key"
         - name: REACT_APP_GOOGLE_CLIENT_ID
@@ -67,7 +67,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: frontend-service
 spec:
@@ -84,7 +84,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nginx-proxy
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: nginx-proxy
     tier: proxy
@@ -143,20 +143,20 @@ spec:
           secretName: tls-secret
           items:
           - key: tls.crt
-            path: mnbara.crt
+            path: mnbarh.crt
       - name: tls-keys
         secret:
           secretName: tls-secret
           items:
           - key: tls.key
-            path: mnbara.key
+            path: mnbarh.key
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: nginx-proxy-service
-  namespace: mnbara-production
+  namespace: mnbarh-production
   labels:
     app: nginx-proxy
 spec:
