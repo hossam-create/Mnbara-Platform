@@ -1,10 +1,10 @@
 # Production environment values
-# Usage: helm install mnbara ./mnbara -f values-prod.yaml
+# Usage: helm install mnbarh ./mnbarh -f values-prod.yaml
 
 global:
   environment: production
 
-namespace: mnbara-prod
+namespace: mnbarh-prod
 
 # Production replicas with autoscaling
 apiGateway:
@@ -251,33 +251,33 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
   hosts:
-    - host: api.mnbara.com
+    - host: api.mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: api-gateway
-    - host: mnbara.com
+    - host: mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: web-frontend
-    - host: www.mnbara.com
+    - host: www.mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: web-frontend
-    - host: admin.mnbara.com
+    - host: admin.mnbarh.com
       paths:
         - path: /
           pathType: Prefix
           service: admin-dashboard
   tls:
-    - secretName: mnbara-prod-tls
+    - secretName: mnbarh-prod-tls
       hosts:
-        - api.mnbara.com
-        - mnbara.com
-        - www.mnbara.com
-        - admin.mnbara.com
+        - api.mnbarh.com
+        - mnbarh.com
+        - www.mnbarh.com
+        - admin.mnbarh.com
 
 
 # Enable resource quota for production
