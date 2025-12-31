@@ -1,19 +1,19 @@
-# 🧠 Mnbara AI Engine - ذكاء منبرة
+# 🧠 Mmnbarh AI Engine - ذكاء منبرة
 # Your Personal AI Shopping & Travel Assistant
 
 > "مرحباً! أنا ذكاء منبرة، مساعدك الشخصي للتسوق والسفر"
-> "Hi! I'm Mnbara AI, your personal shopping & travel buddy"
+> "Hi! I'm Mmnbarh AI, your personal shopping & travel buddy"
 
 ## 🌟 Overview | نظرة عامة
 
-Mnbara AI is a custom AI assistant built specifically for the Mnbara platform, similar to Siri but specialized for shopping and travel. It uses open-source AI models that learn and improve over time based on user interactions.
+Mmnbarh AI is a custom AI assistant built specifically for the Mmnbarh platform, similar to Siri but specialized for shopping and travel. It uses open-source AI models that learn and improve over time based on user interactions.
 
 ذكاء منبرة هو مساعد ذكاء اصطناعي مخصص لمنصة منبرة، مشابه لسيري ولكن متخصص في التسوق والسفر. يستخدم نماذج ذكاء اصطناعي مفتوحة المصدر تتعلم وتتحسن مع الوقت.
 
 ## ✨ Features | الميزات
 
 ### 🎤 Voice Assistant | المساعد الصوتي
-- Wake word detection: "Hey Mnbara" / "يا منبرة"
+- Wake word detection: "Hey Mmnbarh" / "يا منبرة"
 - Speech-to-Text in 50+ languages
 - Text-to-Speech with natural voices
 - Real-time voice conversations
@@ -35,7 +35,7 @@ Mnbara AI is a custom AI assistant built specifically for the Mnbara platform, s
 ### 🧠 Continuous Learning | التعلم المستمر
 - Learns user preferences
 - Improves from interactions
-- Fine-tuning on Mnbara data
+- Fine-tuning on Mmnbarh data
 - Knowledge base expansion
 
 ## 🚀 Open Source Models | النماذج مفتوحة المصدر
@@ -62,7 +62,7 @@ Mnbara AI is a custom AI assistant built specifically for the Mnbara platform, s
 
 ### Assistant | المساعد
 ```
-POST /api/v1/assistant/chat          - Chat with Mnbara AI
+POST /api/v1/assistant/chat          - Chat with Mmnbarh AI
 GET  /api/v1/assistant/greeting      - Get greeting
 POST /api/v1/assistant/rate/:id      - Rate response
 POST /api/v1/assistant/action        - Quick actions
@@ -187,14 +187,14 @@ mnbarh-ai-engine/
 ### Shopping | التسوق
 ```
 User: "ابحث عن آيفون 15 برو"
-Mnbara AI: "وجدت 25 نتيجة لآيفون 15 برو. الأسعار تتراوح من 4,500 إلى 5,200 ريال. 
+Mmnbarh AI: "وجدت 25 نتيجة لآيفون 15 برو. الأسعار تتراوح من 4,500 إلى 5,200 ريال. 
 هل تريد أن أعرض لك أفضل العروض؟"
 ```
 
 ### Travel | السفر
 ```
 User: "What can I bring from Dubai to Egypt?"
-Mnbara AI: "Great question! Here are the customs regulations for Egypt:
+Mmnbarh AI: "Great question! Here are the customs regulations for Egypt:
 - Electronics: Up to $3,000 duty-free
 - Gold: Up to 150g duty-free
 - Prohibited: Drones, certain medications
@@ -204,7 +204,7 @@ Would you like shopping tips for Dubai?"
 ### Voice | الصوت
 ```
 User: "يا منبرة، وين طلبي؟"
-Mnbara AI: "طلبك رقم #12345 في الطريق! المسافر أحمد على بعد 15 دقيقة منك. 
+Mmnbarh AI: "طلبك رقم #12345 في الطريق! المسافر أحمد على بعد 15 دقيقة منك. 
 هل تريد أن أتصل به؟"
 ```
 
@@ -240,9 +240,9 @@ Arabic, English, French, German, Spanish, Portuguese, Italian, Dutch, Russian, C
 
 ## 📝 License | الترخيص
 
-Proprietary - Mnbara Platform © 2026
+Proprietary - Mmnbarh Platform 2026
 
 ---
 
 **"ذكاء منبرة - مساعدك الذكي للتسوق والسفر"**
-**"Mnbara AI - Your Smart Shopping & Travel Companion"**
+**"Mmnbarh AI - Your Smart Shopping & Travel Companion"**
