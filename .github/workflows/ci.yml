@@ -269,7 +269,7 @@ jobs:
       - name: Check if mobile app exists
         id: check-mobile
         run: |
-          if [ -d "frontend/mobile/mnbara-app" ]; then
+          if [ -d "frontend/mobile/mnbarh-app" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -277,17 +277,17 @@ jobs:
 
       - name: Install dependencies
         if: steps.check-mobile.outputs.exists == 'true'
-        working-directory: frontend/mobile/mnbara-app
+        working-directory: frontend/mobile/mnbarh-app
         run: npm ci
 
       - name: Run lint
         if: steps.check-mobile.outputs.exists == 'true'
-        working-directory: frontend/mobile/mnbara-app
+        working-directory: frontend/mobile/mnbarh-app
         run: npm run lint --if-present
 
       - name: Run tests
         if: steps.check-mobile.outputs.exists == 'true'
-        working-directory: frontend/mobile/mnbara-app
+        working-directory: frontend/mobile/mnbarh-app
         run: npm test -- --passWithNoTests
         env:
           NODE_ENV: test
@@ -379,7 +379,7 @@ jobs:
         with:
           context: backend/services/${{ matrix.service }}
           push: false
-          tags: mnbara/${{ matrix.service }}:test
+          tags: mnbarh/${{ matrix.service }}:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -400,16 +400,16 @@ jobs:
           version: 'v3.13.0'
 
       - name: Lint Helm chart
-        run: helm lint infrastructure/k8s/mnbara
+        run: helm lint infrastructure/k8s/mnbarh
 
       - name: Template Helm chart (dev)
-        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-dev.yaml > /dev/null
+        run: helm template mnbarh infrastructure/k8s/mnbarh -f infrastructure/k8s/mnbarh/values-dev.yaml > /dev/null
 
       - name: Template Helm chart (staging)
-        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-staging.yaml > /dev/null
+        run: helm template mnbarh infrastructure/k8s/mnbarh -f infrastructure/k8s/mnbarh/values-staging.yaml > /dev/null
 
       - name: Template Helm chart (prod)
-        run: helm template mnbara infrastructure/k8s/mnbara -f infrastructure/k8s/mnbara/values-prod.yaml > /dev/null
+        run: helm template mnbarh infrastructure/k8s/mnbarh -f infrastructure/k8s/mnbarh/values-prod.yaml > /dev/null
 
   # ============================================
   # CI Summary
