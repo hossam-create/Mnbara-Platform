@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbara:mnbara_dev_password@rabbitmq:5672';
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672';
 
 /**
  * Transaction Event Publisher
@@ -64,9 +64,9 @@ async function getChannel(): Promise<amqp.Channel> {
     channel = await connection.createChannel();
     
     // Ensure exchanges exist
-    await channel.assertExchange('mnbara.transactions', 'topic', { durable: true });
-    await channel.assertExchange('mnbara.fraud', 'topic', { durable: true });
-    await channel.assertExchange('mnbara.audit', 'fanout', { durable: true });
+    await channel.assertExchange('mnbarh.transactions', 'topic', { durable: true });
+    await channel.assertExchange('mnbarh.fraud', 'topic', { durable: true });
+    await channel.assertExchange('mnbarh.audit', 'fanout', { durable: true });
     
     console.log('[EventPublisher] RabbitMQ channel created');
     return channel;
@@ -89,7 +89,7 @@ export class TransactionEventPublisher {
         publishedAt: new Date().toISOString()
       }));
       
-      ch.publish('mnbara.transactions', routingKey, message, { persistent: true });
+      ch.publish('mnbarh.transactions', routingKey, message, { persistent: true });
       console.log(`[EventPublisher] Published ${routingKey} for transaction ${event.transactionId}`);
     } catch (error) {
       console.error('[EventPublisher] Failed to publish transaction event:', error);
@@ -108,7 +108,7 @@ export class TransactionEventPublisher {
         publishedAt: new Date().toISOString()
       }));
       
-      ch.publish('mnbara.fraud', routingKey, message, { persistent: true });
+      ch.publish('mnbarh.fraud', routingKey, message, { persistent: true });
 
       // Send notification for high-risk alerts
       if (alert.riskLevel === 'CRITICAL' || alert.riskLevel === 'HIGH') {
@@ -145,7 +145,7 @@ export class TransactionEventPublisher {
         publishedAt: new Date().toISOString()
       }));
       
-      ch.publish('mnbara.fraud', routingKey, message, { persistent: true });
+      ch.publish('mnbarh.fraud', routingKey, message, { persistent: true });
 
       if (event.severity === 'CRITICAL') {
         await ch.assertQueue('security-events', { durable: true });
@@ -217,7 +217,7 @@ export class TransactionEventPublisher {
         timestamp: new Date().toISOString()
       }));
       
-      ch.publish('mnbara.audit', '', message, { persistent: true });
+      ch.publish('mnbarh.audit', '', message, { persistent: true });
       console.log(`[EventPublisher] Published audit log: ${data.eventType}`);
     } catch (error) {
       console.error('[EventPublisher] Failed to publish audit log:', error);
