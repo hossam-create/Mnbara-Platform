@@ -1,10 +1,10 @@
-package com.mnbara.auth.config;
+package com.mnbarh.auth.config;
 
-import com.mnbara.auth.security.JwtAuthenticationEntryPoint;
-import com.mnbara.auth.security.JwtAuthenticationFilter;
-import com.mnbara.auth.security.OAuth2AuthenticationSuccessHandler;
-import com.mnbara.auth.security.OAuth2AuthenticationFailureHandler;
-import com.mnbara.auth.service.CustomUserDetailsService;
+import com.mnbarh.auth.security.JwtAuthenticationEntryPoint;
+import com.mnbarh.auth.security.JwtAuthenticationFilter;
+import com.mnbarh.auth.security.OAuth2AuthenticationSuccessHandler;
+import com.mnbarh.auth.security.OAuth2AuthenticationFailureHandler;
+import com.mnbarh.auth.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -148,8 +148,8 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList(
             "http://localhost:3000",
             "http://localhost:8080",
-            "https://*.mnbara.com",
-            "https://mnbara.com"
+            "https://*.mnbarh.com",
+            "https://mnbarh.com"
         ));
         
         // Allowed methods
