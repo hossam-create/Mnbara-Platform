@@ -146,7 +146,7 @@ POST /api/v1/analytics/insights      - Get AI-powered insights
 ## 🏗️ Architecture | البنية
 
 ```
-mnbara-ai-engine/
+mnbarh-ai-engine/
 ├── prisma/
 │   └── schema.prisma          # Database schema
 ├── src/
