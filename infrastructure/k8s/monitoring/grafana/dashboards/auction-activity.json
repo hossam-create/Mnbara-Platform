@@ -27,7 +27,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
       "id": 2,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:active_total", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:active_total", "legendFormat": "", "refId": "A" }],
       "title": "Active Auctions",
       "type": "stat"
     },
@@ -44,7 +44,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
       "id": 3,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:bids_per_minute", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:bids_per_minute", "legendFormat": "", "refId": "A" }],
       "title": "Bids/Minute",
       "type": "stat"
     },
@@ -61,7 +61,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
       "id": 4,
       "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:avg_bid_amount", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:avg_bid_amount", "legendFormat": "", "refId": "A" }],
       "title": "Avg Bid Amount",
       "type": "stat"
     },
@@ -78,7 +78,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
       "id": 5,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:completion_rate", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:completion_rate", "legendFormat": "", "refId": "A" }],
       "title": "Completion Rate",
       "type": "stat"
     },
@@ -94,7 +94,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
       "id": 6,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:websocket_connections", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:websocket_connections", "legendFormat": "", "refId": "A" }],
       "title": "WebSocket Connections",
       "type": "stat"
     },
@@ -111,7 +111,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
       "id": 7,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:auctions:timer_drift_seconds", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:auctions:timer_drift_seconds", "legendFormat": "", "refId": "A" }],
       "title": "Timer Drift (p99)",
       "type": "stat"
     },
@@ -213,13 +213,13 @@
   "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["mnbara", "auctions", "real-time"],
+  "tags": ["mnbarh", "auctions", "real-time"],
   "templating": { "list": [] },
   "time": { "from": "now-1h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
   "title": "MNBARA - Auction Activity",
-  "uid": "mnbara-auction-activity",
+  "uid": "mnbarh-auction-activity",
   "version": 1,
   "weekStart": ""
 }
