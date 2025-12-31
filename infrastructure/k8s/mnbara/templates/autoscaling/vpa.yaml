@@ -12,7 +12,7 @@ metadata:
   name: {{ .Values.apiGateway.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -42,7 +42,7 @@ metadata:
   name: {{ .Values.authService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -71,7 +71,7 @@ metadata:
   name: {{ .Values.auctionService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -100,7 +100,7 @@ metadata:
   name: {{ .Values.paymentService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -129,7 +129,7 @@ metadata:
   name: {{ .Values.listingService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.listingService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -158,7 +158,7 @@ metadata:
   name: {{ .Values.notificationService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -187,7 +187,7 @@ metadata:
   name: {{ .Values.matchingService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.matchingService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -216,7 +216,7 @@ metadata:
   name: {{ .Values.recommendationService.name }}-vpa
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.recommendationService.name) | nindent 4 }}
 spec:
   targetRef:
     apiVersion: apps/v1
