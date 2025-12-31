@@ -6,11 +6,11 @@ metadata:
   name: {{ .Values.apiGateway.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.apiGateway.name) | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.apiGateway.name) | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
@@ -23,11 +23,11 @@ metadata:
   name: {{ .Values.authService.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.authService.name) | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.authService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.authService.name) | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
@@ -40,11 +40,11 @@ metadata:
   name: {{ .Values.auctionService.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.auctionService.name) | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.auctionService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.auctionService.name) | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
@@ -57,11 +57,11 @@ metadata:
   name: {{ .Values.paymentService.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.paymentService.name) | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.paymentService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.paymentService.name) | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
@@ -74,11 +74,11 @@ metadata:
   name: {{ .Values.notificationService.name }}
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "mnbara.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
+    {{- include "mnbarh.serviceLabels" (list . .Values.notificationService.name) | nindent 4 }}
 spec:
   selector:
     matchLabels:
-      {{- include "mnbara.serviceSelectorLabels" (list . .Values.notificationService.name) | nindent 6 }}
+      {{- include "mnbarh.serviceSelectorLabels" (list . .Values.notificationService.name) | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
