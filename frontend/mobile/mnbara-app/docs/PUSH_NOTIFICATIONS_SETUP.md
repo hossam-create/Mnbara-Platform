@@ -14,7 +14,7 @@ This guide covers the setup of push notifications for the MNBARA mobile app usin
 
 1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Create a new project or select existing one
-3. Add an Android app with package name: `com.mnbara.app`
+3. Add an Android app with package name: `com.mnbarh.app`
 4. Download `google-services.json`
 5. Place it in `android/app/google-services.json`
 
@@ -57,7 +57,7 @@ Add to `android/app/src/main/AndroidManifest.xml`:
         <!-- FCM Default Channel -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="mnbara_general"/>
+            android:value="mnbarh_general"/>
         
         <!-- FCM Default Icon -->
         <meta-data
@@ -87,9 +87,9 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 ### 2. Firebase iOS Configuration
 
 1. In Firebase Console, add an iOS app
-2. Bundle ID: `com.mnbara.app`
+2. Bundle ID: `com.mnbarh.app`
 3. Download `GoogleService-Info.plist`
-4. Place it in `ios/mnbaraApp/GoogleService-Info.plist`
+4. Place it in `ios/mnbarhApp/GoogleService-Info.plist`
 5. Upload APNs key to Firebase:
    - Project Settings → Cloud Messaging → iOS app configuration
    - Upload the `.p8` file
@@ -97,7 +97,7 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 
 ### 3. Xcode Configuration
 
-1. Open `ios/mnbaraApp.xcworkspace` in Xcode
+1. Open `ios/mnbarhApp.xcworkspace` in Xcode
 2. Select the project target
 3. Go to "Signing & Capabilities"
 4. Add capabilities:
@@ -106,7 +106,7 @@ Add to `android/app/src/main/AndroidManifest.xml`:
 
 ### 4. AppDelegate Configuration
 
-Update `ios/mnbaraApp/AppDelegate.mm`:
+Update `ios/mnbarhApp/AppDelegate.mm`:
 
 ```objc
 #import <Firebase.h>
@@ -220,7 +220,7 @@ await admin.messaging().send({
   android: {
     priority: 'high',
     notification: {
-      channelId: 'mnbara_auctions',
+      channelId: 'mnbarh_auctions',
     },
   },
   apns: {
