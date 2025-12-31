@@ -28,7 +28,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
       "id": 2,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:gmv_hourly", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:gmv_hourly", "legendFormat": "", "refId": "A" }],
       "title": "GMV (Last Hour)",
       "type": "stat"
     },
@@ -45,7 +45,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
       "id": 3,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:success_rate", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:success_rate", "legendFormat": "", "refId": "A" }],
       "title": "Success Rate",
       "type": "stat"
     },
@@ -62,7 +62,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
       "id": 4,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:failure_rate", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:failure_rate", "legendFormat": "", "refId": "A" }],
       "title": "Failure Rate",
       "type": "stat"
     },
@@ -79,7 +79,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
       "id": 5,
       "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:avg_transaction_amount", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:avg_transaction_amount", "legendFormat": "", "refId": "A" }],
       "title": "Avg Transaction",
       "type": "stat"
     },
@@ -96,7 +96,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
       "id": 6,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:escrow_held_total", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:escrow_held_total", "legendFormat": "", "refId": "A" }],
       "title": "Escrow Held",
       "type": "stat"
     },
@@ -113,7 +113,7 @@
       "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
       "id": 7,
       "options": { "colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
-      "targets": [{ "expr": "mnbara:payments:latency_p99", "legendFormat": "", "refId": "A" }],
+      "targets": [{ "expr": "mnbarh:payments:latency_p99", "legendFormat": "", "refId": "A" }],
       "title": "Latency (p99)",
       "type": "stat"
     },
@@ -222,13 +222,13 @@
   "refresh": "30s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["mnbara", "payments", "transactions"],
+  "tags": ["mnbarh", "payments", "transactions"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},
   "timezone": "browser",
   "title": "MNBARA - Payment Transactions",
-  "uid": "mnbara-payment-transactions",
+  "uid": "mnbarh-payment-transactions",
   "version": 1,
   "weekStart": ""
 }
