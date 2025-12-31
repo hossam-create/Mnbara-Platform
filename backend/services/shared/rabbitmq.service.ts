@@ -1,6 +1,6 @@
 import amqp from 'amqplib';
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbara:mnbara_dev_password@rabbitmq:5672';
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672';
 
 /**
  * RabbitMQ Helper Service
@@ -37,10 +37,10 @@ export class RabbitMQService {
             });
 
             // Standard Exchanges
-            await this.channel.assertExchange('mnbara.events', 'topic', { durable: true });
-            await this.channel.assertExchange('mnbara.transactions', 'topic', { durable: true });
-            await this.channel.assertExchange('mnbara.fraud', 'topic', { durable: true });
-            await this.channel.assertExchange('mnbara.audit', 'fanout', { durable: true });
+            await this.channel.assertExchange('mnbarh.events', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbarh.transactions', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbarh.fraud', 'topic', { durable: true });
+            await this.channel.assertExchange('mnbarh.audit', 'fanout', { durable: true });
             
             // Standard Queues
             const queues = [
@@ -61,10 +61,10 @@ export class RabbitMQService {
             }
 
             // Bind transaction events
-            await this.channel.bindQueue('transaction-events', 'mnbara.transactions', 'transaction.*');
-            await this.channel.bindQueue('fraud-alerts', 'mnbara.fraud', 'fraud.*');
-            await this.channel.bindQueue('security-events', 'mnbara.fraud', 'security.*');
-            await this.channel.bindQueue('audit-logs', 'mnbara.audit', '');
+            await this.channel.bindQueue('transaction-events', 'mnbarh.transactions', 'transaction.*');
+            await this.channel.bindQueue('fraud-alerts', 'mnbarh.fraud', 'fraud.*');
+            await this.channel.bindQueue('security-events', 'mnbarh.fraud', 'security.*');
+            await this.channel.bindQueue('audit-logs', 'mnbarh.audit', '');
             
             console.log('✅ RabbitMQ connected successfully');
             this.isConnecting = false;
@@ -105,7 +105,7 @@ export class RabbitMQService {
         try {
             const channel = await this.connect();
             const msgBuffer = Buffer.from(JSON.stringify(message));
-            channel.publish('mnbara.events', routingKey, msgBuffer, { persistent: true });
+            channel.publish('mnbarh.events', routingKey, msgBuffer, { persistent: true });
             console.log(`[RabbitMQ] Published event ${routingKey}`);
         } catch (error) {
             console.error('[RabbitMQ] Publish event error:', error);
