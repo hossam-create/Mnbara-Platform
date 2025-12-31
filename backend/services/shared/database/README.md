@@ -23,7 +23,7 @@ The encryption implementation includes:
 Run the SQL migration to enable pgcrypto:
 
 ```bash
-psql -U mnbara_user -d mnbara_db -f migrations/enable_pgcrypto.sql
+psql -U mnbarh_user -d mnbarh_db -f migrations/enable_pgcrypto.sql
 ```
 
 This will:
@@ -55,7 +55,7 @@ DB_ENCRYPTION_KEY=your_generated_key_here
 Run the field encryption migration:
 
 ```bash
-psql -U mnbara_user -d mnbara_db -f migrations/encrypt_sensitive_fields.sql
+psql -U mnbarh_user -d mnbarh_db -f migrations/encrypt_sensitive_fields.sql
 ```
 
 Then execute the migration functions:
@@ -138,7 +138,7 @@ mount /dev/mapper/pgdata /var/lib/postgresql/data
 ```bash
 # Enable encryption when creating RDS instance
 aws rds create-db-instance \
-  --db-instance-identifier mnbara-db \
+  --db-instance-identifier mnbarh-db \
   --storage-encrypted \
   --kms-key-id arn:aws:kms:region:account:key/key-id
 ```
@@ -196,7 +196,7 @@ import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-sec
 async function getEncryptionKey() {
   const client = new SecretsManagerClient({ region: "us-east-1" });
   const response = await client.send(
-    new GetSecretValueCommand({ SecretId: "mnbara/db-encryption-key" })
+    new GetSecretValueCommand({ SecretId: "mnbarh/db-encryption-key" })
   );
   return response.SecretString;
 }
@@ -209,7 +209,7 @@ import vault from "node-vault";
 
 async function getEncryptionKey() {
   const client = vault({ endpoint: process.env.VAULT_ADDR });
-  const result = await client.read("secret/data/mnbara/db-encryption-key");
+  const result = await client.read("secret/data/mnbarh/db-encryption-key");
   return result.data.data.key;
 }
 ```
@@ -227,7 +227,7 @@ To rotate encryption keys:
 ```sql
 -- Log key rotation
 INSERT INTO encryption_key_audit (key_version, rotated_by, notes)
-VALUES (2, 'admin@mnbara.com', 'Scheduled key rotation');
+VALUES (2, 'admin@mnbarh.com', 'Scheduled key rotation');
 ```
 
 ## Security Best Practices
@@ -278,7 +278,7 @@ sudo apt-get install postgresql-contrib
 sudo yum install postgresql-contrib
 
 # Then enable in database
-psql -U postgres -d mnbara_db -c "CREATE EXTENSION pgcrypto;"
+psql -U postgres -d mnbarh_db -c "CREATE EXTENSION pgcrypto;"
 ```
 
 ### Error: "Encryption key not set"
@@ -323,4 +323,4 @@ This encryption implementation helps meet:
 For issues or questions:
 - Check the troubleshooting section above
 - Review PostgreSQL logs: `/var/log/postgresql/postgresql-*.log`
-- Contact the platform team: platform@mnbara.com
+- Contact the platform team: platform@mnbarh.com
