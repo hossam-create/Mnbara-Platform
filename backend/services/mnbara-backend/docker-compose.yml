@@ -6,11 +6,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: mnbara-backend
+    container_name: mnbarh-backend
     environment:
       - NODE_ENV=development
       - PORT=3000
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mnbara_dev
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mnbarh_dev
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=your-super-secret-jwt-key-change-in-production
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
@@ -29,7 +29,7 @@ services:
       - .:/app
       - /app/node_modules
     networks:
-      - mnbara-network
+      - mnbarh-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
       interval: 30s
@@ -39,17 +39,17 @@ services:
   # PostgreSQL Database
   db:
     image: postgres:15
-    container_name: mnbara-backend-db
+    container_name: mnbarh-backend-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mnbara_dev
+      POSTGRES_DB: mnbarh_dev
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - mnbara-network
+      - mnbarh-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 30s
@@ -59,11 +59,11 @@ services:
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: mnbara-backend-redis
+    container_name: mnbarh-backend-redis
     ports:
       - "6379:6379"
     networks:
-      - mnbara-network
+      - mnbarh-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -73,7 +73,7 @@ services:
   # RabbitMQ Message Broker
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
-    container_name: mnbara-backend-rabbitmq
+    container_name: mnbarh-backend-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -82,7 +82,7 @@ services:
       - "5672:5672"   # AMQP protocol
       - "15672:15672" # Management UI
     networks:
-      - mnbara-network
+      - mnbarh-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 30s
@@ -93,5 +93,5 @@ volumes:
   db_data:
 
 networks:
-  mnbara-network:
+  mnbarh-network:
     driver: bridge
