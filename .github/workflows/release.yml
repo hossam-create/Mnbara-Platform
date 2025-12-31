@@ -18,7 +18,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-  EKS_CLUSTER_NAME: mnbara-cluster
+  EKS_CLUSTER_NAME: mnbarh-cluster
 
 jobs:
   # ============================================
@@ -166,8 +166,8 @@ jobs:
           context: ${{ steps.context.outputs.path }}
           push: true
           tags: |
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:${{ needs.validate.outputs.version }}
-            ${{ env.ECR_REGISTRY }}/mnbara/${{ matrix.service }}:latest
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.service }}:${{ needs.validate.outputs.version }}
+            ${{ env.ECR_REGISTRY }}/mnbarh/${{ matrix.service }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -204,15 +204,15 @@ jobs:
           aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }}-production --region ${{ env.AWS_REGION }}
 
       - name: Update Helm dependencies
-        working-directory: infrastructure/k8s/mnbara
+        working-directory: infrastructure/k8s/mnbarh
         run: helm dependency update
 
       - name: Deploy with Helm
-        working-directory: infrastructure/k8s/mnbara
+        working-directory: infrastructure/k8s/mnbarh
         run: |
-          helm upgrade --install mnbara . \
+          helm upgrade --install mnbarh . \
             -f values-prod.yaml \
-            --namespace mnbara-production \
+            --namespace mnbarh-production \
             --create-namespace \
             --set image.tag=${{ needs.validate.outputs.version }} \
             --set global.environment=production \
@@ -221,10 +221,10 @@ jobs:
 
       - name: Verify deployment
         run: |
-          kubectl rollout status deployment/api-gateway -n mnbara-production --timeout=5m
-          kubectl rollout status deployment/auth-service -n mnbara-production --timeout=5m
-          kubectl rollout status deployment/auction-service -n mnbara-production --timeout=5m
-          kubectl rollout status deployment/payment-service -n mnbara-production --timeout=5m
+          kubectl rollout status deployment/api-gateway -n mnbarh-production --timeout=5m
+          kubectl rollout status deployment/auth-service -n mnbarh-production --timeout=5m
+          kubectl rollout status deployment/auction-service -n mnbarh-production --timeout=5m
+          kubectl rollout status deployment/payment-service -n mnbarh-production --timeout=5m
 
   # ============================================
   # Create GitHub Release
@@ -272,7 +272,7 @@ jobs:
             ## Docker Images
             
             All service images are available at:
-            - `${{ env.ECR_REGISTRY }}/mnbara/<service>:${{ needs.validate.outputs.version }}`
+            - `${{ env.ECR_REGISTRY }}/mnbarh/<service>:${{ needs.validate.outputs.version }}`
           draft: false
           prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
         env:
