@@ -4,11 +4,11 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: mnbara-alerts
+  name: mnbarh-alerts
   namespace: monitoring
   labels:
     app.kubernetes.io/name: prometheus-rules
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 spec:
   groups:
     # ============================================
@@ -30,8 +30,8 @@ spec:
           annotations:
             summary: "High payment failure rate detected"
             description: "Payment failure rate is {{ $value | humanizePercentage }} (threshold: 5%)"
-            runbook_url: "https://wiki.mnbara.com/runbooks/payment-failures"
-            dashboard_url: "http://grafana:3000/d/mnbara-payment-transactions"
+            runbook_url: "https://wiki.mnbarh.com/runbooks/payment-failures"
+            dashboard_url: "http://grafana:3000/d/mnbarh-payment-transactions"
 
         - alert: PaymentServiceDown
           expr: up{job="payment-service"} == 0
@@ -43,7 +43,7 @@ spec:
           annotations:
             summary: "Payment service is down"
             description: "Payment service has been unreachable for more than 1 minute"
-            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+            runbook_url: "https://wiki.mnbarh.com/runbooks/service-down"
 
         - alert: PaymentProcessingLatencyHigh
           expr: |
@@ -99,8 +99,8 @@ spec:
           annotations:
             summary: "Auction timer drift detected"
             description: "P99 auction timer drift is {{ $value }}s (threshold: 1s). This can cause unfair auction endings."
-            runbook_url: "https://wiki.mnbara.com/runbooks/auction-timer-drift"
-            dashboard_url: "http://grafana:3000/d/mnbara-auction-activity"
+            runbook_url: "https://wiki.mnbarh.com/runbooks/auction-timer-drift"
+            dashboard_url: "http://grafana:3000/d/mnbarh-auction-activity"
 
         - alert: AuctionServiceDown
           expr: up{job="auction-service"} == 0
@@ -112,7 +112,7 @@ spec:
           annotations:
             summary: "Auction service is down"
             description: "Auction service has been unreachable for more than 30 seconds. Active auctions may be affected."
-            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+            runbook_url: "https://wiki.mnbarh.com/runbooks/service-down"
 
         - alert: AuctionBidProcessingLatencyHigh
           expr: |
@@ -168,7 +168,7 @@ spec:
           annotations:
             summary: "Service {{ $labels.job }} is down"
             description: "{{ $labels.job }} has been unreachable for more than 1 minute"
-            runbook_url: "https://wiki.mnbara.com/runbooks/service-down"
+            runbook_url: "https://wiki.mnbarh.com/runbooks/service-down"
 
         - alert: HighErrorRate
           expr: |
@@ -198,7 +198,7 @@ spec:
 
         - alert: PodCrashLooping
           expr: |
-            increase(kube_pod_container_status_restarts_total{namespace="mnbara"}[1h]) > 5
+            increase(kube_pod_container_status_restarts_total{namespace="mnbarh"}[1h]) > 5
           for: 5m
           labels:
             severity: warning
@@ -209,7 +209,7 @@ spec:
 
         - alert: PodNotReady
           expr: |
-            kube_pod_status_ready{namespace="mnbara", condition="true"} == 0
+            kube_pod_status_ready{namespace="mnbarh", condition="true"} == 0
           for: 5m
           labels:
             severity: warning
