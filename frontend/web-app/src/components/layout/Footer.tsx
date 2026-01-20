@@ -1,146 +1,92 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
-const Footer: React.FC = () => {
-  const currentYear = new Date().getFullYear()
+/**
+ * Footer - MNbarh Canonical (Walmart-grade UX)
+ * Multi-column footer with links matching marketplace structure
+ */
 
-  const footerSections = [
-    {
-      title: 'Buy',
-      links: [
-        { name: 'Registration', href: '/auth/register' },
-        { name: 'eBay Money Back Guarantee', href: '/help/guarantee' },
-        { name: 'Bidding & buying help', href: '/help/buying' },
-        { name: 'Stores', href: '/stores' },
-      ]
-    },
-    {
-      title: 'Sell',
-      links: [
-        { name: 'Start selling', href: '/sell' },
-        { name: 'Learn to sell', href: '/help/selling' },
-        { name: 'Affiliates', href: '/affiliates' },
-      ]
-    },
-    {
-      title: 'Tools & apps',
-      links: [
-        { name: 'Developers', href: '/developers' },
-        { name: 'Security center', href: '/security' },
-        { name: 'Site map', href: '/sitemap' },
-      ]
-    },
-    {
-      title: 'Stay connected',
-      links: [
-        { name: "Mnbarh's Blogs", href: '/blog' },
-        { name: 'Facebook', href: '#' },
-        { name: 'Twitter', href: '#' },
-      ]
-    },
-    {
-      title: 'About Mnbarh',
-      links: [
-        { name: 'Company info', href: '/about' },
-        { name: 'News', href: '/news' },
-        { name: 'Investors', href: '/investors' },
-        { name: 'Careers', href: '/careers' },
-        { name: 'Government relations', href: '/government' },
-        { name: 'Advertise with us', href: '/advertise' },
-        { name: 'Policies', href: '/policies' },
-        { name: 'Verified Rights Owner (VeRO) Program', href: '/vero' },
-      ]
-    },
-    {
-      title: 'Help & Contact',
-      links: [
-        { name: 'Seller Information Center', href: '/help/seller' },
-        { name: 'Contact us', href: '/contact' },
-        { name: 'Resolution Center', href: '/resolution' },
-      ]
-    }
-  ]
+export default function Footer() {
+  const { t } = useTranslation();
 
   return (
-    <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Main footer content */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-          {footerSections.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
-                {section.title}
-              </h3>
-              <ul className="mt-4 space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      to={link.href}
-                      className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <footer className="bg-brand-blueDark border-t border-white/10 mt-16 text-end">
+      <div className="max-w-[1400px] mx-auto px-4 py-14">
+        {/* Footer Links Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 lg:gap-12 mb-12">
+            {/* Buy */}
+          <div>
+            <h4 className="font-bold text-sm text-white mb-4">{t('footer.buy')}</h4>
+            <ul className="space-y-3">
+              <li><Link to="/auth/register" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.registration')}</Link></li>
+              <li><Link to="/policies/buyer-protection" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.moneyBack')}</Link></li>
+              <li><Link to="/help/bidding" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.biddingHelp')}</Link></li>
+              <li><Link to="/stores" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.stores')}</Link></li>
+            </ul>
+          </div>
+
+          {/* Sell */}
+          <div>
+            <h4 className="font-bold text-sm text-white mb-4">{t('footer.sell')}</h4>
+            <ul className="space-y-3">
+              <li><Link to="/sell" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.startSelling')}</Link></li>
+              <li><Link to="/help/selling" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.learnToSell')}</Link></li>
+              <li><Link to="/affiliates" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.affiliates')}</Link></li>
+              <li><Link to="/sitemap" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.siteMap')}</Link></li>
+            </ul>
+          </div>
+
+          {/* Tools & Apps */}
+          <div>
+            <h4 className="font-bold text-sm text-white mb-4">{t('footer.toolsApps')}</h4>
+            <ul className="space-y-3">
+              <li><Link to="/developers" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.developers')}</Link></li>
+              <li><Link to="/security" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.securityCenter')}</Link></li>
+              <li><Link to="/sitemap" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.siteMap')}</Link></li>
+            </ul>
+          </div>
+
+          {/* Stay Connected */}
+          <div>
+            <h4 className="font-bold text-sm text-white mb-4">{t('footer.stayConnected')}</h4>
+            <ul className="space-y-3">
+              <li><Link to="/blog" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.blogs')}</Link></li>
+              <li><a href="https://facebook.com" target="_blank" rel="noreferrer" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.facebook')}</a></li>
+              <li><a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.twitter')}</a></li>
+            </ul>
+          </div>
+
+          {/* About Mnbarh */}
+          <div>
+            <h4 className="font-bold text-sm text-white mb-4">{t('footer.about')}</h4>
+            <ul className="space-y-3">
+              <li><Link to="/about" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.companyInfo')}</Link></li>
+              <li><Link to="/news" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.news')}</Link></li>
+              <li><Link to="/investors" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.investors')}</Link></li>
+              <li><Link to="/careers" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.careers')}</Link></li>
+              <li><Link to="/policies/all" className="text-xs text-white/80 hover:text-brand-yellow hover:underline font-normal">{t('footer.links.policies')}</Link></li>
+            </ul>
+          </div>
         </div>
 
-        {/* Bottom section */}
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Copyright */}
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              Copyright © 1995-{currentYear} Mnbarh Inc. All Rights Reserved.{' '}
-              <Link to="/accessibility" className="hover:text-gray-900 dark:hover:text-white">
-                Accessibility
-              </Link>
-              ,{' '}
-              <Link to="/privacy" className="hover:text-gray-900 dark:hover:text-white">
-                User Agreement
-              </Link>
-              ,{' '}
-              <Link to="/privacy" className="hover:text-gray-900 dark:hover:text-white">
-                Privacy
-              </Link>
-              ,{' '}
-              <Link to="/payments" className="hover:text-gray-900 dark:hover:text-white">
-                Payments Terms of Use
-              </Link>
-              ,{' '}
-              <Link to="/cookies" className="hover:text-gray-900 dark:hover:text-white">
-                Cookies
-              </Link>
-              ,{' '}
-              <Link to="/ca-privacy" className="hover:text-gray-900 dark:hover:text-white">
-                CA Privacy Notice
-              </Link>
-              ,{' '}
-              <Link to="/choices" className="hover:text-gray-900 dark:hover:text-white">
-                Your Privacy Choices
-              </Link>{' '}
-              and{' '}
-              <Link to="/adsinfo" className="hover:text-gray-900 dark:hover:text-white">
-                AdChoice
-              </Link>
-            </div>
-
-            {/* Language and currency selector */}
-            <div className="mt-4 md:mt-0 flex items-center space-x-4">
-              <select className="text-sm border border-gray-300 rounded-md px-3 py-1 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
-                <option>United States</option>
-                <option>Canada</option>
-                <option>United Kingdom</option>
-                <option>Germany</option>
-                <option>France</option>
-              </select>
+        {/* Bottom Bar */}
+        <div className="border-t border-white/10 pt-6">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-white/60 font-normal justify-between">
+            <span>{t('footer.copyright')}</span>
+            <div className="flex gap-2">
+                <Link to="/accessibility" className="hover:text-brand-yellow hover:underline">{t('footer.links.accessibility')}</Link>
+                <span>·</span>
+                <Link to="/policies/user-agreement" className="hover:text-brand-yellow hover:underline">{t('footer.links.userAgreement')}</Link>
+                <span>·</span>
+                <Link to="/policies/privacy" className="hover:text-brand-yellow hover:underline">{t('footer.links.privacy')}</Link>
+                <span>·</span>
+                <Link to="/policies/cookies" className="hover:text-brand-yellow hover:underline">{t('footer.links.cookies')}</Link>
+                <span>·</span>
+                <Link to="/policies/privacy-choices" className="hover:text-brand-yellow hover:underline">{t('footer.links.privacyChoices')}</Link>
             </div>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
-export default Footer

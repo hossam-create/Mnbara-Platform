@@ -1,0 +1,1037 @@
+// AI Business Service Database Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core Business Entities
+model BusinessAccount {
+  id                String   @id @default(cuid())
+  name              String
+  legalName         String?
+  businessType      BusinessType
+  registrationNumber String?
+  taxId            String?
+  industry         String?
+  description      String?
+  
+  // Status
+  status            BusinessStatus @default(ACTIVE)
+  verifiedAt        DateTime?
+  onboardedAt       DateTime?
+  
+  // Financial
+  currency          String   @default("USD")
+  creditLimit       Decimal? @db.Decimal(15, 2)
+  currentBalance    Decimal  @default(0) @db.Decimal(15, 2)
+  availableCredit  Decimal? @db.Decimal(15, 2)
+  
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  deletedAt         DateTime?
+  
+  // Relations
+  users             BusinessUser[]
+  accounts          Account[]
+  transactions      Transaction[]
+  invoices          Invoice[]
+  expenses          Expense[]
+  aiAnalyses        AIAnalysis[]
+  auditLogs         BusinessAuditLog[]
+  
+  // Accounting Relations
+  chartOfAccounts   ChartOfAccount[]
+  fiscalPeriods     FiscalPeriod[]
+  journalEntries    JournalEntry[]
+  accountingAuditLogs AccountingAuditLog[]
+  
+  @@map("business_accounts")
+}
+
+model BusinessUser {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  userId            String
+  
+  // Role within business
+  role              BusinessRole
+  permissions       String[] // JSON array of permissions
+  isActive          Boolean  @default(true)
+  
+  // Access control
+  lastLoginAt       DateTime?
+  accessExpiresAt   DateTime?
+  
+  assignedAt        DateTime @default(now())
+  assignedBy        String?
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  trustCases        TrustCase[]      @relation("TrustCaseResolver")
+  
+  @@unique([businessAccountId, userId])
+  @@map("business_users")
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  accountNumber     String   @unique
+  accountType       AccountType
+  name              String
+  description       String?
+  
+  // Financial
+  currency          String   @default("USD")
+  balance           Decimal  @default(0) @db.Decimal(15, 2)
+  availableBalance  Decimal  @default(0) @db.Decimal(15, 2)
+  holdBalance       Decimal  @default(0) @db.Decimal(15, 2)
+  
+  // Status
+  status            AccountStatus @default(ACTIVE)
+  isActive          Boolean       @default(true)
+  frozenAt          DateTime?
+  
+  // Integration
+  externalAccountId String?
+  bankAccountId     String?
+  plaidAccountId    String?
+  
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  closedAt          DateTime?
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  
+  @@map("accounts")
+}
+
+model Transaction {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  accountId         String?
+  
+  // Transaction details
+  referenceNumber   String   @unique
+  type              TransactionType
+  category          TransactionCategory
+  amount            Decimal  @db.Decimal(15, 2)
+  currency          String   @default("USD")
+  description       String?
+  notes             String?
+  
+  // Status
+  status            TransactionStatus @default(PENDING)
+  processedAt       DateTime?
+  settledAt         DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  
+  // Parties
+  counterpartyName  String?
+  counterpartyAccount String?
+  counterpartyBank  String?
+  
+  // Metadata
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  account           Account?        @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  invoice           Invoice?        @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  expense           Expense?        @relation(fields: [expenseId], references: [id], onDelete: SetNull)
+  aiAnalyses        AIAnalysis[]
+  
+  @@map("transactions")
+}
+
+model Invoice {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  
+  // Invoice details
+  invoiceNumber     String   @unique
+  customerName      String
+  customerEmail     String?
+  customerTaxId     String?
+  
+  // Financial
+  subtotal          Decimal  @db.Decimal(15, 2)
+  taxAmount         Decimal  @default(0) @db.Decimal(15, 2)
+  totalAmount       Decimal  @db.Decimal(15, 2)
+  paidAmount        Decimal  @default(0) @db.Decimal(15, 2)
+  dueAmount         Decimal  @db.Decimal(15, 2)
+  
+  // Dates
+  issueDate         DateTime
+  dueDate           DateTime
+  paidAt            DateTime?
+  
+  // Status
+  status            InvoiceStatus @default(DRAFT)
+  overdueSince      DateTime?
+  
+  // Metadata
+  notes             String?
+  terms             String?
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  lineItems         InvoiceLineItem[]
+  
+  @@map("invoices")
+}
+
+model InvoiceLineItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  
+  description String
+  quantity    Decimal  @db.Decimal(10, 2)
+  unitPrice   Decimal  @db.Decimal(15, 2)
+  totalPrice  Decimal  @db.Decimal(15, 2)
+  taxRate     Decimal  @default(0) @db.Decimal(5, 4)
+  taxAmount   Decimal  @default(0) @db.Decimal(15, 2)
+  
+  // Metadata
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  @@map("invoice_line_items")
+}
+
+model Expense {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  
+  // Expense details
+  merchantName      String
+  merchantCategory  String?
+  description       String
+  receiptNumber     String?
+  
+  // Financial
+  amount            Decimal  @db.Decimal(15, 2)
+  currency          String   @default("USD")
+  taxAmount         Decimal  @default(0) @db.Decimal(15, 2)
+  
+  // Dates
+  expenseDate       DateTime
+  submittedAt       DateTime @default(now())
+  approvedAt        DateTime?
+  reimbursedAt      DateTime?
+  
+  // Status
+  status            ExpenseStatus @default(PENDING)
+  approvedBy        String?
+  
+  // Categories
+  category          ExpenseCategory
+  subcategory       String?
+  tags              String[]
+  
+  // Metadata
+  notes             String?
+  attachments       String[] // URLs to receipts/documents
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  
+  @@map("expenses")
+}
+
+// AI Analysis Models
+model AIAnalysis {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  
+  // Analysis details
+  analysisType      AIAnalysisType
+  model             String
+  version           String
+  confidence        Float    @db.Decimal(3, 2) // 0.00 to 1.00
+  
+  // Input data
+  inputData         Json     // Raw data used for analysis
+  context           Json?    // Additional context
+  
+  // Results
+  results           Json     // Analysis results
+  recommendations   Json?    // AI recommendations
+  insights          Json?    // Key insights
+  
+  // Status
+  status            AIAnalysisStatus @default(PENDING)
+  processedAt       DateTime?
+  completedAt       DateTime?
+  error             String?
+  
+  // Metadata
+  processingTimeMs  Int?
+  cost              Decimal? @db.Decimal(10, 6) // Cost in USD
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  transactions      Transaction[]
+  
+  @@map("ai_analyses")
+}
+
+model FinancialReport {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  
+  // Report details
+  reportType        ReportType
+  period            String   // e.g., "2024-Q1", "2024-01"
+  startDate         DateTime
+  endDate           DateTime
+  
+  // Data
+  data              Json     // Report data
+  summary           Json     // Executive summary
+  charts            Json?    // Chart configurations
+  
+  // AI insights
+  aiInsights        Json?
+  recommendations   Json?
+  
+  // Status
+  status            ReportStatus @default(DRAFT)
+  generatedAt       DateTime @default(now())
+  publishedAt       DateTime?
+  
+  // Metadata
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("financial_reports")
+}
+
+model BusinessAuditLog {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  
+  // Event details
+  action            String
+  resource          String?
+  resourceId        String?
+  
+  // Changes
+  oldValues         Json?
+  newValues         Json?
+  
+  // User context
+  userId            String?
+  userEmail         String?
+  role              String?
+  
+  // System context
+  ipAddress         String?
+  userAgent         String?
+  source            String?  // API, Web, System, AI
+  
+  // Metadata
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now())
+  
+  @@map("business_audit_logs")
+}
+
+// Enums
+enum BusinessType {
+  SOLE_PROPRIETORSHIP
+  PARTNERSHIP
+  LLC
+  CORPORATION
+  NON_PROFIT
+  GOVERNMENT
+}
+
+enum BusinessStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+  CLOSED
+}
+
+enum BusinessRole {
+  OWNER
+  ADMIN
+  FINANCE
+  ACCOUNTANT
+  VIEWER
+  AI_ANALYST
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CREDIT_CARD
+  LOAN
+  INVESTMENT
+  CASH
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  FROZEN
+  CLOSED
+  PENDING
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+  TRANSFER_IN
+  TRANSFER_OUT
+  PAYMENT_RECEIVED
+  PAYMENT_SENT
+  REFUND
+  FEE
+}
+
+enum TransactionCategory {
+  SALES
+  PURCHASES
+  EXPENSES
+  TRANSFERS
+  FEES
+  INTEREST
+  TAXES
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REVERSED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+  PARTIALLY_PAID
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REIMBURSED
+  CANCELLED
+}
+
+enum AIAnalysisType {
+  CASH_FLOW_PREDICTION
+  EXPENSE_CLASSIFICATION
+  REVENUE_FORECAST
+  RISK_ASSESSMENT
+  FRAUD_DETECTION
+  ANOMALY_DETECTION
+  TREND_ANALYSIS
+  OPTIMIZATION
+}
+
+enum AIAnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ReportType {
+  PROFIT_AND_LOSS
+  BALANCE_SHEET
+  CASH_FLOW
+  SALES_REPORT
+  EXPENSE_REPORT
+  TAX_REPORT
+  CUSTOM
+}
+
+enum ReportStatus {
+  DRAFT
+  GENERATING
+  COMPLETED
+  PUBLISHED
+  FAILED
+}
+
+// FP&A and Forecasting Models
+
+model FinancialAssumption {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  assumptionCategory String  @map("assumption_category") // REVENUE, EXPENSE, BALANCE_SHEET, CASH_FLOW
+  assumptionName    String   @map("assumption_name")
+  assumptionKey     String   @map("assumption_key")
+  assumptionValue    Decimal  @map("assumption_value") @db.Decimal(20, 4)
+  assumptionType     String   @map("assumption_type") // PERCENTAGE, AMOUNT, GROWTH_RATE, DAYS
+  unitOfMeasure     String?  @map("unit_of_measure") // PERCENT, DOLLARS, DAYS, RATIO
+  description       String?
+  isActive          Boolean  @default(true) @map("is_active")
+  isEditable        Boolean  @default(true) @map("is_editable")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdBy         String?  @map("created_by")
+  updatedBy         String?  @map("updated_by")
+  version           Int      @default(1)
+
+  // Relations
+  businessAccount    BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  creator           User?           @relation("AssumptionCreator", fields: [createdBy], references: [id])
+  updater           User?           @relation("AssumptionUpdater", fields: [updatedBy], references: [id])
+  history           ForecastAssumptionsHistory[]
+  validationRules   ForecastValidationRule[]
+  financialStatements FinancialStatement[]
+
+  @@unique([businessAccountId, assumptionKey, version])
+  @@map("financial_assumptions")
+}
+
+model ForecastScenario {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  scenarioName      String   @map("scenario_name")
+  scenarioType      String   @default("CUSTOM") @map("scenario_type") // BASE, OPTIMISTIC, PESSIMISTIC, CUSTOM
+  description       String?
+  isActive          Boolean  @default(true) @map("is_active")
+  isDefault         Boolean  @default(false) @map("is_default")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdBy         String?  @map("created_by")
+  updatedBy         String?  @map("updated_by")
+
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  creator           User?           @relation("ScenarioCreator", fields: [createdBy], references: [id])
+  updater           User?           @relation("ScenarioUpdater", fields: [updatedBy], references: [id])
+  periods           ForecastPeriod[]
+  incomeStatements  ForecastIncomeStatement[]
+  balanceSheets     ForecastBalanceSheet[]
+  cashFlowStatements ForecastCashFlowStatement[]
+  assumptionsHistory ForecastAssumptionsHistory[]
+  validationResults ForecastValidationResult[]
+
+  @@unique([businessAccountId, scenarioName])
+  @@map("forecast_scenarios")
+}
+
+model ForecastPeriod {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  scenarioId        String   @map("scenario_id")
+  periodType        String   @map("period_type") // MONTHLY, QUARTERLY, YEARLY
+  fiscalYear        Int      @map("fiscal_year")
+  fiscalQuarter     Int?     @map("fiscal_quarter")
+  fiscalMonth       Int?     @map("fiscal_month")
+  periodStart       DateTime @map("period_start") @db.Date
+  periodEnd         DateTime @map("period_end") @db.Date
+  isActual          Boolean  @default(false) @map("is_actual")
+  isForecast        Boolean  @default(true) @map("is_forecast")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  scenario          ForecastScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  incomeStatement   ForecastIncomeStatement?
+  balanceSheet      ForecastBalanceSheet?
+  cashFlowStatement ForecastCashFlowStatement?
+  validationResults ForecastValidationResult[]
+
+  @@unique([businessAccountId, scenarioId, periodType, fiscalYear, fiscalQuarter, fiscalMonth])
+  @@map("forecast_periods")
+}
+
+model ForecastIncomeStatement {
+  id                    String   @id @default(cuid())
+  businessAccountId     String   @map("business_account_id")
+  scenarioId            String   @map("scenario_id")
+  periodId              String   @map("period_id")
+  revenue               Decimal  @default(0) @map("revenue") @db.Decimal(20, 2)
+  costOfGoodsSold       Decimal  @default(0) @map("cost_of_goods_sold") @db.Decimal(20, 2)
+  grossProfit           Decimal  @default(0) @map("gross_profit") @db.Decimal(20, 2)
+  operatingExpenses     Decimal  @default(0) @map("operating_expenses") @db.Decimal(20, 2)
+  operatingIncome       Decimal  @default(0) @map("operating_income") @db.Decimal(20, 2)
+  interestExpense       Decimal  @default(0) @map("interest_expense") @db.Decimal(20, 2)
+  taxExpense            Decimal  @default(0) @map("tax_expense") @db.Decimal(20, 2)
+  netIncome             Decimal  @default(0) @map("net_income") @db.Decimal(20, 2)
+  grossProfitMargin     Decimal  @default(0) @map("gross_profit_margin") @db.Decimal(10, 4)
+  operatingMargin       Decimal  @default(0) @map("operating_margin") @db.Decimal(10, 4)
+  netProfitMargin       Decimal  @default(0) @map("net_profit_margin") @db.Decimal(10, 4)
+  forecastMethod        String?  @map("forecast_method") // PERCENTAGE_OF_SALES, GROWTH_BASED, TREND_BASED
+  confidenceScore       Decimal? @map("confidence_score") @db.Decimal(5, 2)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  createdBy             String?  @map("created_by")
+  updatedBy             String?  @map("updated_by")
+
+  // Relations
+  businessAccount       BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  scenario               ForecastScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  period                ForecastPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  creator               User?           @relation("IncomeStatementCreator", fields: [createdBy], references: [id])
+  updater               User?           @relation("IncomeStatementUpdater", fields: [updatedBy], references: [id])
+
+  @@unique([businessAccountId, scenarioId, periodId])
+  @@map("forecast_income_statements")
+}
+
+model ForecastBalanceSheet {
+  id                    String   @id @default(cuid())
+  businessAccountId     String   @map("business_account_id")
+  scenarioId            String   @map("scenario_id")
+  periodId              String   @map("period_id")
+  cashAndEquivalents    Decimal  @default(0) @map("cash_and_equivalents") @db.Decimal(20, 2)
+  accountsReceivable    Decimal  @default(0) @map("accounts_receivable") @db.Decimal(20, 2)
+  inventory             Decimal  @default(0) @map("inventory") @db.Decimal(20, 2)
+  currentAssets         Decimal  @default(0) @map("current_assets") @db.Decimal(20, 2)
+  fixedAssets           Decimal  @default(0) @map("fixed_assets") @db.Decimal(20, 2)
+  intangibleAssets      Decimal  @default(0) @map("intangible_assets") @db.Decimal(20, 2)
+  totalAssets           Decimal  @default(0) @map("total_assets") @db.Decimal(20, 2)
+  accountsPayable       Decimal  @default(0) @map("accounts_payable") @db.Decimal(20, 2)
+  currentLiabilities    Decimal  @default(0) @map("current_liabilities") @db.Decimal(20, 2)
+  longTermDebt          Decimal  @default(0) @map("long_term_debt") @db.Decimal(20, 2)
+  totalLiabilities      Decimal  @default(0) @map("total_liabilities") @db.Decimal(20, 2)
+  retainedEarnings      Decimal  @default(0) @map("retained_earnings") @db.Decimal(20, 2)
+  commonStock           Decimal  @default(0) @map("common_stock") @db.Decimal(20, 2)
+  totalEquity           Decimal  @default(0) @map("total_equity") @db.Decimal(20, 2)
+  workingCapital        Decimal  @default(0) @map("working_capital") @db.Decimal(20, 2)
+  debtToEquityRatio     Decimal  @default(0) @map("debt_to_equity_ratio") @db.Decimal(10, 4)
+  currentRatio          Decimal  @default(0) @map("current_ratio") @db.Decimal(10, 4)
+  forecastMethod        String?  @map("forecast_method")
+  confidenceScore       Decimal? @map("confidence_score") @db.Decimal(5, 2)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  createdBy             String?  @map("created_by")
+  updatedBy             String?  @map("updated_by")
+
+  // Relations
+  businessAccount       BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  scenario               ForecastScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  period                ForecastPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  creator               User?           @relation("BalanceSheetCreator", fields: [createdBy], references: [id])
+  updater               User?           @relation("BalanceSheetUpdater", fields: [updatedBy], references: [id])
+
+  @@unique([businessAccountId, scenarioId, periodId])
+  @@map("forecast_balance_sheets")
+}
+
+model ForecastCashFlowStatement {
+  id                        String   @id @default(cuid())
+  businessAccountId         String   @map("business_account_id")
+  scenarioId                String   @map("scenario_id")
+  periodId                  String   @map("period_id")
+  netIncome                 Decimal  @default(0) @map("net_income") @db.Decimal(20, 2)
+  depreciationAmortization   Decimal  @default(0) @map("depreciation_amortization") @db.Decimal(20, 2)
+  changesInWorkingCapital   Decimal  @default(0) @map("changes_in_working_capital") @db.Decimal(20, 2)
+  operatingCashFlow         Decimal  @default(0) @map("operating_cash_flow") @db.Decimal(20, 2)
+  capitalExpenditures       Decimal  @default(0) @map("capital_expenditures") @db.Decimal(20, 2)
+  acquisitionsDispositions  Decimal  @default(0) @map("acquisitions_dispositions") @db.Decimal(20, 2)
+  investingCashFlow         Decimal  @default(0) @map("investing_cash_flow") @db.Decimal(20, 2)
+  debtIssuanceRepayment     Decimal  @default(0) @map("debt_issuance_repayment") @db.Decimal(20, 2)
+  equityIssuanceRepurchase  Decimal  @default(0) @map("equity_issuance_repurchase") @db.Decimal(20, 2)
+  dividendsPaid             Decimal  @default(0) @map("dividends_paid") @db.Decimal(20, 2)
+  financingCashFlow         Decimal  @default(0) @map("financing_cash_flow") @db.Decimal(20, 2)
+  netCashFlow               Decimal  @default(0) @map("net_cash_flow") @db.Decimal(20, 2)
+  beginningCash             Decimal  @default(0) @map("beginning_cash") @db.Decimal(20, 2)
+  endingCash                Decimal  @default(0) @map("ending_cash") @db.Decimal(20, 2)
+  cashConversionCycle      Decimal  @default(0) @map("cash_conversion_cycle") @db.Decimal(10, 2)
+  forecastMethod            String?  @map("forecast_method")
+  confidenceScore           Decimal? @map("confidence_score") @db.Decimal(5, 2)
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+  createdBy                 String?  @map("created_by")
+  updatedBy                 String?  @map("updated_by")
+
+  // Relations
+  businessAccount           BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  scenario                  ForecastScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  period                    ForecastPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  creator                   User?           @relation("CashFlowCreator", fields: [createdBy], references: [id])
+  updater                   User?           @relation("CashFlowUpdater", fields: [updatedBy], references: [id])
+
+  @@unique([businessAccountId, scenarioId, periodId])
+  @@map("forecast_cash_flow_statements")
+}
+
+model ForecastAssumptionsHistory {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  assumptionId      String?  @map("assumption_id")
+  scenarioId        String?  @map("scenario_id")
+  assumptionKey     String   @map("assumption_key")
+  oldValue          Decimal? @map("old_value") @db.Decimal(20, 4)
+  newValue          Decimal  @map("new_value") @db.Decimal(20, 4)
+  changeReason      String?  @map("change_reason")
+  changedAt         DateTime @default(now()) @map("changed_at")
+  changedBy         String?  @map("changed_by")
+
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  assumption        FinancialAssumption? @relation(fields: [assumptionId], references: [id], onDelete: Cascade)
+  scenario          ForecastScenario? @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  changer           User?           @relation("AssumptionHistoryChanger", fields: [changedBy], references: [id])
+
+  @@map("forecast_assumptions_history")
+}
+
+model ForecastValidationRule {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  ruleName          String   @map("rule_name")
+  ruleType          String   @map("rule_type") // BALANCE_SHEET, CASH_FLOW, RATIO, TREND
+  ruleExpression    String   @map("rule_expression") // SQL expression or formula
+  errorMessage      String   @map("error_message")
+  isActive          Boolean  @default(true) @map("is_active")
+  severity          String   @default("ERROR") @map("severity") // ERROR, WARNING, INFO
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdBy         String?  @map("created_by")
+  updatedBy         String?  @map("updated_by")
+
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  assumption        FinancialAssumption? @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  creator           User?           @relation("ValidationRuleCreator", fields: [createdBy], references: [id])
+  updater           User?           @relation("ValidationRuleUpdater", fields: [updatedBy], references: [id])
+  validationResults ForecastValidationResult[]
+
+  @@map("forecast_validation_rules")
+}
+
+model ForecastValidationResult {
+  id                String   @id @default(cuid())
+  businessAccountId String   @map("business_account_id")
+  scenarioId        String   @map("scenario_id")
+  periodId          String   @map("period_id")
+  ruleId            String   @map("rule_id")
+  validationStatus  String   @map("validation_status") // PASSED, FAILED, WARNING
+  actualValue       Decimal? @map("actual_value") @db.Decimal(20, 4)
+  expectedValue     Decimal? @map("expected_value") @db.Decimal(20, 4)
+  variance          Decimal? @map("variance") @db.Decimal(20, 4)
+  variancePercentage Decimal? @map("variance_percentage") @db.Decimal(10, 4)
+  errorDetails      String?  @map("error_details")
+  validatedAt       DateTime @default(now()) @map("validated_at")
+
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  scenario          ForecastScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  period            ForecastPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  rule              ForecastValidationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([businessAccountId, scenarioId, periodId, ruleId])
+  @@map("forecast_validation_results")
+}
+
+// Accounting Core Models
+
+model ChartOfAccount {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  accountCode        String   @map("account_code")
+  accountName        String   @map("account_name")
+  accountType        AccountType @map("account_type")
+  accountSubtype     String?  @map("account_subtype")
+  normalBalance      NormalBalance @map("normal_balance")
+  isActive           Boolean  @default(true) @map("is_active")
+  isContra           Boolean  @default(false) @map("is_contra")
+  parentAccountId    String?  @map("parent_account_id")
+  level              Int      @default(1)
+  description        String?
+  
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  businessAccount    BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  parentAccount      ChartOfAccount? @relation("AccountHierarchy", fields: [parentAccountId], references: [id])
+  childAccounts      ChartOfAccount[] @relation("AccountHierarchy")
+  journalLines       JournalEntryLine[]
+  accountBalances    AccountBalance[]
+  
+  @@unique([businessAccountId, accountCode])
+  @@unique([businessAccountId, accountName])
+  @@map("chart_of_accounts")
+}
+
+model FiscalPeriod {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  periodType        PeriodType @map("period_type")
+  periodStart       DateTime @map("period_start") @db.Date
+  periodEnd         DateTime @map("period_end") @db.Date
+  fiscalYear        Int      @map("fiscal_year")
+  fiscalQuarter     Int?     @map("fiscal_quarter")
+  fiscalMonth       Int?     @map("fiscal_month")
+  status            FiscalPeriodStatus @default(OPEN)
+  isCurrent         Boolean  @default(false) @map("is_current")
+  lockedAt          DateTime? @map("locked_at")
+  lockedBy          String?  @map("locked_by")
+  closingEntriesPosted Boolean @default(false) @map("closing_entries_posted")
+  notes             String?
+  
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  businessAccount    BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  journalEntries     JournalEntry[]
+  accountBalances    AccountBalance[]
+  
+  @@unique([businessAccountId, periodStart, periodEnd])
+  @@map("fiscal_periods")
+}
+
+model JournalEntry {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  fiscalPeriodId    String   @map("fiscal_period_id")
+  entryNumber       String   @map("entry_number")
+  entryDate         DateTime @map("entry_date") @db.Date
+  referenceType     String?  @map("reference_type")
+  referenceId       String?  @map("reference_id")
+  description       String
+  status            JournalEntryStatus @default(DRAFT)
+  totalDebits       Decimal  @default(0) @map("total_debits") @db.Decimal(20, 2)
+  totalCredits      Decimal  @default(0) @map("total_credits") @db.Decimal(20, 2)
+  isAdjustingEntry  Boolean  @default(false) @map("is_adjusting_entry")
+  isClosingEntry    Boolean  @default(false) @map("is_closing_entry")
+  reversalEntryId   String?  @map("reversal_entry_id")
+  postedAt          DateTime? @map("posted_at")
+  postedBy          String?  @map("posted_by")
+  approvedAt        DateTime? @map("approved_at")
+  approvedBy        String?  @map("approved_by")
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  fiscalPeriod      FiscalPeriod @relation(fields: [fiscalPeriodId], references: [id], onDelete: Restrict)
+  reversalEntry     JournalEntry? @relation("JournalReversal", fields: [reversalEntryId], references: [id])
+  reversedEntries   JournalEntry[] @relation("JournalReversal")
+  lines             JournalEntryLine[]
+  
+  @@unique([businessAccountId, entryNumber])
+  @@map("journal_entries")
+}
+
+model JournalEntryLine {
+  id                String   @id @default(cuid())
+  journalEntryId    String   @map("journal_entry_id")
+  accountId         String   @map("account_id")
+  lineNumber        Int      @map("line_number")
+  description       String?
+  debitAmount       Decimal  @default(0) @map("debit_amount") @db.Decimal(20, 2)
+  creditAmount      Decimal  @default(0) @map("credit_amount") @db.Decimal(20, 2)
+  balanceAfter      Decimal? @map("balance_after") @db.Decimal(20, 2)
+  referenceType     String?  @map("reference_type")
+  referenceId       String?  @map("reference_id")
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  journalEntry      JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  account           ChartOfAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  
+  @@unique([journalEntryId, lineNumber])
+  @@map("journal_entry_lines")
+}
+
+model AccountBalance {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  accountId         String   @map("account_id")
+  fiscalPeriodId    String   @map("fiscal_period_id")
+  openingBalance    Decimal  @default(0) @map("opening_balance") @db.Decimal(20, 2)
+  netChange         Decimal  @default(0) @map("net_change") @db.Decimal(20, 2)
+  closingBalance    Decimal  @default(0) @map("closing_balance") @db.Decimal(20, 2)
+  debitTotal        Decimal  @default(0) @map("debit_total") @db.Decimal(20, 2)
+  creditTotal       Decimal  @default(0) @map("credit_total") @db.Decimal(20, 2)
+  lastUpdated       DateTime @default(now()) @map("last_updated")
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  account           ChartOfAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  fiscalPeriod      FiscalPeriod @relation(fields: [fiscalPeriodId], references: [id], onDelete: Cascade)
+  
+  @@unique([businessAccountId, accountId, fiscalPeriodId])
+  @@map("account_balances")
+}
+
+model AccountingAuditLog {
+  id                String   @id @default(cuid())
+  businessAccountId String
+  tableName         String   @map("table_name")
+  recordId          String   @map("record_id")
+  action            AuditAction
+  oldValues         Json?    @map("old_values")
+  newValues         Json?    @map("new_values")
+  userId            String?  @map("user_id")
+  userEmail         String?  @map("user_email")
+  ipAddress         String?  @map("ip_address")
+  userAgent         String?  @map("user_agent")
+  timestamp         DateTime @default(now())
+  description       String?
+  metadata          Json     @default("{}")
+  
+  // Relations
+  businessAccount   BusinessAccount @relation(fields: [businessAccountId], references: [id], onDelete: Cascade)
+  
+  @@map("accounting_audit_log")
+}
+
+// Accounting Enums
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+  CONTRA_ASSET
+  CONTRA_REVENUE
+}
+
+enum NormalBalance {
+  DEBIT
+  CREDIT
+}
+
+enum PeriodType {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum FiscalPeriodStatus {
+  OPEN
+  LOCKED
+  CLOSED
+}
+
+enum JournalEntryStatus {
+  DRAFT
+  POSTED
+  REVERSED
+}
+
+enum AuditAction {
+  INSERT
+  UPDATE
+  DELETE
+  POST
+  REVERSE
+  LOCK
+  UNLOCK
+}
+
+// Trust Case Enums
+enum TrustCaseSubjectType {
+  USER
+  TRAVELER
+  SELLER
+  AUCTION
+}
+
+enum TrustCaseStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum TrustCaseSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Trust Case Model
+model TrustCase {
+  id              String               @id @default(cuid())
+  case_id         String               @unique @default(cuid())
+  subject_type    TrustCaseSubjectType
+  subject_id      String
+  rule_id         String
+  severity        TrustCaseSeverity
+  status          TrustCaseStatus       @default(OPEN)
+  created_at      DateTime             @default(now())
+  updated_at      DateTime?            @updatedAt
+  resolved_at     DateTime?            @nullable
+  resolved_by     String?              @nullable
+  notes           String?              @db.Text
+  
+  // Relations
+  rule            TrustRule?           @relation(fields: [rule_id], references: [id])
+  businessAccount BusinessAccount?     @relation("TrustCaseBusiness", fields: [subject_id], references: [id])
+  resolver        BusinessUser?        @relation("TrustCaseResolver", fields: [resolved_by], references: [id])
+  
+  // Indexes
+  @@index([subject_type, subject_id])
+  @@index([rule_id])
+  @@index([status])
+  @@index([severity])
+  @@index([created_at])
+  @@index([status, created_at])
+  @@map("trust_cases")
+}
+
+// Trust Rule Model (for rule flags)
+model TrustRule {
+  id              String               @id @default(cuid())
+  rule_id         String               @unique
+  name            String
+  description     String?              @db.Text
+  category        String
+  severity        TrustCaseSeverity    @default(MEDIUM)
+  is_active       Boolean              @default(true)
+  created_at      DateTime             @default(now())
+  updated_at      DateTime?            @updatedAt
+  
+  // Relations
+  trust_cases     TrustCase[]
+  
+  // Indexes
+  @@index([category])
+  @@index([is_active])
+  @@map("trust_rules")
+}

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import type { Server } from 'socket.io';
 import { AuctionService } from '../services/auction.service';
+import { bidThrottleService, ThrottleDecision } from '../services/bid-throttle.service';
 
 // Socket.io instance will be injected
 let socketIO: Server | null = null;
@@ -20,6 +21,7 @@ export class BidController {
 
   /**
    * Place a bid on an auction
+   * PHASE 5.4: Integrated bid throttling
    */
   placeBid = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -39,11 +41,37 @@ export class BidController {
         return res.status(400).json({ success: false, message: 'Invalid bid amount' });
       }
 
+      // PHASE 5.4: Check throttle BEFORE accepting bid
+      const throttleResult = await bidThrottleService.checkThrottle({
+        auctionId: listingId,
+        bidderId,
+        bidAmount,
+        ipAddress: req.ip,
+      });
+
+      // If hard blocked, reject immediately
+      if (throttleResult.decision === ThrottleDecision.HARD_BLOCK) {
+        return res.status(429).json({
+          success: false,
+          message: throttleResult.message,
+          blockUntil: throttleResult.blockUntil,
+        });
+      }
+
+      // If soft blocked, warn but allow
+      if (throttleResult.decision === ThrottleDecision.SOFT_BLOCK) {
+        console.warn(`[THROTTLE] Soft block for bidder ${bidderId} on auction ${listingId}: ${throttleResult.message}`);
+      }
+
+      // Proceed with bid placement
       const result = await this.auctionService.placeBid(
         listingId,
         bidderId,
         bidAmount
       );
+
+      // PHASE 5.4: Update throttle state after successful bid
+      await bidThrottleService.updateThrottleState(listingId, bidderId);
 
       // Emit socket events for real-time updates
       if (socketIO) {

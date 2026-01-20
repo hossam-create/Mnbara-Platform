@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 
-// eBay-style main categories with product images
+// Mnbara main categories with product images
 const mainCategories = [
   {
     name: 'Motors',

@@ -27,6 +27,8 @@ import { LegalModule } from './modules/legal/legal.module';
 import { TravelerKycModule } from './modules/traveler-kyc/traveler-kyc.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { MetricsController } from './modules/monitoring/metrics.controller';
+import { CmsModule } from './modules/cms/cms.module';
+import { GuaranteeRulesModule } from './modules/guarantee-rules/guarantee-rules.module';
 
 // Middleware
 import {
@@ -60,6 +62,8 @@ import {
     LegalModule,
     TravelerKycModule,
     AuditModule,
+    CmsModule,
+    GuaranteeRulesModule,
   ],
 
   controllers: [MetricsController],

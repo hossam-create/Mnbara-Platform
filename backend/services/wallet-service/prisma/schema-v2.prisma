@@ -1,0 +1,732 @@
+// ============================================================
+// PHASE 4.1 — WALLET & LEDGER SCHEMA
+// Production-grade, ledger-first design
+// Money stored as INTEGER (minor units): 1000 = 10.00 EGP
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// WALLET — Account container
+// Balance is DERIVED from ledger, not stored here
+// ============================================================
+model Wallet {
+  id          String       @id @default(uuid())
+  ownerType   OwnerType
+  ownerId     String
+  currency    String       @default("EGP") @db.Char(3)
+  status      WalletStatus @default(ACTIVE)
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  ledgerEntries LedgerEntry[]
+
+  // Constraints
+  @@unique([ownerType, ownerId, currency])
+  @@index([ownerType, ownerId])
+  @@index([status])
+  
+  @@map("wallet")
+}
+
+// ============================================================
+// LEDGER ENTRY — Source of truth for all money movement
+// IMMUTABLE: Insert only, no updates or deletes
+// ============================================================
+model LedgerEntry {
+  id              String              @id @default(uuid())
+  walletId        String
+  wallet          Wallet              @relation(fields: [walletId], references: [id])
+  
+  // Entry classification
+  entryType       EntryType
+  amount          BigInt              // Always positive, direction from entryType
+  
+  // Business context
+  reason          LedgerReason
+  description     String?
+  
+  // Reference linking
+  referenceType   ReferenceType
+  referenceId     String?             // UUID or external ID of linked entity
+  
+  // Idempotency protection
+  idempotencyKey  String
+  
+  // Running balance after this entry (for fast reads)
+  balanceAfter    BigInt
+  
+  // Audit trail
+  createdAt       DateTime            @default(now())
+  createdBy       String              // User ID or 'system'
+  
+  // NO updatedAt — entries are immutable
+
+  // Constraints
+  @@unique([walletId, idempotencyKey])
+  @@index([walletId, createdAt(sort: Desc)])
+  @@index([referenceType, referenceId])
+  @@index([reason, createdAt(sort: Desc)])
+  
+  @@map("ledger_entry")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum OwnerType {
+  USER
+  SELLER
+  TRAVELER
+  SYSTEM
+  
+  @@map("owner_type")
+}
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+  
+  @@map("wallet_status")
+}
+
+enum EntryType {
+  CREDIT    // Money coming in
+  DEBIT     // Money going out
+  
+  @@map("entry_type")
+}
+
+enum LedgerReason {
+  DEPOSIT           // External funds coming in
+  WITHDRAWAL        // External funds going out
+  PURCHASE_HOLD     // Funds held for order
+  PURCHASE_RELEASE  // Held funds released (order completed)
+  REFUND            // Money returned to buyer
+  PAYOUT            // Seller/traveler earnings paid
+  FEE               // Platform fee deduction
+  ADJUSTMENT        // Manual correction (admin)
+  TRANSFER_IN       // P2P transfer received
+  TRANSFER_OUT      // P2P transfer sent
+  AUCTION_BID       // Funds held for auction bid
+  AUCTION_RELEASE   // Funds released (outbid or cancelled)
+  
+  @@map("ledger_reason")
+}
+
+enum ReferenceType {
+  ORDER
+  ESCROW
+  TRANSFER
+  MANUAL
+  SYSTEM
+  
+  @@map("reference_type")
+}
+
+// ============================================================
+// PHASE 4.2 — ESCROW
+// State machine for fund holding — DOES NOT OWN MONEY
+// Money stays in wallets, tracked via ledger entries
+// ============================================================
+
+model Escrow {
+  id                String              @id @default(uuid())
+  
+  // Parties involved
+  buyerWalletId     String
+  sellerWalletId    String
+  
+  // Amount held (integer, minor units)
+  amount            BigInt              // e.g., 10000 = 100.00 EGP
+  currency          String              @default("EGP") @db.Char(3)
+  
+  // State machine
+  status            EscrowStatus        @default(CREATED)
+  
+  // What triggered this escrow
+  referenceType     EscrowReferenceType
+  referenceId       String              // Order ID, Auction ID, etc.
+  
+  // Optional description
+  description       String?
+  
+  // Ledger entry references (for audit trail)
+  holdEntryId       String?             // Ledger entry when funds were held
+  releaseEntryId    String?             // Ledger entry when funds were released
+  refundEntryId     String?             // Ledger entry when funds were refunded
+  
+  // Timestamps
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  fundedAt          DateTime?           // When buyer funds were held
+  releasedAt        DateTime?           // When funds were released to seller
+  refundedAt        DateTime?           // When funds were refunded to buyer
+  disputedAt        DateTime?           // When dispute was opened
+  resolvedAt        DateTime?           // When dispute was resolved
+  
+  // Audit
+  createdBy         String              // Who created this escrow
+  releasedBy        String?             // Who released the funds
+  refundedBy        String?             // Who refunded the funds
+  disputeReason     String?             // Reason for dispute
+  resolutionNote    String?             // How dispute was resolved
+  
+  // Constraints
+  @@unique([referenceType, referenceId])  // One escrow per order/auction
+  @@index([buyerWalletId])
+  @@index([sellerWalletId])
+  @@index([status])
+  @@index([referenceType, referenceId])
+  @@index([createdAt(sort: Desc)])
+  
+  @@map("escrow")
+}
+
+// ============================================================
+// ESCROW ENUMS
+// ============================================================
+
+enum EscrowStatus {
+  CREATED     // Escrow created, awaiting buyer funding
+  FUNDED      // Buyer funds held (PURCHASE_HOLD applied)
+  RELEASED    // Funds released to seller (PAYOUT applied)
+  REFUNDED    // Funds returned to buyer (REFUND applied)
+  DISPUTED    // Under manual review
+  CANCELLED   // Cancelled before funding
+  
+  @@map("escrow_status")
+}
+
+enum EscrowReferenceType {
+  ORDER       // Standard purchase order
+  AUCTION     // Auction winning bid
+  MANUAL      // Manual escrow (admin-created)
+  
+  @@map("escrow_reference_type")
+}
+
+model PaymentEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  gateway         String   // e.g. "stripe", "paymob"
+  eventId         String   // The unique event ID from the gateway
+  eventType       String   // e.g. "payment_intent.succeeded"
+  payload         Json     // Full webhook payload for audit
+  processed       Boolean  @default(false)
+  processedAt     DateTime?
+  processingError String?
+  createdAt       DateTime @default(now())
+
+  @@unique([gateway, eventId])
+  @@map("payment_event")
+}
+
+// ============================================================
+// PHASE 4.4 — ESCROW ↔ GATEWAY RECONCILIATION
+// Tracks reconciliation runs and detected mismatches
+// NEVER modifies wallet ledger or escrow tables
+// ============================================================
+
+model ReconciliationRun {
+  id          String                  @id @default(uuid())
+  gateway     ReconciliationGateway   // Which gateway was reconciled
+  
+  // Execution tracking
+  startedAt   DateTime                @default(now())
+  finishedAt  DateTime?
+  status      ReconciliationRunStatus @default(RUNNING)
+  
+  // Summary metrics
+  totalChecked      Int       @default(0)
+  matchCount        Int       @default(0)
+  mismatchCount     Int       @default(0)
+  errorCount        Int       @default(0)
+  
+  // Audit
+  triggeredBy String                  // User ID or 'system' for cron
+  notes       String?                 // Optional context
+  
+  // Relations
+  items       ReconciliationItem[]
+  
+  // Constraints
+  @@index([gateway, startedAt(sort: Desc)])
+  @@index([status])
+  
+  @@map("reconciliation_run")
+}
+
+model ReconciliationItem {
+  id                  String                    @id @default(uuid())
+  runId               String
+  run                 ReconciliationRun         @relation(fields: [runId], references: [id], onDelete: Cascade)
+  
+  // What we're checking
+  escrowId            String
+  walletId            String                    // Buyer wallet
+  gatewayPaymentId    String?                   // External payment ID (if exists)
+  
+  // Amount comparison
+  expectedAmount      BigInt                    // What escrow says (minor units)
+  gatewayAmount       BigInt?                   // What gateway reports (minor units)
+  
+  // Reconciliation result
+  status              ReconciliationItemStatus
+  resolution          ReconciliationResolution  @default(NONE)
+  
+  // PHASE 4.4.3 — Mismatch Classification
+  classification      MismatchClassification?   // Detailed mismatch type
+  severity            MismatchSeverity?         // Risk level (LOW/MEDIUM/HIGH)
+  
+  // Details
+  gatewayStatus       String?                   // Raw gateway status (e.g., "succeeded", "pending")
+  errorMessage        String?                   // If gateway query failed
+  notes               String?                   // Manual notes from admin
+  
+  // Timestamps
+  checkedAt           DateTime                  @default(now())
+  resolvedAt          DateTime?
+  resolvedBy          String?                   // Admin who resolved
+  
+  // Constraints
+  @@index([runId])
+  @@index([escrowId])
+  @@index([status])
+  @@index([resolution])
+  @@index([classification])
+  @@index([severity])
+  
+  @@map("reconciliation_item")
+}
+
+// ============================================================
+// RECONCILIATION ENUMS
+// ============================================================
+
+enum ReconciliationGateway {
+  STRIPE
+  PAYMOB
+  
+  @@map("reconciliation_gateway")
+}
+
+enum ReconciliationRunStatus {
+  RUNNING   // In progress
+  SUCCESS   // Completed with no errors
+  PARTIAL   // Completed with some errors
+  FAILED    // Failed to complete
+  
+  @@map("reconciliation_run_status")
+}
+
+enum ReconciliationItemStatus {
+  MATCH       // Escrow and gateway agree
+  MISSING     // Gateway has no record of payment
+  OVERPAID    // Gateway shows more than escrow
+  UNDERPAID   // Gateway shows less than escrow
+  ERROR       // Could not query gateway
+  
+  @@map("reconciliation_item_status")
+}
+
+enum ReconciliationResolution {
+  NONE            // Not yet reviewed
+  FLAGGED         // Marked for admin attention
+  MANUAL_ACTION   // Admin took corrective action
+  IGNORED         // Determined to be acceptable variance
+  
+  @@map("reconciliation_resolution")
+}
+
+// ============================================================
+// PHASE 4.4.3 — MISMATCH CLASSIFICATION
+// Detailed categorization of reconciliation discrepancies
+// ============================================================
+
+enum MismatchClassification {
+  MISSING_PAYMENT               // Escrow exists, gateway has no record
+  DELAYED_PAYMENT               // Gateway payment still pending
+  AMOUNT_MISMATCH               // Amounts don't match (over/underpaid)
+  DUPLICATE_GATEWAY_PAYMENT     // Multiple gateway payments for one escrow
+  GATEWAY_SUCCESS_ESCROW_MISSING // Gateway succeeded but no escrow record
+  GATEWAY_QUERY_FAILED          // Could not query gateway API
+  
+  @@map("mismatch_classification")
+}
+
+enum MismatchSeverity {
+  LOW     // Delayed payments, acceptable variance
+  MEDIUM  // Amount mismatches requiring review
+  HIGH    // Missing payments, duplicates, critical errors
+  
+  @@map("mismatch_severity")
+}
+
+// ============================================================
+// PHASE 4.4.5 — MANUAL RESOLUTION
+// Dual-approval workflow for reconciliation resolution
+// All actions logged in Command Log for audit trail
+// ============================================================
+
+model ReconciliationResolutionCommand {
+  id                    String                        @id @default(uuid())
+  reconciliationItemId  String
+  
+  // Command type
+  action                ResolutionAction
+  
+  // Dual approval workflow
+  initiatedBy           String                        // Admin who initiated
+  initiatedAt           DateTime                      @default(now())
+  approvedBy            String?                       // Admin who approved
+  approvedAt            DateTime?
+  rejectedBy            String?                       // Admin who rejected
+  rejectedAt            DateTime?
+  status                ResolutionCommandStatus       @default(PENDING_APPROVAL)
+  
+  // Context
+  reason                String                        // Why this action is needed
+  operatorNotes         String?                       // Additional notes
+  
+  // Escalation context (if action = ESCALATE_TO_DISPUTE)
+  disputeId             String?                       // Created dispute ID
+  
+  // Manual release context (if action = MANUAL_ESCROW_RELEASE)
+  escrowId              String?
+  releaseAmount         BigInt?                       // Amount to release (minor units)
+  releaseToWalletId     String?                       // Seller or buyer wallet
+  
+  // Execution tracking
+  executedAt            DateTime?
+  executionResult       String?                       // Success message or error
+  
+  // Constraints
+  @@index([reconciliationItemId])
+  @@index([status])
+  @@index([action])
+  @@index([initiatedBy])
+  @@index([approvedBy])
+  
+  @@map("reconciliation_resolution_command")
+}
+
+model ReconciliationCommandLog {
+  id                    String                        @id @default(uuid())
+  commandId             String?                       // Reference to command (if applicable)
+  reconciliationItemId  String
+  
+  // Event details
+  eventType             ResolutionEventType
+  actor                 String                        // Who performed the action
+  timestamp             DateTime                      @default(now())
+  
+  // Event data
+  action                ResolutionAction?
+  previousStatus        String?
+  newStatus             String?
+  notes                 String?
+  metadata              Json?                         // Additional context
+  
+  // Constraints
+  @@index([reconciliationItemId, timestamp(sort: Desc)])
+  @@index([commandId])
+  @@index([eventType])
+  @@index([actor])
+  
+  @@map("reconciliation_command_log")
+}
+
+// ============================================================
+// RESOLUTION ENUMS
+// ============================================================
+
+enum ResolutionAction {
+  ACKNOWLEDGE           // Mark as acknowledged (admin reviewed)
+  ATTACH_NOTE           // Add operator note
+  ESCALATE_TO_DISPUTE   // Escalate to dispute system
+  MANUAL_ESCROW_RELEASE // Trigger manual escrow release (dual approval)
+  
+  @@map("resolution_action")
+}
+
+enum ResolutionCommandStatus {
+  PENDING_APPROVAL      // Awaiting second admin approval
+  APPROVED              // Approved, ready for execution
+  REJECTED              // Rejected by second admin
+  EXECUTED              // Successfully executed
+  FAILED                // Execution failed
+  CANCELLED             // Cancelled by initiator
+  
+  @@map("resolution_command_status")
+}
+
+enum ResolutionEventType {
+  COMMAND_INITIATED     // Command created
+  COMMAND_APPROVED      // Command approved
+  COMMAND_REJECTED      // Command rejected
+  COMMAND_EXECUTED      // Command executed
+  COMMAND_FAILED        // Command execution failed
+  COMMAND_CANCELLED     // Command cancelled
+  NOTE_ATTACHED         // Operator note added
+  STATUS_CHANGED        // Resolution status changed
+  ESCALATED             // Escalated to dispute
+  
+  @@map("resolution_event_type")
+}
+
+// ============================================================
+// PHASE 4.5 — PAYOUT & BANK SETTLEMENT
+// Bank-grade payout infrastructure with dual approval
+// Payouts are INSTRUCTIONS, not money movement
+// Ledger debit ONLY on confirmed bank settlement
+// ============================================================
+
+model PayoutInstruction {
+  id                    String                  @id @default(uuid())
+  
+  // Source wallet (where money comes from)
+  walletId              String
+  amount                BigInt                  // Minor units
+  currency              String                  @default("EGP") @db.Char(3)
+  
+  // Destination
+  destinationType       PayoutDestinationType
+  destinationRef        String                  // IBAN or account token
+  destinationDetails    Json?                   // Bank name, account holder, etc.
+  
+  // Context
+  reason                PayoutReason
+  escrowReleaseId       String                  // REQUIRED: Must have released escrow
+  referenceType         String?                 // ORDER, TRIP, etc.
+  referenceId           String?
+  
+  // Dual approval workflow
+  status                PayoutStatus            @default(CREATED)
+  createdBy             String
+  createdAt             DateTime                @default(now())
+  approvedBy            String?
+  approvedAt            DateTime?
+  rejectedBy            String?
+  rejectedAt            DateTime?
+  rejectionReason       String?
+  
+  // Bank execution
+  sentToBankAt          DateTime?
+  bankReference         String?                 // Bank transaction ID
+  bankStatus            String?                 // Bank-reported status
+  bankStatusCheckedAt   DateTime?
+  
+  // Confirmation & ledger
+  confirmedAt           DateTime?
+  ledgerEntryId         String?                 // Created ONLY on confirmation
+  
+  // Failure handling
+  failedAt              DateTime?
+  failureReason         String?
+  retryCount            Int                     @default(0)
+  
+  // Audit
+  notes                 String?
+  metadata              Json?
+  
+  // Constraints
+  @@index([walletId])
+  @@index([status])
+  @@index([escrowReleaseId])
+  @@index([bankReference])
+  @@index([createdAt])
+  
+  @@map("payout_instruction")
+}
+
+model PayoutCommandLog {
+  id                    String                  @id @default(uuid())
+  payoutInstructionId   String
+  
+  // Event details
+  eventType             PayoutEventType
+  actor                 String                  // Who performed the action
+  timestamp             DateTime                @default(now())
+  
+  // Event data
+  previousStatus        PayoutStatus?
+  newStatus             PayoutStatus?
+  notes                 String?
+  metadata              Json?
+  
+  // Constraints
+  @@index([payoutInstructionId, timestamp(sort: Desc)])
+  @@index([eventType])
+  @@index([actor])
+  
+  @@map("payout_command_log")
+}
+
+// ============================================================
+// PAYOUT ENUMS
+// ============================================================
+
+enum PayoutDestinationType {
+  BANK_ACCOUNT          // External bank account (IBAN)
+  WALLET                // Internal wallet transfer (future)
+  
+  @@map("payout_destination_type")
+}
+
+enum PayoutReason {
+  SELLER_PAYOUT         // Seller receiving payment for order
+  TRAVELER_EARNINGS     // Traveler receiving earnings
+  REFUND                // Refund to customer
+  ADMIN_PAYOUT          // Admin-controlled beneficiary
+  
+  @@map("payout_reason")
+}
+
+enum PayoutStatus {
+  CREATED               // Payout instruction created
+  PENDING_APPROVAL      // Awaiting second admin approval
+  APPROVED              // Approved, ready to send to bank
+  SENT                  // Sent to bank, awaiting confirmation
+  CONFIRMED             // Bank confirmed, ledger debited
+  FAILED                // Bank rejected or failed
+  REJECTED              // Rejected by admin
+  CANCELLED             // Cancelled before execution
+  
+  @@map("payout_status")
+}
+
+enum PayoutEventType {
+  PAYOUT_CREATED        // Payout instruction created
+  PAYOUT_APPROVED       // Approved by second admin
+  PAYOUT_REJECTED       // Rejected by admin
+  PAYOUT_SENT_TO_BANK   // Sent to bank for execution
+  PAYOUT_CONFIRMED      // Bank confirmed success
+  PAYOUT_FAILED         // Bank reported failure
+  PAYOUT_CANCELLED      // Cancelled by admin
+  LEDGER_DEBITED        // Ledger entry created
+  STATUS_CHANGED        // Status changed
+  
+  @@map("payout_event_type")
+}
+
+
+// ============================================================
+// PHASE 4.7 — SYSTEM CONTROL & KILL SWITCH
+// Global configuration for critical system modes
+// ============================================================
+
+model SystemControl {
+  id          String    @id @default(uuid())
+  key         String    @unique // e.g., "FINANCIAL_MODE"
+  value       String    // e.g., "ACTIVE", "PAUSED"
+  description String?
+  updatedBy   String
+  updatedAt   DateTime  @updatedAt
+  
+  @@map("system_control")
+}
+
+// ============================================================
+// PHASE 5.0 — AUCTIONS (REAL MONEY)
+// Strict financial locking for bids
+// ============================================================
+model Auction {
+  id              String          @id @default(uuid())
+  
+  // Financial Configuration
+  walletId        String          // Seller wallet (funds go here)
+  currency        String          @default("EGP") @db.Char(3)
+  reservePrice    BigInt          // Minimum price (minor units)
+  
+  // State
+  status          AuctionStatus   @default(OPEN)
+  
+  // Anti-Sniping Config
+  maxExtensions         Int       @default(10)
+  extensionsUsed        Int       @default(0)
+  snipingWindowSeconds  Int       @default(120) // 2 mins
+  extensionSeconds      Int       @default(120) // 2 mins
+
+  // Timestamps
+  startsAt        DateTime        @default(now())
+  endsAt          DateTime
+  settledAt       DateTime?
+  
+  // Relations
+  bids            AuctionBid[]
+  extensionEvents AuctionExtensionEvent[]
+  
+  // Audit
+  createdBy       String
+  
+  @@map("auction")
+}
+
+model AuctionExtensionEvent {
+  id               String   @id @default(uuid())
+  auctionId        String
+  auction          Auction  @relation(fields: [auctionId], references: [id])
+  
+  triggeredByBidId String   // Informational link to the bid
+  
+  oldEndsAt        DateTime
+  newEndsAt        DateTime
+  
+  createdAt        DateTime @default(now())
+  
+  @@index([auctionId])
+  @@map("auction_extension_event")
+}
+
+model AuctionBid {
+  id              String          @id @default(uuid())
+  auctionId       String
+  auction         Auction         @relation(fields: [auctionId], references: [id])
+  
+  // Bidder Identity
+  bidderWalletId  String
+  
+  // Financial Lock
+  amount          BigInt          // Bid amount (minor units)
+  escrowHoldId    String          // CRITICAL: Link to Escrow record holding funds
+  
+  // State
+  status          BidStatus       @default(PLACED)
+  
+  // Audit
+  createdAt       DateTime        @default(now())
+  
+  // Constraints
+  @@index([auctionId, amount(sort: Desc)]) // Fast lookup for highest bid
+  @@map("auction_bid")
+}
+
+enum AuctionStatus {
+  OPEN
+  CLOSED
+  SETTLING
+  SETTLED
+  CANCELLED
+  
+  @@map("auction_status")
+}
+
+enum BidStatus {
+  PLACED      // Active high bid (Funds Locked)
+  OUTBID      // Outbid by another (Funds Released)
+  WON         // Won auction (Funds Settled)
+  CANCELLED   // Auction cancelled (Funds Released)
+  
+  @@map("bid_status")
+}

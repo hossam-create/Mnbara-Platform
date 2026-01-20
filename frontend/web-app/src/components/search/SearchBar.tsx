@@ -85,11 +85,11 @@ const SearchBar: React.FC = () => {
           onKeyDown={handleKeyDown}
           onFocus={() => setShowSuggestions(localQuery.trim().length > 0)}
           placeholder="Search for anything..."
-          className="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent shadow-soft hover:shadow-medium transition-shadow dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 font-normal"
         />
         <button
           onClick={() => handleSearch()}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-500 hover:text-brand-blue transition-colors dark:hover:text-gray-300"
         >
           <MagnifyingGlassIcon className="w-5 h-5" />
         </button>
@@ -99,10 +99,10 @@ const SearchBar: React.FC = () => {
       {showSuggestions && (suggestions.length > 0 || isLoadingSuggestions) && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto"
+          className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-medium z-50 max-h-96 overflow-y-auto"
         >
           {isLoadingSuggestions ? (
-            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
               Loading suggestions...
             </div>
           ) : (
@@ -111,12 +111,12 @@ const SearchBar: React.FC = () => {
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion.text)}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center space-x-3"
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center space-x-3 transition-colors"
                 >
-                  <MagnifyingGlassIcon className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">{suggestion.text}</span>
+                  <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-900 dark:text-white font-normal">{suggestion.text}</span>
                   {suggestion.count && (
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto font-normal">
                       {suggestion.count} results
                     </span>
                   )}

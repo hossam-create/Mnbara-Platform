@@ -9,16 +9,21 @@ import { Toaster } from 'react-hot-toast'
 
 import App from './App'
 import { store, persistor } from './store'
+import { injectStore } from './services/api/roleBasedClient'
 import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { SocketProvider } from './contexts/SocketContext'
+
+// Inject store into API client to avoid circular dependency
+injectStore(store)
 import LoadingSpinner from './components/ui/LoadingSpinner'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 
 import './styles/globals.css'
+import './i18n'
 
 /**
- * Mnbarh Web App - eBay-Level E-commerce Frontend
+ * Mnbara Web App - Enterprise E-commerce Frontend
  * 
  * Features:
  * - Redux Toolkit for state management
@@ -29,7 +34,7 @@ import './styles/globals.css'
  * - TypeScript for type safety
  */
 
-// Create React Query client with eBay-level configuration
+// Create React Query client with enterprise-grade configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -93,7 +98,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 <ThemeProvider>
                   <AuthProvider>
                     <SocketProvider>
-                      <App />
+                      <React.Suspense fallback={<LoadingSpinner size="large" />}>
+                        <App />
+                      </React.Suspense>
                       <Toaster toastOptions={toastOptions} />
                     </SocketProvider>
                   </AuthProvider>

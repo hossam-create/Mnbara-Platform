@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Phase 1 - Runtime Skeleton
+# Minimum end-to-end system: ONE backend + ONE frontend
+
+services:
+  core-api:
+    build:
+      context: ./backend/core-api
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend/web-app
+      dockerfile: Dockerfile.runtime
+    ports:
+      - "5173:5173"
+    depends_on:
+      - core-api
+    environment:
+      - VITE_API_URL=http://localhost:4000

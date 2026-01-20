@@ -12,7 +12,7 @@ const AuthLayout: React.FC = () => {
             <div className="mb-8">
               <h1 className="text-4xl font-bold mb-4">Welcome to Mnbarh</h1>
               <p className="text-xl text-primary-100">
-                Your eBay-level marketplace for everything you need
+                Your trusted marketplace for everything you need
               </p>
             </div>
             

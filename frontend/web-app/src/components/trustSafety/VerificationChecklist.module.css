@@ -1,0 +1,529 @@
+/* Verification Checklist Styles */
+.checklist {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Compact View */
+.compact {
+  padding: 16px;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noChecklist {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.compact .header {
+  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.compact .header h3 {
+  font-size: 16px;
+}
+
+.overallStatus {
+  display: flex;
+  align-items: center;
+}
+
+.statusBadge {
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compact .statusBadge {
+  font-size: 10px;
+  padding: 4px 8px;
+}
+
+/* Progress Section */
+.progressSection {
+  margin-bottom: 32px;
+}
+
+.compact .progressSection {
+  margin-bottom: 20px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.5s ease;
+  border-radius: 4px;
+}
+
+.progressPercentage {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Verification Items */
+.verificationItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.compact .verificationItems {
+  gap: 12px;
+}
+
+.verificationItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.compactItem {
+  padding: 12px;
+}
+
+.verificationItem:hover {
+  border-color: #3b82f6;
+}
+
+/* Item Header */
+.itemHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.compactItem .itemHeader {
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.itemIcon {
+  flex-shrink: 0;
+}
+
+.iconCircle {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease;
+}
+
+.compactItem .iconCircle {
+  width: 24px;
+  height: 24px;
+  border-width: 1.5px;
+}
+
+.icon {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.compactItem .icon {
+  font-size: 12px;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.itemTitle span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.compactItem .itemTitle span {
+  font-size: 14px;
+}
+
+.requiredBadge {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.itemDescription {
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.compactItem .itemDescription {
+  font-size: 12px;
+}
+
+.itemStatus {
+  flex-shrink: 0;
+}
+
+.statusText {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compactItem .statusText {
+  font-size: 10px;
+}
+
+/* Item Details */
+.itemDetails {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.compactItem .itemDetails {
+  display: none;
+}
+
+.evidence,
+.verifiedAt,
+.expiresAt {
+  margin-bottom: 4px;
+}
+
+.evidence strong,
+.verifiedAt strong,
+.expiresAt strong {
+  color: #111827;
+}
+
+/* Item Actions */
+.itemActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.verifyButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.verifyButton:hover {
+  background: #2563eb;
+}
+
+/* Completion Status */
+.completionStatus {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.completionIcon {
+  font-size: 32px;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.completionInfo h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.completionInfo p {
+  font-size: 14px;
+  color: #374151;
+  margin: 0;
+}
+
+/* UI Only Notice */
+.uiOnlyNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 8px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+}
+
+.compact .uiOnlyNotice {
+  margin-top: 16px;
+  padding: 6px 10px;
+}
+
+.noticeIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.compact .noticeIcon {
+  font-size: 12px;
+}
+
+.noticeContent {
+  font-size: 12px;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.compact .noticeContent {
+  font-size: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .checklist {
+    padding: 20px;
+  }
+  
+  .compact {
+    padding: 12px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .header h3 {
+    font-size: 18px;
+  }
+  
+  .verificationItems {
+    gap: 12px;
+  }
+  
+  .verificationItem {
+    padding: 12px;
+  }
+  
+  .itemHeader {
+    gap: 8px;
+  }
+  
+  .itemTitle span {
+    font-size: 14px;
+  }
+  
+  .itemDescription {
+    font-size: 13px;
+  }
+  
+  .iconCircle {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .icon {
+    font-size: 14px;
+  }
+  
+  .statusText {
+    font-size: 11px;
+  }
+  
+  .completionStatus {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .completionIcon {
+    font-size: 28px;
+  }
+  
+  .completionInfo h4 {
+    font-size: 16px;
+  }
+  
+  .completionInfo p {
+    font-size: 13px;
+  }
+  
+  .uiOnlyNotice {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .checklist {
+    padding: 16px;
+  }
+  
+  .compact {
+    padding: 8px;
+  }
+  
+  .header h3 {
+    font-size: 16px;
+  }
+  
+  .progressSection {
+    margin-bottom: 20px;
+  }
+  
+  .verificationItems {
+    gap: 8px;
+  }
+  
+  .verificationItem {
+    padding: 10px;
+  }
+  
+  .itemHeader {
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  
+  .itemTitle span {
+    font-size: 13px;
+  }
+  
+  .itemDescription {
+    font-size: 12px;
+  }
+  
+  .iconCircle {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .icon {
+    font-size: 12px;
+  }
+  
+  .statusText {
+    font-size: 10px;
+  }
+  
+  .completionStatus {
+    padding: 12px;
+  }
+  
+  .completionIcon {
+    font-size: 24px;
+  }
+  
+  .completionInfo h4 {
+    font-size: 14px;
+  }
+  
+  .completionInfo p {
+    font-size: 12px;
+  }
+  
+  .uiOnlyNotice {
+    padding: 4px 8px;
+  }
+  
+  .noticeContent {
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "rules": [
+    {
+      "rule_id": "rule-excessive-bidding",
+      "name": "Excessive Bidding Detection",
+      "description": "Flag users who place more than 20 bids in 5 minutes (potential bot activity or aggressive bidding)",
+      "version": "1.0.0",
+      "event_types": ["BID_PLACED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 20
+      },
+      "threshold": 20,
+      "window": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["bidding", "bot-detection", "aggressive-bidding"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "system",
+      "notes": "Non-financial rule: Flags excessive bidding activity for review. No blocking or penalties applied."
+    },
+    {
+      "rule_id": "rule-dispute-abuse",
+      "name": "Dispute Abuse Detection",
+      "description": "Flag users who create more than 3 disputes in 30 days (potential abuse of dispute system)",
+      "version": "1.0.0",
+      "event_types": ["DISPUTE_CREATED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 3
+      },
+      "threshold": 3,
+      "window": {
+        "value": 30,
+        "unit": "days"
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["disputes", "abuse-detection", "user-behavior"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "system",
+      "notes": "Non-financial rule: Flags potential dispute abuse for manual review. No blocking or penalties applied."
+    },
+    {
+      "rule_id": "rule-traveler-delay-pattern",
+      "name": "Traveler Delivery Delay Pattern",
+      "description": "Flag travelers with 2 or more late deliveries in 14 days (potential reliability issue)",
+      "version": "1.0.0",
+      "event_types": ["DELIVERY_FAILED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than_or_equal",
+        "value": 2
+      },
+      "threshold": 2,
+      "window": {
+        "value": 14,
+        "unit": "days"
+      },
+      "output_flag": "FLAG_TRAVELER",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["delivery", "traveler-quality", "reliability"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "system",
+      "notes": "Non-financial rule: Flags travelers with delivery issues for review. No blocking or penalties applied."
+    },
+    {
+      "rule_id": "rule-auction-sniping-pattern",
+      "name": "Auction Sniping Pattern Detection",
+      "description": "Flag users who repeatedly bid in the last 10 seconds of auctions (potential sniping behavior)",
+      "version": "1.0.0",
+      "event_types": ["BID_PLACED"],
+      "condition": {
+        "type": "simple",
+        "field": "context.seconds_until_end",
+        "operator": "less_than_or_equal",
+        "value": 10
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "LOW",
+      "enabled": true,
+      "tags": ["bidding", "sniping", "auction-behavior"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "system",
+      "notes": "Non-financial rule: Flags auction sniping behavior (signal only). No blocking or penalties applied."
+    }
+  ]
+}

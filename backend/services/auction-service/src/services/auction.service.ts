@@ -69,6 +69,27 @@ export class AuctionService {
     maxExtensions: 10
   };
 
+  private encryptionKey: string;
+
+  constructor(encryptionKey?: string) {
+    this.encryptionKey = encryptionKey || process.env.RESERVE_ENCRYPTION_KEY || 'default-key-change-in-production';
+  }
+
+  // PHASE 5.3: Decrypt reserve price
+  private decryptReservePrice(encrypted: string, iv: string): number {
+    const crypto = require('crypto');
+    const decipher = crypto.createDecipheriv(
+      'aes-256-cbc',
+      Buffer.from(this.encryptionKey.padEnd(32, '0').slice(0, 32)),
+      Buffer.from(iv, 'hex')
+    );
+
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return parseFloat(decrypted);
+  }
+
   /**
    * Create a new auction listing
    */
@@ -593,6 +614,8 @@ export class AuctionService {
   /**
    * End an auction and determine the winner
    * AUC-002: Winning bid and final price must be deterministic at auction end
+   * PHASE 5.2: Settlement MUST check for open disputes and ignore INVALIDATED bids
+   * PHASE 5.3: Settlement MUST validate reserve price
    */
   async endAuction(listingId: number) {
     return await prisma.$transaction(async (tx: TransactionClient) => {
@@ -600,7 +623,10 @@ export class AuctionService {
         where: { id: listingId },
         include: {
           bids: {
-            where: { status: BidStatus.WINNING },
+            // PHASE 5.2: Only consider WINNING bids that are NOT INVALIDATED
+            where: { 
+              status: BidStatus.WINNING,
+            },
             orderBy: { amount: 'desc' },
             take: 1,
           },
@@ -614,29 +640,84 @@ export class AuctionService {
         throw new Error('Auction is not active');
       }
 
-      const winningBid = auction.bids[0];
-      const reserveMet = !auction.reservePrice || 
-        (winningBid && Number(winningBid.amount) >= Number(auction.reservePrice));
+      // PHASE 5.2: CRITICAL - Abort if any OPEN disputes exist
+      // Settlement is blocked until all disputes are resolved
+      const openDisputeCount = await tx.auctionDispute.count({
+        where: {
+          auctionId: listingId,
+          status: 'OPEN',
+        },
+      });
+
+      if (openDisputeCount > 0) {
+        throw new Error(
+          `SETTLEMENT_BLOCKED: Cannot settle auction with ${openDisputeCount} open dispute(s). ` +
+          `All disputes must be resolved before settlement.`
+        );
+      }
+
+      // PHASE 5.2: Re-compute highest VALID bid (ignore INVALIDATED)
+      // This ensures we get the correct winner even if bids were invalidated
+      const highestValidBid = await tx.bid.findFirst({
+        where: {
+          listingId,
+          status: { notIn: ['INVALIDATED', 'CANCELLED'] },
+        },
+        orderBy: { amount: 'desc' },
+      });
+
+      const winningBid = highestValidBid?.status === BidStatus.WINNING ? highestValidBid : null;
+      
+      // PHASE 5.3: Validate reserve price
+      // Get reserve price (internal only)
+      const reservePrice = auction.reservePriceEncrypted && auction.reservePriceIV
+        ? this.decryptReservePrice(auction.reservePriceEncrypted, auction.reservePriceIV)
+        : null;
+
+      const reserveMet = !reservePrice || 
+        (winningBid && Number(winningBid.amount) >= reservePrice);
 
       // AUC-001: Winning bid must be clearly identified when auction ends
       let newStatus: ListingStatus;
       let winnerId: number | null = null;
       let finalPrice: Decimal | null = null;
+      let endedReason: string = 'NORMAL';
 
       if (winningBid && reserveMet) {
         // AUC-001: Clearly identify winner and winning bid
         winnerId = winningBid.bidderId;   // AUC-001: Clearly identify winner
         finalPrice = winningBid.amount;   // AUC-001: Clearly identify winning bid amount
-        newStatus = ListingStatus.SOLD;   // Reserve met, auction sold
+        newStatus = ListingStatus.SETTLED;   // Reserve met, auction sold
 
         // Update winning bid status
         await tx.bid.update({
           where: { id: winningBid.id },
           data: { status: BidStatus.WON },
         });
+
+        // PHASE 5.2: Log settlement inputs explicitly
+        console.log(`[SETTLEMENT] Auction ${listingId} settled:`, {
+          winnerId,
+          finalPrice: finalPrice?.toString(),
+          winningBidId: winningBid.id,
+          openDisputes: 0,
+          reserveMet: true,
+          timestamp: new Date().toISOString(),
+        });
+      } else if (!reserveMet) {
+        // PHASE 5.3: Reserve NOT met - auction ends without winner
+        newStatus = ListingStatus.ENDED_UNMET_RESERVE;
+        endedReason = 'RESERVE_NOT_MET';
+
+        console.log(`[SETTLEMENT] Auction ${listingId} ended - reserve not met:`, {
+          highestBidAmount: winningBid?.amount?.toString(),
+          reservePrice: reservePrice?.toString(),
+          timestamp: new Date().toISOString(),
+        });
       } else {
-        // AUC-001: Auction ended but no winner (reserve not met or no bids)
-        newStatus = ListingStatus.ENDED;  // AUC-001: Clear end state (not sold)
+        // AUC-001: Auction ended but no winner (no bids)
+        newStatus = ListingStatus.ENDED_UNMET_RESERVE;
+        endedReason = 'RESERVE_NOT_MET';
       }
 
       // Deactivate all proxy bids

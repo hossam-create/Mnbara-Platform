@@ -7,14 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        // eBay-inspired color palette
+        brand: {
+          blue: '#0071DC',
+          blueDark: '#004F9E',
+          yellow: '#EFB612',
+          text: '#1A1A1A',
+          gray: '#6B7280',
+          border: '#E5E7EB',
+        },
+        // eBay-inspired color palette (Legacy - to be replaced)
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
           300: '#93c5fd',
           400: '#60a5fa',
-          500: '#3b82f6', // Main blue
+          500: '#0071DC', // Updated to Brand Blue
           600: '#2563eb',
           700: '#1d4ed8',
           800: '#1e40af',
@@ -26,7 +34,7 @@ export default {
           100: '#fef9c3',
           200: '#fef08a',
           300: '#fde047',
-          400: '#facc15', // eBay yellow
+          400: '#EFB612', // Updated to Brand Yellow
           500: '#eab308',
           600: '#ca8a04',
           700: '#a16207',
@@ -75,8 +83,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],
@@ -145,9 +153,5 @@ export default {
       },
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
-  ],
+  plugins: [],
 }

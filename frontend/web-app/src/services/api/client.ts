@@ -1,7 +1,8 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { getAuthHeaders, roleBasedErrorInterceptor } from './roleBasedClient'
 
 // API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:10000/api'
 const API_TIMEOUT = 30000 // 30 seconds
 
 // Create axios instance
@@ -13,10 +14,18 @@ const apiClient: AxiosInstance = axios.create({
   },
 })
 
-// Request interceptor
+// Request interceptor - add authentication headers
 apiClient.interceptors.request.use(
   (config) => {
     config.metadata = { startTime: Date.now() }
+    
+    // Add authentication headers
+    const authHeaders = getAuthHeaders()
+    config.headers = {
+      ...config.headers,
+      ...authHeaders
+    }
+    
     return config
   },
   (error) => Promise.reject(error)
@@ -36,7 +45,7 @@ apiClient.interceptors.response.use(
 
     return response
   },
-  async (error) => Promise.reject(error)
+  roleBasedErrorInterceptor
 )
 
 // API client wrapper with common methods
@@ -109,6 +118,7 @@ export class APIClient {
 
 // Export configured API client
 export const api = new APIClient(apiClient)
+export const client = apiClient // Add this export for backward compatibility
 export default apiClient
 
 // Type declarations

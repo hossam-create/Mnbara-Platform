@@ -1,150 +1,166 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState, AppDispatch } from '@/store'
-import { fetchFeaturedProducts, fetchRecommendedProducts } from '@/store/slices/productSlice'
-import { getTrendingSearches } from '@/store/slices/searchSlice'
-import { Helmet } from 'react-helmet-async'
-import HeroSection from '@/components/home/HeroSection'
-import FeaturedProducts from '@/components/home/FeaturedProducts'
-import FeaturedCategories from '@/components/home/FeaturedCategories'
-import Categories from '@/components/home/Categories'
-import TrendingSearches from '@/components/home/TrendingSearches'
-import TrendingProducts from '@/components/home/TrendingProducts'
-import EndlessAccessories from '@/components/home/EndlessAccessories'
-import RecommendedProducts from '@/components/home/RecommendedProducts'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
-import LiveDealsSection from '@/components/home/LiveDealsSection'
-import AuctionCountdown from '@/components/home/AuctionCountdown'
-import RecentlyViewed from '@/components/home/RecentlyViewed'
-import ReviewsCarousel from '@/components/home/ReviewsCarousel'
-import TrustBadges from '@/components/home/TrustBadges'
+import { useState, useEffect } from 'react';
+import MainLayout from '../layouts/MainLayout';
+import cmsService, { CmsSection, CmsPageResponse } from '../services/cmsService';
+import { FALLBACK_HOMEPAGE_DATA } from '../services/cmsFallbackData';
 
-const HomePage: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const { featuredProducts, recommendedProducts, isLoading } = useSelector(
-    (state: RootState) => state.products
-  )
-  const { trendingSearches } = useSelector((state: RootState) => state.search)
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth)
+// Section Components
+import HeroCarousel from '../components/home/HeroCarousel';
+import DealsSection from '../components/home/DealsSection';
+import CategoryGrid from '../components/home/CategoryGrid';
+import CoreValueStrip from '../components/home/CoreValueStrip';
+
+// Loading Skeleton
+function SectionSkeleton() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+      <div className="h-64 bg-gray-200 rounded"></div>
+    </div>
+  );
+}
+
+// Error State
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="max-w-[1400px] mx-auto px-4 py-12 text-center">
+      <div className="bg-red-50 border border-red-200 rounded-xl p-8">
+        <h2 className="text-xl font-bold text-red-600 mb-2">Failed to load content</h2>
+        <p className="text-gray-600">{message}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Section Renderer
+function renderSection(section: CmsSection) {
+  const { type, items, config, title } = section;
+
+  switch (type) {
+    case 'carousel':
+      return (
+        <HeroCarousel
+          key={section.id}
+          slides={items.map((item) => item.data)}
+          config={config}
+        />
+      );
+
+    case 'deals':
+      return (
+        <DealsSection
+          key={section.id}
+          title={title}
+          products={items.map((item) => item.data)}
+          config={config}
+        />
+      );
+
+    case 'categories':
+      return (
+        <CategoryGrid
+          key={section.id}
+          title={title}
+          categories={items.map((item) => item.data)}
+          config={config}
+        />
+      );
+
+    case 'values':
+      return (
+        <CoreValueStrip
+          key={section.id}
+          title={title}
+          values={items.map((item) => item.data)}
+          config={config}
+        />
+      );
+
+    case 'banner':
+      // Future: Implement AdBanner component
+      return null;
+
+    case 'products':
+      // Future: Implement ProductsSection component
+      return null;
+
+    default:
+      console.warn(`Unknown section type: ${type}`);
+      return null;
+  }
+}
+
+export default function HomePage() {
+  const [pageData, setPageData] = useState<CmsPageResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch featured products
-    dispatch(fetchFeaturedProducts())
-    
-    // Fetch trending searches
-    dispatch(getTrendingSearches())
-    
-    // Fetch personalized recommendations for authenticated users
-    if (isAuthenticated && user) {
-      dispatch(fetchRecommendedProducts(user.id))
+    async function fetchHomepage() {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await cmsService.getHomepage();
+        setPageData(data);
+      } catch (err: any) {
+        console.warn('Failed to fetch homepage from CMS, using fallback data:', err);
+        // Silent fallback - do not show error to user
+        setPageData(FALLBACK_HOMEPAGE_DATA);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [dispatch, isAuthenticated, user])
 
-  if (isLoading) {
+    fetchHomepage();
+  }, []);
+
+  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="large" />
-      </div>
-    )
+      <MainLayout>
+        <ErrorState message={error} />
+      </MainLayout>
+    );
+  }
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="space-y-8 py-8">
+          <div className="h-[400px] bg-gray-200 animate-pulse"></div>
+          <div className="max-w-[1400px] mx-auto px-4">
+            <SectionSkeleton />
+          </div>
+          <div className="max-w-[1400px] mx-auto px-4">
+            <SectionSkeleton />
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  if (!pageData || pageData.sections.length === 0) {
+    return (
+      <MainLayout>
+        <div className="max-w-[1400px] mx-auto px-4 py-12 text-center">
+          <h2 className="text-xl font-bold text-gray-600">No content available</h2>
+          <p className="text-gray-500 mt-2">Please check back later.</p>
+        </div>
+      </MainLayout>
+    );
   }
 
   return (
-    <>
-      <Helmet>
-        <title>Mnbarh - Your eBay-Level Marketplace for Everything</title>
-        <meta 
-          name="description" 
-          content="Discover millions of products on Mnbarh. Buy and sell electronics, fashion, home & garden, collectibles, and more at great prices." 
-        />
-        <meta name="keywords" content="marketplace, buy, sell, electronics, fashion, home, garden, collectibles" />
-        <link rel="canonical" href="https://mnbara.com" />
-      </Helmet>
-
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {/* Hero Section */}
-        <HeroSection />
-
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-          {/* Categories */}
-          <Categories />
-
-          {/* Featured Categories */}
-          <FeaturedCategories />
-
-          {/* Live Deals */}
-          <LiveDealsSection />
-
-          {/* Live Auctions */}
-          <AuctionCountdown />
-
-          {/* Trending Searches */}
-          {trendingSearches.length > 0 && (
-            <TrendingSearches searches={trendingSearches} />
-          )}
-
-          {/* Trending Products */}
-          {featuredProducts.length > 0 && (
-            <TrendingProducts products={featuredProducts.slice(0, 12)} />
-          )}
-
-          {/* Endless Accessories */}
-          {featuredProducts.length > 0 && (
-            <EndlessAccessories products={featuredProducts.slice(0, 15)} />
-          )}
-
-          {/* Featured Products */}
-          {featuredProducts.length > 0 && (
-            <FeaturedProducts products={featuredProducts} />
-          )}
-
-          {/* Recently Viewed */}
-          <RecentlyViewed />
-
-          {/* Personalized Recommendations */}
-          {isAuthenticated && recommendedProducts.length > 0 && (
-            <RecommendedProducts products={recommendedProducts} />
-          )}
-
-          {/* Customer Reviews */}
-          <ReviewsCarousel />
-
-          {/* Trust Badges */}
-          <TrustBadges />
-
-          {/* Additional sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Selling CTA */}
-            <div className="bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-lg p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">Start Selling Today</h2>
-              <p className="text-secondary-100 mb-6">
-                Turn your unused items into cash. It's easy to sell on Mnbara.
-              </p>
-              <button className="bg-white text-secondary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Start Selling
-              </button>
-            </div>
-
-            {/* App Download */}
-            <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg p-8 text-white">
-              <h2 className="text-2xl font-bold mb-4">Shop on the Go</h2>
-              <p className="text-primary-100 mb-6">
-                Download our mobile app for the best shopping experience.
-              </p>
-              <div className="flex space-x-4">
-                <button className="bg-white text-primary-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm">
-                  App Store
-                </button>
-                <button className="bg-white text-primary-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm">
-                  Google Play
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  )
+    <MainLayout>
+      {/* Render sections dynamically based on API response */}
+      {pageData.sections
+        .filter((section) => section.enabled)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((section) => renderSection(section))}
+    </MainLayout>
+  );
 }
-
-export default HomePage

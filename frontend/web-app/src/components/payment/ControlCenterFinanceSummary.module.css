@@ -1,0 +1,429 @@
+/* Control Center Finance Summary Styles */
+.financeSummary {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.readOnlyBadge {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Period Selector */
+.periodSelector {
+  margin-bottom: 32px;
+}
+
+.periodButtons {
+  display: flex;
+  gap: 8px;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.periodButton {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodButton:hover {
+  background: #e2e8f0;
+  color: #374151;
+}
+
+.periodButton.active {
+  background: white;
+  color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Section */
+.section {
+  margin-bottom: 40px;
+}
+
+.section h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error State */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+  color: #dc2626;
+}
+
+.error p {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+.retryButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retryButton:hover {
+  background: #2563eb;
+}
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.metricCard {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.metricValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.metricLabel {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.metricPeriod {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.metricSubtext {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Breakdown Grid */
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.providerCard,
+.methodCard {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.providerName,
+.methodName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.providerMetrics,
+.methodMetrics {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.providerMetric,
+.methodMetric {
+  text-align: center;
+  flex: 1;
+}
+
+.providerMetric .metricValue,
+.methodMetric .metricValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  display: block;
+  margin-bottom: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.providerMetric .metricLabel,
+.methodMetric .metricLabel {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Escrow Grid */
+.escrowGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.escrowCard {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #bae6fd;
+  text-align: center;
+}
+
+.escrowValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0c4a6e;
+  margin-bottom: 8px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.escrowLabel {
+  font-size: 13px;
+  color: #075985;
+  font-weight: 600;
+}
+
+/* Read-Only Notice */
+.readOnlyNotice {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.noticeIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.noticeText {
+  flex: 1;
+}
+
+.noticeText strong {
+  display: block;
+  font-size: 16px;
+  color: #92400e;
+  margin-bottom: 8px;
+}
+
+.noticeText p {
+  margin: 0;
+  font-size: 14px;
+  color: #78350f;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .breakdownGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .escrowGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .financeSummary {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header h2 {
+    font-size: 20px;
+  }
+
+  .section {
+    margin-bottom: 24px;
+  }
+
+  .section h3 {
+    font-size: 16px;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .metricCard {
+    padding: 16px;
+  }
+
+  .metricValue {
+    font-size: 20px;
+  }
+
+  .providerMetrics,
+  .methodMetrics {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .providerMetric .metricValue,
+  .methodMetric .metricValue {
+    font-size: 14px;
+  }
+
+  .escrowGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .escrowCard {
+    padding: 16px;
+  }
+
+  .escrowValue {
+    font-size: 18px;
+  }
+
+  .readOnlyNotice {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .noticeIcon {
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .financeSummary {
+    padding: 12px;
+  }
+
+  .header h2 {
+    font-size: 18px;
+  }
+
+  .section h3 {
+    font-size: 15px;
+  }
+
+  .metricCard {
+    padding: 12px;
+  }
+
+  .metricValue {
+    font-size: 18px;
+  }
+
+  .providerCard,
+  .methodCard {
+    padding: 16px;
+  }
+
+  .providerName,
+  .methodName {
+    font-size: 15px;
+  }
+
+  .escrowCard {
+    padding: 12px;
+  }
+
+  .escrowValue {
+    font-size: 16px;
+  }
+
+  .readOnlyNotice {
+    padding: 12px;
+  }
+}

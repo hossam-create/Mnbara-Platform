@@ -1,0 +1,413 @@
+/* User Report Form Styles */
+.reportForm {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Success Message */
+.successMessage {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.successIcon {
+  font-size: 48px;
+  color: #10b981;
+  margin-bottom: 16px;
+}
+
+.successMessage h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.successMessage p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.field .select,
+.field .textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  background: white;
+}
+
+.field .select:focus,
+.field .textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.field .textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.characterCount {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Priority Options */
+.priorityOptions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.priorityOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.priorityOption:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.priorityOption input[type="radio"] {
+  margin: 0;
+}
+
+.priorityOption input[type="radio"]:checked + .priorityLabel {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.priorityOption input[type="radio"]:checked ~ .priorityOption {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.priorityLabel {
+  font-size: 14px;
+  color: #374151;
+  user-select: none;
+}
+
+/* File Upload */
+.fileUpload {
+  position: relative;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileUploadLabel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fileUploadLabel:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.uploadIcon {
+  font-size: 24px;
+  color: #6b7280;
+}
+
+.fileUploadLabel div p {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 4px 0;
+}
+
+.fileUploadLabel div span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Uploaded Files */
+.uploadedFiles {
+  margin-top: 16px;
+}
+
+.uploadedFiles h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+}
+
+.uploadedFile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.fileName {
+  font-size: 13px;
+  color: #374151;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removeFile {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.removeFile:hover {
+  background: #fef2f2;
+}
+
+/* Error Display */
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.error p {
+  color: #dc2626;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.submitButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* UI Only Notice */
+.uiOnlyNotice {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.noticeIcon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.noticeContent h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 8px 0;
+}
+
+.noticeContent p {
+  font-size: 15px;
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .reportForm {
+    padding: 20px;
+    margin: 0 16px;
+  }
+  
+  .header h2 {
+    font-size: 20px;
+  }
+  
+  .priorityOptions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .priorityOption {
+    width: 100%;
+  }
+  
+  .fileUploadLabel {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding: 20px;
+  }
+  
+  .uploadedFile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .fileName {
+    width: 100%;
+  }
+  
+  .uiOnlyNotice {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reportForm {
+    padding: 16px;
+    margin: 0 12px;
+  }
+  
+  .header {
+    margin-bottom: 24px;
+  }
+  
+  .header h2 {
+    font-size: 18px;
+  }
+  
+  .form {
+    gap: 20px;
+  }
+  
+  .field .select,
+  .field .textarea {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .field .textarea {
+    min-height: 100px;
+  }
+  
+  .field label {
+    font-size: 13px;
+  }
+  
+  .priorityLabel {
+    font-size: 13px;
+  }
+  
+  .fileUploadLabel {
+    padding: 16px;
+  }
+  
+  .uploadIcon {
+    font-size: 20px;
+  }
+  
+  .fileUploadLabel div p {
+    font-size: 13px;
+  }
+  
+  .fileUploadLabel div span {
+    font-size: 11px;
+  }
+  
+  .submitButton {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+}

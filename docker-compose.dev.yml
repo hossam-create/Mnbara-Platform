@@ -109,6 +109,33 @@ services:
       - ./backend/services/compliance-service:/app
       - /app/node_modules
 
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend/services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "10000:10000"
+    environment:
+      PORT: 10000
+      NODE_ENV: development
+      LISTING_SERVICE_URL: http://listing-service:3001
+      CART_SERVICE_URL: http://cart-service:3002
+      PAYMENT_SERVICE_URL: http://payment-service:3003
+      CROWDSHIP_SERVICE_URL: http://crowdship-service:3004
+      COMPLIANCE_SERVICE_URL: http://compliance-service:3005
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      JWT_SECRET: dev-secret-key
+    depends_on:
+      - listing-service
+      - cart-service
+      - payment-service
+      - crowdship-service
+      - compliance-service
+    volumes:
+      - ./backend/services/api-gateway:/app
+      - /app/node_modules
+
 volumes:
   postgres_data:
   redis_data:

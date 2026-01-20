@@ -1,0 +1,424 @@
+﻿# Mnbarh Platform - System Architecture
+
+**Version:** 1.0  
+**Last Updated:** 2025-12-22  
+**Status:** ًں”´ IN PROGRESS
+
+---
+
+## ًں“گ eBay-Level Architecture Overview
+
+### ًںڈ¢ Enterprise Architecture (eBay-Inspired)
+
+**Target:** Build a platform that matches eBay's scale, performance, and features
+
+### High-Level Architecture Diagram
+
+```
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+â”‚                   Client Layer (eBay-Level)                 â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  Web (React+Redux)  â”‚  Mobile (Flutter)  â”‚  Admin (React)   â”‚
+â”‚  - Personalization  â”‚  - Offline-first   â”‚  - Analytics     â”‚
+â”‚  - Real-time search â”‚  - Push notificationsâ”‚ - ML insights   â”‚
+â”‚  - A/B testing      â”‚  - Biometric auth   â”‚  - Business KPIs â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”ک
+         â”‚                                              â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+                            â”‚
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â”‚    API Gateway (Node.js + Kong)          â”‚
+         â”‚  - Rate limiting (eBay-level)            â”‚
+         â”‚  - Load balancing                        â”‚
+         â”‚  - Authentication                        â”‚
+         â”‚  - Request routing                       â”‚
+         â”‚  - API versioning                        â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+                            â”‚
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â”‚  Microservices Layer (eBay Architecture) â”‚
+         â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Auth Service (Java/Spring Boot)â”‚    â”‚
+         â”‚  â”‚  - JWT + OAuth 2.0              â”‚    â”‚
+         â”‚  â”‚  - Multi-factor authentication  â”‚    â”‚
+         â”‚  â”‚  - RBAC + ABAC                  â”‚    â”‚
+         â”‚  â”‚  - Session management           â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Listing Service (Node.js)      â”‚    â”‚
+         â”‚  â”‚  - Product catalog              â”‚    â”‚
+         â”‚  â”‚  - Category management          â”‚    â”‚
+         â”‚  â”‚  - Inventory tracking           â”‚    â”‚
+         â”‚  â”‚  - Elasticsearch integration    â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Search Service (Scala)         â”‚    â”‚
+         â”‚  â”‚  - NLP-powered search           â”‚    â”‚
+         â”‚  â”‚  - Vector similarity            â”‚    â”‚
+         â”‚  â”‚  - Auto-complete                â”‚    â”‚
+         â”‚  â”‚  - Search analytics             â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Payment Service (Java)         â”‚    â”‚
+         â”‚  â”‚  - Multi-currency wallet        â”‚    â”‚
+         â”‚  â”‚  - Escrow system                â”‚    â”‚
+         â”‚  â”‚  - Fraud detection              â”‚    â”‚
+         â”‚  â”‚  - PCI-DSS compliance           â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Recommendation Service (Python)â”‚    â”‚
+         â”‚  â”‚  - Collaborative filtering      â”‚    â”‚
+         â”‚  â”‚  - Content-based filtering      â”‚    â”‚
+         â”‚  â”‚  - Real-time personalization    â”‚    â”‚
+         â”‚  â”‚  - A/B testing framework        â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Analytics Service (Scala)      â”‚    â”‚
+         â”‚  â”‚  - Real-time analytics          â”‚    â”‚
+         â”‚  â”‚  - User behavior tracking       â”‚    â”‚
+         â”‚  â”‚  - Business intelligence        â”‚    â”‚
+         â”‚  â”‚  - ML model training            â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Auction Service (Java)         â”‚    â”‚
+         â”‚  â”‚  - Real-time bidding            â”‚    â”‚
+         â”‚  â”‚  - Auction algorithms           â”‚    â”‚
+         â”‚  â”‚  - Winner determination         â”‚    â”‚
+         â”‚  â”‚  - Bid validation               â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Crowdship Service (Node.js)    â”‚    â”‚
+         â”‚  â”‚  - Dynamic pricing              â”‚    â”‚
+         â”‚  â”‚  - Route optimization           â”‚    â”‚
+         â”‚  â”‚  - Real-time tracking           â”‚    â”‚
+         â”‚  â”‚  - Delivery predictions         â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Notification Service (Node.js) â”‚    â”‚
+         â”‚  â”‚  - Multi-channel notifications  â”‚    â”‚
+         â”‚  â”‚  - Event-driven messaging       â”‚    â”‚
+         â”‚  â”‚  - Push notifications           â”‚    â”‚
+         â”‚  â”‚  - Email/SMS campaigns          â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+                            â”‚
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â”‚    Data Layer (eBay-Scale)               â”‚
+         â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  PostgreSQL Cluster             â”‚    â”‚
+         â”‚  â”‚  - Master-slave replication     â”‚    â”‚
+         â”‚  â”‚  - Read replicas                â”‚    â”‚
+         â”‚  â”‚  - Automated failover           â”‚    â”‚
+         â”‚  â”‚  - Connection pooling           â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Redis Cluster                  â”‚    â”‚
+         â”‚  â”‚  - Session management           â”‚    â”‚
+         â”‚  â”‚  - Caching layer                â”‚    â”‚
+         â”‚  â”‚  - Real-time data               â”‚    â”‚
+         â”‚  â”‚  - Pub/Sub messaging            â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Elasticsearch Cluster          â”‚    â”‚
+         â”‚  â”‚  - Full-text search             â”‚    â”‚
+         â”‚  â”‚  - Analytics                    â”‚    â”‚
+         â”‚  â”‚  - Log aggregation              â”‚    â”‚
+         â”‚  â”‚  - Machine learning             â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Apache Kafka                   â”‚    â”‚
+         â”‚  â”‚  - Event streaming              â”‚    â”‚
+         â”‚  â”‚  - Real-time data pipeline      â”‚    â”‚
+         â”‚  â”‚  - Microservice communication   â”‚    â”‚
+         â”‚  â”‚  - Analytics data feed          â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+                            â”‚
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â”‚    Infrastructure Layer (eBay-Level)     â”‚
+         â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Kubernetes Cluster             â”‚    â”‚
+         â”‚  â”‚  - Auto-scaling                 â”‚    â”‚
+         â”‚  â”‚  - Service mesh (Istio)         â”‚    â”‚
+         â”‚  â”‚  - Load balancing               â”‚    â”‚
+         â”‚  â”‚  - Health monitoring            â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Monitoring Stack               â”‚    â”‚
+         â”‚  â”‚  - Prometheus + Grafana         â”‚    â”‚
+         â”‚  â”‚  - Jaeger (distributed tracing)â”‚    â”‚
+         â”‚  â”‚  - ELK Stack (logging)          â”‚    â”‚
+         â”‚  â”‚  - AlertManager                 â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”‚
+         â”‚  â”‚  Security Layer                 â”‚    â”‚
+         â”‚  â”‚  - HashiCorp Vault              â”‚    â”‚
+         â”‚  â”‚  - TLS/SSL everywhere           â”‚    â”‚
+         â”‚  â”‚  - Network policies             â”‚    â”‚
+         â”‚  â”‚  - Security scanning            â”‚    â”‚
+         â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â”‚
+         â”‚                                          â”‚
+         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+```
+
+---
+
+## ًںڈ—ï¸ڈ Service Responsibilities
+
+### Core Services (Existing)
+
+#### 1. Auth Service
+- **Responsibility:** User authentication and authorization
+- **Dependencies:** PostgreSQL, Redis, Vault
+- **Provides:** JWT tokens, OAuth integration
+- **Consumes:** User credentials, OAuth tokens
+
+#### 2. Listing Service
+- **Responsibility:** Product and catalog management
+- **Dependencies:** PostgreSQL, Elasticsearch
+- **Provides:** Product listings, categories
+- **Consumes:** Product data, search queries
+
+#### 3. Auction Service
+- **Responsibility:** Auction lifecycle and bidding
+- **Dependencies:** PostgreSQL, RabbitMQ
+- **Provides:** Auction management, bid processing
+- **Consumes:** Auction events, bid data
+
+#### 4. Payment Service
+- **Responsibility:** Financial transactions and wallet management
+- **Dependencies:** PostgreSQL, Stripe API, Vault
+- **Provides:** Payment processing, wallet operations
+- **Consumes:** Transaction requests, payment data
+
+#### 5. Crowdship Service
+- **Responsibility:** Delivery and shipment management
+- **Dependencies:** PostgreSQL, Redis (GEO), RabbitMQ
+- **Provides:** Shipment tracking, delivery status
+- **Consumes:** Order data, location updates
+
+#### 6. Matching Service
+- **Responsibility:** Order-traveler matching algorithm
+- **Dependencies:** PostgreSQL, Redis (GEO), RabbitMQ
+- **Provides:** Matching results, recommendations
+- **Consumes:** Order data, traveler data
+
+#### 7. Trips Service
+- **Responsibility:** Traveler availability and route tracking
+- **Dependencies:** PostgreSQL, Redis (GEO)
+- **Provides:** Trip data, location updates
+- **Consumes:** Traveler data, location events
+
+#### 8. Recommendation Service
+- **Responsibility:** ML-based recommendations
+- **Dependencies:** PostgreSQL, Python/FastAPI, Redis
+- **Provides:** Personalized recommendations
+- **Consumes:** User behavior, context data
+
+#### 9. Rewards Service
+- **Responsibility:** Points and loyalty management
+- **Dependencies:** PostgreSQL, Redis
+- **Provides:** Points tracking, redemption
+- **Consumes:** User activity, transaction data
+
+#### 10. Notification Service
+- **Responsibility:** Event-driven notifications
+- **Dependencies:** RabbitMQ, Email/SMS providers
+- **Provides:** Notifications, webhooks
+- **Consumes:** System events, user preferences
+
+#### 11. Orders Service
+- **Responsibility:** Order management and coordination
+- **Dependencies:** PostgreSQL, RabbitMQ
+- **Provides:** Order tracking, status updates
+- **Consumes:** Order events, user requests
+
+### New Services (To Be Implemented)
+
+#### 12. KYC Service
+- **Responsibility:** Know Your Customer verification
+- **Dependencies:** PostgreSQL, External KYC provider, Vault
+- **Provides:** Verification status, compliance data
+- **Consumes:** User documents, verification requests
+
+#### 13. Swap Service
+- **Responsibility:** P2P item swapping
+- **Dependencies:** PostgreSQL, RabbitMQ
+- **Provides:** Swap matching, dispute resolution
+- **Consumes:** Swap requests, user ratings
+
+#### 14. Ledger Service
+- **Responsibility:** Immutable transaction ledger
+- **Dependencies:** Blockchain (Ethereum/Polygon), PostgreSQL
+- **Provides:** Transaction records, verification
+- **Consumes:** Transaction data, verification requests
+
+---
+
+## ًں”„ Data Flow
+
+### User Registration Flow
+```
+Client â†’ API Gateway â†’ Auth Service â†’ PostgreSQL
+                    â†“
+                  Vault (store credentials)
+                    â†“
+                  Redis (cache session)
+```
+
+### Product Search Flow
+```
+Client â†’ API Gateway â†’ Listing Service â†’ Elasticsearch
+                    â†“
+                  PostgreSQL (product data)
+                    â†“
+                  Redis (cache results)
+```
+
+### Order Placement Flow
+```
+Client â†’ API Gateway â†’ Orders Service â†’ PostgreSQL
+                    â†“
+                  RabbitMQ (publish event)
+                    â†“
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â†“                     â†“          â†“
+    Payment Service    Matching Service  Notification Service
+         â†“                     â†“          â†“
+      Stripe            Recommendation   Email/SMS
+```
+
+### Real-time Location Update Flow
+```
+Mobile App â†’ API Gateway â†’ Trips Service â†’ Redis (GEO)
+                        â†“
+                    PostgreSQL
+                        â†“
+                    RabbitMQ (publish event)
+                        â†“
+         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
+         â†“                             â†“
+    Crowdship Service         Notification Service
+         â†“                             â†“
+    Update tracking              Notify users
+```
+
+---
+
+## ًں”گ Security Architecture
+
+### Authentication & Authorization
+- JWT tokens for API authentication
+- OAuth 2.0 for social login
+- RBAC for authorization
+- Session management via Redis
+
+### Data Protection
+- TLS/SSL for all communications
+- AES-256 encryption for sensitive data
+- HashiCorp Vault for secret management
+- Database encryption at rest
+
+### Compliance
+- KYC verification for users
+- PCI-DSS compliance for payments
+- GDPR compliance for data handling
+- Audit logging for all operations
+
+---
+
+## ًں“ٹ Scalability Considerations
+
+### Horizontal Scaling
+- Stateless microservices
+- Load balancing via API Gateway
+- Database replication
+- Redis clustering
+
+### Vertical Scaling
+- Resource limits per service
+- Auto-scaling policies
+- Performance optimization
+- Caching strategies
+
+### Data Scaling
+- Database sharding strategy
+- Elasticsearch indexing
+- Redis memory management
+- Archive old data
+
+---
+
+## ًںڑ€ Deployment Architecture
+
+### Containerization
+- Docker containers for all services
+- Docker Compose for local development
+- Container registry for image storage
+
+### Orchestration
+- Kubernetes for production
+- Helm charts for deployment
+- Auto-scaling policies
+- Health checks and monitoring
+
+### CI/CD Pipeline
+- GitHub Actions for automation
+- Automated testing
+- Automated deployment
+- Rollback capabilities
+
+---
+
+## ًں“ˆ Performance Targets
+
+- **API Response Time:** < 200ms (p95)
+- **Database Query Time:** < 100ms (p95)
+- **Search Query Time:** < 500ms (p95)
+- **System Availability:** 99.9%
+- **Concurrent Users:** 10,000+
+
+---
+
+## ًں”„ Integration Points
+
+### External Services
+- Stripe (Payment processing)
+- OAuth providers (Google, Apple, Facebook)
+- KYC provider (IDology/Jumio)
+- Email/SMS providers
+- Blockchain nodes (Ethereum/Polygon)
+
+### Internal Integration
+- RabbitMQ for async messaging
+- Redis for caching and sessions
+- PostgreSQL for data persistence
+- Elasticsearch for search
+
+---
+
+**Status:** ًں”´ IN PROGRESS  
+**Last Updated:** 2025-12-22  
+**Next Review:** 2025-12-29
+

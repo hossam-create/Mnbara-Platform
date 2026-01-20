@@ -1,0 +1,330 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rule Definition Schema",
+  "description": "JSON schema for defining rules engine rules with versioning and no-code deployment",
+  "type": "object",
+  "required": [
+    "rule_id",
+    "name",
+    "version",
+    "event_types",
+    "condition",
+    "output_flag",
+    "severity",
+    "enabled"
+  ],
+  "properties": {
+    "rule_id": {
+      "type": "string",
+      "pattern": "^rule-[a-z0-9-]+$",
+      "description": "Unique identifier for the rule (kebab-case)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 255,
+      "description": "Human-readable rule name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Detailed description of what the rule detects"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (major.minor.patch)"
+    },
+    "event_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "AUTH_LOGIN_SUCCESS",
+          "AUTH_LOGIN_FAILED",
+          "AUTH_LOGOUT",
+          "AUTH_TOKEN_ISSUED",
+          "AUTH_TOKEN_REVOKED",
+          "SEARCH_QUERY_EXECUTED",
+          "SEARCH_FILTER_APPLIED",
+          "SEARCH_RESULT_VIEWED",
+          "SEARCH_RECOMMENDATION_SHOWN",
+          "PRODUCT_VIEWED",
+          "PRODUCT_ADDED_TO_CART",
+          "PRODUCT_REMOVED_FROM_CART",
+          "PRODUCT_REVIEWED",
+          "PRODUCT_SHARED",
+          "AUCTION_CREATED",
+          "AUCTION_STARTED",
+          "AUCTION_ENDED_NORMAL",
+          "AUCTION_ENDED_RESERVE_NOT_MET",
+          "AUCTION_EXTENDED",
+          "AUCTION_CANCELLED",
+          "AUCTION_SETTLED",
+          "AUCTION_FINALIZED",
+          "BID_PLACED",
+          "BID_OUTBID",
+          "BID_WON",
+          "BID_CANCELLED",
+          "BID_INVALIDATED",
+          "BID_THROTTLED",
+          "PROXY_BID_ACTIVATED",
+          "ESCROW_CREATED",
+          "ESCROW_HELD",
+          "ESCROW_RELEASED",
+          "ESCROW_REFUNDED",
+          "ESCROW_DISPUTE_FLAGGED",
+          "WALLET_CREATED",
+          "WALLET_BALANCE_VIEWED",
+          "WALLET_TRANSACTION_VIEWED",
+          "WALLET_TRANSFER_INITIATED",
+          "WALLET_TRANSFER_COMPLETED",
+          "PAYMENT_INITIATED",
+          "PAYMENT_PROCESSING",
+          "PAYMENT_COMPLETED",
+          "PAYMENT_FAILED",
+          "PAYMENT_REFUNDED",
+          "PAYMENT_DISPUTED",
+          "DELIVERY_INITIATED",
+          "DELIVERY_IN_TRANSIT",
+          "DELIVERY_ATTEMPTED",
+          "DELIVERY_COMPLETED",
+          "DELIVERY_FAILED",
+          "DISPUTE_CREATED",
+          "DISPUTE_EVIDENCE_SUBMITTED",
+          "DISPUTE_UNDER_REVIEW",
+          "DISPUTE_RESOLVED",
+          "DISPUTE_ESCALATED",
+          "DISPUTE_APPEALED",
+          "TRUST_ACTION_CREATED",
+          "TRUST_ACTION_UPDATED",
+          "TRUST_ACTION_EXPIRED",
+          "TRUST_SCORE_CALCULATED",
+          "TRUST_SCORE_UPDATED",
+          "ENFORCEMENT_ACTION_CREATED",
+          "SYSTEM_STARTUP",
+          "SYSTEM_SHUTDOWN",
+          "SYSTEM_ERROR",
+          "SYSTEM_WARNING",
+          "SYSTEM_MAINTENANCE_START",
+          "SYSTEM_MAINTENANCE_END"
+        ]
+      },
+      "description": "List of event types that trigger this rule"
+    },
+    "condition": {
+      "type": "object",
+      "description": "Rule condition definition",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/countCondition"
+        },
+        {
+          "$ref": "#/definitions/uniqueActorCondition"
+        },
+        {
+          "$ref": "#/definitions/sequenceCondition"
+        },
+        {
+          "$ref": "#/definitions/simpleCondition"
+        }
+      ]
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Threshold value for triggering the rule (count-based rules)"
+    },
+    "window": {
+      "type": "object",
+      "description": "Time window for rule evaluation",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Time window value"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["seconds", "minutes", "hours", "days"],
+          "description": "Time window unit"
+        }
+      }
+    },
+    "output_flag": {
+      "type": "string",
+      "enum": [
+        "FLAG_USER",
+        "FLAG_AUCTION",
+        "FLAG_TRAVELER",
+        "RATE_LIMIT",
+        "REQUIRE_MANUAL_REVIEW"
+      ],
+      "description": "Type of flag to produce when rule matches"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "description": "Severity level of the flag"
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether the rule is active"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing rules (e.g., 'fraud', 'abuse', 'compliance')"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Rule creation timestamp"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Rule last update timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User ID who created the rule"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User ID who last updated the rule"
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Internal notes about the rule"
+    }
+  },
+  "definitions": {
+    "countCondition": {
+      "type": "object",
+      "description": "Count-based condition: trigger when event count exceeds threshold",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "const": "count",
+          "description": "Condition type"
+        },
+        "field": {
+          "type": "string",
+          "description": "Field to count (e.g., 'event_type', 'actor_id')"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "greater_than", "less_than", "greater_than_or_equal", "less_than_or_equal"],
+          "description": "Comparison operator"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Value to compare against"
+        }
+      }
+    },
+    "uniqueActorCondition": {
+      "type": "object",
+      "description": "Unique actor detection: trigger when unique actors exceed threshold",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "const": "unique_actor",
+          "description": "Condition type"
+        },
+        "actor_field": {
+          "type": "string",
+          "enum": ["actor_id", "ip_address", "user_agent"],
+          "description": "Field to count unique values from"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["equals", "greater_than", "less_than", "greater_than_or_equal", "less_than_or_equal"],
+          "description": "Comparison operator"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of unique actors threshold"
+        }
+      }
+    },
+    "sequenceCondition": {
+      "type": "object",
+      "description": "Sequence detection: trigger when events occur in specific order",
+      "required": ["type", "sequence"],
+      "properties": {
+        "type": {
+          "const": "sequence",
+          "description": "Condition type"
+        },
+        "sequence": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered list of event types that must occur in sequence"
+        },
+        "max_gap_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum seconds between events in sequence (0 = no limit)"
+        },
+        "same_actor": {
+          "type": "boolean",
+          "description": "Whether all events must be from the same actor"
+        },
+        "same_target": {
+          "type": "boolean",
+          "description": "Whether all events must target the same entity"
+        }
+      }
+    },
+    "simpleCondition": {
+      "type": "object",
+      "description": "Simple condition: trigger on specific event field values",
+      "required": ["type", "field", "operator", "value"],
+      "properties": {
+        "type": {
+          "const": "simple",
+          "description": "Condition type"
+        },
+        "field": {
+          "type": "string",
+          "description": "Event field to evaluate (supports dot notation for nested fields)"
+        },
+        "operator": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "not_equals",
+            "greater_than",
+            "less_than",
+            "greater_than_or_equal",
+            "less_than_or_equal",
+            "in",
+            "not_in",
+            "contains",
+            "not_contains",
+            "starts_with",
+            "ends_with",
+            "exists",
+            "not_exists"
+          ],
+          "description": "Comparison operator"
+        },
+        "value": {
+          "description": "Value to compare against (can be string, number, boolean, or array)"
+        }
+      }
+    }
+  }
+}

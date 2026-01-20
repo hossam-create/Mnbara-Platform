@@ -1,0 +1,367 @@
+{
+  "rules": [
+    {
+      "rule_id": "rule-rapid-bid-detection",
+      "name": "Rapid Bid Detection",
+      "description": "Flag users who place more than 10 bids in 5 minutes (potential bot activity)",
+      "version": "1.0.0",
+      "event_types": ["BID_PLACED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 10
+      },
+      "threshold": 10,
+      "window": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["fraud", "bot-detection", "bidding"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential bot bidding patterns"
+    },
+    {
+      "rule_id": "rule-high-value-bid-spike",
+      "name": "High Value Bid Spike",
+      "description": "Flag auctions with bids exceeding $10,000 in a single transaction",
+      "version": "1.0.0",
+      "event_types": ["BID_PLACED"],
+      "condition": {
+        "type": "simple",
+        "field": "context.amount",
+        "operator": "greater_than",
+        "value": 10000
+      },
+      "output_flag": "FLAG_AUCTION",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["high-value", "compliance"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Flags high-value transactions for compliance review"
+    },
+    {
+      "rule_id": "rule-multiple-failed-logins",
+      "name": "Multiple Failed Login Attempts",
+      "description": "Flag users with more than 5 failed login attempts in 15 minutes",
+      "version": "1.0.0",
+      "event_types": ["AUTH_LOGIN_FAILED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 5
+      },
+      "threshold": 5,
+      "window": {
+        "value": 15,
+        "unit": "minutes"
+      },
+      "output_flag": "RATE_LIMIT",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["security", "authentication"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Prevents brute force attacks"
+    },
+    {
+      "rule_id": "rule-dispute-escalation-pattern",
+      "name": "Dispute Escalation Pattern",
+      "description": "Flag users who create disputes, then escalate them within 1 hour (potential abuse)",
+      "version": "1.0.0",
+      "event_types": ["DISPUTE_CREATED", "DISPUTE_ESCALATED"],
+      "condition": {
+        "type": "sequence",
+        "sequence": ["DISPUTE_CREATED", "DISPUTE_ESCALATED"],
+        "max_gap_seconds": 3600,
+        "same_actor": true,
+        "same_target": true
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["abuse", "disputes"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential dispute abuse patterns"
+    },
+    {
+      "rule_id": "rule-unique-ip-addresses",
+      "name": "Unusual IP Address Activity",
+      "description": "Flag users accessing from more than 5 different IP addresses in 1 hour",
+      "version": "1.0.0",
+      "event_types": ["AUTH_LOGIN_SUCCESS"],
+      "condition": {
+        "type": "unique_actor",
+        "actor_field": "ip_address",
+        "operator": "greater_than",
+        "value": 5
+      },
+      "threshold": 5,
+      "window": {
+        "value": 1,
+        "unit": "hours"
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["security", "account-compromise"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential account compromise"
+    },
+    {
+      "rule_id": "rule-payment-failure-retry",
+      "name": "Payment Failure Retry Pattern",
+      "description": "Flag users who retry failed payments more than 3 times in 10 minutes",
+      "version": "1.0.0",
+      "event_types": ["PAYMENT_FAILED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 3
+      },
+      "threshold": 3,
+      "window": {
+        "value": 10,
+        "unit": "minutes"
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["payments", "fraud"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential payment fraud or card testing"
+    },
+    {
+      "rule_id": "rule-rapid-account-creation",
+      "name": "Rapid Account Creation",
+      "description": "Flag when multiple accounts are created from the same IP address in 1 hour",
+      "version": "1.0.0",
+      "event_types": ["AUTH_TOKEN_ISSUED"],
+      "condition": {
+        "type": "unique_actor",
+        "actor_field": "actor_id",
+        "operator": "greater_than",
+        "value": 5
+      },
+      "threshold": 5,
+      "window": {
+        "value": 1,
+        "unit": "hours"
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["fraud", "account-creation"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential account farming"
+    },
+    {
+      "rule_id": "rule-auction-cancellation-abuse",
+      "name": "Auction Cancellation Abuse",
+      "description": "Flag sellers who cancel more than 3 auctions in 24 hours",
+      "version": "1.0.0",
+      "event_types": ["AUCTION_CANCELLED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 3
+      },
+      "threshold": 3,
+      "window": {
+        "value": 24,
+        "unit": "hours"
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "LOW",
+      "enabled": true,
+      "tags": ["seller-abuse", "auctions"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential auction cancellation abuse"
+    },
+    {
+      "rule_id": "rule-bid-then-dispute-pattern",
+      "name": "Bid Then Dispute Pattern",
+      "description": "Flag users who win auctions then immediately create disputes (potential fraud)",
+      "version": "1.0.0",
+      "event_types": ["BID_WON", "DISPUTE_CREATED"],
+      "condition": {
+        "type": "sequence",
+        "sequence": ["BID_WON", "DISPUTE_CREATED"],
+        "max_gap_seconds": 1800,
+        "same_actor": true,
+        "same_target": false
+      },
+      "output_flag": "FLAG_USER",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["fraud", "disputes"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential post-win dispute fraud"
+    },
+    {
+      "rule_id": "rule-escrow-release-delay",
+      "name": "Escrow Release Delay",
+      "description": "Flag auctions where escrow is held for more than 30 days",
+      "version": "1.0.0",
+      "event_types": ["ESCROW_HELD"],
+      "condition": {
+        "type": "simple",
+        "field": "context.hold_duration_days",
+        "operator": "greater_than",
+        "value": 30
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["escrow", "compliance"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Flags long-term escrow holds for review"
+    },
+    {
+      "rule_id": "rule-search-then-bid-sequence",
+      "name": "Search Then Bid Sequence",
+      "description": "Flag users who search for items then immediately place high bids (potential shill bidding)",
+      "version": "1.0.0",
+      "event_types": ["SEARCH_QUERY_EXECUTED", "BID_PLACED"],
+      "condition": {
+        "type": "sequence",
+        "sequence": ["SEARCH_QUERY_EXECUTED", "BID_PLACED"],
+        "max_gap_seconds": 300,
+        "same_actor": true,
+        "same_target": false
+      },
+      "output_flag": "FLAG_AUCTION",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["fraud", "shill-bidding"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential shill bidding patterns"
+    },
+    {
+      "rule_id": "rule-delivery-failure-pattern",
+      "name": "Delivery Failure Pattern",
+      "description": "Flag sellers with more than 5 failed deliveries in 7 days",
+      "version": "1.0.0",
+      "event_types": ["DELIVERY_FAILED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 5
+      },
+      "threshold": 5,
+      "window": {
+        "value": 7,
+        "unit": "days"
+      },
+      "output_flag": "FLAG_TRAVELER",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["delivery", "seller-quality"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects sellers with poor delivery performance"
+    },
+    {
+      "rule_id": "rule-refund-abuse",
+      "name": "Refund Abuse Detection",
+      "description": "Flag users who request refunds for more than 50% of their purchases in 30 days",
+      "version": "1.0.0",
+      "event_types": ["PAYMENT_REFUNDED"],
+      "condition": {
+        "type": "count",
+        "field": "actor_id",
+        "operator": "greater_than",
+        "value": 5
+      },
+      "threshold": 5,
+      "window": {
+        "value": 30,
+        "unit": "days"
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "MEDIUM",
+      "enabled": true,
+      "tags": ["fraud", "refunds"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential refund abuse patterns"
+    },
+    {
+      "rule_id": "rule-wallet-transfer-spike",
+      "name": "Wallet Transfer Spike",
+      "description": "Flag users transferring more than $50,000 in a single day",
+      "version": "1.0.0",
+      "event_types": ["WALLET_TRANSFER_COMPLETED"],
+      "condition": {
+        "type": "simple",
+        "field": "context.total_amount",
+        "operator": "greater_than",
+        "value": 50000
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "HIGH",
+      "enabled": true,
+      "tags": ["compliance", "aml"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "AML compliance check for large transfers"
+    },
+    {
+      "rule_id": "rule-system-error-spike",
+      "name": "System Error Spike",
+      "description": "Flag when system errors exceed 100 in 5 minutes (potential outage)",
+      "version": "1.0.0",
+      "event_types": ["SYSTEM_ERROR"],
+      "condition": {
+        "type": "count",
+        "field": "event_type",
+        "operator": "greater_than",
+        "value": 100
+      },
+      "threshold": 100,
+      "window": {
+        "value": 5,
+        "unit": "minutes"
+      },
+      "output_flag": "REQUIRE_MANUAL_REVIEW",
+      "severity": "CRITICAL",
+      "enabled": true,
+      "tags": ["system", "monitoring"],
+      "created_at": "2026-01-16T00:00:00Z",
+      "updated_at": "2026-01-16T00:00:00Z",
+      "created_by": "admin",
+      "notes": "Detects potential system outages"
+    }
+  ]
+}

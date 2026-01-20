@@ -1,5 +1,5 @@
 import React from 'react';
-import eBayFeeCalculator from '../components/calculator/eBayFeeCalculator';
+import SellingProfitCalculator from '../components/calculator/SellingProfitCalculator';
 
 const FeeCalculatorPage: React.FC = () => {
   return (
@@ -7,14 +7,14 @@ const FeeCalculatorPage: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Fee Calculator
+            Selling Profit Calculator
           </h1>
           <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
             Transparent pricing. Know exactly what you earn.
           </p>
         </div>
         
-        <eBayFeeCalculator />
+        <SellingProfitCalculator />
       </div>
     </div>
   );

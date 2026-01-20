@@ -1,11 +1,12 @@
-﻿{
+{
   "name": "mnbarh-platform",
   "version": "1.0.0",
   "description": "mnbarh E-commerce Platform",
   "scripts": {
-    "start": "cd frontend/web-app && npm install && npm run dev -- --host 0.0.0.0",
-    "dev:frontend": "cd frontend/web-app && npm run dev -- --host 0.0.0.0",
-    "build:frontend": "cd frontend/web-app && npm run build",
+    "start": "cd frontend/web-app && npm install && npm run dev",
+    "dev:frontend": "cd frontend/web-app && npm run dev",
+    "build:frontend": "cd frontend/web-app && npm install && npm run build",
+    "preview:frontend": "cd frontend/web-app && npm run preview",
     "setup:db": "bash scripts/setup-databases.sh",
     "setup:db:win": "scripts\\setup-databases.bat",
     "start:mvp": "bash scripts/start-mvp.sh",
@@ -22,10 +23,13 @@
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
+    "axios": "^1.6.2",
     "concurrently": "^8.2.2",
     "typescript": "^5.3.3",
-    "vitest": "^1.0.4",
-    "axios": "^1.6.2"
+    "vitest": "^1.0.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.2.0",
+    "prisma": "^7.2.0"
   }
 }
-
