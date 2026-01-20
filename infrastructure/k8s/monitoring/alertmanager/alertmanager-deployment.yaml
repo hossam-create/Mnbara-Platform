@@ -8,7 +8,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: alertmanager
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 type: Opaque
 stringData:
   # Replace with actual values in production
@@ -23,7 +23,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: alertmanager
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 data:
   alertmanager.yml: |
     global:
@@ -107,7 +107,7 @@ data:
     receivers:
       - name: 'slack-notifications'
         slack_configs:
-          - channel: '#mnbara-alerts'
+          - channel: '#mnbarh-alerts'
             send_resolved: true
             title: '{{ template "slack.title" . }}'
             text: '{{ template "slack.text" . }}'
@@ -123,7 +123,7 @@ data:
       - name: 'slack-critical'
         slack_configs:
           - api_url_file: /etc/alertmanager/secrets/slack-webhook-url-critical
-            channel: '#mnbara-critical'
+            channel: '#mnbarh-critical'
             send_resolved: true
             title: '🚨 CRITICAL: {{ template "slack.title" . }}'
             text: '{{ template "slack.text" . }}'
@@ -170,7 +170,7 @@ data:
     {{ end }}
 
     {{ define "grafana.url" }}
-    http://grafana:3000/d/mnbara-service-health?var-service={{ .CommonLabels.service }}
+    http://grafana:3000/d/mnbarh-service-health?var-service={{ .CommonLabels.service }}
     {{ end }}
 
     {{ define "alertmanager.silence.url" }}
@@ -201,7 +201,7 @@ metadata:
   namespace: monitoring
   labels:
     app.kubernetes.io/name: alertmanager
-    app.kubernetes.io/part-of: mnbara-monitoring
+    app.kubernetes.io/part-of: mnbarh-monitoring
 spec:
   replicas: 2
   selector:
@@ -273,7 +273,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: alertmanager-mnbara
+  name: alertmanager-mnbarh
   namespace: monitoring
   labels:
     app.kubernetes.io/name: alertmanager
