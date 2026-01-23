@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { PaymentController } from '../controllers/payment.controller';
 import escrowPaymentRoutes from './escrow-payment.routes';
 import refundRoutes from './refund.routes';
+import stripePaymentRoutes from './stripe-payment.routes';
 
 const router = Router();
 const paymentController = new PaymentController();
@@ -12,6 +13,9 @@ router.post('/payment/confirm', paymentController.confirmPayment.bind(paymentCon
 router.post('/orders', paymentController.createOrder.bind(paymentController));
 router.post('/payment/refund', paymentController.refundPayment.bind(paymentController));
 router.get('/payment/status/:paymentIntentId', paymentController.getPaymentStatus.bind(paymentController));
+
+// Enhanced Stripe PaymentIntent routes (with wallet integration)
+router.use('/stripe', stripePaymentRoutes);
 
 // Escrow-first payment routes (Phase 4.0)
 router.use('/escrow', escrowPaymentRoutes);

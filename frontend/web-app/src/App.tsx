@@ -62,6 +62,23 @@ const ShippingDeliveryPage = React.lazy(() => import('./pages/ShippingDeliveryPa
 const ContactSupportPage = React.lazy(() => import('./pages/ContactSupportPage'));
 const BiddingHelpPage = React.lazy(() => import('./pages/BiddingHelpPage'));
 
+// New Trust / Legal / Payments Pages
+const TrustSafetyPage = React.lazy(() => import('./pages/trust/TrustSafetyPage'));
+const TrustSafetyTipsPage = React.lazy(() => import('./pages/trust/TrustSafetyTipsPage'));
+const TrustBuyerProtectionPage = React.lazy(() => import('./pages/trust/BuyerProtectionPage'));
+const TrustSellerProtectionPage = React.lazy(() => import('./pages/trust/SellerProtectionPage'));
+
+const TermsPage = React.lazy(() => import('./pages/legal/TermsPage'));
+const PrivacyPage = React.lazy(() => import('./pages/legal/PrivacyPage'));
+const CookiesPage = React.lazy(() => import('./pages/legal/CookiesPage'));
+const CommunityGuidelinesPage = React.lazy(() => import('./pages/legal/CommunityGuidelinesPage'));
+
+const PaymentsFeesPage = React.lazy(() => import('./pages/payments/FeesPage'));
+const PaymentsCancellationPage = React.lazy(() => import('./pages/payments/CancellationRefundsPage'));
+const PaymentsDisputesPage = React.lazy(() => import('./pages/payments/DisputesPage'));
+
+const AffiliateProgramPage = React.lazy(() => import('./pages/affiliate/ProgramPage'));
+
 // Additional Pages
 const SellPage = React.lazy(() => import('./pages/SellPage'));
 const DealsPage = React.lazy(() => import('./pages/DealsPage'));
@@ -146,6 +163,26 @@ function App() {
         <Route path="/contact" element={<ContactSupportPage />} />
         <Route path="/help/bidding" element={<BiddingHelpPage />} />
         
+        {/* Trust / Safety */}
+        <Route path="/trust" element={<TrustSafetyPage />} />
+        <Route path="/trust/safety-tips" element={<TrustSafetyTipsPage />} />
+        <Route path="/trust/buyer-protection" element={<TrustBuyerProtectionPage />} />
+        <Route path="/trust/seller-protection" element={<TrustSellerProtectionPage />} />
+
+        {/* Legal */}
+        <Route path="/legal/terms" element={<TermsPage />} />
+        <Route path="/legal/privacy" element={<PrivacyPage />} />
+        <Route path="/legal/cookies" element={<CookiesPage />} />
+        <Route path="/legal/community-guidelines" element={<CommunityGuidelinesPage />} />
+
+        {/* Payments & Policies */}
+        <Route path="/payments/fees" element={<PaymentsFeesPage />} />
+        <Route path="/payments/cancellation-refunds" element={<PaymentsCancellationPage />} />
+        <Route path="/payments/disputes" element={<PaymentsDisputesPage />} />
+
+        {/* Affiliate */}
+        <Route path="/affiliate/program" element={<AffiliateProgramPage />} />
+
         {/* Additional Pages */}
         <Route path="/sell" element={<SellPage />} />
         <Route path="/deals" element={<DealsPage />} />

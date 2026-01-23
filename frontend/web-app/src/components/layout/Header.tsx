@@ -68,11 +68,17 @@ export default function Header() {
                     {t('header.register')}
                   </Link>
                 </span>
+                <Link to="/payments/fees" className="hover:text-brand-yellow font-normal">
+                  Fees
+                </Link>
                 <Link to="/deals" className="hover:text-brand-yellow font-normal">
                   {t('header.dailyDeals')}
                 </Link>
                 <Link to="/help" className="hover:text-brand-yellow font-normal">
                   {t('header.helpContact')}
+                </Link>
+                <Link to="/affiliate/program" className="hover:text-brand-yellow font-normal">
+                  Affiliate
                 </Link>
                 <button 
                   onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'ar' : 'en')}

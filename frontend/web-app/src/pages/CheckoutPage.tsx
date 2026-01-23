@@ -18,6 +18,7 @@ export const CheckoutPage: React.FC = () => {
   const [paymentState, setPaymentState] = useState<'shipping' | 'payment' | 'processing' | 'success' | 'failed'>('shipping');
   const [orderId, setOrderId] = useState<string>('');
   const [paymentResult, setPaymentResult] = useState<any>(null);
+  const [agreePolicies, setAgreePolicies] = useState(false);
   const navigate = useNavigate();
 
   // Mock user and seller IDs - in production, these would come from auth context
@@ -38,6 +39,11 @@ export const CheckoutPage: React.FC = () => {
     if (!formData.email || !formData.firstName || !formData.lastName || 
         !formData.address || !formData.city || !formData.zipCode) {
       alert('Please fill in all shipping information');
+      return;
+    }
+
+    if (!agreePolicies) {
+      alert('Please agree to the Payments & Fees, Cancellation & Refund Policy, and Dispute Resolution process.');
       return;
     }
 
@@ -86,12 +92,11 @@ export const CheckoutPage: React.FC = () => {
         <div className="bg-green-50 border border-green-200 rounded-lg p-8">
           <div className="text-6xl mb-4">✅</div>
           <h1 className="text-3xl font-bold text-green-800 mb-4">Payment Successful!</h1>
-          <p className="text-green-700 mb-4">
-            Your payment has been processed and funds are held in escrow.
-          </p>
-          <p className="text-green-600">
-            Redirecting to order confirmation...
-          </p>
+          <div className="text-green-700 mb-4 space-y-2">
+            <p>Your payment has been processed and funds are held in escrow.</p>
+            <p className="font-semibold">Funds secured · Waiting for traveler acceptance</p>
+          </div>
+          <p className="text-green-600">Redirecting to order confirmation...</p>
         </div>
       </div>
     );
@@ -252,6 +257,29 @@ export const CheckoutPage: React.FC = () => {
               <span>Total:</span>
               <span>${amount.toFixed(2)} {currency}</span>
             </div>
+          </div>
+
+          <div className="mt-4 bg-white border border-yellow-200 rounded p-3 text-sm text-gray-800">
+            <p className="font-semibold">Before you pay</p>
+            <p>Your payment is held until delivery. Platform fees are non-refundable after 1 hour.</p>
+          </div>
+
+          <div className="mt-4 text-sm text-gray-700">
+            <label className="inline-flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreePolicies}
+                onChange={(e) => setAgreePolicies(e.target.checked)}
+                className="mt-1"
+                required
+              />
+              <span>
+                I understand the fees and agree to the{' '}
+                <a href="/payments/fees" className="text-blue-600 hover:underline">Payments & Fees</a>,{' '}
+                <a href="/payments/cancellation-refunds" className="text-blue-600 hover:underline">Cancellation & Refund Policy</a>, and{' '}
+                <a href="/payments/disputes" className="text-blue-600 hover:underline">Dispute Resolution</a>.
+              </span>
+            </label>
           </div>
         </div>
 

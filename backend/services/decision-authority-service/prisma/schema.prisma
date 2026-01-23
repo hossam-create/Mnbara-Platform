@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Decision Authority Service - Database Schema
+// Phase 1: Foundation
+// ============================================================
+
+// Asset Decision Record - Core decision tracking
+model AssetDecisionRecord {
+  id                Int              @id @default(autoincrement())
+  
+  // Asset identification
+  assetType         AssetType
+  assetId           String
+  
+  // Decision details
+  decisionId        String           @unique
+  status            DecisionStatus   @default(PENDING)
+  decisionRef       String?          // External reference from Custodii
+  reason            String?          @db.Text
+  
+  // Source tracking
+  decisionSource    String           // INTERNAL | EXTERNAL | MOCK
+  
+  // Timestamps
+  requestedAt       DateTime         @default(now())
+  decidedAt         DateTime?
+  expiresAt         DateTime?
+  
+  // Metadata
+  metadata          Json?
+  
+  // Relations
+  auditLogs         DecisionAuditLog[]
+  webhookEvents     DecisionWebhookEvent[]
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@index([assetType])
+  @@index([assetId])
+  @@index([status])
+  @@index([decisionSource])
+  @@index([requestedAt])
+  @@index([decidedAt])
+}
+
+// Decision Audit Log - APPEND-ONLY audit trail
+model DecisionAuditLog {
+  id                Int                    @id @default(autoincrement())
+  
+  decisionId        Int
+  decision          AssetDecisionRecord    @relation(fields: [decisionId], references: [id])
+  
+  action            String                 // Action taken (e.g., "CREATED", "STATUS_CHANGED", "OVERRIDDEN")
+  previousStatus    DecisionStatus?
+  newStatus         DecisionStatus?
+  
+  actorId           String                 // Who performed the action (system, admin, webhook)
+  actorType         String                 // SYSTEM | ADMIN | WEBHOOK | API
+  
+  metadata          Json?
+  
+  createdAt         DateTime               @default(now())
+  
+  @@index([decisionId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// Decision Webhook Event - Track incoming webhooks
+model DecisionWebhookEvent {
+  id                Int                    @id @default(autoincrement())
+  
+  decisionId        Int?
+  decision          AssetDecisionRecord?   @relation(fields: [decisionId], references: [id])
+  
+  eventType         String
+  payload           Json
+  signature         String?
+  
+  processed         Boolean                @default(false)
+  processedAt       DateTime?
+  
+  error             String?                @db.Text
+  retryCount        Int                    @default(0)
+  
+  createdAt         DateTime               @default(now())
+  
+  @@index([decisionId])
+  @@index([processed])
+  @@index([createdAt])
+}
+
+// Enums
+enum AssetType {
+  LISTING
+  AUCTION
+  ESCROW_RELEASE
+}
+
+enum DecisionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}

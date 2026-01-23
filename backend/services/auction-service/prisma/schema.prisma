@@ -105,6 +105,13 @@ model Listing {
   // Phase 6.0: Enforcement
   enforcementActions  EnforcementAction[]
   
+  // Phase 4: Decision Authority Integration
+  dispositionStatus DispositionStatus @default(APPROVED) @map("disposition_status")
+  decisionId        Int? @map("decision_id")
+  decisionRef       String? @map("decision_ref")
+  decisionRequestedAt DateTime? @map("decision_requested_at")
+  decisionDecidedAt   DateTime? @map("decision_decided_at")
+  
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   
@@ -113,6 +120,8 @@ model Listing {
   @@index([isAuction])
   @@index([auctionEndsAt])
   @@index([hasOpenDisputes])
+  @@index([dispositionStatus])
+  @@index([decisionId])
 }
 
 model Bid {
@@ -199,6 +208,13 @@ enum ListingStatus {
   SETTLED  // Phase 5.5: Settled, appeals window open
   CANCELLED
   DELETED
+}
+
+enum DispositionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
 }
 
 enum AuctionEndReason {

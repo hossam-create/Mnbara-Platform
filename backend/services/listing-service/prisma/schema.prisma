@@ -186,6 +186,13 @@ model Listing {
   status      ListingStatus @default(ACTIVE)
   featured    Boolean @default(false)
   
+  // Decision Authority Integration (Phase 4)
+  dispositionStatus DispositionStatus @default(APPROVED) @map("disposition_status")
+  decisionId        Int? @map("decision_id")
+  decisionRef       String? @map("decision_ref")
+  decisionRequestedAt DateTime? @map("decision_requested_at")
+  decisionDecidedAt   DateTime? @map("decision_decided_at")
+  
   // Timestamps
   expiresAt   DateTime?
   createdAt   DateTime @default(now())
@@ -195,6 +202,8 @@ model Listing {
   // Relations
   product Product @relation(fields: [productId], references: [id])
   
+  @@index([dispositionStatus])
+  @@index([decisionId])
   @@map("listings")
 }
 
@@ -236,4 +245,11 @@ enum ListingStatus {
   SOLD
   EXPIRED
   SUSPENDED
+}
+
+enum DispositionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
 }

@@ -37,74 +37,84 @@
 ## Phase 2: Core Service Logic (Week 2)
 
 ### 2.1 Decision Authority Service
-- [ ] 2.1.1 Create DecisionAuthorityService class
-- [ ] 2.1.2 Implement requestDecision() method
-- [ ] 2.1.3 Implement getDecision() method
-- [ ] 2.1.4 Implement listDecisions() with filters
-- [ ] 2.1.5 Implement overrideDecision() for admin
-- [ ] 2.1.6 Add decision expiry handling
-- [ ] 2.1.7 Write comprehensive unit tests
+- [x] 2.1.1 Create DecisionAuthorityService class
+- [x] 2.1.2 Implement requestDecision() method
+- [x] 2.1.3 Implement getDecision() method
+- [x] 2.1.4 Implement listDecisions() with filters
+- [x] 2.1.5 Implement overrideDecision() for admin
+- [x] 2.1.6 Add decision expiry handling
+- [x] 2.1.7 Write comprehensive unit tests
 
 ### 2.2 Audit Logging
-- [ ] 2.2.1 Create AuditLogService
-- [ ] 2.2.2 Log decision creation events
-- [ ] 2.2.3 Log status change events
-- [ ] 2.2.4 Log override events
-- [ ] 2.2.5 Add audit query methods
-- [ ] 2.2.6 Write audit log tests
+- [x] 2.2.1 Create AuditLogService
+- [x] 2.2.2 Log decision creation events
+- [x] 2.2.3 Log status change events
+- [x] 2.2.4 Log override events
+- [x] 2.2.5 Add audit query methods
+- [x] 2.2.6 Write audit log tests
 
 ### 2.3 REST API Layer
-- [ ] 2.3.1 Create DecisionController
-- [ ] 2.3.2 Add POST /api/v1/decisions/request endpoint
-- [ ] 2.3.3 Add GET /api/v1/decisions/:id endpoint
-- [ ] 2.3.4 Add GET /api/v1/decisions/asset/:assetId endpoint
-- [ ] 2.3.5 Add GET /api/v1/decisions (list with filters)
+- [x] 2.3.1 Create DecisionController
+- [x] 2.3.2 Add POST /api/v1/decisions/request endpoint
+- [x] 2.3.3 Add GET /api/v1/decisions/:id endpoint
+- [x] 2.3.4 Add GET /api/v1/decisions/asset/:assetId endpoint
+- [x] 2.3.5 Add GET /api/v1/decisions (list with filters)
 - [ ] 2.3.6 Add PATCH /api/v1/decisions/:id/override endpoint
-- [ ] 2.3.7 Add authentication middleware
-- [ ] 2.3.8 Add validation middleware
-- [ ] 2.3.9 Write API integration tests
+- [x] 2.3.7 Add authentication middleware
+- [x] 2.3.8 Add validation middleware
+- [x] 2.3.9 Write API integration tests
 
 ### 2.4 Webhook Handler
-- [ ] 2.4.1 Create WebhookController
-- [ ] 2.4.2 Add POST /api/v1/decisions/webhook endpoint
-- [ ] 2.4.3 Implement HMAC signature validation
-- [ ] 2.4.4 Add webhook event processing
-- [ ] 2.4.5 Add retry logic for failed processing
-- [ ] 2.4.6 Write webhook tests with mock signatures
+- [x] 2.4.1 Create WebhookController
+- [x] 2.4.2 Add POST /api/v1/decisions/webhook endpoint
+- [x] 2.4.3 Implement HMAC signature validation
+- [x] 2.4.4 Add webhook event processing
+- [x] 2.4.5 Add retry logic for failed processing
+- [x] 2.4.6 Write webhook tests with mock signatures
 
 ## Phase 3: External Integration (Week 3)
 
 ### 3.1 Custodii Decision Source
-- [ ] 3.1.1 Implement CustodiiDecisionSource class
-- [ ] 3.1.2 Add HTTP client with axios
-- [ ] 3.1.3 Implement requestDecision() API call
-- [ ] 3.1.4 Implement getDecision() API call
-- [ ] 3.1.5 Add API authentication (Bearer token)
-- [ ] 3.1.6 Add request/response logging
-- [ ] 3.1.7 Write unit tests with mocked HTTP
+- [x] 3.1.1 Implement CustodiiDecisionSource class
+- [x] 3.1.2 Add HTTP client with axios
+- [x] 3.1.3 Implement requestDecision() API call
+- [x] 3.1.4 Implement getDecision() API call
+- [x] 3.1.5 Add API authentication (Bearer token)
+- [x] 3.1.6 Add request/response logging
+- [x] 3.1.7 Write unit tests with mocked HTTP
 
 ### 3.2 Polling Mechanism
-- [ ] 3.2.1 Create DecisionPollingService
-- [ ] 3.2.2 Implement polling loop for PENDING decisions
-- [ ] 3.2.3 Add configurable poll interval (default 5s)
-- [ ] 3.2.4 Add max poll duration (default 30s)
-- [ ] 3.2.5 Handle timeout scenarios
-- [ ] 3.2.6 Write polling tests
+- [x] 3.2.1 Create DecisionPollingService
+- [x] 3.2.2 Implement polling loop for PENDING decisions
+- [x] 3.2.3 Add configurable poll interval (default 5s)
+- [x] 3.2.4 Add max poll duration (default 30s)
+- [x] 3.2.5 Handle timeout scenarios
+- [x] 3.2.6 Write polling tests
 
 ### 3.3 Retry & Fallback Logic
-- [ ] 3.3.1 Add exponential backoff retry (3 attempts)
-- [ ] 3.3.2 Implement circuit breaker pattern
-- [ ] 3.3.3 Add fallback to INTERNAL mode on repeated failures
-- [ ] 3.3.4 Add health check endpoint for external API
-- [ ] 3.3.5 Write retry/fallback tests
+- [x] 3.3.1 Add exponential backoff retry (3 attempts)
+- [x] 3.3.2 Implement circuit breaker pattern
+- [x] 3.3.3 Add fallback to INTERNAL mode on repeated failures
+- [x] 3.3.4 Add health check endpoint for external API
+- [x] 3.3.5 Write retry/fallback tests
 
-### 3.4 Error Handling
-- [ ] 3.4.1 Define custom error classes
-- [ ] 3.4.2 Add timeout error handling
-- [ ] 3.4.3 Add network error handling
-- [ ] 3.4.4 Add validation error handling
-- [ ] 3.4.5 Add error logging and alerting
-- [ ] 3.4.6 Write error scenario tests
+### 3.4 Observability & Operations (Phase 3.4)
+- [x] 3.4.1 Implement metrics collection (vendor-neutral)
+- [x] 3.4.2 Add structured logging (JSON format)
+- [x] 3.4.3 Implement correlation ID management
+- [x] 3.4.4 Add health check endpoints (liveness + readiness)
+- [x] 3.4.5 Implement alert signal emission
+- [x] 3.4.6 Add startup configuration logging
+- [x] 3.4.7 Create operational runbooks
+- [x] 3.4.8 Write observability tests
+
+### 3.5 Error Handling
+- [ ] 3.5.1 Define custom error classes
+- [ ] 3.5.2 Add timeout error handling
+- [ ] 3.5.3 Add network error handling
+- [ ] 3.5.4 Add validation error handling
+- [ ] 3.5.5 Add error logging and alerting
+- [ ] 3.5.6 Write error scenario tests
 
 ## Phase 4: Service Integration (Week 4)
 

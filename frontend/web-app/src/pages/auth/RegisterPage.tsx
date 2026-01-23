@@ -20,11 +20,18 @@ const RegisterPage: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [agreeLegal, setAgreeLegal] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
+
+    if (!agreeLegal) {
+      setError('Please agree to the Terms, Privacy Policy, and Community Guidelines')
+      setIsLoading(false)
+      return
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
@@ -213,15 +220,22 @@ const RegisterPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            By creating an account, you agree to our{' '}
-            <Link to="/terms" className="text-primary-600 hover:text-primary-500">
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
-              Privacy Policy
-            </Link>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            <label className="inline-flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={agreeLegal}
+                onChange={(e) => setAgreeLegal(e.target.checked)}
+                className="mt-1"
+                required
+              />
+              <span>
+                I agree to the{' '}
+                <Link to="/legal/terms" className="text-primary-600 hover:text-primary-500">Terms of Service</Link>,{' '}
+                <Link to="/legal/privacy" className="text-primary-600 hover:text-primary-500">Privacy Policy</Link>, and{' '}
+                <Link to="/legal/community-guidelines" className="text-primary-600 hover:text-primary-500">Community Guidelines</Link>.
+              </span>
+            </label>
           </div>
         </form>
       </div>
