@@ -60,3 +60,17 @@ export class InvalidEscrowStatusError extends WalletError {
     this.name = 'InvalidEscrowStatusError';
   }
 }
+
+export class PayoutError extends WalletError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PayoutError';
+  }
+}
+
+export class InsufficientBalanceError extends WalletError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InsufficientBalanceError';
+  }
+}

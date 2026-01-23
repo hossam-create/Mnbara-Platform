@@ -99,6 +99,57 @@ model EscrowHold {
 }
 
 // ============================================================
+// PHASE 1.2: Manual Payout System
+// Travelers can request withdrawals, admins process manually
+// ============================================================
+
+// Payout Request - Manual withdrawal requests
+model PayoutRequest {
+  id                    String   @id @default(uuid())
+  userId                Int
+  walletId              Int
+  
+  // Amount details
+  amount                Decimal  @db.Decimal(19, 4)
+  currency              String   @default("USD")
+  
+  // Status tracking
+  status                PayoutStatus @default(PENDING)
+  
+  // Payout method
+  method                PayoutMethod
+  
+  // Encrypted account details (JSON)
+  accountDetails        String   @db.Text
+  
+  // Timestamps
+  requestedAt           DateTime @default(now())
+  processedAt           DateTime?
+  completedAt           DateTime?
+  rejectedAt            DateTime?
+  
+  // Admin tracking
+  processedByAdminId    Int?
+  approvedByAdminId     Int?
+  rejectedByAdminId     Int?
+  
+  // Notes and rejection reason
+  notes                 String?  @db.Text
+  rejectionReason       String?  @db.Text
+  
+  // Metadata
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([walletId])
+  @@index([status])
+  @@index([requestedAt])
+  @@index([processedByAdminId])
+  @@index([status, requestedAt])
+}
+
+// ============================================================
 // ENUMS
 // ============================================================
 
@@ -122,4 +173,18 @@ enum EscrowStatus {
   HELD
   RELEASED
   REFUNDED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+enum PayoutMethod {
+  BANK_TRANSFER
+  PAYPAL
+  STRIPE_TRANSFER
 }
