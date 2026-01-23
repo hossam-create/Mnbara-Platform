@@ -1,12 +1,15 @@
 import { RequestService } from './RequestService';
 import { RequestStatus } from '../models/enums/RequestStatus';
 import { PaymentIntegrationService } from './PaymentIntegrationService';
+import { NotificationService } from './NotificationService';
 
 export class StateTransitionService {
   private paymentService: PaymentIntegrationService;
+  private notificationService: NotificationService;
 
   constructor(private requestService: RequestService) {
     this.paymentService = new PaymentIntegrationService();
+    this.notificationService = new NotificationService();
   }
 
   async transitionStatus(
@@ -73,8 +76,26 @@ export class StateTransitionService {
 
       console.log(`[StateTransitionService] Payment intent created: ${paymentIntent.paymentIntentId}`);
 
-      // TODO: Send payment link to buyer via notification service
-      console.log(`[StateTransitionService] TODO: Send payment link to buyer ${requestData.requesterId}`);
+      // Send payment link to buyer via notification service
+      const paymentLink = `${process.env.FRONTEND_URL || 'https://app.mnbara.com'}/pay/${paymentIntent.clientSecret}`;
+      
+      await this.notificationService.sendPaymentLink({
+        userId: requestData.requesterId,
+        requestId,
+        paymentLink,
+        amount: paymentIntent.totalAmount,
+        currency: requestData.product.currency || 'USD',
+        deadline: requestData.delivery.deadline,
+        productTitle: requestData.product.title,
+      });
+
+      // Send request accepted notification to buyer
+      await this.notificationService.sendRequestAccepted(
+        requestData.requesterId,
+        requestId,
+        requestData.product.title,
+        'Traveler' // TODO: Get traveler name from user service
+      );
 
       return {
         ...awaitingPaymentRequest,
@@ -133,6 +154,13 @@ export class StateTransitionService {
       );
 
       console.log(`[StateTransitionService] Request ${requestId} transitioned to IN_PROGRESS successfully`);
+
+      // Send delivery started notification to buyer
+      await this.notificationService.sendDeliveryStarted(
+        requestData.requesterId,
+        requestId,
+        requestData.product.title
+      );
 
       return inProgressRequest;
     } catch (error: any) {
@@ -202,10 +230,24 @@ export class StateTransitionService {
         'Delivery completed successfully'
       );
 
-      // TODO: Send notification to traveler that funds are in wallet
-      console.log(`[StateTransitionService] TODO: Send notification to traveler ${travelerId} about funds`);
-
       console.log(`[StateTransitionService] Delivery completed successfully for request ${requestId}`);
+
+      // Send funds received notification to traveler
+      await this.notificationService.sendFundsReceived({
+        userId: travelerId,
+        requestId,
+        amount: requestData.product.price,
+        platformFee: platformFee,
+        currency: requestData.product.currency || 'USD',
+        productTitle: requestData.product.title,
+      });
+
+      // Send delivery completed notification to buyer
+      await this.notificationService.sendDeliveryCompleted(
+        requestData.requesterId,
+        requestId,
+        requestData.product.title
+      );
 
       return deliveredRequest;
     } catch (error: any) {

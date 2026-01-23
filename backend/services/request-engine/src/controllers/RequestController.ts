@@ -166,11 +166,12 @@ export class RequestController {
         return;
       }
 
-      const cancelledRequest = await this.stateTransitionService.transitionStatus(
+      // Use StateTransitionService to handle cancellation with payment logic
+      const cancelledRequest = await this.stateTransitionService.cancelRequest(
         id,
-        RequestStatus.CANCELLED,
         userId,
-        reason
+        reason,
+        request
       );
       
       res.status(200).json({
@@ -219,17 +220,24 @@ export class RequestController {
         return;
       }
 
-      const acceptedRequest = await this.stateTransitionService.transitionStatus(
+      // Accept request and create payment intent
+      const result = await this.stateTransitionService.acceptRequest(
         id,
-        RequestStatus.ACCEPTED,
         travelerId,
-        'Request accepted by traveler'
+        request
       );
       
       res.status(200).json({
         success: true,
-        data: acceptedRequest,
-        message: 'Request accepted successfully'
+        data: {
+          request: result,
+          payment: result.paymentIntent ? {
+            clientSecret: result.paymentIntent.clientSecret,
+            amount: result.paymentIntent.amount,
+            currency: request.product.currency || 'USD',
+          } : null,
+        },
+        message: 'Request accepted successfully. Please complete payment to proceed.'
       });
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -308,6 +316,108 @@ export class RequestController {
       });
     } catch (error) {
       console.error('Error fetching timeline:', error);
+      res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Complete delivery (for travelers)
+  async completeDelivery(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const travelerId = req.user.id;
+
+      const request = await this.requestService.getRequestById(id, travelerId, 'TRAVELER');
+      
+      if (!request) {
+        res.status(404).json({
+          error: 'Request not found'
+        });
+        return;
+      }
+
+      // Check if user is the assigned traveler
+      if (request.travelerId !== travelerId) {
+        res.status(403).json({
+          error: 'Not authorized to complete this delivery'
+        });
+        return;
+      }
+
+      // Check if request is in IN_PROGRESS status
+      if (request.status !== RequestStatus.IN_PROGRESS) {
+        res.status(400).json({
+          error: 'Request is not in progress'
+        });
+        return;
+      }
+
+      // Complete delivery and release funds
+      const completedRequest = await this.stateTransitionService.completeDelivery(
+        id,
+        travelerId,
+        request
+      );
+      
+      res.status(200).json({
+        success: true,
+        data: completedRequest,
+        message: 'Delivery completed successfully. Funds have been released to your wallet.'
+      });
+    } catch (error) {
+      console.error('Error completing delivery:', error);
+      res.status(500).json({
+        error: 'Internal server error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  // Get payment info for a request
+  async getPaymentInfo(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      const request = await this.requestService.getRequestById(id, userId, req.user.role);
+      
+      if (!request) {
+        res.status(404).json({
+          error: 'Request not found'
+        });
+        return;
+      }
+
+      // Check if user is authorized to view payment info
+      if (request.requesterId !== userId && request.travelerId !== userId && req.user.role !== 'ADMIN') {
+        res.status(403).json({
+          error: 'Not authorized to view payment information'
+        });
+        return;
+      }
+
+      // Extract payment info from request
+      const paymentInfo = {
+        paymentIntentId: (request as any).paymentIntentId,
+        paymentClientSecret: (request as any).paymentClientSecret,
+        paymentAmount: (request as any).paymentAmount,
+        paymentPlatformFee: (request as any).paymentPlatformFee,
+        paymentTotalAmount: (request as any).paymentTotalAmount,
+        paymentStatus: (request as any).paymentStatus,
+        escrowStatus: (request as any).escrowStatus,
+        escrowCreatedAt: (request as any).escrowCreatedAt,
+        escrowReleasedAt: (request as any).escrowReleasedAt,
+        escrowRefundedAt: (request as any).escrowRefundedAt,
+      };
+      
+      res.status(200).json({
+        success: true,
+        data: paymentInfo
+      });
+    } catch (error) {
+      console.error('Error fetching payment info:', error);
       res.status(500).json({
         error: 'Internal server error',
         message: error instanceof Error ? error.message : 'Unknown error'

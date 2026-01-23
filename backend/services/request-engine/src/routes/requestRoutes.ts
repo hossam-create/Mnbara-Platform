@@ -26,9 +26,11 @@ router.delete('/:id', requestController.cancelRequest.bind(requestController));
 
 // Request lifecycle operations
 router.post('/:id/accept', validateRequest.acceptRequest, requestController.acceptRequest.bind(requestController));
+router.post('/:id/complete', requestController.completeDelivery.bind(requestController));
 router.put('/:id/status', validateRequest.updateStatus, requestController.updateDeliveryStatus.bind(requestController));
 
-// Request timeline
+// Request timeline and payment info
 router.get('/:id/timeline', requestController.getRequestTimeline.bind(requestController));
+router.get('/:id/payment', requestController.getPaymentInfo.bind(requestController));
 
 export default router;
