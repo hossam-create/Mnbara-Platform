@@ -350,7 +350,8 @@ export class RequestService {
     const validTransitions: Record<RequestStatus, RequestStatus[]> = {
       [RequestStatus.CREATED]: [RequestStatus.VISIBLE_TO_TRAVELERS, RequestStatus.CANCELLED],
       [RequestStatus.VISIBLE_TO_TRAVELERS]: [RequestStatus.ACCEPTED, RequestStatus.CANCELLED, RequestStatus.EXPIRED],
-      [RequestStatus.ACCEPTED]: [RequestStatus.IN_PROGRESS, RequestStatus.CANCELLED],
+      [RequestStatus.ACCEPTED]: [RequestStatus.AWAITING_PAYMENT, RequestStatus.CANCELLED],
+      [RequestStatus.AWAITING_PAYMENT]: [RequestStatus.IN_PROGRESS, RequestStatus.CANCELLED],
       [RequestStatus.IN_PROGRESS]: [RequestStatus.DELIVERED, RequestStatus.CANCELLED],
       [RequestStatus.DELIVERED]: [],
       [RequestStatus.CANCELLED]: [],
@@ -367,8 +368,10 @@ export class RequestService {
       [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.ACCEPTED}`]: RequestTransition.VISIBLE_TO_ACCEPTED,
       [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.CANCELLED}`]: RequestTransition.VISIBLE_TO_CANCELLED,
       [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.EXPIRED}`]: RequestTransition.VISIBLE_TO_EXPIRED,
-      [`${RequestStatus.ACCEPTED}_${RequestStatus.IN_PROGRESS}`]: RequestTransition.ACCEPTED_TO_IN_PROGRESS,
+      [`${RequestStatus.ACCEPTED}_${RequestStatus.AWAITING_PAYMENT}`]: RequestTransition.ACCEPTED_TO_AWAITING_PAYMENT,
       [`${RequestStatus.ACCEPTED}_${RequestStatus.CANCELLED}`]: RequestTransition.ACCEPTED_TO_CANCELLED,
+      [`${RequestStatus.AWAITING_PAYMENT}_${RequestStatus.IN_PROGRESS}`]: RequestTransition.AWAITING_PAYMENT_TO_IN_PROGRESS,
+      [`${RequestStatus.AWAITING_PAYMENT}_${RequestStatus.CANCELLED}`]: RequestTransition.AWAITING_PAYMENT_TO_CANCELLED,
       [`${RequestStatus.IN_PROGRESS}_${RequestStatus.DELIVERED}`]: RequestTransition.IN_PROGRESS_TO_DELIVERED,
       [`${RequestStatus.IN_PROGRESS}_${RequestStatus.CANCELLED}`]: RequestTransition.IN_PROGRESS_TO_CANCELLED,
     };
@@ -381,6 +384,7 @@ export class RequestService {
     const eventMap: Record<RequestStatus, TimelineEventType> = {
       [RequestStatus.VISIBLE_TO_TRAVELERS]: TimelineEventType.REQUEST_VISIBLE,
       [RequestStatus.ACCEPTED]: TimelineEventType.REQUEST_ACCEPTED,
+      [RequestStatus.AWAITING_PAYMENT]: TimelineEventType.PAYMENT_PENDING,
       [RequestStatus.IN_PROGRESS]: TimelineEventType.DELIVERY_STARTED,
       [RequestStatus.DELIVERED]: TimelineEventType.DELIVERY_COMPLETED,
       [RequestStatus.CANCELLED]: TimelineEventType.REQUEST_CANCELLED,
@@ -395,6 +399,7 @@ export class RequestService {
     const titleMap: Record<RequestStatus, string> = {
       [RequestStatus.VISIBLE_TO_TRAVELERS]: 'Request Visible',
       [RequestStatus.ACCEPTED]: 'Request Accepted',
+      [RequestStatus.AWAITING_PAYMENT]: 'Awaiting Payment',
       [RequestStatus.IN_PROGRESS]: 'Delivery Started',
       [RequestStatus.DELIVERED]: 'Delivery Completed',
       [RequestStatus.CANCELLED]: 'Request Cancelled',
@@ -403,6 +408,82 @@ export class RequestService {
     };
 
     return titleMap[status] || 'Status Updated';
+  }
+
+  async expireRequest(requestId: string, userId: string): Promise<any> {
+    return await this.transitionStatus(requestId, RequestStatus.EXPIRED, userId, 'Request expired - deadline passed');
+  }
+
+  /**
+   * Update request payment information
+   */
+  async updateRequestPaymentInfo(requestId: string, paymentInfo: any): Promise<void> {
+    const updates: string[] = [];
+    const params: any[] = [requestId];
+    let paramIndex = 2;
+
+    if (paymentInfo.paymentIntentId) {
+      updates.push(`payment_intent_id = $${paramIndex++}`);
+      params.push(paymentInfo.paymentIntentId);
+    }
+
+    if (paymentInfo.paymentClientSecret) {
+      updates.push(`payment_client_secret = $${paramIndex++}`);
+      params.push(paymentInfo.paymentClientSecret);
+    }
+
+    if (paymentInfo.paymentAmount !== undefined) {
+      updates.push(`payment_amount = $${paramIndex++}`);
+      params.push(paymentInfo.paymentAmount);
+    }
+
+    if (paymentInfo.paymentPlatformFee !== undefined) {
+      updates.push(`payment_platform_fee = $${paramIndex++}`);
+      params.push(paymentInfo.paymentPlatformFee);
+    }
+
+    if (paymentInfo.paymentTotalAmount !== undefined) {
+      updates.push(`payment_total_amount = $${paramIndex++}`);
+      params.push(paymentInfo.paymentTotalAmount);
+    }
+
+    if (paymentInfo.paymentStatus) {
+      updates.push(`payment_status = $${paramIndex++}`);
+      params.push(paymentInfo.paymentStatus);
+    }
+
+    if (paymentInfo.escrowStatus) {
+      updates.push(`escrow_status = $${paramIndex++}`);
+      params.push(paymentInfo.escrowStatus);
+    }
+
+    if (paymentInfo.escrowCreatedAt) {
+      updates.push(`escrow_created_at = $${paramIndex++}`);
+      params.push(paymentInfo.escrowCreatedAt);
+    }
+
+    if (paymentInfo.escrowReleasedAt) {
+      updates.push(`escrow_released_at = $${paramIndex++}`);
+      params.push(paymentInfo.escrowReleasedAt);
+    }
+
+    if (paymentInfo.escrowRefundedAt) {
+      updates.push(`escrow_refunded_at = $${paramIndex++}`);
+      params.push(paymentInfo.escrowRefundedAt);
+    }
+
+    if (updates.length === 0) {
+      return;
+    }
+
+    const query = `
+      UPDATE requests 
+      SET ${updates.join(', ')}, updated_at = NOW() 
+      WHERE id = $1
+    `;
+
+    await this.db.query(query, params);
+    console.log(`[RequestService] Updated payment info for request ${requestId}`);
   }
 
   private mapDbRequestToModel(row: any): Request {

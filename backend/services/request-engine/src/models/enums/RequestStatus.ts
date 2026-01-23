@@ -2,6 +2,7 @@ export enum RequestStatus {
   CREATED = 'CREATED',
   VISIBLE_TO_TRAVELERS = 'VISIBLE_TO_TRAVELERS',
   ACCEPTED = 'ACCEPTED',
+  AWAITING_PAYMENT = 'AWAITING_PAYMENT',
   IN_PROGRESS = 'IN_PROGRESS',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED',
@@ -19,8 +20,12 @@ export enum RequestTransition {
   VISIBLE_TO_EXPIRED = 'VISIBLE_TO_EXPIRED',
   
   // From ACCEPTED
-  ACCEPTED_TO_IN_PROGRESS = 'ACCEPTED_TO_IN_PROGRESS',
+  ACCEPTED_TO_AWAITING_PAYMENT = 'ACCEPTED_TO_AWAITING_PAYMENT',
   ACCEPTED_TO_CANCELLED = 'ACCEPTED_TO_CANCELLED',
+  
+  // From AWAITING_PAYMENT
+  AWAITING_PAYMENT_TO_IN_PROGRESS = 'AWAITING_PAYMENT_TO_IN_PROGRESS',
+  AWAITING_PAYMENT_TO_CANCELLED = 'AWAITING_PAYMENT_TO_CANCELLED',
   
   // From IN_PROGRESS
   IN_PROGRESS_TO_DELIVERED = 'IN_PROGRESS_TO_DELIVERED',
@@ -41,8 +46,12 @@ export const VALID_TRANSITIONS: Record<RequestStatus, RequestTransition[]> = {
     RequestTransition.VISIBLE_TO_EXPIRED,
   ],
   [RequestStatus.ACCEPTED]: [
-    RequestTransition.ACCEPTED_TO_IN_PROGRESS,
+    RequestTransition.ACCEPTED_TO_AWAITING_PAYMENT,
     RequestTransition.ACCEPTED_TO_CANCELLED,
+  ],
+  [RequestStatus.AWAITING_PAYMENT]: [
+    RequestTransition.AWAITING_PAYMENT_TO_IN_PROGRESS,
+    RequestTransition.AWAITING_PAYMENT_TO_CANCELLED,
   ],
   [RequestStatus.IN_PROGRESS]: [
     RequestTransition.IN_PROGRESS_TO_DELIVERED,
@@ -77,8 +86,10 @@ export function getTransitionType(
     [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.ACCEPTED}`]: RequestTransition.VISIBLE_TO_ACCEPTED,
     [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.CANCELLED}`]: RequestTransition.VISIBLE_TO_CANCELLED,
     [`${RequestStatus.VISIBLE_TO_TRAVELERS}_${RequestStatus.EXPIRED}`]: RequestTransition.VISIBLE_TO_EXPIRED,
-    [`${RequestStatus.ACCEPTED}_${RequestStatus.IN_PROGRESS}`]: RequestTransition.ACCEPTED_TO_IN_PROGRESS,
+    [`${RequestStatus.ACCEPTED}_${RequestStatus.AWAITING_PAYMENT}`]: RequestTransition.ACCEPTED_TO_AWAITING_PAYMENT,
     [`${RequestStatus.ACCEPTED}_${RequestStatus.CANCELLED}`]: RequestTransition.ACCEPTED_TO_CANCELLED,
+    [`${RequestStatus.AWAITING_PAYMENT}_${RequestStatus.IN_PROGRESS}`]: RequestTransition.AWAITING_PAYMENT_TO_IN_PROGRESS,
+    [`${RequestStatus.AWAITING_PAYMENT}_${RequestStatus.CANCELLED}`]: RequestTransition.AWAITING_PAYMENT_TO_CANCELLED,
     [`${RequestStatus.IN_PROGRESS}_${RequestStatus.DELIVERED}`]: RequestTransition.IN_PROGRESS_TO_DELIVERED,
     [`${RequestStatus.IN_PROGRESS}_${RequestStatus.CANCELLED}`]: RequestTransition.IN_PROGRESS_TO_CANCELLED,
   };
