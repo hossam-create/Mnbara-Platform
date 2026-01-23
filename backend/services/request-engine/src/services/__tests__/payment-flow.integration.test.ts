@@ -17,7 +17,8 @@ describe('Payment Flow Integration', () => {
   const mockRequestData = {
     id: 'req_123',
     requesterId: 'buyer_123',
-    travelerId: null,
+    travelerId: undefined,
+    productId: 'prod_789',
     status: RequestStatus.VISIBLE_TO_TRAVELERS,
     product: {
       id: 'prod_789',
@@ -43,6 +44,12 @@ describe('Payment Flow Integration', () => {
       deadline: new Date('2026-02-01'),
       instructions: 'Handle with care',
     },
+    statusHistory: [],
+    timeline: [],
+    preferences: {},
+    metadata: {},
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   beforeEach(() => {
@@ -63,11 +70,22 @@ describe('Payment Flow Integration', () => {
 
     // Setup default mocks
     mockRequestService.hasActiveRequest.mockResolvedValue(false);
-    mockNotificationService.sendPaymentLink.mockResolvedValue(true);
-    mockNotificationService.sendRequestAccepted.mockResolvedValue(true);
-    mockNotificationService.sendDeliveryStarted.mockResolvedValue(true);
-    mockNotificationService.sendFundsReceived.mockResolvedValue(true);
-    mockNotificationService.sendDeliveryCompleted.mockResolvedValue(true);
+    
+    // Mock payment service methods
+    mockPaymentService.createPaymentIntent = jest.fn();
+    mockPaymentService.cancelPaymentIntent = jest.fn();
+    mockPaymentService.lockFunds = jest.fn();
+    mockPaymentService.releaseFunds = jest.fn();
+    mockPaymentService.refundFunds = jest.fn();
+    mockPaymentService.createStripeRefund = jest.fn();
+    mockPaymentService.deductPlatformFee = jest.fn();
+    
+    // Mock notification service methods
+    mockNotificationService.sendPaymentLink = jest.fn().mockResolvedValue(true);
+    mockNotificationService.sendRequestAccepted = jest.fn().mockResolvedValue(true);
+    mockNotificationService.sendDeliveryStarted = jest.fn().mockResolvedValue(true);
+    mockNotificationService.sendFundsReceived = jest.fn().mockResolvedValue(true);
+    mockNotificationService.sendDeliveryCompleted = jest.fn().mockResolvedValue(true);
   });
 
   afterEach(() => {

@@ -18,6 +18,7 @@ describe('StateTransitionService', () => {
     id: 'req_123',
     requesterId: 'buyer_123',
     travelerId: 'traveler_456',
+    productId: 'prod_789',
     status: RequestStatus.VISIBLE_TO_TRAVELERS,
     product: {
       id: 'prod_789',
@@ -43,6 +44,12 @@ describe('StateTransitionService', () => {
       deadline: new Date('2026-02-01'),
       instructions: 'Handle with care',
     },
+    statusHistory: [],
+    timeline: [],
+    preferences: {},
+    metadata: {},
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   beforeEach(() => {
