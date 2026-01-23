@@ -2,10 +2,11 @@
 // Internal Ledger System - TypeScript Types
 // ============================================================
 
-import { Decimal } from '@prisma/client/runtime/library';
+import { Decimal } from 'decimal.js';
+import { Prisma } from '@prisma/client';
 
 // ============================================================
-// ENUMS
+// ENUMS - Match Prisma schema enums
 // ============================================================
 
 export enum TransactionType {
@@ -64,10 +65,10 @@ export interface WalletTransaction {
   walletId: number;
   transactionType: TransactionType;
   amount: Decimal;
-  referenceType?: string;
-  referenceId?: number;
+  referenceType?: string | null;
+  referenceId?: number | null;
   status: TransactionStatus;
-  metadata?: Record<string, any>;
+  metadata?: Prisma.JsonValue | null;
   createdAt: Date;
 }
 
@@ -98,9 +99,9 @@ export interface EscrowHold {
   platformFee: Decimal;
   status: EscrowStatus;
   heldAt: Date;
-  releasedAt?: Date;
-  expiresAt?: Date;
-  releaseConditions?: Record<string, any>;
+  releasedAt?: Date | null;
+  expiresAt?: Date | null;
+  releaseConditions?: Prisma.JsonValue | null;
 }
 
 export interface CreateEscrowHoldInput {
