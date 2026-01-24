@@ -97,6 +97,14 @@ export class AdminPayoutController {
       const adminId = req.user?.id;
       const { id } = req.params;
 
+      if (!adminId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Admin ID not found',
+        });
+        return;
+      }
+
       logger.info('Admin approving payout', { adminId, requestId: id });
 
       const updatedRequest = await payoutService.approvePayoutRequest(
@@ -141,6 +149,14 @@ export class AdminPayoutController {
       const adminId = req.user?.id;
       const { id } = req.params;
       const { rejectionReason } = req.body;
+
+      if (!adminId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Admin ID not found',
+        });
+        return;
+      }
 
       if (!rejectionReason) {
         res.status(400).json({
@@ -199,6 +215,14 @@ export class AdminPayoutController {
       const adminId = req.user?.id;
       const { id } = req.params;
 
+      if (!adminId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Admin ID not found',
+        });
+        return;
+      }
+
       logger.info('Admin marking payout as processing', {
         adminId,
         requestId: id,
@@ -246,6 +270,14 @@ export class AdminPayoutController {
       const adminId = req.user?.id;
       const { id } = req.params;
       const { notes } = req.body;
+
+      if (!adminId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Admin ID not found',
+        });
+        return;
+      }
 
       logger.info('Admin completing payout', { adminId, requestId: id });
 

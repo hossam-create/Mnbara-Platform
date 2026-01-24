@@ -19,6 +19,14 @@ export class PayoutController {
       const userId = req.user?.id; // From auth middleware
       const { walletId, amount, currency, method, accountDetails } = req.body;
 
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: User ID not found',
+        });
+        return;
+      }
+
       // Validation
       if (!walletId || !amount || !method || !accountDetails) {
         res.status(400).json({
@@ -105,6 +113,14 @@ export class PayoutController {
     try {
       const userId = req.user?.id;
       const { status, method, fromDate, toDate, limit, offset } = req.query;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          error: 'Unauthorized: User ID not found',
+        });
+        return;
+      }
 
       logger.debug('Getting user payout requests', { userId });
 

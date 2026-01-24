@@ -20,7 +20,7 @@ export class EscrowService {
   /**
    * Create escrow hold - locks funds from buyer
    */
-  async createEscrowHold(input: CreateEscrowHoldInput): Promise<EscrowHold> {
+  async createEscrowHold(input: CreateEscrowHoldInput): Promise<any> {
     return await prisma.$transaction(async (tx) => {
       // Lock funds from buyer wallet
       const buyerWallet = await tx.wallet.findUnique({
@@ -60,7 +60,7 @@ export class EscrowService {
           transactionType: TransactionType.ESCROW_LOCK,
           amount: totalAmount,
           referenceType: 'Request',
-          referenceId: input.requestId,
+          referenceId: String(input.requestId),
           status: TransactionStatus.COMPLETED,
         },
       });
@@ -86,7 +86,7 @@ export class EscrowService {
   /**
    * Release escrow to seller
    */
-  async releaseEscrow(escrowHoldId: number): Promise<EscrowHold> {
+  async releaseEscrow(escrowHoldId: number): Promise<any> {
     return await prisma.$transaction(async (tx) => {
       // Get escrow hold
       const escrow = await tx.escrowHold.findUnique({
@@ -147,7 +147,7 @@ export class EscrowService {
           transactionType: TransactionType.ESCROW_RELEASE,
           amount: totalAmount,
           referenceType: 'Request',
-          referenceId: escrow.requestId,
+          referenceId: String(escrow.requestId),
           status: TransactionStatus.COMPLETED,
         },
       });
@@ -158,7 +158,7 @@ export class EscrowService {
           transactionType: TransactionType.ESCROW_RELEASE,
           amount: escrow.amount,
           referenceType: 'Request',
-          referenceId: escrow.requestId,
+          referenceId: String(escrow.requestId),
           status: TransactionStatus.COMPLETED,
         },
       });
@@ -170,7 +170,7 @@ export class EscrowService {
           transactionType: TransactionType.FEE_DEDUCTION,
           amount: escrow.platformFee,
           referenceType: 'Request',
-          referenceId: escrow.requestId,
+          referenceId: String(escrow.requestId),
           status: TransactionStatus.COMPLETED,
         },
       });
@@ -191,7 +191,7 @@ export class EscrowService {
   /**
    * Refund escrow to buyer
    */
-  async refundEscrow(escrowHoldId: number): Promise<EscrowHold> {
+  async refundEscrow(escrowHoldId: number): Promise<any> {
     return await prisma.$transaction(async (tx) => {
       // Get escrow hold
       const escrow = await tx.escrowHold.findUnique({
@@ -240,7 +240,7 @@ export class EscrowService {
           transactionType: TransactionType.ESCROW_REFUND,
           amount: totalAmount,
           referenceType: 'Request',
-          referenceId: escrow.requestId,
+          referenceId: String(escrow.requestId),
           status: TransactionStatus.COMPLETED,
         },
       });
@@ -261,7 +261,7 @@ export class EscrowService {
   /**
    * Get escrow hold by ID
    */
-  async getEscrowById(escrowHoldId: number): Promise<EscrowHold | null> {
+  async getEscrowById(escrowHoldId: number): Promise<any> {
     return await prisma.escrowHold.findUnique({
       where: { id: escrowHoldId },
     });
@@ -270,7 +270,7 @@ export class EscrowService {
   /**
    * Get escrow hold by request ID
    */
-  async getEscrowByRequestId(requestId: number): Promise<EscrowHold | null> {
+  async getEscrowByRequestId(requestId: number): Promise<any> {
     return await prisma.escrowHold.findUnique({
       where: { requestId },
     });
@@ -279,7 +279,7 @@ export class EscrowService {
   /**
    * Get all escrows for a wallet
    */
-  async getWalletEscrows(walletId: number): Promise<EscrowHold[]> {
+  async getWalletEscrows(walletId: number): Promise<any[]> {
     return await prisma.escrowHold.findMany({
       where: {
         OR: [{ buyerWalletId: walletId }, { sellerWalletId: walletId }],
@@ -291,7 +291,7 @@ export class EscrowService {
   /**
    * Get expired escrows
    */
-  async getExpiredEscrows(): Promise<EscrowHold[]> {
+  async getExpiredEscrows(): Promise<any[]> {
     return await prisma.escrowHold.findMany({
       where: {
         status: EscrowStatus.HELD,

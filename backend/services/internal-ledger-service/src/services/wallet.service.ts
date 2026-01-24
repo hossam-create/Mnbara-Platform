@@ -541,7 +541,7 @@ export class WalletService {
           transactionType: type,
           amount,
           referenceType: reference?.type,
-          referenceId: reference?.id,
+          referenceId: reference?.id ? String(reference.id) : null,
           status: TransactionStatus.PENDING,
         },
       });

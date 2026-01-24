@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
+import { Decimal } from 'decimal.js';
 import {
   PayoutStatus,
   PayoutMethod,
@@ -84,7 +85,11 @@ export class PayoutService {
       throw new PayoutError('Wallet does not belong to user');
     }
 
-    if (wallet.availableBalance < data.amount) {
+    // Compare Decimal values properly
+    const availableBalance = new Decimal(wallet.availableBalance.toString());
+    const requestedAmount = new Decimal(data.amount.toString());
+    
+    if (availableBalance.lessThan(requestedAmount)) {
       throw new InsufficientBalanceError(
         `Insufficient balance. Available: ${wallet.availableBalance}, Requested: ${data.amount}`
       );

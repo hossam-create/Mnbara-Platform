@@ -49,7 +49,7 @@ model WalletTransaction {
   
   // Reference to external entity (Request, Payout, etc.)
   referenceType   String?  // "Request", "Payout", "Escrow", etc.
-  referenceId     Int?
+  referenceId     String?  // Changed to String to support UUID references
   
   status          TransactionStatus @default(PENDING)
   
