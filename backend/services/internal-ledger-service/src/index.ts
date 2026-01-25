@@ -15,6 +15,7 @@ dotenv.config();
 // Import routes
 import payoutRoutes from './routes/payout.routes';
 import adminPayoutRoutes from './routes/admin-payout.routes';
+import adminFinancialRoutes from './routes/admin-financial.routes';
 
 // Initialize Express app
 const app: Application = express();
@@ -37,6 +38,7 @@ app.get('/health', (req: Request, res: Response) => {
 // API Routes
 app.use('/api/payouts', payoutRoutes);
 app.use('/api/admin/payouts', adminPayoutRoutes);
+app.use('/api/admin/financial', adminFinancialRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -72,6 +74,7 @@ app.listen(PORT, () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Payout API: http://localhost:${PORT}/api/payouts`);
   console.log(`Admin API: http://localhost:${PORT}/api/admin/payouts`);
+  console.log(`Financial Dashboard: http://localhost:${PORT}/api/admin/financial`);
 });
 
 export default app;
