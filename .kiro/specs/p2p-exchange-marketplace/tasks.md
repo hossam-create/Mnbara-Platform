@@ -183,21 +183,21 @@
 ## Phase 5: REST API Layer (Week 5)
 
 ### 5.1 Exchange Request APIs
-- [ ] 5.1.1 Create ExchangeRequestController
-- [ ] 5.1.2 Add POST /api/v1/exchange/requests
-- [ ] 5.1.3 Add GET /api/v1/exchange/requests/:id
-- [ ] 5.1.4 Add GET /api/v1/exchange/requests (user's requests)
-- [ ] 5.1.5 Add DELETE /api/v1/exchange/requests/:id
-- [ ] 5.1.6 Add validation middleware
+- [x] 5.1.1 Create ExchangeRequestController
+- [x] 5.1.2 Add POST /api/v1/exchange/requests
+- [x] 5.1.3 Add GET /api/v1/exchange/requests/:id
+- [x] 5.1.4 Add GET /api/v1/exchange/requests (user's requests)
+- [x] 5.1.5 Add DELETE /api/v1/exchange/requests/:id
+- [x] 5.1.6 Add validation middleware
 - [ ] 5.1.7 Write API integration tests
 
 ### 5.2 Marketplace APIs
-- [ ] 5.2.1 Create MarketplaceController
-- [ ] 5.2.2 Add GET /api/v1/exchange/marketplace
-- [ ] 5.2.3 Add POST /api/v1/exchange/marketplace/:requestId/accept
-- [ ] 5.2.4 Add filters (currency, amount, rate, reputation)
-- [ ] 5.2.5 Add sorting (rate, amount, reputation, time)
-- [ ] 5.2.6 Add pagination
+- [x] 5.2.1 Create MarketplaceController
+- [x] 5.2.2 Add GET /api/v1/exchange/marketplace
+- [x] 5.2.3 Add POST /api/v1/exchange/marketplace/:requestId/accept
+- [x] 5.2.4 Add filters (currency, amount, rate, reputation)
+- [x] 5.2.5 Add sorting (rate, amount, reputation, time)
+- [x] 5.2.6 Add pagination
 - [ ] 5.2.7 Write API integration tests
 
 ### 5.3 Match APIs
