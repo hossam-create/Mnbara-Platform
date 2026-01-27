@@ -8,3 +8,7 @@ export { ExchangeRequestDetails } from './ExchangeRequestDetails';
 export { MarketplaceBrowser } from './MarketplaceBrowser';
 export { MarketplaceFilters } from './MarketplaceFilters';
 export { MarketplaceRequestCard } from './MarketplaceRequestCard';
+export { MatchDetails } from './MatchDetails';
+export { PaymentInitiation } from './PaymentInitiation';
+export { ProofUpload } from './ProofUpload';
+export { ReceiptConfirmation } from './ReceiptConfirmation';
