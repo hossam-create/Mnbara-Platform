@@ -12,3 +12,6 @@ export { MatchDetails } from './MatchDetails';
 export { PaymentInitiation } from './PaymentInitiation';
 export { ProofUpload } from './ProofUpload';
 export { ReceiptConfirmation } from './ReceiptConfirmation';
+export { SecurityDepositCard } from './SecurityDepositCard';
+export { TrustLevelBadge } from './TrustLevelBadge';
+export { ExternalEscrowSelector } from './ExternalEscrowSelector';
