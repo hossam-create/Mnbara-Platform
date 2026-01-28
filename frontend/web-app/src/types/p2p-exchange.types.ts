@@ -251,6 +251,23 @@ export interface CommunicationLog {
   createdAt: string;
 }
 
+export interface Message {
+  id: string;
+  matchId: string;
+  senderId: string;
+  senderName?: string;
+  content: string;
+  containsExternalContact: boolean;
+  isFlagged: boolean;
+  flagReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SendMessageRequest {
+  content: string;
+}
+
 export interface SendMessageInput {
   matchId: number;
   message: string;

@@ -15,3 +15,6 @@ export { ReceiptConfirmation } from './ReceiptConfirmation';
 export { SecurityDepositCard } from './SecurityDepositCard';
 export { TrustLevelBadge } from './TrustLevelBadge';
 export { ExternalEscrowSelector } from './ExternalEscrowSelector';
+export { MatchChat } from './MatchChat';
+export { MessageList } from './MessageList';
+export { MessageInput } from './MessageInput';
