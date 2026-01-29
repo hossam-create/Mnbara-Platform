@@ -119,13 +119,13 @@
 ## Phase 4: Service Integration (Week 4)
 
 ### 4.1 Listing Service Integration
-- [ ] 4.1.1 Add decision-authority-service client
-- [ ] 4.1.2 Modify listing creation to request decision
-- [ ] 4.1.3 Add disposition_status field to Listing model
-- [ ] 4.1.4 Update listing queries to filter by status
-- [ ] 4.1.5 Add decision status webhook handler
-- [ ] 4.1.6 Write integration tests
-- [ ] 4.1.7 Update API documentation
+- [x] 4.1.1 Add decision-authority-service client
+- [x] 4.1.2 Modify listing creation to request decision
+- [x] 4.1.3 Add disposition_status field to Listing model
+- [x] 4.1.4 Update listing queries to filter by status
+- [x] 4.1.5 Add decision status webhook handler
+- [x] 4.1.6 Write integration tests
+- [x] 4.1.7 Update API documentation
 
 ### 4.2 Auction Service Integration
 - [x] 4.2.1 Add decision-authority-service client
@@ -153,40 +153,40 @@
 ## Phase 5: Frontend Integration (Week 5)
 
 ### 5.1 Decision Status Types & API Client
-- [ ] 5.1.1 Create decision.types.ts with TypeScript types
-- [ ] 5.1.2 Create decisionService.ts API client
-- [ ] 5.1.3 Add decision status fetching methods
-- [ ] 5.1.4 Add real-time status update hooks
+- [x] 5.1.1 Create decision.types.ts with TypeScript types
+- [x] 5.1.2 Create decisionService.ts API client
+- [x] 5.1.3 Add decision status fetching methods
+- [x] 5.1.4 Add real-time status update hooks
 
 ### 5.2 Listing UI Updates
-- [ ] 5.2.1 Add disposition_status badge to listing cards
-- [ ] 5.2.2 Update listing detail page with status display
-- [ ] 5.2.3 Add status filter to search/browse
-- [ ] 5.2.4 Add pending status messaging
-- [ ] 5.2.5 Add rejected status messaging
-- [ ] 5.2.6 Write component tests
+- [x] 5.2.1 Add disposition_status badge to listing cards
+- [x] 5.2.2 Update listing detail page with status display
+- [x] 5.2.3 Add status filter to search/browse
+- [x] 5.2.4 Add pending status messaging
+- [x] 5.2.5 Add rejected status messaging
+- [x] 5.2.6 Write component tests
 
 ### 5.3 Auction UI Updates
-- [ ] 5.3.1 Add disposition_status badge to auction cards
-- [ ] 5.3.2 Update auction detail page with status display
-- [ ] 5.3.3 Disable bidding UI for non-APPROVED auctions
-- [ ] 5.3.4 Add status messaging
-- [ ] 5.3.5 Write component tests
+- [x] 5.3.1 Add disposition_status badge to auction cards
+- [x] 5.3.2 Update auction detail page with status display
+- [x] 5.3.3 Disable bidding UI for non-APPROVED auctions
+- [x] 5.3.4 Add status messaging
+- [x] 5.3.5 Write component tests
 
 ### 5.4 Seller Dashboard Updates
-- [ ] 5.4.1 Add decision status column to listings table
-- [ ] 5.4.2 Add status filter dropdown
-- [ ] 5.4.3 Add pending decisions notification
-- [ ] 5.4.4 Add decision history view
-- [ ] 5.4.5 Write component tests
+- [x] 5.4.1 Add decision status column to listings table
+- [x] 5.4.2 Add status filter dropdown
+- [x] 5.4.3 Add pending decisions notification
+- [x] 5.4.4 Add decision history view
+- [x] 5.4.5 Write component tests
 
 ### 5.5 Admin Decision Management Panel
-- [ ] 5.5.1 Create admin decision list page
-- [ ] 5.5.2 Add decision detail modal
-- [ ] 5.5.3 Add override decision form
-- [ ] 5.5.4 Add decision audit log viewer
-- [ ] 5.5.5 Add decision statistics dashboard
-- [ ] 5.5.6 Write component tests
+- [x] 5.5.1 Create admin decision list page
+- [x] 5.5.2 Add decision detail modal
+- [x] 5.5.3 Add override decision form
+- [x] 5.5.4 Add decision audit log viewer
+- [x] 5.5.5 Add decision statistics dashboard
+- [x] 5.5.6 Write component tests
 
 ## Phase 6: Infrastructure & Deployment (Week 6)
 
