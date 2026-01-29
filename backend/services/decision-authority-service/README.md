@@ -180,6 +180,81 @@ model DecisionAuditLog {
 }
 ```
 
+## Environment Variables
+
+### Feature Flags
+
+| Variable | Default | Description | Values |
+|----------|---------|-------------|--------|
+| `DECISION_AUTHORITY_MODE` | `INTERNAL` | Decision authority mode | `INTERNAL`, `EXTERNAL`, `MOCK` |
+| `DECISION_TIMEOUT_MS` | `30000` | Decision request timeout in milliseconds | Number (ms) |
+| `DECISION_POLL_INTERVAL_MS` | `5000` | Polling interval for pending decisions | Number (ms) |
+
+### Custodii Integration
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `CUSTODII_API_URL` | Yes (EXTERNAL mode) | Custodii API endpoint URL | `https://api.custodii.com/v1` |
+| `CUSTODII_API_KEY` | Yes (EXTERNAL mode) | Custodii API authentication key | `sk_live_xxxxxxxxxxxxx` |
+| `CUSTODII_WEBHOOK_SECRET` | Yes (EXTERNAL mode) | Webhook signature validation secret | `whsec_xxxxxxxxxxxxx` |
+
+### Database
+
+| Variable | Required | Description | Example |
+|----------|----------|-------------|---------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string | `postgresql://user:password@localhost:5432/decision_authority` |
+
+### Monitoring & Logging
+
+| Variable | Default | Description | Values |
+|----------|---------|-------------|--------|
+| `LOG_LEVEL` | `info` | Logging level | `debug`, `info`, `warn`, `error` |
+| `METRICS_ENABLED` | `true` | Enable Prometheus metrics | `true`, `false` |
+| `SENTRY_DSN` | Optional | Sentry error tracking DSN | Sentry DSN URL |
+
+### Node Environment
+
+| Variable | Default | Description | Values |
+|----------|---------|-------------|--------|
+| `NODE_ENV` | `development` | Node environment | `development`, `staging`, `production` |
+| `PORT` | `3010` | Service port | Number |
+
+### Environment Files
+
+- `.env.example` - Template with all variables
+- `.env.staging` - Staging environment configuration
+- `.env.production` - Production environment configuration
+
+### Configuration by Mode
+
+#### INTERNAL Mode (Default)
+```env
+DECISION_AUTHORITY_MODE=INTERNAL
+DECISION_TIMEOUT_MS=30000
+DECISION_POLL_INTERVAL_MS=5000
+LOG_LEVEL=info
+```
+
+#### EXTERNAL Mode (Production)
+```env
+DECISION_AUTHORITY_MODE=EXTERNAL
+CUSTODII_API_URL=https://api.custodii.com/v1
+CUSTODII_API_KEY=sk_live_xxxxxxxxxxxxx
+CUSTODII_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxx
+DECISION_TIMEOUT_MS=30000
+DECISION_POLL_INTERVAL_MS=5000
+LOG_LEVEL=info
+METRICS_ENABLED=true
+```
+
+#### MOCK Mode (Testing)
+```env
+DECISION_AUTHORITY_MODE=MOCK
+DECISION_TIMEOUT_MS=5000
+DECISION_POLL_INTERVAL_MS=1000
+LOG_LEVEL=debug
+```
+
 ## Next Steps (Phase 2)
 
 - [ ] Implement DecisionAuthorityService (business logic)

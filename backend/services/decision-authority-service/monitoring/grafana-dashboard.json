@@ -1,0 +1,215 @@
+{
+  "dashboard": {
+    "title": "Decision Authority Service",
+    "description": "Monitoring dashboard for Decision Authority Service",
+    "tags": ["decision-authority", "custodii"],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Decision Request Volume",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(decision_requests_total[5m])",
+            "legendFormat": "{{ asset_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Requests/sec",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Decision Request Latency (P95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(decision_requests_duration_ms_bucket[5m]))",
+            "legendFormat": "{{ asset_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Duration (ms)",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Decision Status Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "decision_status_distribution",
+            "legendFormat": "{{ status }}"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(rate(decision_errors_total[5m]) / rate(decision_requests_total[5m])) * 100",
+            "legendFormat": "{{ error_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Error Rate (%)",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Active Pending Decisions",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "active_decisions",
+            "legendFormat": "{{ asset_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Count",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Custodii API Errors",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(custodii_api_errors_total[5m])",
+            "legendFormat": "{{ error_type }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Errors/sec",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Database Query Duration (P95)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(db_query_duration_ms_bucket[5m]))",
+            "legendFormat": "{{ operation }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Duration (ms)",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Cache Hit Rate",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "cache_hit_rate * 100",
+            "legendFormat": "{{ cache_type }}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Decision Polling Attempts",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(decision_polling_total[5m])",
+            "legendFormat": "{{ status }}"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Attempts/sec",
+            "format": "short"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Request Duration Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(decision_requests_duration_ms_bucket[5m])",
+            "format": "heatmap"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Error Types Breakdown",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "decision_errors_total",
+            "legendFormat": "{{ error_type }}"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Service Health Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"decision-authority-service\"}",
+            "legendFormat": "Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  },
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  }
+}

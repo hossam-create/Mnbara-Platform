@@ -693,6 +693,39 @@ services:
       timeout: 10s
       retries: 3
 
+  # Decision Authority Service - External Decision Authority Integration
+  decision-authority-service:
+    build:
+      context: ./backend/services/decision-authority-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-decision-authority-service
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/decision_authority_db
+      - REDIS_URL=redis://redis:6379
+      - DECISION_AUTHORITY_MODE=INTERNAL
+      - DECISION_TIMEOUT_MS=30000
+      - DECISION_POLL_INTERVAL_MS=5000
+      - CUSTODII_API_URL=https://staging-api.custodii.com/v1
+      - CUSTODII_API_KEY=${CUSTODII_API_KEY:-sk_staging_test_key}
+      - CUSTODII_WEBHOOK_SECRET=${CUSTODII_WEBHOOK_SECRET:-whsec_staging_test_secret}
+      - LOG_LEVEL=info
+      - METRICS_ENABLED=true
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   # PayPal Service - PayPal Payment Integration
   paypal-service:
     build:

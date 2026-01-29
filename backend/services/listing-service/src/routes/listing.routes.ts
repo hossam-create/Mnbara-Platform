@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { body, query } from 'express-validator';
 import { ListingController } from '../controllers/listing.controller';
+import { ListingWebhookController } from '../controllers/listing-webhook.controller';
 import { validateRequest } from '../middleware/validateRequest';
 
 const router = Router();
 const listingController = new ListingController();
+const webhookController = new ListingWebhookController();
 
 // Create listing
 router.post(
@@ -61,5 +63,20 @@ router.patch('/:id/sold', listingController.markAsSold);
 
 // Featured listings
 router.get('/featured/all', listingController.getFeaturedListings);
+
+// Decision Authority Webhook Routes
+router.post(
+  '/webhooks/decisions',
+  [
+    body('decisionId').notEmpty().withMessage('Decision ID required'),
+    body('assetId').notEmpty().withMessage('Asset ID required'),
+    body('status').notEmpty().withMessage('Status required')
+  ],
+  validateRequest,
+  webhookController.handleDecisionStatusUpdate
+);
+
+// Get listing decision status
+router.get('/:id/decision', webhookController.getListingDecisionStatus);
 
 export default router;
