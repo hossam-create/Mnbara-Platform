@@ -191,40 +191,40 @@
 ## Phase 6: Infrastructure & Deployment (Week 6)
 
 ### 6.1 Feature Flags
-- [ ] 6.1.1 Add DECISION_AUTHORITY_MODE env var
-- [ ] 6.1.2 Add CUSTODII_API_URL env var
-- [ ] 6.1.3 Add CUSTODII_API_KEY env var (secret)
-- [ ] 6.1.4 Add CUSTODII_WEBHOOK_SECRET env var (secret)
-- [ ] 6.1.5 Add DECISION_TIMEOUT_MS env var
-- [ ] 6.1.6 Add DECISION_POLL_INTERVAL_MS env var
-- [ ] 6.1.7 Document all env vars in README
+- [x] 6.1.1 Add DECISION_AUTHORITY_MODE env var
+- [x] 6.1.2 Add CUSTODII_API_URL env var
+- [x] 6.1.3 Add CUSTODII_API_KEY env var (secret)
+- [x] 6.1.4 Add CUSTODII_WEBHOOK_SECRET env var (secret)
+- [x] 6.1.5 Add DECISION_TIMEOUT_MS env var
+- [x] 6.1.6 Add DECISION_POLL_INTERVAL_MS env var
+- [x] 6.1.7 Document all env vars in README
 
 ### 6.2 Docker Configuration
-- [ ] 6.2.1 Create Dockerfile for decision-authority-service
-- [ ] 6.2.2 Add service to docker-compose.yml
-- [ ] 6.2.3 Configure service networking
-- [ ] 6.2.4 Add health check endpoint
-- [ ] 6.2.5 Test local Docker deployment
+- [x] 6.2.1 Create Dockerfile for decision-authority-service
+- [x] 6.2.2 Add service to docker-compose.yml
+- [x] 6.2.3 Configure service networking
+- [x] 6.2.4 Add health check endpoint
+- [x] 6.2.5 Test local Docker deployment
 
 ### 6.3 Database Migration
-- [ ] 6.3.1 Create production migration scripts
-- [ ] 6.3.2 Add rollback scripts
-- [ ] 6.3.3 Test migration on staging database
-- [ ] 6.3.4 Document migration procedure
+- [x] 6.3.1 Create production migration scripts
+- [x] 6.3.2 Add rollback scripts
+- [x] 6.3.3 Test migration on staging database
+- [x] 6.3.4 Document migration procedure
 
 ### 6.4 Monitoring & Logging
-- [ ] 6.4.1 Add structured logging (JSON format)
-- [ ] 6.4.2 Add decision metrics (Prometheus format)
-- [ ] 6.4.3 Add alerting rules for failures
-- [ ] 6.4.4 Add dashboard for decision monitoring
-- [ ] 6.4.5 Document monitoring setup
+- [x] 6.4.1 Add structured logging (JSON format)
+- [x] 6.4.2 Add decision metrics (Prometheus format)
+- [x] 6.4.3 Add alerting rules for failures
+- [x] 6.4.4 Add dashboard for decision monitoring
+- [x] 6.4.5 Document monitoring setup
 
 ### 6.5 Deployment Configuration
-- [ ] 6.5.1 Update render.yaml with new service
-- [ ] 6.5.2 Configure staging environment (INTERNAL mode)
-- [ ] 6.5.3 Configure production environment (INTERNAL mode initially)
-- [ ] 6.5.4 Add deployment runbook
-- [ ] 6.5.5 Add rollback procedure
+- [x] 6.5.1 Update render.yaml with new service
+- [x] 6.5.2 Configure staging environment (INTERNAL mode)
+- [x] 6.5.3 Configure production environment (INTERNAL mode initially)
+- [x] 6.5.4 Add deployment runbook
+- [x] 6.5.5 Add rollback procedure
 
 ## Phase 7: Testing & Quality Assurance (Week 7)
 
