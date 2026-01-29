@@ -353,6 +353,47 @@ services:
   # SPECIALIZED SERVICES
   # ===================
 
+  # P2P Exchange Service - Currency Exchange Marketplace
+  p2p-exchange-service:
+    build:
+      context: ./backend/services/p2p-exchange-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-p2p-exchange-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/p2p_exchange_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
+      - OPENEXCHANGERATES_API_KEY=${OPENEXCHANGERATES_API_KEY:-your-api-key}
+      - TATUM_API_KEY=${TATUM_API_KEY:-your-tatum-api-key}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID:-your-paypal-client-id}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET:-your-paypal-client-secret}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-your-aws-access-key}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-your-aws-secret-key}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-mnbarh-p2p-proofs}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+      - STORAGE_TYPE=local
+      - UPLOAD_PATH=/app/uploads
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+    volumes:
+      - p2p_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   matching-service:
     build:
       context: ./backend/services/matching-service
@@ -983,3 +1024,4 @@ volumes:
   prometheus_data:
   grafana_data:
   listing_uploads:
+  p2p_uploads:

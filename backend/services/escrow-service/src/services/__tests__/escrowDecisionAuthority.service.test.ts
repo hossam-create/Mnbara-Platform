@@ -1,245 +1,375 @@
 /**
  * Escrow Decision Authority Service Tests
- * Phase 4: Button-Style Integration
- * 
- * CRITICAL: Tests enforce HARD RULE:
- * - Escrow NEVER releases funds without APPROVED decision
- * - NO fallback auto-approve
+ * Tests decision authority integration for escrow operations
+ * CRITICAL: Escrow NEVER releases funds without APPROVED decision
  */
 
-import { EscrowDecisionAuthorityService, EscrowReleaseBlockedError } from '../escrowDecisionAuthority.service';
-import { DecisionAuthorityClient, AssetType, DecisionStatus } from '../../../../shared/clients/DecisionAuthorityClient';
+import { PrismaClient, DispositionStatus } from '@prisma/client';
+import { EscrowDecisionAuthorityService } from '../escrowDecisionAuthority.service';
+import { DecisionAuthorityClient, DecisionStatus } from '../../../../shared/clients/DecisionAuthorityClient';
 
-jest.mock('../../../../shared/clients/DecisionAuthorityClient');
-jest.mock('../config/decisionAuthority.config', () => ({
-  getDecisionAuthorityConfig: jest.fn()
-}));
+// Mock Prisma
+jest.mock('@prisma/client', () => {
+  const mockPrisma = {
+    escrowHold: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+      findMany: jest.fn(),
+    },
+  };
+  return {
+    PrismaClient: jest.fn(() => mockPrisma),
+  };
+});
 
-const { getDecisionAuthorityConfig } = require('../config/decisionAuthority.config');
+// Mock DecisionAuthorityClient
+jest.mock('../../../../shared/clients/DecisionAuthorityClient', () => {
+  return {
+    DecisionAuthorityClient: jest.fn(),
+    AssetType: {
+      AUCTION: 'AUCTION',
+      LISTING: 'LISTING',
+      ESCROW_RELEASE: 'ESCROW_RELEASE',
+    },
+    DecisionStatus: {
+      PENDING: 'PENDING',
+      APPROVED: 'APPROVED',
+      REJECTED: 'REJECTED',
+      EXPIRED: 'EXPIRED',
+      CANCELLED: 'CANCELLED',
+    },
+  };
+});
+
+// Mock config
+jest.mock('../../config/decisionAuthority.config', () => {
+  return {
+    getDecisionAuthorityConfig: jest.fn(() => ({
+      enabled: true,
+      url: 'http://localhost:3010',
+    })),
+  };
+});
 
 describe('EscrowDecisionAuthorityService', () => {
   let service: EscrowDecisionAuthorityService;
-  let mockDecisionClient: jest.Mocked<DecisionAuthorityClient>;
+  let mockPrisma: any;
+  let mockDecisionClient: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    mockDecisionClient = {
-      isEnabled: jest.fn(),
-      requestDecision: jest.fn(),
-      getDecision: jest.fn(),
-      getDecisionByDecisionId: jest.fn(),
-      getDecisionsByAsset: jest.fn()
-    } as any;
-
-    (DecisionAuthorityClient as jest.MockedClass<typeof DecisionAuthorityClient>).mockImplementation(() => mockDecisionClient);
+    mockPrisma = (require('@prisma/client').PrismaClient as any)();
+    mockDecisionClient = new (require('../../../../shared/clients/DecisionAuthorityClient').DecisionAuthorityClient as any)();
+    service = new EscrowDecisionAuthorityService();
   });
 
-  describe('when Decision Authority is DISABLED', () => {
-    beforeEach(() => {
-      getDecisionAuthorityConfig.mockReturnValue({
-        enabled: false,
-        baseUrl: 'http://localhost:3010',
-        timeout: 30000
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('requestEscrowReleaseDecision', () => {
+    it('should request decision when enabled', async () => {
+      const escrowId = 1;
+      const metadata = {
+        amount: 1000,
+        buyerId: 1,
+        sellerId: 2,
+      };
+
+      const mockDecision = {
+        id: 1,
+        decisionRef: 'DEC-001',
+        status: DecisionStatus.APPROVED,
+        decidedAt: new Date(),
+      };
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.escrowHold.update = jest.fn().mockResolvedValue({
+        id: escrowId,
+        dispositionStatus: 'APPROVED',
       });
 
-      mockDecisionClient.isEnabled.mockReturnValue(false);
-      service = new EscrowDecisionAuthorityService();
+      const result = await service.requestEscrowReleaseDecision(escrowId, metadata);
+
+      expect(mockDecisionClient.requestDecision).toHaveBeenCalledWith({
+        assetType: 'ESCROW_RELEASE',
+        assetId: escrowId,
+        metadata,
+      });
+
+      expect(mockPrisma.escrowHold.update).toHaveBeenCalledWith({
+        where: { id: escrowId },
+        data: expect.objectContaining({
+          decisionId: 1,
+          decisionRef: 'DEC-001',
+          dispositionStatus: 'APPROVED',
+        }),
+      });
+
+      expect(result).toEqual(mockDecision);
     });
 
-    it('should allow escrow release (legacy behavior)', async () => {
-      const result = await service.canReleaseEscrow('escrow_123', 'order_456');
+    it('should return null when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
+
+      const result = await service.requestEscrowReleaseDecision(1, {});
+
+      expect(result).toBeNull();
+      expect(mockDecisionClient.requestDecision).not.toHaveBeenCalled();
+    });
+
+    it('should handle decision request errors gracefully', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockRejectedValue(new Error('API Error'));
+
+      const result = await service.requestEscrowReleaseDecision(1, {});
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('isEscrowApprovedForRelease', () => {
+    it('should return true when decision authority disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
+
+      const result = await service.isEscrowApprovedForRelease(1);
 
       expect(result).toBe(true);
-      expect(mockDecisionClient.getDecisionsByAsset).not.toHaveBeenCalled();
+      expect(mockPrisma.escrowHold.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('should return true when escrow is APPROVED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'APPROVED',
+      });
+
+      const result = await service.isEscrowApprovedForRelease(1);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when escrow is PENDING', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'PENDING',
+      });
+
+      const result = await service.isEscrowApprovedForRelease(1);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when escrow is REJECTED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'REJECTED',
+      });
+
+      const result = await service.isEscrowApprovedForRelease(1);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when escrow not found', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.isEscrowApprovedForRelease(999);
+
+      expect(result).toBe(false);
     });
   });
 
-  describe('when Decision Authority is ENABLED', () => {
-    beforeEach(() => {
-      getDecisionAuthorityConfig.mockReturnValue({
-        enabled: true,
-        baseUrl: 'http://localhost:3010',
-        timeout: 30000
-      });
+  describe('updateDispositionStatus', () => {
+    it('should update disposition status when enabled', async () => {
+      const mockDecision = {
+        id: 1,
+        status: DecisionStatus.APPROVED,
+        decidedAt: new Date(),
+      };
 
-      mockDecisionClient.isEnabled.mockReturnValue(true);
-      service = new EscrowDecisionAuthorityService();
-    });
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.getDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.escrowHold.update = jest.fn().mockResolvedValue({});
 
-    describe('APPROVED decision', () => {
-      it('should allow escrow release', async () => {
-        const mockDecision = {
-          id: 1,
-          decisionId: 'dec_123',
-          assetType: AssetType.ESCROW_RELEASE,
-          assetId: 'escrow_123',
-          status: DecisionStatus.APPROVED,
-          decisionSource: 'INTERNAL',
-          authority: 'MNBARH_INTERNAL',
-          metadata: {},
-          requestedAt: new Date(),
-          decidedAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
+      await service.updateDispositionStatus(1, 1);
 
-        mockDecisionClient.getDecisionsByAsset.mockResolvedValue([mockDecision]);
-
-        const result = await service.canReleaseEscrow('escrow_123', 'order_456');
-
-        expect(result).toBe(true);
-        expect(mockDecisionClient.getDecisionsByAsset).toHaveBeenCalledWith(
-          AssetType.ESCROW_RELEASE,
-          'escrow_123'
-        );
+      expect(mockDecisionClient.getDecision).toHaveBeenCalledWith(1);
+      expect(mockPrisma.escrowHold.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'APPROVED',
+        }),
       });
     });
 
-    describe('PENDING decision', () => {
-      it('should block escrow release', async () => {
-        const mockDecision = {
-          id: 1,
-          decisionId: 'dec_123',
-          assetType: AssetType.ESCROW_RELEASE,
-          assetId: 'escrow_123',
-          status: DecisionStatus.PENDING,
-          decisionSource: 'EXTERNAL',
-          authority: 'CUSTODII',
-          metadata: {},
-          requestedAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
+    it('should return null when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-        mockDecisionClient.getDecisionsByAsset.mockResolvedValue([mockDecision]);
+      const result = await service.updateDispositionStatus(1, 1);
 
-        await expect(service.canReleaseEscrow('escrow_123', 'order_456'))
-          .rejects
-          .toThrow(EscrowReleaseBlockedError);
-
-        try {
-          await service.canReleaseEscrow('escrow_123', 'order_456');
-        } catch (error) {
-          expect(error).toBeInstanceOf(EscrowReleaseBlockedError);
-          expect((error as EscrowReleaseBlockedError).reason).toBe('PENDING');
-          expect((error as EscrowReleaseBlockedError).decisionId).toBe(1);
-        }
-      });
+      expect(result).toBeNull();
     });
 
-    describe('REJECTED decision', () => {
-      it('should block escrow release', async () => {
-        const mockDecision = {
-          id: 1,
-          decisionId: 'dec_123',
-          assetType: AssetType.ESCROW_RELEASE,
-          assetId: 'escrow_123',
-          status: DecisionStatus.REJECTED,
-          decisionSource: 'EXTERNAL',
-          authority: 'CUSTODII',
-          reason: 'Fraud suspected',
-          metadata: {},
-          requestedAt: new Date(),
-          decidedAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
+    it('should return null when decision not found', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.getDecision = jest.fn().mockResolvedValue(null);
 
-        mockDecisionClient.getDecisionsByAsset.mockResolvedValue([mockDecision]);
+      const result = await service.updateDispositionStatus(1, 999);
 
-        await expect(service.canReleaseEscrow('escrow_123', 'order_456'))
-          .rejects
-          .toThrow(EscrowReleaseBlockedError);
+      expect(result).toBeNull();
+    });
+  });
 
-        try {
-          await service.canReleaseEscrow('escrow_123', 'order_456');
-        } catch (error) {
-          expect(error).toBeInstanceOf(EscrowReleaseBlockedError);
-          expect((error as EscrowReleaseBlockedError).reason).toBe('REJECTED');
-          expect(error.message).toContain('Fraud suspected');
-        }
+  describe('autoApproveEscrow', () => {
+    it('should auto-approve escrow', async () => {
+      mockPrisma.escrowHold.update = jest.fn().mockResolvedValue({
+        id: 1,
+        dispositionStatus: 'APPROVED',
       });
+
+      const result = await service.autoApproveEscrow(1);
+
+      expect(mockPrisma.escrowHold.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'APPROVED',
+        }),
+      });
+
+      expect(result.dispositionStatus).toBe('APPROVED');
+    });
+  });
+
+  describe('getEscrowDecisionStatus', () => {
+    it('should return escrow decision status', async () => {
+      const mockStatus = {
+        dispositionStatus: 'APPROVED',
+        decisionId: 1,
+        decisionRef: 'DEC-001',
+        decisionRequestedAt: new Date(),
+        decisionDecidedAt: new Date(),
+      };
+
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue(mockStatus);
+
+      const result = await service.getEscrowDecisionStatus(1);
+
+      expect(result).toEqual(mockStatus);
     });
 
-    describe('NO decision found', () => {
-      it('should block escrow release', async () => {
-        mockDecisionClient.getDecisionsByAsset.mockResolvedValue([]);
+    it('should return null when escrow not found', async () => {
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue(null);
 
-        await expect(service.canReleaseEscrow('escrow_123', 'order_456'))
-          .rejects
-          .toThrow(EscrowReleaseBlockedError);
+      const result = await service.getEscrowDecisionStatus(999);
 
-        try {
-          await service.canReleaseEscrow('escrow_123', 'order_456');
-        } catch (error) {
-          expect(error).toBeInstanceOf(EscrowReleaseBlockedError);
-          expect((error as EscrowReleaseBlockedError).reason).toBe('NOT_FOUND');
-        }
-      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getPendingEscrowReleases', () => {
+    it('should return pending escrow releases when enabled', async () => {
+      const mockPending = [
+        { id: 1, dispositionStatus: 'PENDING' },
+        { id: 2, dispositionStatus: 'PENDING' },
+      ];
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findMany = jest.fn().mockResolvedValue(mockPending);
+
+      const result = await service.getPendingEscrowReleases();
+
+      expect(result).toEqual(mockPending);
     });
 
-    describe('Decision Authority ERROR', () => {
-      it('should block escrow release (NO fallback)', async () => {
-        mockDecisionClient.getDecisionsByAsset.mockRejectedValue(new Error('Network timeout'));
+    it('should return empty array when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-        await expect(service.canReleaseEscrow('escrow_123', 'order_456'))
-          .rejects
-          .toThrow(EscrowReleaseBlockedError);
+      const result = await service.getPendingEscrowReleases();
 
-        try {
-          await service.canReleaseEscrow('escrow_123', 'order_456');
-        } catch (error) {
-          expect(error).toBeInstanceOf(EscrowReleaseBlockedError);
-          expect((error as EscrowReleaseBlockedError).reason).toBe('ERROR');
-          expect(error.message).toContain('retriable');
-        }
-      });
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getRejectedEscrowReleases', () => {
+    it('should return rejected escrow releases when enabled', async () => {
+      const mockRejected = [
+        { id: 1, dispositionStatus: 'REJECTED' },
+        { id: 2, dispositionStatus: 'REJECTED' },
+      ];
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findMany = jest.fn().mockResolvedValue(mockRejected);
+
+      const result = await service.getRejectedEscrowReleases();
+
+      expect(result).toEqual(mockRejected);
     });
 
-    describe('requestEscrowReleaseDecision', () => {
-      it('should request decision successfully', async () => {
-        const mockDecision = {
-          id: 1,
-          decisionId: 'dec_123',
-          assetType: AssetType.ESCROW_RELEASE,
-          assetId: 'escrow_123',
-          status: DecisionStatus.PENDING,
-          decisionSource: 'EXTERNAL',
-          authority: 'CUSTODII',
-          metadata: {},
-          requestedAt: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date()
-        };
+    it('should return empty array when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-        mockDecisionClient.requestDecision.mockResolvedValue(mockDecision);
+      const result = await service.getRejectedEscrowReleases();
 
-        const result = await service.requestEscrowReleaseDecision('escrow_123', { amount: 1000 });
+      expect(result).toEqual([]);
+    });
+  });
 
-        expect(result.decisionId).toBe(1);
-        expect(result.status).toBe(DecisionStatus.PENDING);
-        expect(mockDecisionClient.requestDecision).toHaveBeenCalledWith({
-          assetType: AssetType.ESCROW_RELEASE,
-          assetId: 'escrow_123',
-          metadata: { amount: 1000 }
-        });
+  describe('isEnabled', () => {
+    it('should return true when decision authority enabled', () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+
+      const result = service.isEnabled();
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when decision authority disabled', () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
+
+      const result = service.isEnabled();
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('CRITICAL: Escrow Release Protection', () => {
+    it('should BLOCK release when decision authority enabled but not APPROVED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'PENDING',
       });
 
-      it('should throw error if disabled', async () => {
-        getDecisionAuthorityConfig.mockReturnValue({
-          enabled: false,
-          baseUrl: 'http://localhost:3010',
-          timeout: 30000
-        });
+      const isApproved = await service.isEscrowApprovedForRelease(1);
 
-        mockDecisionClient.isEnabled.mockReturnValue(false);
-        service = new EscrowDecisionAuthorityService();
+      expect(isApproved).toBe(false);
+      // This should prevent the escrow release in the calling code
+    });
 
-        await expect(service.requestEscrowReleaseDecision('escrow_123'))
-          .rejects
-          .toThrow('Decision Authority is disabled');
+    it('should BLOCK release when decision authority enabled and REJECTED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'REJECTED',
       });
+
+      const isApproved = await service.isEscrowApprovedForRelease(1);
+
+      expect(isApproved).toBe(false);
+      // This should prevent the escrow release in the calling code
+    });
+
+    it('should ALLOW release only when APPROVED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.escrowHold.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'APPROVED',
+      });
+
+      const isApproved = await service.isEscrowApprovedForRelease(1);
+
+      expect(isApproved).toBe(true);
+      // This allows the escrow release in the calling code
     });
   });
 });

@@ -1,13 +1,7 @@
 /**
  * Auction Decision Authority Service
- * Phase 4: Button-Style Integration
- * 
- * RULES:
- * - NO business logic
- * - NO state machine logic
- * - Consumes decisions, never interprets them
- * - Feature-flag driven
- * - Graceful fallback on error
+ * Handles decision authority integration for auction operations
+ * Follows the same pattern as Listing Service integration
  */
 
 import { PrismaClient, DispositionStatus } from '@prisma/client';
@@ -25,109 +19,113 @@ export class AuctionDecisionAuthorityService {
   }
 
   /**
-   * Request decision for auction activation
-   * Returns decision or null if disabled
+   * Request decision for auction start
+   * Called when seller initiates auction
    */
-  async requestAuctionActivationDecision(auctionId: number, metadata?: Record<string, any>): Promise<{
-    approved: boolean;
-    decisionId?: number;
-    decisionRef?: string;
-    reason?: string;
-  }> {
+  async requestAuctionDecision(auctionId: number, metadata: any) {
     if (!this.decisionClient.isEnabled()) {
-      // Feature flag OFF → auto-approve (current behavior)
-      return { approved: true };
+      return null;
     }
 
     try {
       const decision = await this.decisionClient.requestDecision({
         assetType: AssetType.AUCTION,
-        assetId: auctionId.toString(),
-        metadata: metadata || {}
+        assetId: auctionId,
+        metadata,
       });
 
-      if (!decision) {
-        // Fallback: auto-approve on null response
-        console.warn('[AuctionDecisionAuthority] Decision request returned null, auto-approving');
-        return { approved: true };
+      if (decision) {
+        // Update auction with decision info
+        await prisma.listing.update({
+          where: { id: auctionId },
+          data: {
+            decisionId: decision.id,
+            decisionRef: decision.decisionRef,
+            decisionRequestedAt: new Date(),
+            dispositionStatus: this.mapDecisionStatusToDisposition(decision.status),
+            decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null,
+          },
+        });
+
+        return decision;
       }
-
-      // Update auction with decision info
-      await prisma.listing.update({
-        where: { id: auctionId },
-        data: {
-          decisionId: decision.id,
-          decisionRef: decision.decisionRef,
-          decisionRequestedAt: new Date(),
-          dispositionStatus: this.mapDecisionStatusToDisposition(decision.status),
-          decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null
-        }
-      });
-
-      return {
-        approved: decision.status === DecisionStatus.APPROVED,
-        decisionId: decision.id,
-        decisionRef: decision.decisionRef,
-        reason: decision.reason
-      };
     } catch (error) {
-      // Fallback: auto-approve on error (graceful degradation)
-      console.error('[AuctionDecisionAuthority] Decision request failed, auto-approving:', error);
-      return { approved: true };
+      console.error('[AuctionDecisionAuthorityService] Decision request failed:', error);
+      // Fallback: Auto-approve on error
+      return null;
     }
   }
 
   /**
-   * Check if auction is approved for activation
-   * Returns true if approved or feature flag is OFF
+   * Check if auction is approved for bidding
+   * Returns true if:
+   * - Decision authority is disabled (auto-approve)
+   * - Auction has APPROVED disposition status
    */
-  async isAuctionApproved(auctionId: number): Promise<boolean> {
+  async isAuctionApprovedForBidding(auctionId: number): Promise<boolean> {
     if (!this.decisionClient.isEnabled()) {
-      // Feature flag OFF → always approved
-      return true;
+      return true; // Auto-approve if disabled
     }
 
-    try {
-      const auction = await prisma.listing.findUnique({
-        where: { id: auctionId },
-        select: { dispositionStatus: true }
-      });
+    const auction = await prisma.listing.findUnique({
+      where: { id: auctionId },
+      select: { dispositionStatus: true },
+    });
 
-      if (!auction) {
-        throw new Error('Auction not found');
-      }
-
-      return auction.dispositionStatus === 'APPROVED';
-    } catch (error) {
-      console.error('[AuctionDecisionAuthority] Failed to check approval status:', error);
-      // Fallback: assume approved on error
-      return true;
+    if (!auction) {
+      return false;
     }
+
+    return auction.dispositionStatus === 'APPROVED';
+  }
+
+  /**
+   * Check if auction is approved for starting
+   * Returns true if:
+   * - Decision authority is disabled (auto-approve)
+   * - Auction has APPROVED disposition status
+   */
+  async isAuctionApprovedForStart(auctionId: number): Promise<boolean> {
+    if (!this.decisionClient.isEnabled()) {
+      return true; // Auto-approve if disabled
+    }
+
+    const auction = await prisma.listing.findUnique({
+      where: { id: auctionId },
+      select: { dispositionStatus: true },
+    });
+
+    if (!auction) {
+      return false;
+    }
+
+    return auction.dispositionStatus === 'APPROVED';
   }
 
   /**
    * Update auction disposition status (called by webhook or polling)
    */
-  async updateAuctionDispositionStatus(auctionId: number, decisionId: number): Promise<void> {
+  async updateDispositionStatus(auctionId: number, decisionId: number) {
     if (!this.decisionClient.isEnabled()) {
-      return;
+      return null;
     }
 
     try {
       const decision = await this.decisionClient.getDecision(decisionId);
       if (!decision) {
-        return;
+        return null;
       }
 
-      await prisma.listing.update({
+      return prisma.listing.update({
         where: { id: auctionId },
         data: {
           dispositionStatus: this.mapDecisionStatusToDisposition(decision.status),
-          decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null
-        }
+          decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null,
+        },
       });
     } catch (error) {
-      console.error('[AuctionDecisionAuthority] Failed to update disposition status:', error);
+      console.error('[AuctionDecisionAuthorityService] Failed to update disposition status:', error);
+      return null;
     }
   }
 
@@ -149,5 +147,43 @@ export class AuctionDecisionAuthorityService {
       default:
         return 'PENDING';
     }
+  }
+
+  /**
+   * Auto-approve auction (fallback behavior)
+   */
+  async autoApproveAuction(auctionId: number) {
+    return prisma.listing.update({
+      where: { id: auctionId },
+      data: {
+        dispositionStatus: 'APPROVED',
+        decisionDecidedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Get auction decision status
+   */
+  async getAuctionDecisionStatus(auctionId: number) {
+    const auction = await prisma.listing.findUnique({
+      where: { id: auctionId },
+      select: {
+        dispositionStatus: true,
+        decisionId: true,
+        decisionRef: true,
+        decisionRequestedAt: true,
+        decisionDecidedAt: true,
+      },
+    });
+
+    return auction || null;
+  }
+
+  /**
+   * Check if decision authority is enabled
+   */
+  isEnabled(): boolean {
+    return this.decisionClient.isEnabled();
   }
 }

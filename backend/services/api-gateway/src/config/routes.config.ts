@@ -108,6 +108,75 @@ export const servicesConfig: ServiceConfig[] = [
       },
     ],
   },
+
+  // Decision Authority Service - Port 3010
+  {
+    name: 'decision-authority-service',
+    url: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+    healthPath: '/health',
+    routes: [
+      // Decision endpoints (require authentication)
+      {
+        path: '/api/v1/decisions',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/decisions': '/api/v1/decisions' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'POST'],
+      },
+      {
+        path: '/api/v1/decisions/:id',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/decisions': '/api/v1/decisions' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'PATCH'],
+      },
+      {
+        path: '/api/v1/decisions/by-decision-id/:decisionId',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/decisions': '/api/v1/decisions' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/v1/decisions/asset/:assetType/:assetId',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/decisions': '/api/v1/decisions' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      // Audit log endpoints (require authentication, admin role)
+      {
+        path: '/api/v1/audit-logs',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/audit-logs': '/api/v1/audit-logs' },
+        requiresAuth: true,
+        roles: ['admin'],
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/v1/audit-logs/decision/:decisionId',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/audit-logs': '/api/v1/audit-logs' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      // Webhook endpoint (NO authentication - uses HMAC signature validation)
+      {
+        path: '/api/v1/webhooks/custodii',
+        target: getServiceUrl('DECISION_AUTHORITY_SERVICE_URL', 'http://decision-authority-service:3010'),
+        pathRewrite: { '^/api/v1/webhooks': '/api/v1/webhooks' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['POST'],
+      },
+    ],
+  },
 ];
 
 // Default rate limit for unspecified routes

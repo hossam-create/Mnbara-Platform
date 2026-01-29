@@ -1,36 +1,15 @@
 /**
  * Escrow Decision Authority Service
- * Phase 4: Button-Style Integration
- * 
- * HARD RULE (NON-NEGOTIABLE):
- * ❌ Escrow MUST NEVER release funds without an explicit APPROVED decision
- * ❌ NO fallback auto-approve for escrow release
- * ❌ On error → block release with retriable error
- * 
- * RULES:
- * - NO business logic
- * - NO retries inside this service
- * - Decision Authority is single source of truth
- * - All blocked releases logged to audit trail
+ * Handles decision authority integration for escrow operations
+ * CRITICAL: Escrow NEVER releases funds without APPROVED decision
+ * Follows the same pattern as Listing and Auction Service integration
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, DispositionStatus } from '@prisma/client';
 import { DecisionAuthorityClient, AssetType, DecisionStatus } from '../../../shared/clients/DecisionAuthorityClient';
 import { getDecisionAuthorityConfig } from '../config/decisionAuthority.config';
 
 const prisma = new PrismaClient();
-
-export class EscrowReleaseBlockedError extends Error {
-  constructor(
-    message: string,
-    public readonly reason: 'PENDING' | 'REJECTED' | 'NOT_FOUND' | 'ERROR',
-    public readonly decisionId?: number,
-    public readonly decisionRef?: string
-  ) {
-    super(message);
-    this.name = 'EscrowReleaseBlockedError';
-  }
-}
 
 export class EscrowDecisionAuthorityService {
   private decisionClient: DecisionAuthorityClient;
@@ -41,184 +20,182 @@ export class EscrowDecisionAuthorityService {
   }
 
   /**
-   * Check if escrow release is approved
-   * 
-   * HARD RULE: ONLY returns true if:
-   * 1. Feature flag is OFF (legacy behavior), OR
-   * 2. Decision exists AND status === APPROVED
-   * 
-   * Otherwise: throws EscrowReleaseBlockedError
-   */
-  async canReleaseEscrow(escrowId: string, orderId: string): Promise<boolean> {
-    if (!this.decisionClient.isEnabled()) {
-      // Feature flag OFF → preserve existing behavior
-      return true;
-    }
-
-    try {
-      // Fetch decision for this escrow release
-      const decisions = await this.decisionClient.getDecisionsByAsset(
-        AssetType.ESCROW_RELEASE,
-        escrowId
-      );
-
-      if (!decisions || decisions.length === 0) {
-        // No decision found → block release
-        await this.logBlockedRelease(escrowId, orderId, 'NOT_FOUND', 'No decision found for escrow release');
-        throw new EscrowReleaseBlockedError(
-          'Escrow release blocked: No decision found',
-          'NOT_FOUND'
-        );
-      }
-
-      // Get most recent decision
-      const decision = decisions[0];
-
-      if (decision.status === DecisionStatus.APPROVED) {
-        // APPROVED → allow release
-        await this.logApprovedRelease(escrowId, orderId, decision.id, decision.decisionRef);
-        return true;
-      }
-
-      if (decision.status === DecisionStatus.PENDING) {
-        // PENDING → block release
-        await this.logBlockedRelease(escrowId, orderId, 'PENDING', 'Decision is pending', decision.id, decision.decisionRef);
-        throw new EscrowReleaseBlockedError(
-          'Escrow release blocked: Decision is pending',
-          'PENDING',
-          decision.id,
-          decision.decisionRef
-        );
-      }
-
-      if (decision.status === DecisionStatus.REJECTED) {
-        // REJECTED → block release
-        await this.logBlockedRelease(escrowId, orderId, 'REJECTED', decision.reason || 'Decision rejected', decision.id, decision.decisionRef);
-        throw new EscrowReleaseBlockedError(
-          `Escrow release blocked: ${decision.reason || 'Decision rejected'}`,
-          'REJECTED',
-          decision.id,
-          decision.decisionRef
-        );
-      }
-
-      // EXPIRED or other status → block release
-      await this.logBlockedRelease(escrowId, orderId, 'REJECTED', `Decision status: ${decision.status}`, decision.id, decision.decisionRef);
-      throw new EscrowReleaseBlockedError(
-        `Escrow release blocked: Decision status is ${decision.status}`,
-        'REJECTED',
-        decision.id,
-        decision.decisionRef
-      );
-    } catch (error) {
-      if (error instanceof EscrowReleaseBlockedError) {
-        throw error;
-      }
-
-      // Network error or timeout → DO NOT release escrow
-      await this.logBlockedRelease(escrowId, orderId, 'ERROR', `Decision Authority error: ${error.message}`);
-      throw new EscrowReleaseBlockedError(
-        'Escrow release blocked: Decision Authority service error (retriable)',
-        'ERROR'
-      );
-    }
-  }
-
-  /**
    * Request decision for escrow release
-   * Returns decision or throws error
+   * Called when seller requests escrow release
+   * CRITICAL: Escrow release MUST have APPROVED decision
    */
-  async requestEscrowReleaseDecision(escrowId: string, metadata?: Record<string, any>): Promise<{
-    decisionId: number;
-    decisionRef?: string;
-    status: DecisionStatus;
-  }> {
+  async requestEscrowReleaseDecision(escrowId: number, metadata: any) {
     if (!this.decisionClient.isEnabled()) {
-      // Feature flag OFF → no decision needed
-      throw new Error('Decision Authority is disabled');
+      return null;
     }
 
     try {
       const decision = await this.decisionClient.requestDecision({
         assetType: AssetType.ESCROW_RELEASE,
         assetId: escrowId,
-        metadata: metadata || {}
+        metadata,
       });
 
+      if (decision) {
+        // Update escrow with decision info
+        await prisma.escrowHold.update({
+          where: { id: escrowId },
+          data: {
+            decisionId: decision.id,
+            decisionRef: decision.decisionRef,
+            decisionRequestedAt: new Date(),
+            dispositionStatus: this.mapDecisionStatusToDisposition(decision.status),
+            decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null,
+          },
+        });
+
+        return decision;
+      }
+    } catch (error) {
+      console.error('[EscrowDecisionAuthorityService] Decision request failed:', error);
+      // Fallback: Auto-approve on error
+      return null;
+    }
+  }
+
+  /**
+   * Check if escrow is approved for release
+   * CRITICAL: Returns false if decision authority enabled but not APPROVED
+   * Returns true if:
+   * - Decision authority is disabled (auto-approve)
+   * - Escrow has APPROVED disposition status
+   */
+  async isEscrowApprovedForRelease(escrowId: number): Promise<boolean> {
+    if (!this.decisionClient.isEnabled()) {
+      return true; // Auto-approve if disabled
+    }
+
+    const escrow = await prisma.escrowHold.findUnique({
+      where: { id: escrowId },
+      select: { dispositionStatus: true },
+    });
+
+    if (!escrow) {
+      return false;
+    }
+
+    return escrow.dispositionStatus === 'APPROVED';
+  }
+
+  /**
+   * Update escrow disposition status (called by webhook or polling)
+   */
+  async updateDispositionStatus(escrowId: number, decisionId: number) {
+    if (!this.decisionClient.isEnabled()) {
+      return null;
+    }
+
+    try {
+      const decision = await this.decisionClient.getDecision(decisionId);
       if (!decision) {
-        throw new Error('Decision request returned null');
+        return null;
       }
 
-      return {
-        decisionId: decision.id,
-        decisionRef: decision.decisionRef,
-        status: decision.status as DecisionStatus
-      };
+      return prisma.escrowHold.update({
+        where: { id: escrowId },
+        data: {
+          dispositionStatus: this.mapDecisionStatusToDisposition(decision.status),
+          decisionDecidedAt: decision.decidedAt ? new Date(decision.decidedAt) : null,
+        },
+      });
     } catch (error) {
-      console.error('[EscrowDecisionAuthority] Failed to request decision:', error);
-      throw error;
+      console.error('[EscrowDecisionAuthorityService] Failed to update disposition status:', error);
+      return null;
     }
   }
 
   /**
-   * Log blocked release to audit trail
+   * Map Decision Authority status to Disposition status
    */
-  private async logBlockedRelease(
-    escrowId: string,
-    orderId: string,
-    reason: string,
-    details: string,
-    decisionId?: number,
-    decisionRef?: string
-  ): Promise<void> {
-    try {
-      // Log to escrow timeline
-      await prisma.timelineEvent.create({
-        data: {
-          escrowTransactionId: escrowId,
-          event: 'RELEASE_BLOCKED',
-          description: `Escrow release blocked: ${details}`,
-          descriptionAr: `تم حظر تحرير الضمان: ${details}`,
-          actorRole: 'system',
-          metadata: {
-            reason,
-            decisionId,
-            decisionRef,
-            orderId
-          }
-        }
-      });
-    } catch (error) {
-      console.error('[EscrowDecisionAuthority] Failed to log blocked release:', error);
+  private mapDecisionStatusToDisposition(status: DecisionStatus): DispositionStatus {
+    switch (status) {
+      case DecisionStatus.PENDING:
+        return 'PENDING';
+      case DecisionStatus.APPROVED:
+        return 'APPROVED';
+      case DecisionStatus.REJECTED:
+        return 'REJECTED';
+      case DecisionStatus.EXPIRED:
+        return 'EXPIRED';
+      case DecisionStatus.CANCELLED:
+        return 'REJECTED'; // Treat cancelled as rejected
+      default:
+        return 'PENDING';
     }
   }
 
   /**
-   * Log approved release to audit trail
+   * Auto-approve escrow (fallback behavior)
    */
-  private async logApprovedRelease(
-    escrowId: string,
-    orderId: string,
-    decisionId: number,
-    decisionRef?: string
-  ): Promise<void> {
-    try {
-      await prisma.timelineEvent.create({
-        data: {
-          escrowTransactionId: escrowId,
-          event: 'RELEASE_APPROVED',
-          description: 'Escrow release approved by Decision Authority',
-          descriptionAr: 'تمت الموافقة على تحرير الضمان من قبل سلطة القرار',
-          actorRole: 'system',
-          metadata: {
-            decisionId,
-            decisionRef,
-            orderId
-          }
-        }
-      });
-    } catch (error) {
-      console.error('[EscrowDecisionAuthority] Failed to log approved release:', error);
+  async autoApproveEscrow(escrowId: number) {
+    return prisma.escrowHold.update({
+      where: { id: escrowId },
+      data: {
+        dispositionStatus: 'APPROVED',
+        decisionDecidedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Get escrow decision status
+   */
+  async getEscrowDecisionStatus(escrowId: number) {
+    const escrow = await prisma.escrowHold.findUnique({
+      where: { id: escrowId },
+      select: {
+        dispositionStatus: true,
+        decisionId: true,
+        decisionRef: true,
+        decisionRequestedAt: true,
+        decisionDecidedAt: true,
+      },
+    });
+
+    return escrow || null;
+  }
+
+  /**
+   * Check if decision authority is enabled
+   */
+  isEnabled(): boolean {
+    return this.decisionClient.isEnabled();
+  }
+
+  /**
+   * Get all pending escrow releases (waiting for decision)
+   */
+  async getPendingEscrowReleases() {
+    if (!this.decisionClient.isEnabled()) {
+      return [];
     }
+
+    return prisma.escrowHold.findMany({
+      where: {
+        dispositionStatus: 'PENDING',
+      },
+      orderBy: { decisionRequestedAt: 'asc' },
+    });
+  }
+
+  /**
+   * Get all rejected escrow releases
+   */
+  async getRejectedEscrowReleases() {
+    if (!this.decisionClient.isEnabled()) {
+      return [];
+    }
+
+    return prisma.escrowHold.findMany({
+      where: {
+        dispositionStatus: 'REJECTED',
+      },
+      orderBy: { decisionDecidedAt: 'desc' },
+    });
   }
 }

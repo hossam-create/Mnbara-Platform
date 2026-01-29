@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 import { SettlementCoordinatorService } from '../services/settlement-coordinator.service';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
@@ -21,30 +22,43 @@ export class SettlementController {
    */
   getSettlement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
       const { id } = req.params;
       const userId = req.user?.id;
 
-      // Get settlement
-      const settlement = await this.settlementCoordinatorService.getSettlement(parseInt(id, 10));
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const settlement = await prisma.settlement.findUnique({
+        where: { id },
+        include: {
+          match: {
+            include: {
+              sellerRequest: true,
+              buyerRequest: true,
+            },
+          },
+        },
+      });
 
       if (!settlement) {
         res.status(404).json({ error: 'Settlement not found' });
         return;
       }
 
-      // Get match to verify user access
-      const match = await prisma.exchangeMatch.findUnique({
-        where: { id: settlement.matchId },
-        include: { request: true },
-      });
-
-      if (!match) {
-        res.status(404).json({ error: 'Match not found' });
-        return;
-      }
-
       // Check if user is part of this settlement
-      if (match.request.userId !== userId && match.acceptorId !== userId && !req.user?.isAdmin) {
+      if (
+        settlement.match.sellerId !== userId &&
+        settlement.match.buyerId !== userId &&
+        !req.user?.isAdmin
+      ) {
         res.status(403).json({ error: 'Forbidden' });
         return;
       }
@@ -62,17 +76,30 @@ export class SettlementController {
   handlePSPWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { provider } = req.params;
-      const payload = req.body;
+      const { signature, timestamp, ...payload } = req.body;
 
       // Verify webhook signature
-      const isValid = this.verifyWebhookSignature(provider, req);
+      const isValid = this.verifyWebhookSignature(provider, payload, signature, timestamp);
       if (!isValid) {
         res.status(401).json({ error: 'Invalid webhook signature' });
         return;
       }
 
-      // Process webhook
-      await this.settlementCoordinatorService.handlePSPWebhook(provider, payload);
+      // Process webhook based on provider
+      switch (provider) {
+        case 'stripe':
+          await this.handleStripeWebhook(payload);
+          break;
+        case 'paypal':
+          await this.handlePayPalWebhook(payload);
+          break;
+        case 'wise':
+          await this.handleWiseWebhook(payload);
+          break;
+        default:
+          res.status(400).json({ error: 'Unknown provider' });
+          return;
+      }
 
       res.status(200).json({ message: 'Webhook processed successfully' });
     } catch (error) {
@@ -82,29 +109,32 @@ export class SettlementController {
 
   /**
    * POST /api/v1/exchange/webhooks/escrow/:provider
-   * Handle external escrow webhook
+   * Handle escrow provider webhook
    */
   handleEscrowWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { provider } = req.params;
-      const payload = req.body;
+      const { signature, timestamp, ...payload } = req.body;
 
       // Verify webhook signature
-      const isValid = this.verifyWebhookSignature(provider, req);
+      const isValid = this.verifyWebhookSignature(provider, payload, signature, timestamp);
       if (!isValid) {
         res.status(401).json({ error: 'Invalid webhook signature' });
         return;
       }
 
-      // Map escrow webhook to PSP webhook format
-      const pspPayload = {
-        transactionId: payload.escrowId,
-        status: payload.status,
-        metadata: payload.metadata,
-      };
-
-      // Process webhook
-      await this.settlementCoordinatorService.handlePSPWebhook(provider, pspPayload);
+      // Process webhook based on provider
+      switch (provider) {
+        case 'tatum':
+          await this.handleTatumWebhook(payload);
+          break;
+        case 'coinbase':
+          await this.handleCoinbaseWebhook(payload);
+          break;
+        default:
+          res.status(400).json({ error: 'Unknown provider' });
+          return;
+      }
 
       res.status(200).json({ message: 'Webhook processed successfully' });
     } catch (error) {
@@ -115,40 +145,26 @@ export class SettlementController {
   /**
    * Verify webhook signature
    */
-  private verifyWebhookSignature(provider: string, req: Request): boolean {
-    const signature = req.headers['x-webhook-signature'] as string;
-    const timestamp = req.headers['x-webhook-timestamp'] as string;
-
-    if (!signature || !timestamp) {
-      return false;
-    }
-
-    // Get webhook secret for provider
-    const secret = this.getWebhookSecret(provider);
+  private verifyWebhookSignature(
+    provider: string,
+    payload: any,
+    signature: string,
+    timestamp: string
+  ): boolean {
+    // Get webhook secret from environment
+    const secret = process.env[`${provider.toUpperCase()}_WEBHOOK_SECRET`];
     if (!secret) {
-      console.warn(`No webhook secret configured for provider: ${provider}`);
       return false;
     }
 
-    // Verify timestamp (prevent replay attacks)
-    const now = Date.now();
-    const webhookTime = parseInt(timestamp, 10);
-    const timeDiff = Math.abs(now - webhookTime);
-    
-    // Reject if timestamp is more than 5 minutes old
-    if (timeDiff > 5 * 60 * 1000) {
-      console.warn(`Webhook timestamp too old: ${timeDiff}ms`);
-      return false;
-    }
-
-    // Compute expected signature
-    const payload = JSON.stringify(req.body);
+    // Create signature
+    const message = `${timestamp}.${JSON.stringify(payload)}`;
     const expectedSignature = crypto
       .createHmac('sha256', secret)
-      .update(`${timestamp}.${payload}`)
+      .update(message)
       .digest('hex');
 
-    // Compare signatures (constant-time comparison)
+    // Compare signatures
     return crypto.timingSafeEqual(
       Buffer.from(signature),
       Buffer.from(expectedSignature)
@@ -156,15 +172,122 @@ export class SettlementController {
   }
 
   /**
-   * Get webhook secret for provider
+   * Handle Stripe webhook
    */
-  private getWebhookSecret(provider: string): string | null {
-    const secrets: Record<string, string> = {
-      stripe: process.env.STRIPE_WEBHOOK_SECRET || '',
-      tatum: process.env.TATUM_WEBHOOK_SECRET || '',
-      // Add more providers as needed
-    };
+  private async handleStripeWebhook(payload: any): Promise<void> {
+    const { type, data } = payload;
 
-    return secrets[provider] || null;
+    switch (type) {
+      case 'payment_intent.succeeded':
+        // Update settlement status
+        const matchId = data.object.metadata?.matchId;
+        if (matchId) {
+          await this.settlementCoordinatorService.processInternalSettlement(matchId);
+        }
+        break;
+      case 'payment_intent.payment_failed':
+        // Handle payment failure
+        const failedMatchId = data.object.metadata?.matchId;
+        if (failedMatchId) {
+          await this.settlementCoordinatorService.failSettlement(failedMatchId);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle PayPal webhook
+   */
+  private async handlePayPalWebhook(payload: any): Promise<void> {
+    const { event_type, resource } = payload;
+
+    switch (event_type) {
+      case 'PAYMENT.CAPTURE.COMPLETED':
+        // Update settlement status
+        const matchId = resource.supplementary_data?.related_ids?.order_id;
+        if (matchId) {
+          await this.settlementCoordinatorService.processInternalSettlement(matchId);
+        }
+        break;
+      case 'PAYMENT.CAPTURE.DENIED':
+        // Handle payment failure
+        const failedMatchId = resource.supplementary_data?.related_ids?.order_id;
+        if (failedMatchId) {
+          await this.settlementCoordinatorService.failSettlement(failedMatchId);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle Wise webhook
+   */
+  private async handleWiseWebhook(payload: any): Promise<void> {
+    const { event, data } = payload;
+
+    switch (event) {
+      case 'transfer:completed':
+        // Update settlement status
+        const matchId = data.resource?.metadata?.matchId;
+        if (matchId) {
+          await this.settlementCoordinatorService.processInternalSettlement(matchId);
+        }
+        break;
+      case 'transfer:failed':
+        // Handle transfer failure
+        const failedMatchId = data.resource?.metadata?.matchId;
+        if (failedMatchId) {
+          await this.settlementCoordinatorService.failSettlement(failedMatchId);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle Tatum webhook
+   */
+  private async handleTatumWebhook(payload: any): Promise<void> {
+    const { type, data } = payload;
+
+    switch (type) {
+      case 'ESCROW_RELEASED':
+        // Update settlement status
+        const matchId = data.escrowId;
+        if (matchId) {
+          await this.settlementCoordinatorService.processExternalSettlement(matchId);
+        }
+        break;
+      case 'ESCROW_FAILED':
+        // Handle escrow failure
+        const failedMatchId = data.escrowId;
+        if (failedMatchId) {
+          await this.settlementCoordinatorService.failSettlement(failedMatchId);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Handle Coinbase webhook
+   */
+  private async handleCoinbaseWebhook(payload: any): Promise<void> {
+    const { type, data } = payload;
+
+    switch (type) {
+      case 'charge:confirmed':
+        // Update settlement status
+        const matchId = data.metadata?.matchId;
+        if (matchId) {
+          await this.settlementCoordinatorService.processExternalSettlement(matchId);
+        }
+        break;
+      case 'charge:failed':
+        // Handle charge failure
+        const failedMatchId = data.metadata?.matchId;
+        if (failedMatchId) {
+          await this.settlementCoordinatorService.failSettlement(failedMatchId);
+        }
+        break;
+    }
   }
 }

@@ -1,0 +1,257 @@
+# P2P Exchange Service - Prometheus Alert Rules
+
+groups:
+  - name: p2p_exchange_alerts
+    interval: 30s
+    rules:
+      # ============================================================
+      # SERVICE HEALTH ALERTS
+      # ============================================================
+      
+      - alert: ServiceDown
+        expr: up{job="p2p-exchange-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "P2P Exchange Service is down"
+          description: "P2P Exchange Service has been down for more than 1 minute"
+          
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5% for the last 5 minutes"
+          
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 1 second"
+          
+      # ============================================================
+      # DATABASE ALERTS
+      # ============================================================
+      
+      - alert: DatabaseConnectionFailure
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "Database connection failure"
+          description: "Cannot connect to PostgreSQL database"
+          
+      - alert: HighDatabaseLatency
+        expr: histogram_quantile(0.95, rate(pg_stat_statements_mean_exec_time_bucket[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High database latency"
+          description: "95th percentile database query time is above 1 second"
+          
+      # ============================================================
+      # REDIS ALERTS
+      # ============================================================
+      
+      - alert: RedisConnectionFailure
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "Redis connection failure"
+          description: "Cannot connect to Redis"
+          
+      - alert: HighRedisMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is above 90%"
+          
+      # ============================================================
+      # EXCHANGE REQUEST ALERTS
+      # ============================================================
+      
+      - alert: HighExchangeRequestFailureRate
+        expr: rate(exchange_requests_completed_total{status="FAILED"}[10m]) / rate(exchange_requests_created_total[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High exchange request failure rate"
+          description: "More than 10% of exchange requests are failing"
+          
+      - alert: LowMatchRate
+        expr: rate(matches_created_total[30m]) / rate(exchange_requests_created_total[30m]) < 0.5
+        for: 30m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "Low match rate"
+          description: "Match rate is below 50% for the last 30 minutes"
+          
+      - alert: StaleExchangeRequests
+        expr: active_exchange_requests{status="OPEN"} > 100
+        for: 1h
+        labels:
+          severity: info
+          service: p2p-exchange
+        annotations:
+          summary: "High number of open exchange requests"
+          description: "More than 100 exchange requests are open for over 1 hour"
+          
+      # ============================================================
+      # SETTLEMENT ALERTS
+      # ============================================================
+      
+      - alert: HighSettlementFailureRate
+        expr: rate(settlements_completed_total{status="FAILED"}[10m]) / rate(settlements_initiated_total[10m]) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "High settlement failure rate"
+          description: "More than 5% of settlements are failing"
+          
+      - alert: HighSettlementRetries
+        expr: rate(settlement_retries_total[10m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High settlement retry rate"
+          description: "Settlement retry rate is above 10 per minute"
+          
+      - alert: SlowSettlement
+        expr: histogram_quantile(0.95, rate(settlement_duration_seconds_bucket[30m])) > 7200
+        for: 30m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "Slow settlement processing"
+          description: "95th percentile settlement time is above 2 hours"
+          
+      # ============================================================
+      # SECURITY ALERTS
+      # ============================================================
+      
+      - alert: HighFraudDetectionRate
+        expr: rate(fraud_detections_total[10m]) > 5
+        for: 10m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "High fraud detection rate"
+          description: "Fraud detection rate is above 5 per minute"
+          
+      - alert: HighSecurityDepositFreezeRate
+        expr: rate(security_deposits_frozen_total[10m]) > 3
+        for: 10m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High security deposit freeze rate"
+          description: "Security deposit freeze rate is above 3 per minute"
+          
+      - alert: HighExternalContactDetectionRate
+        expr: rate(external_contact_detections_total[10m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High external contact detection rate"
+          description: "External contact detection rate is above 10 per minute"
+          
+      - alert: HighMessageFlagRate
+        expr: rate(messages_flagged_total[10m]) / rate(messages_exchanged_total[10m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High message flag rate"
+          description: "More than 10% of messages are being flagged"
+          
+      # ============================================================
+      # EXTERNAL PROVIDER ALERTS
+      # ============================================================
+      
+      - alert: ExternalProviderHighErrorRate
+        expr: rate(external_provider_errors_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High external provider error rate"
+          description: "External provider error rate is above 5 per minute"
+          
+      - alert: ExternalProviderSlowResponse
+        expr: histogram_quantile(0.95, rate(external_provider_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "Slow external provider response"
+          description: "95th percentile external provider response time is above 5 seconds"
+          
+      # ============================================================
+      # RESOURCE ALERTS
+      # ============================================================
+      
+      - alert: HighCPUUsage
+        expr: process_cpu_seconds_total > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for 5 minutes"
+          
+      - alert: HighMemoryUsage
+        expr: process_resident_memory_bytes / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: p2p-exchange
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 90% for 5 minutes"
+          
+      - alert: HighDiskUsage
+        expr: node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: p2p-exchange
+        annotations:
+          summary: "High disk usage"
+          description: "Disk usage is above 90%"

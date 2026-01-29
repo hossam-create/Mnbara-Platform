@@ -1,165 +1,373 @@
 /**
  * Auction Decision Authority Service Tests
- * Phase 4: Button-Style Integration
+ * Tests decision authority integration for auction operations
  */
 
+import { PrismaClient, DispositionStatus } from '@prisma/client';
 import { AuctionDecisionAuthorityService } from '../auctionDecisionAuthority.service';
-import { DecisionAuthorityClient, AssetType, DecisionStatus } from '../../../../shared/clients/DecisionAuthorityClient';
+import { DecisionAuthorityClient, DecisionStatus } from '../../../../shared/clients/DecisionAuthorityClient';
 
-jest.mock('../../../../shared/clients/DecisionAuthorityClient');
-jest.mock('../config/decisionAuthority.config', () => ({
-  getDecisionAuthorityConfig: jest.fn()
-}));
+// Mock Prisma
+jest.mock('@prisma/client', () => {
+  const mockPrisma = {
+    listing: {
+      findUnique: jest.fn(),
+      update: jest.fn(),
+    },
+  };
+  return {
+    PrismaClient: jest.fn(() => mockPrisma),
+  };
+});
 
-const { getDecisionAuthorityConfig } = require('../config/decisionAuthority.config');
+// Mock DecisionAuthorityClient
+jest.mock('../../../../shared/clients/DecisionAuthorityClient', () => {
+  return {
+    DecisionAuthorityClient: jest.fn(),
+    AssetType: {
+      AUCTION: 'AUCTION',
+      LISTING: 'LISTING',
+      ESCROW_RELEASE: 'ESCROW_RELEASE',
+    },
+    DecisionStatus: {
+      PENDING: 'PENDING',
+      APPROVED: 'APPROVED',
+      REJECTED: 'REJECTED',
+      EXPIRED: 'EXPIRED',
+      CANCELLED: 'CANCELLED',
+    },
+  };
+});
+
+// Mock config
+jest.mock('../../config/decisionAuthority.config', () => {
+  return {
+    getDecisionAuthorityConfig: jest.fn(() => ({
+      enabled: true,
+      url: 'http://localhost:3010',
+    })),
+  };
+});
 
 describe('AuctionDecisionAuthorityService', () => {
   let service: AuctionDecisionAuthorityService;
-  let mockDecisionClient: jest.Mocked<DecisionAuthorityClient>;
+  let mockPrisma: any;
+  let mockDecisionClient: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    mockDecisionClient = {
-      isEnabled: jest.fn(),
-      requestDecision: jest.fn(),
-      getDecision: jest.fn(),
-      getDecisionByDecisionId: jest.fn(),
-      getDecisionsByAsset: jest.fn()
-    } as any;
-
-    (DecisionAuthorityClient as jest.MockedClass<typeof DecisionAuthorityClient>).mockImplementation(() => mockDecisionClient);
+    mockPrisma = (require('@prisma/client').PrismaClient as any)();
+    mockDecisionClient = new (require('../../../../shared/clients/DecisionAuthorityClient').DecisionAuthorityClient as any)();
+    service = new AuctionDecisionAuthorityService();
   });
 
-  describe('when Decision Authority is DISABLED', () => {
-    beforeEach(() => {
-      getDecisionAuthorityConfig.mockReturnValue({
-        enabled: false,
-        baseUrl: 'http://localhost:3010',
-        timeout: 30000
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('requestAuctionDecision', () => {
+    it('should request decision when enabled', async () => {
+      const auctionId = 1;
+      const metadata = {
+        title: 'Test Auction',
+        startingBid: 100,
+        sellerId: 1,
+      };
+
+      const mockDecision = {
+        id: 1,
+        decisionRef: 'DEC-001',
+        status: DecisionStatus.APPROVED,
+        decidedAt: new Date(),
+      };
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.listing.update = jest.fn().mockResolvedValue({
+        id: auctionId,
+        dispositionStatus: 'APPROVED',
       });
 
-      mockDecisionClient.isEnabled.mockReturnValue(false);
-      service = new AuctionDecisionAuthorityService();
+      const result = await service.requestAuctionDecision(auctionId, metadata);
+
+      expect(mockDecisionClient.requestDecision).toHaveBeenCalledWith({
+        assetType: 'AUCTION',
+        assetId: auctionId,
+        metadata,
+      });
+
+      expect(mockPrisma.listing.update).toHaveBeenCalledWith({
+        where: { id: auctionId },
+        data: expect.objectContaining({
+          decisionId: 1,
+          decisionRef: 'DEC-001',
+          dispositionStatus: 'APPROVED',
+        }),
+      });
+
+      expect(result).toEqual(mockDecision);
     });
 
-    it('should auto-approve auction activation', async () => {
-      const result = await service.requestAuctionActivationDecision(1);
+    it('should return null when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-      expect(result.approved).toBe(true);
+      const result = await service.requestAuctionDecision(1, {});
+
+      expect(result).toBeNull();
       expect(mockDecisionClient.requestDecision).not.toHaveBeenCalled();
     });
 
-    it('should always return true for isAuctionApproved', async () => {
-      const result = await service.isAuctionApproved(1);
+    it('should handle decision request errors gracefully', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockRejectedValue(new Error('API Error'));
+
+      const result = await service.requestAuctionDecision(1, {});
+
+      expect(result).toBeNull();
+    });
+
+    it('should map PENDING decision status correctly', async () => {
+      const mockDecision = {
+        id: 1,
+        decisionRef: 'DEC-001',
+        status: DecisionStatus.PENDING,
+        decidedAt: null,
+      };
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.listing.update = jest.fn().mockResolvedValue({});
+
+      await service.requestAuctionDecision(1, {});
+
+      expect(mockPrisma.listing.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'PENDING',
+        }),
+      });
+    });
+
+    it('should map REJECTED decision status correctly', async () => {
+      const mockDecision = {
+        id: 1,
+        decisionRef: 'DEC-001',
+        status: DecisionStatus.REJECTED,
+        decidedAt: new Date(),
+      };
+
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.requestDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.listing.update = jest.fn().mockResolvedValue({});
+
+      await service.requestAuctionDecision(1, {});
+
+      expect(mockPrisma.listing.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'REJECTED',
+        }),
+      });
+    });
+  });
+
+  describe('isAuctionApprovedForBidding', () => {
+    it('should return true when decision authority disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
+
+      const result = await service.isAuctionApprovedForBidding(1);
+
+      expect(result).toBe(true);
+      expect(mockPrisma.listing.findUnique).not.toHaveBeenCalled();
+    });
+
+    it('should return true when auction is APPROVED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'APPROVED',
+      });
+
+      const result = await service.isAuctionApprovedForBidding(1);
 
       expect(result).toBe(true);
     });
+
+    it('should return false when auction is PENDING', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'PENDING',
+      });
+
+      const result = await service.isAuctionApprovedForBidding(1);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when auction is REJECTED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'REJECTED',
+      });
+
+      const result = await service.isAuctionApprovedForBidding(1);
+
+      expect(result).toBe(false);
+    });
+
+    it('should return false when auction not found', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue(null);
+
+      const result = await service.isAuctionApprovedForBidding(999);
+
+      expect(result).toBe(false);
+    });
   });
 
-  describe('when Decision Authority is ENABLED', () => {
-    beforeEach(() => {
-      getDecisionAuthorityConfig.mockReturnValue({
-        enabled: true,
-        baseUrl: 'http://localhost:3010',
-        timeout: 30000
-      });
+  describe('isAuctionApprovedForStart', () => {
+    it('should return true when decision authority disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-      mockDecisionClient.isEnabled.mockReturnValue(true);
-      service = new AuctionDecisionAuthorityService();
+      const result = await service.isAuctionApprovedForStart(1);
+
+      expect(result).toBe(true);
     });
 
-    it('should request decision for auction activation', async () => {
+    it('should return true when auction is APPROVED', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'APPROVED',
+      });
+
+      const result = await service.isAuctionApprovedForStart(1);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when auction is PENDING', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue({
+        dispositionStatus: 'PENDING',
+      });
+
+      const result = await service.isAuctionApprovedForStart(1);
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('updateDispositionStatus', () => {
+    it('should update disposition status when enabled', async () => {
       const mockDecision = {
         id: 1,
-        decisionId: 'dec_123',
-        assetType: AssetType.AUCTION,
-        assetId: '1',
         status: DecisionStatus.APPROVED,
-        decisionSource: 'INTERNAL',
-        authority: 'MNBARH_INTERNAL',
-        metadata: {},
-        requestedAt: new Date(),
         decidedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
       };
 
-      mockDecisionClient.requestDecision.mockResolvedValue(mockDecision);
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.getDecision = jest.fn().mockResolvedValue(mockDecision);
+      mockPrisma.listing.update = jest.fn().mockResolvedValue({});
 
-      const result = await service.requestAuctionActivationDecision(1, { test: 'data' });
+      await service.updateDispositionStatus(1, 1);
 
-      expect(result.approved).toBe(true);
-      expect(result.decisionId).toBe(1);
-      expect(mockDecisionClient.requestDecision).toHaveBeenCalledWith({
-        assetType: AssetType.AUCTION,
-        assetId: '1',
-        metadata: { test: 'data' }
+      expect(mockDecisionClient.getDecision).toHaveBeenCalledWith(1);
+      expect(mockPrisma.listing.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'APPROVED',
+        }),
       });
     });
 
-    it('should handle PENDING decision status', async () => {
-      const mockDecision = {
+    it('should return null when disabled', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
+
+      const result = await service.updateDispositionStatus(1, 1);
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when decision not found', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.getDecision = jest.fn().mockResolvedValue(null);
+
+      const result = await service.updateDispositionStatus(1, 999);
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle errors gracefully', async () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+      mockDecisionClient.getDecision = jest.fn().mockRejectedValue(new Error('API Error'));
+
+      const result = await service.updateDispositionStatus(1, 1);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('autoApproveAuction', () => {
+    it('should auto-approve auction', async () => {
+      mockPrisma.listing.update = jest.fn().mockResolvedValue({
         id: 1,
-        decisionId: 'dec_123',
-        assetType: AssetType.AUCTION,
-        assetId: '1',
-        status: DecisionStatus.PENDING,
-        decisionSource: 'EXTERNAL',
-        authority: 'CUSTODII',
-        metadata: {},
-        requestedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
+        dispositionStatus: 'APPROVED',
+      });
+
+      const result = await service.autoApproveAuction(1);
+
+      expect(mockPrisma.listing.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: expect.objectContaining({
+          dispositionStatus: 'APPROVED',
+        }),
+      });
+
+      expect(result.dispositionStatus).toBe('APPROVED');
+    });
+  });
+
+  describe('getAuctionDecisionStatus', () => {
+    it('should return auction decision status', async () => {
+      const mockStatus = {
+        dispositionStatus: 'APPROVED',
+        decisionId: 1,
+        decisionRef: 'DEC-001',
+        decisionRequestedAt: new Date(),
+        decisionDecidedAt: new Date(),
       };
 
-      mockDecisionClient.requestDecision.mockResolvedValue(mockDecision);
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue(mockStatus);
 
-      const result = await service.requestAuctionActivationDecision(1);
+      const result = await service.getAuctionDecisionStatus(1);
 
-      expect(result.approved).toBe(false);
-      expect(result.decisionId).toBe(1);
+      expect(result).toEqual(mockStatus);
     });
 
-    it('should handle REJECTED decision status', async () => {
-      const mockDecision = {
-        id: 1,
-        decisionId: 'dec_123',
-        assetType: AssetType.AUCTION,
-        assetId: '1',
-        status: DecisionStatus.REJECTED,
-        decisionSource: 'EXTERNAL',
-        authority: 'CUSTODII',
-        reason: 'Prohibited item',
-        metadata: {},
-        requestedAt: new Date(),
-        decidedAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+    it('should return null when auction not found', async () => {
+      mockPrisma.listing.findUnique = jest.fn().mockResolvedValue(null);
 
-      mockDecisionClient.requestDecision.mockResolvedValue(mockDecision);
+      const result = await service.getAuctionDecisionStatus(999);
 
-      const result = await service.requestAuctionActivationDecision(1);
+      expect(result).toBeNull();
+    });
+  });
 
-      expect(result.approved).toBe(false);
-      expect(result.reason).toBe('Prohibited item');
+  describe('isEnabled', () => {
+    it('should return true when decision authority enabled', () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(true);
+
+      const result = service.isEnabled();
+
+      expect(result).toBe(true);
     });
 
-    it('should fallback to auto-approve on error', async () => {
-      mockDecisionClient.requestDecision.mockRejectedValue(new Error('Network error'));
+    it('should return false when decision authority disabled', () => {
+      mockDecisionClient.isEnabled = jest.fn().mockReturnValue(false);
 
-      const result = await service.requestAuctionActivationDecision(1);
+      const result = service.isEnabled();
 
-      expect(result.approved).toBe(true);
-    });
-
-    it('should fallback to auto-approve on null response', async () => {
-      mockDecisionClient.requestDecision.mockResolvedValue(null);
-
-      const result = await service.requestAuctionActivationDecision(1);
-
-      expect(result.approved).toBe(true);
+      expect(result).toBe(false);
     });
   });
 });
+

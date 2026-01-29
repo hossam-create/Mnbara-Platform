@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
+import { MatchingEngineService } from '../services/matching-engine.service';
+import { ProofOfPaymentService } from '../services/proof-of-payment.service';
 import { SettlementCoordinatorService } from '../services/settlement-coordinator.service';
 import { PrismaClient } from '@prisma/client';
 
@@ -8,9 +11,13 @@ const prisma = new PrismaClient();
  * Controller for Match endpoints
  */
 export class MatchController {
+  private matchingEngineService: MatchingEngineService;
+  private proofOfPaymentService: ProofOfPaymentService;
   private settlementCoordinatorService: SettlementCoordinatorService;
 
   constructor() {
+    this.matchingEngineService = new MatchingEngineService(prisma);
+    this.proofOfPaymentService = new ProofOfPaymentService(prisma);
     this.settlementCoordinatorService = new SettlementCoordinatorService(prisma);
   }
 
@@ -20,16 +27,27 @@ export class MatchController {
    */
   getMatch = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
       const { id } = req.params;
       const userId = req.user?.id;
 
-      // Get match from database
+      if (!userId) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
       const match = await prisma.exchangeMatch.findUnique({
-        where: { id: parseInt(id, 10) },
+        where: { id },
         include: {
-          request: true,
+          sellerRequest: true,
+          buyerRequest: true,
           settlement: true,
-          proofs: true,
+          proofOfPayment: true,
         },
       });
 
@@ -39,7 +57,7 @@ export class MatchController {
       }
 
       // Check if user is part of this match
-      if (match.request.userId !== userId && match.acceptorId !== userId && !req.user?.isAdmin) {
+      if (match.sellerId !== userId && match.buyerId !== userId && !req.user?.isAdmin) {
         res.status(403).json({ error: 'Forbidden' });
         return;
       }
@@ -52,23 +70,28 @@ export class MatchController {
 
   /**
    * POST /api/v1/exchange/matches/:id/initiate-payment
-   * Initiate payment for a match
+   * Initiate payment flow
    */
   initiatePayment = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
       const { id } = req.params;
       const userId = req.user?.id;
-      const { paymentMethod, paymentDetails } = req.body;
+      const { paymentMethod, externalEscrowProviderId } = req.body;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
-      // Get match
       const match = await prisma.exchangeMatch.findUnique({
         where: { id },
-        include: { request: true },
+        include: { settlement: true },
       });
 
       if (!match) {
@@ -76,44 +99,31 @@ export class MatchController {
         return;
       }
 
-      // Check if user is the payer (request creator)
-      if (match.request.userId !== userId) {
-        res.status(403).json({
-          error: 'Forbidden',
-          message: 'Only the request creator can initiate payment',
-        });
+      // Check if user is the buyer
+      if (match.buyerId !== userId) {
+        res.status(403).json({ error: 'Only buyer can initiate payment' });
         return;
       }
 
       // Check match status
-      if (match.status !== 'MATCHED') {
+      if (match.status !== 'ACCEPTED') {
         res.status(400).json({
           error: 'Invalid match status',
-          message: 'Payment can only be initiated for MATCHED exchanges',
+          message: 'Payment can only be initiated for ACCEPTED matches',
         });
         return;
       }
 
       // Initiate settlement
-      const settlement = await this.settlementCoordinatorService.initiateSettlement({
-        matchId: parseInt(id, 10),
-        externalEscrowProvider: paymentMethod === 'EXTERNAL_ESCROW' ? 'tatum' : undefined,
-      });
-
-      // Update match status
-      await prisma.exchangeMatch.update({
-        where: { id: parseInt(id, 10) },
-        data: { status: 'PAYMENT_INITIATED' },
-      });
+      const settlement = await this.settlementCoordinatorService.initiateSettlement(
+        id,
+        paymentMethod,
+        externalEscrowProviderId
+      );
 
       res.status(200).json({
         message: 'Payment initiated successfully',
         settlement,
-        paymentInstructions: {
-          method: paymentMethod || 'BANK_TRANSFER',
-          details: paymentDetails,
-          deadline: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-        },
       });
     } catch (error) {
       next(error);
@@ -126,25 +136,23 @@ export class MatchController {
    */
   uploadProof = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
       const { id } = req.params;
       const userId = req.user?.id;
-      const file = req.file;
-      const { description } = req.body;
+      const { proofType, proofData, description } = req.body;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
-      if (!file) {
-        res.status(400).json({ error: 'No file uploaded' });
-        return;
-      }
-
-      // Get match
       const match = await prisma.exchangeMatch.findUnique({
-        where: { id: parseInt(id, 10) },
-        include: { request: true },
+        where: { id },
       });
 
       if (!match) {
@@ -152,32 +160,33 @@ export class MatchController {
         return;
       }
 
-      // Check if user is the payer
-      if (match.request.userId !== userId) {
-        res.status(403).json({
-          error: 'Forbidden',
-          message: 'Only the payer can upload proof',
+      // Check if user is the buyer
+      if (match.buyerId !== userId) {
+        res.status(403).json({ error: 'Only buyer can upload proof' });
+        return;
+      }
+
+      // Check match status
+      if (match.status !== 'PAYMENT_INITIATED') {
+        res.status(400).json({
+          error: 'Invalid match status',
+          message: 'Proof can only be uploaded for PAYMENT_INITIATED matches',
         });
         return;
       }
 
-      // Create proof record (file upload handled by multer middleware)
-      const proof = await prisma.proofOfPayment.create({
-        data: {
-          matchId: parseInt(id, 10),
-          uploadedBy: userId,
-          fileUrl: `/uploads/proofs/${file.filename}`,
-          fileName: file.originalname,
-          fileSize: file.size,
-          mimeType: file.mimetype,
-          description,
-          status: 'PENDING',
-        },
+      // Upload proof
+      const proof = await this.proofOfPaymentService.uploadProof({
+        matchId: id,
+        userId,
+        proofType,
+        proofData,
+        description,
       });
 
       // Update match status
       await prisma.exchangeMatch.update({
-        where: { id: parseInt(id, 10) },
+        where: { id },
         data: { status: 'PROOF_UPLOADED' },
       });
 
@@ -192,23 +201,27 @@ export class MatchController {
 
   /**
    * POST /api/v1/exchange/matches/:id/confirm-receipt
-   * Confirm receipt of payment
+   * Confirm receipt of funds
    */
   confirmReceipt = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        res.status(400).json({ errors: errors.array() });
+        return;
+      }
+
       const { id } = req.params;
       const userId = req.user?.id;
-      const { confirmed, notes } = req.body;
 
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
-      // Get match
       const match = await prisma.exchangeMatch.findUnique({
-        where: { id: parseInt(id, 10) },
-        include: { request: true, settlement: true },
+        where: { id },
+        include: { settlement: true },
       });
 
       if (!match) {
@@ -216,12 +229,9 @@ export class MatchController {
         return;
       }
 
-      // Check if user is the receiver (acceptor)
-      if (match.acceptorId !== userId) {
-        res.status(403).json({
-          error: 'Forbidden',
-          message: 'Only the receiver can confirm receipt',
-        });
+      // Check if user is the seller
+      if (match.sellerId !== userId) {
+        res.status(403).json({ error: 'Only seller can confirm receipt' });
         return;
       }
 
@@ -229,43 +239,25 @@ export class MatchController {
       if (match.status !== 'PROOF_UPLOADED') {
         res.status(400).json({
           error: 'Invalid match status',
-          message: 'Receipt can only be confirmed after proof is uploaded',
+          message: 'Receipt can only be confirmed for PROOF_UPLOADED matches',
         });
         return;
       }
 
-      if (confirmed) {
-        // Complete settlement
-        if (match.settlement) {
-          await this.settlementCoordinatorService.completeSettlement(match.settlement.id);
-        }
+      // Complete settlement
+      const settlement = await this.settlementCoordinatorService.completeSettlement(id);
 
-        // Update match status
-        await prisma.exchangeMatch.update({
-          where: { id: parseInt(id, 10) },
-          data: {
-            status: 'COMPLETED',
-            completedAt: new Date(),
-          },
-        });
+      // Update match status
+      const updatedMatch = await prisma.exchangeMatch.update({
+        where: { id },
+        data: { status: 'COMPLETED' },
+      });
 
-        res.status(200).json({
-          message: 'Receipt confirmed successfully',
-          match: await prisma.exchangeMatch.findUnique({ where: { id: parseInt(id, 10) } }),
-        });
-      } else {
-        // Dispute the payment
-        await prisma.exchangeMatch.update({
-          where: { id: parseInt(id, 10) },
-          data: { status: 'DISPUTED' },
-        });
-
-        res.status(200).json({
-          message: 'Payment disputed',
-          notes,
-          nextSteps: 'Admin review required',
-        });
-      }
+      res.status(200).json({
+        message: 'Receipt confirmed successfully',
+        match: updatedMatch,
+        settlement,
+      });
     } catch (error) {
       next(error);
     }

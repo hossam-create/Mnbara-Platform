@@ -1,0 +1,196 @@
+{
+  "dashboard": {
+    "title": "P2P Exchange Service - Monitoring Dashboard",
+    "tags": ["p2p-exchange", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"p2p-exchange-service\"}",
+            "legendFormat": "Service Status"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 }
+      },
+      {
+        "id": 2,
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{method}} {{route}}"
+          }
+        ],
+        "gridPos": { "x": 6, "y": 0, "w": 9, "h": 4 }
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status_code=~\"5..\"}[5m])",
+            "legendFormat": "5xx Errors"
+          },
+          {
+            "expr": "rate(http_requests_total{status_code=~\"4..\"}[5m])",
+            "legendFormat": "4xx Errors"
+          }
+        ],
+        "gridPos": { "x": 15, "y": 0, "w": 9, "h": 4 }
+      },
+      {
+        "id": 4,
+        "title": "Response Time (95th percentile)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{route}}"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 }
+      },
+      {
+        "id": 5,
+        "title": "Active Exchange Requests",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "active_exchange_requests",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 }
+      },
+      {
+        "id": 6,
+        "title": "Exchange Requests Created",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(exchange_requests_created_total[5m])",
+            "legendFormat": "{{from_currency}} → {{to_currency}}"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 }
+      },
+      {
+        "id": 7,
+        "title": "Matches Created",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(matches_created_total[5m])",
+            "legendFormat": "{{match_type}}"
+          }
+        ],
+        "gridPos": { "x": 12, "y": 10, "w": 12, "h": 6 }
+      },
+      {
+        "id": 8,
+        "title": "Settlement Status",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(settlements_completed_total[5m])",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 6 }
+      },
+      {
+        "id": 9,
+        "title": "Settlement Duration (95th percentile)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(settlement_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{method}} - {{provider}}"
+          }
+        ],
+        "gridPos": { "x": 12, "y": 16, "w": 12, "h": 6 }
+      },
+      {
+        "id": 10,
+        "title": "Fraud Detections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(fraud_detections_total[5m])",
+            "legendFormat": "{{type}}"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 22, "w": 8, "h": 6 }
+      },
+      {
+        "id": 11,
+        "title": "Security Deposits Frozen",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(security_deposits_frozen_total[5m])",
+            "legendFormat": "{{reason}}"
+          }
+        ],
+        "gridPos": { "x": 8, "y": 22, "w": 8, "h": 6 }
+      },
+      {
+        "id": 12,
+        "title": "External Provider Errors",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(external_provider_errors_total[5m])",
+            "legendFormat": "{{provider}} - {{error_type}}"
+          }
+        ],
+        "gridPos": { "x": 16, "y": 22, "w": 8, "h": 6 }
+      },
+      {
+        "id": 13,
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total[5m])",
+            "legendFormat": "CPU Usage"
+          }
+        ],
+        "gridPos": { "x": 0, "y": 28, "w": 8, "h": 6 }
+      },
+      {
+        "id": 14,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes",
+            "legendFormat": "Memory Usage"
+          }
+        ],
+        "gridPos": { "x": 8, "y": 28, "w": 8, "h": 6 }
+      },
+      {
+        "id": 15,
+        "title": "Total Volume",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(total_volume)",
+            "legendFormat": "Total Volume"
+          }
+        ],
+        "gridPos": { "x": 16, "y": 28, "w": 8, "h": 6 }
+      }
+    ]
+  }
+}
