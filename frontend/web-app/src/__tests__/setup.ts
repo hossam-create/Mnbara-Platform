@@ -1,19 +1,25 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi, beforeAll, afterAll } from 'vitest';
+import { expect, afterEach, vi, beforeAll, afterAll, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import { server } from './mocks/server';
 
 // Start MSW server
 beforeAll(() => server.listen());
 
-// Reset handlers after each test
+// Reset handlers and auth after each test
 afterEach(() => {
   server.resetHandlers();
   cleanup();
+  localStorage.removeItem('auth_token');
 });
 
 // Clean up after all tests
 afterAll(() => server.close());
+
+// Mock auth token for tests
+beforeEach(() => {
+  localStorage.setItem('auth_token', 'test-token-12345');
+});
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

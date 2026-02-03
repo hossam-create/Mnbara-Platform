@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
-import { PrismaClient, AssetType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { DecisionAuthorityService } from '../../services/DecisionAuthorityService';
 import { 
   CreateDecisionRequestDto, 
   ListDecisionsQueryDto 
 } from '../dtos/decision.dto';
 import { mapServiceErrorToHttp } from '../utils/errorMapper';
+import { AssetType } from '../../interfaces/IDecisionSource';
 
 /**
  * DecisionController - Thin REST layer
@@ -33,7 +34,7 @@ export class DecisionController {
       const dto: CreateDecisionRequestDto = req.body;
 
       const decision = await this.decisionService.requestDecision({
-        assetType: dto.assetType,
+        assetType: dto.assetType as any,
         assetId: dto.assetId,
         metadata: dto.metadata
       });
@@ -85,7 +86,7 @@ export class DecisionController {
    */
   async getDecisionsByAsset(req: Request, res: Response): Promise<void> {
     try {
-      const assetType = req.params.assetType as AssetType;
+      const assetType = req.params.assetType as any as AssetType;
       const assetId = req.params.assetId;
 
       const decisions = await this.decisionService.getDecisionsByAsset(assetType, assetId);
@@ -106,9 +107,9 @@ export class DecisionController {
       const query: ListDecisionsQueryDto = req.query;
 
       const filters = {
-        assetType: query.assetType,
+        assetType: query.assetType as any,
         assetId: query.assetId,
-        status: query.status,
+        status: query.status as any,
         decisionSource: query.decisionSource,
         startDate: query.startDate ? new Date(query.startDate) : undefined,
         endDate: query.endDate ? new Date(query.endDate) : undefined,

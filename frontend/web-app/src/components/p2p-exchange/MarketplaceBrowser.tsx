@@ -71,7 +71,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex justify-center items-center py-12" data-testid="marketplace-loading">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -80,7 +80,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
   // Error state
   if (isError) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg" data-testid="marketplace-error">
         <p className="text-red-600">
           Failed to load marketplace. Please try again.
         </p>
@@ -92,9 +92,9 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
   const pagination = data?.pagination;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="marketplace-browser">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center" data-testid="marketplace-header">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Marketplace</h2>
           <p className="text-sm text-gray-500 mt-1">
@@ -102,16 +102,16 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
           </p>
         </div>
         {pagination && (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500" data-testid="pagination-info">
             Showing {requests.length} of {pagination.total} requests
           </div>
         )}
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6" data-testid="marketplace-content">
         {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-testid="filters-sidebar">
           <MarketplaceFilters
             filters={filters}
             onFiltersChange={handleFiltersChange}
@@ -120,10 +120,10 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
         </div>
 
         {/* Request List */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 space-y-6" data-testid="request-list-container">
           {/* Empty State */}
           {requests.length === 0 ? (
-            <div className="text-center py-12 bg-white border border-gray-200 rounded-lg">
+            <div className="text-center py-12 bg-white border border-gray-200 rounded-lg" data-testid="empty-state">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"
                 fill="none"
@@ -147,7 +147,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
           ) : (
             <>
               {/* Request Cards */}
-              <div className="space-y-4">
+              <div className="space-y-4" data-testid="request-cards">
                 {requests.map((request) => (
                   <MarketplaceRequestCard
                     key={request.id}
@@ -161,16 +161,17 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
 
               {/* Pagination */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2">
+                <div className="flex justify-center items-center gap-2" data-testid="pagination-controls">
                   <button
                     onClick={() => handlePageChange(pagination.page - 1)}
                     disabled={pagination.page === 1}
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    data-testid="pagination-prev-button"
                   >
                     Previous
                   </button>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2" data-testid="pagination-pages">
                     {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                       const page = i + 1;
                       return (
@@ -182,6 +183,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
+                          data-testid={`pagination-page-${page}`}
                         >
                           {page}
                         </button>
@@ -193,6 +195,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
                     onClick={() => handlePageChange(pagination.page + 1)}
                     disabled={pagination.page === pagination.totalPages}
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    data-testid="pagination-next-button"
                   >
                     Next
                   </button>
@@ -205,7 +208,7 @@ export const MarketplaceBrowser: React.FC<MarketplaceBrowserProps> = ({
 
       {/* Accept Request Error */}
       {acceptRequest.isError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg" data-testid="accept-error-message">
           <p className="text-sm text-red-600">
             Failed to accept request. Please try again.
           </p>

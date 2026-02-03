@@ -61,6 +61,13 @@ export const handlers = [
     });
   }),
 
+  http.delete(`${API_BASE_URL}/exchange-requests/:id`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: { ...mockExchangeRequest, status: 'CANCELLED' },
+    });
+  }),
+
   // ============================================================
   // MARKETPLACE ENDPOINTS
   // ============================================================
@@ -75,6 +82,13 @@ export const handlers = [
         total: 3,
         totalPages: 1,
       },
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/marketplace/accept`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: { ...mockExchangeRequest, status: 'MATCHED' },
     });
   }),
 
@@ -172,10 +186,14 @@ export const handlers = [
     });
   }),
 
-  http.post(`${API_BASE_URL}/deposits`, () => {
+  http.post(`${API_BASE_URL}/deposits`, async ({ request }) => {
+    const body = await request.json();
     return HttpResponse.json({
       success: true,
-      data: mockSecurityDeposit,
+      data: {
+        ...mockSecurityDeposit,
+        amount: String(body.amount || '100'),
+      },
     });
   }),
 
@@ -190,6 +208,13 @@ export const handlers = [
     });
   }),
 
+  http.get(`${API_BASE_URL}/trust-level`, () => {
+    return HttpResponse.json({
+      success: true,
+      data: mockTrustLevel,
+    });
+  }),
+
   // ============================================================
   // COMMUNICATION ENDPOINTS
   // ============================================================
@@ -198,13 +223,23 @@ export const handlers = [
     return HttpResponse.json({
       success: true,
       data: mockMessages,
+      pagination: {
+        page: 1,
+        limit: 10,
+        total: mockMessages.length,
+        totalPages: 1,
+      },
     });
   }),
 
-  http.post(`${API_BASE_URL}/matches/:matchId/messages`, () => {
+  http.post(`${API_BASE_URL}/matches/:matchId/messages`, async ({ request }) => {
+    const body = await request.json();
     return HttpResponse.json({
       success: true,
-      data: mockMessages[0],
+      data: {
+        ...mockMessages[0],
+        content: body.content || 'Hello',
+      },
     });
   }),
 
@@ -223,23 +258,94 @@ export const handlers = [
   // ADMIN ENDPOINTS
   // ============================================================
 
+  http.get(`${API_BASE_URL}/admin/exchanges`, () => {
+    return HttpResponse.json({
+      data: mockExchangeRequests,
+      total: mockExchangeRequests.length,
+    });
+  }),
+
+  http.get(`${API_BASE_URL}/admin/exchanges/:id`, ({ params }) => {
+    const request = mockExchangeRequests.find(r => r.id === Number(params.id));
+    if (!request) {
+      return HttpResponse.json(
+        { error: 'Not found' },
+        { status: 404 }
+      );
+    }
+    return HttpResponse.json({
+      data: request,
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/admin/exchanges/:id/approve`, () => {
+    return HttpResponse.json({
+      data: { ...mockExchangeRequest, status: 'APPROVED' },
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/admin/exchanges/:id/reject`, () => {
+    return HttpResponse.json({
+      data: { ...mockExchangeRequest, status: 'REJECTED' },
+    });
+  }),
+
   http.get(`${API_BASE_URL}/admin/proofs/pending`, () => {
     return HttpResponse.json({
-      success: true,
       data: mockProofsOfPayment,
-      pagination: {
-        page: 1,
-        limit: 10,
-        total: 2,
-        totalPages: 1,
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/admin/proofs/:id/approve`, () => {
+    return HttpResponse.json({
+      data: { ...mockProofOfPayment, status: 'APPROVED' },
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/admin/proofs/:id/reject`, () => {
+    return HttpResponse.json({
+      data: { ...mockProofOfPayment, status: 'REJECTED' },
+    });
+  }),
+
+  http.get(`${API_BASE_URL}/admin/disputes`, () => {
+    return HttpResponse.json({
+      data: [
+        { id: 'dispute-1', status: 'OPEN' },
+        { id: 'dispute-2', status: 'OPEN' },
+      ],
+    });
+  }),
+
+  http.post(`${API_BASE_URL}/admin/disputes/:id/resolve`, () => {
+    return HttpResponse.json({
+      data: { id: 'dispute-1', status: 'RESOLVED' },
+    });
+  }),
+
+  http.get(`${API_BASE_URL}/admin/stats/dashboard`, () => {
+    return HttpResponse.json({
+      data: {
+        totalExchanges: 100,
+        activeExchanges: 25,
+        pendingExchanges: 10,
+        completedExchanges: 60,
+        disputedExchanges: 5,
       },
     });
   }),
 
-  http.post(`${API_BASE_URL}/admin/proofs/:id/verify`, () => {
+  http.get(`${API_BASE_URL}/admin/exchanges/export/csv`, () => {
+    return new HttpResponse('id,status,amount\n1,ACTIVE,100', {
+      headers: {
+        'Content-Type': 'text/csv',
+      },
+    });
+  }),
+
+  http.get(`${API_BASE_URL}/admin/exchanges/export/json`, () => {
     return HttpResponse.json({
-      success: true,
-      data: mockProofOfPayment,
+      data: mockExchangeRequests,
     });
   }),
 

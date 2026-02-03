@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 // Import routes
 import auctionRoutes from './routes/auction.routes';
 import bidRoutes from './routes/bid.routes';
+import realtimeBidRoutes, { setSocketIO as setRealtimeBidSocketIO } from './routes/realtime-bid.routes';
 import webhookRoutes from './routes/webhook.routes';
 import disputeRoutes from './routes/dispute.routes';
 import bidDisputeRoutes from './routes/bid-dispute.routes';
@@ -49,6 +50,7 @@ const PORT = process.env.PORT || 3003;
 
 // Inject socket.io into bid controller for real-time updates
 setSocketIO(io);
+setRealtimeBidSocketIO(io);
 
 // ============================================================
 // MIDDLEWARE
@@ -69,6 +71,9 @@ app.get('/health', (_req: express.Request, res: express.Response) => {
     service: 'auction-service',
     timestamp: new Date().toISOString(),
     features: [
+      'Real-Time Bidding (Project #6)',
+      'Anti-Sniping Algorithm',
+      'WebSocket Notifications',
       'Auto-Extend',
       'Proxy Bidding',
       'Outbid Webhooks',
@@ -92,6 +97,7 @@ app.get('/health', (_req: express.Request, res: express.Response) => {
 
 // Phase 5.1-5.2: Core auction & bidding
 app.use('/api/auctions', auctionRoutes);
+app.use('/api/auctions', realtimeBidRoutes); // Real-time bidding
 app.use('/api/bids', bidRoutes);
 app.use('/api/webhooks/auctions', webhookRoutes);
 

@@ -42,9 +42,9 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
+    <div className="bg-white rounded-lg shadow-lg max-w-4xl mx-auto" data-testid="admin-proof-verification">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between" data-testid="verification-header">
         <div>
           <h2 className="text-xl font-bold text-gray-900">مراجعة إثبات الدفع</h2>
           <p className="text-sm text-gray-500 mt-1">
@@ -54,6 +54,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
         {onClose && (
           <button
             onClick={onClose}
+            data-testid="close-verification-button"
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,10 +71,10 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
 
       <div className="p-6 space-y-6">
         {/* Proof Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" data-testid="proof-information">
           {/* Left Column - Details */}
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4" data-testid="proof-details">
+            <div data-testid="proof-info-section">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">
                 معلومات الإثبات
               </h3>
@@ -96,7 +97,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
             </div>
 
             {/* Transaction Details */}
-            <div>
+            <div data-testid="transaction-details-section">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">
                 تفاصيل المعاملة
               </h3>
@@ -119,7 +120,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
           </div>
 
           {/* Right Column - Image */}
-          <div>
+          <div data-testid="proof-image-section">
             <h3 className="text-sm font-semibold text-gray-700 mb-3">
               صورة الإثبات
             </h3>
@@ -127,11 +128,13 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
               <img
                 src={proof.imageUrl}
                 alt="إثبات الدفع"
+                data-testid="proof-image"
                 className="w-full h-64 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => setShowImageModal(true)}
               />
               <button
                 onClick={() => setShowImageModal(true)}
+                data-testid="zoom-image-button"
                 className="absolute top-2 right-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-lg p-2 transition-all"
               >
                 <svg
@@ -156,13 +159,14 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
         </div>
 
         {/* Decision Section */}
-        <div className="border-t border-gray-200 pt-6">
+        <div className="border-t border-gray-200 pt-6" data-testid="decision-section">
           <h3 className="text-sm font-semibold text-gray-700 mb-4">القرار</h3>
 
           {/* Decision Buttons */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-4 mb-4" data-testid="decision-buttons">
             <button
               onClick={() => setDecision('approve')}
+              data-testid="approve-button"
               className={`flex-1 py-3 rounded-lg font-medium transition-all ${
                 decision === 'approve'
                   ? 'bg-green-600 text-white shadow-lg'
@@ -183,6 +187,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
 
             <button
               onClick={() => setDecision('reject')}
+              data-testid="reject-button"
               className={`flex-1 py-3 rounded-lg font-medium transition-all ${
                 decision === 'reject'
                   ? 'bg-red-600 text-white shadow-lg'
@@ -204,13 +209,14 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
 
           {/* Rejection Reason (shown only when reject is selected) */}
           {decision === 'reject' && (
-            <div className="mb-4">
+            <div className="mb-4" data-testid="rejection-reason-section">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 سبب الرفض <span className="text-red-600">*</span>
               </label>
               <select
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
+                data-testid="rejection-reason-select"
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="">اختر السبب</option>
@@ -226,13 +232,14 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
           )}
 
           {/* Admin Notes */}
-          <div>
+          <div data-testid="admin-notes-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               ملاحظات المشرف (اختياري)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              data-testid="admin-notes-textarea"
               rows={3}
               placeholder="أضف أي ملاحظات إضافية..."
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -241,11 +248,12 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <div className="flex gap-3 pt-4 border-t border-gray-200" data-testid="action-buttons">
           {onClose && (
             <button
               onClick={onClose}
               disabled={verifyMutation.isPending}
+              data-testid="cancel-button"
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               إلغاء
@@ -254,6 +262,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
           <button
             onClick={handleSubmit}
             disabled={!decision || verifyMutation.isPending}
+            data-testid="confirm-decision-button"
             className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {verifyMutation.isPending ? (
@@ -269,7 +278,7 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
 
         {/* Error Message */}
         {verifyMutation.isError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3" data-testid="error-message">
             <svg
               className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
               fill="currentColor"
@@ -295,17 +304,20 @@ export function AdminProofVerification({ proof, onClose }: AdminProofVerificatio
       {showImageModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          data-testid="image-modal"
           onClick={() => setShowImageModal(false)}
         >
           <div className="relative max-w-4xl max-h-full">
             <img
               src={proof.imageUrl}
               alt="إثبات الدفع"
+              data-testid="modal-image"
               className="max-w-full max-h-[90vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={() => setShowImageModal(false)}
+              data-testid="close-modal-button"
               className="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-2 transition-all"
             >
               <svg

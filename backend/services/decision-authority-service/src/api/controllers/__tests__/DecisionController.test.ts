@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { PrismaClient, AssetType, DecisionStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { DecisionController } from '../DecisionController';
 import { DecisionAuthorityService } from '../../../services/DecisionAuthorityService';
 import { 
@@ -7,6 +7,7 @@ import {
   InvalidDecisionStateError, 
   ValidationError 
 } from '../../../utils/errors';
+import { AssetType, DecisionStatus } from '../../../interfaces/IDecisionSource';
 
 // Mock DecisionAuthorityService
 jest.mock('../../../services/DecisionAuthorityService');

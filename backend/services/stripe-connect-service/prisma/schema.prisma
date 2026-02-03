@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ConnectedAccount {
+  id                String   @id @default(uuid())
+  userId            Int      @unique
+  stripeAccountId   String   @unique
+  accountType       String   @default("standard") // standard, express, custom
+  
+  // Onboarding status
+  onboardingStatus  String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  detailsSubmitted  Boolean  @default(false)
+  chargesEnabled    Boolean  @default(false)
+  payoutsEnabled    Boolean  @default(false)
+  
+  // Account info
+  email             String?
+  businessType      String?  // individual, company
+  country           String?
+  currency          String?  @default("USD")
+  
+  // Capabilities
+  cardPayments      String?  // active, inactive, pending
+  transfers         String?  // active, inactive, pending
+  
+  // Metadata
+  metadata          Json?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  payouts           Payout[]
+  transfers         Transfer[]
+  
+  @@index([userId])
+  @@index([stripeAccountId])
+  @@index([onboardingStatus])
+  @@map("connected_accounts")
+}
+
+model Payout {
+  id                String   @id @default(uuid())
+  connectedAccountId String
+  stripePayoutId    String   @unique
+  
+  // Payout details
+  amount            Decimal  @db.Decimal(10, 2)
+  currency          String   @default("USD")
+  status            String   // pending, paid, failed, canceled
+  
+  // Timing
+  arrivalDate       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  connectedAccount  ConnectedAccount @relation(fields: [connectedAccountId], references: [id])
+  
+  @@index([connectedAccountId])
+  @@index([status])
+  @@map("payouts")
+}
+
+model Transfer {
+  id                String   @id @default(uuid())
+  connectedAccountId String
+  stripeTransferId  String   @unique
+  
+  // Transfer details
+  amount            Decimal  @db.Decimal(10, 2)
+  currency          String   @default("USD")
+  description       String?
+  
+  // Source
+  sourceTransaction String?  // Charge or payment intent ID
+  
+  // Status
+  status            String   // pending, paid, failed, canceled, reversed
+  
+  // Metadata
+  metadata          Json?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  connectedAccount  ConnectedAccount @relation(fields: [connectedAccountId], references: [id])
+  
+  @@index([connectedAccountId])
+  @@index([status])
+  @@map("transfers")
+}

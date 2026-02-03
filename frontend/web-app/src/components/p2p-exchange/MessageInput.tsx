@@ -71,10 +71,10 @@ export function MessageInput({
   const showCharCount = content.length > maxLength * 0.8;
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
+    <div className="border-t border-gray-200 bg-white p-4" data-testid="message-input">
       {/* Error message */}
       {error && (
-        <div className="mb-3 flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+        <div className="mb-3 flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2" data-testid="error-message">
           <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -87,7 +87,7 @@ export function MessageInput({
       )}
 
       {/* Input area */}
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-2" data-testid="input-area">
         <div className="flex-1 relative">
           <textarea
             ref={textareaRef}
@@ -100,6 +100,7 @@ export function MessageInput({
             rows={1}
             className="w-full resize-none rounded-lg border border-gray-300 px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
             style={{ maxHeight: '120px' }}
+            data-testid="message-textarea"
           />
 
           {/* Character count */}
@@ -108,6 +109,7 @@ export function MessageInput({
               className={`absolute bottom-2 left-2 text-xs ${
                 remainingChars < 0 ? 'text-red-600' : 'text-gray-400'
               }`}
+              data-testid="char-count"
             >
               {remainingChars}
             </div>
@@ -119,6 +121,7 @@ export function MessageInput({
           onClick={handleSend}
           disabled={isDisabled || !content.trim()}
           className="flex-shrink-0 bg-primary-600 text-white rounded-lg px-6 py-2 font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          data-testid="send-button"
         >
           {isSending ? (
             <div className="flex items-center gap-2">
@@ -147,12 +150,12 @@ export function MessageInput({
       </div>
 
       {/* Helper text */}
-      <p className="mt-2 text-xs text-gray-500">
+      <p className="mt-2 text-xs text-gray-500" data-testid="helper-text">
         اضغط Enter للإرسال، Shift+Enter لسطر جديد
       </p>
 
       {/* Security warning */}
-      <div className="mt-3 flex items-start gap-2 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">
+      <div className="mt-3 flex items-start gap-2 text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2" data-testid="security-warning">
         <svg
           className="w-4 h-4 flex-shrink-0 mt-0.5"
           fill="currentColor"

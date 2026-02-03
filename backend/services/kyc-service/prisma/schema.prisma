@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model KYCVerification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  
+  // Document info
+  idType    String   // "passport", "national_id", "driver_license"
+  idNumber  String
+  fullName  String
+  
+  // Images (stored as file paths or URLs)
+  idPhotoPath     String
+  selfiePhotoPath String
+  
+  // Verification results
+  status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  ocrText          String?
+  ocrMatch         Boolean?
+  faceMatch        Boolean?
+  faceConfidence   Float?
+  faceDistance     Float?
+  
+  // Admin review
+  reviewedBy       Int?
+  reviewedAt       DateTime?
+  rejectionReason  String?
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@map("kyc_verifications")
+}

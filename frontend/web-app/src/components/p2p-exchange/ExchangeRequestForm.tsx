@@ -82,14 +82,23 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form 
+      onSubmit={handleSubmit(onSubmit)} 
+      className="space-y-6"
+      data-testid="exchange-request-form"
+    >
       {/* From Currency & Amount */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="from-currency"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             From Currency
           </label>
           <select
+            id="from-currency"
+            data-testid="from-currency-select"
             {...register('fromCurrency')}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
@@ -102,15 +111,22 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
             <option value="GBP">GBP</option>
           </select>
           {errors.fromCurrency && (
-            <p className="mt-1 text-sm text-red-600">{errors.fromCurrency.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="from-currency-error">
+              {errors.fromCurrency.message}
+            </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="from-amount"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             From Amount
           </label>
           <input
+            id="from-amount"
+            data-testid="from-amount-input"
             type="number"
             step="0.01"
             {...register('fromAmount', { valueAsNumber: true })}
@@ -118,7 +134,9 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
             placeholder="0.00"
           />
           {errors.fromAmount && (
-            <p className="mt-1 text-sm text-red-600">{errors.fromAmount.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="from-amount-error">
+              {errors.fromAmount.message}
+            </p>
           )}
         </div>
       </div>
@@ -126,10 +144,15 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
       {/* To Currency & Amount */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="to-currency"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             To Currency
           </label>
           <select
+            id="to-currency"
+            data-testid="to-currency-select"
             {...register('toCurrency')}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
@@ -142,15 +165,22 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
             <option value="GBP">GBP</option>
           </select>
           {errors.toCurrency && (
-            <p className="mt-1 text-sm text-red-600">{errors.toCurrency.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="to-currency-error">
+              {errors.toCurrency.message}
+            </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="to-amount"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             To Amount
           </label>
           <input
+            id="to-amount"
+            data-testid="to-amount-input"
             type="number"
             step="0.01"
             {...register('toAmount', { valueAsNumber: true })}
@@ -158,17 +188,24 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
             placeholder="0.00"
           />
           {errors.toAmount && (
-            <p className="mt-1 text-sm text-red-600">{errors.toAmount.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="to-amount-error">
+              {errors.toAmount.message}
+            </p>
           )}
         </div>
       </div>
 
       {/* Desired Rate (Auto-calculated) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label 
+          htmlFor="desired-rate"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Exchange Rate
         </label>
         <input
+          id="desired-rate"
+          data-testid="desired-rate-input"
           type="number"
           step="0.0001"
           {...register('desiredRate', { valueAsNumber: true })}
@@ -177,25 +214,35 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
           readOnly
         />
         {errors.desiredRate && (
-          <p className="mt-1 text-sm text-red-600">{errors.desiredRate.message}</p>
+          <p className="mt-1 text-sm text-red-600" data-testid="desired-rate-error">
+            {errors.desiredRate.message}
+          </p>
         )}
       </div>
 
       {/* External Escrow Option */}
       <div className="flex items-center">
         <input
+          id="use-external-escrow"
+          data-testid="use-external-escrow-checkbox"
           type="checkbox"
           {...register('useExternalEscrow')}
           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
         />
-        <label className="ml-2 block text-sm text-gray-700">
+        <label 
+          htmlFor="use-external-escrow"
+          className="ml-2 block text-sm text-gray-700"
+        >
           Use external escrow (additional fees may apply)
         </label>
       </div>
 
       {/* Error Message */}
       {createRequest.isError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div 
+          className="p-4 bg-red-50 border border-red-200 rounded-lg"
+          data-testid="form-error-message"
+        >
           <p className="text-sm text-red-600">
             Failed to create exchange request. Please try again.
           </p>
@@ -206,6 +253,7 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
       <div className="flex gap-4">
         <button
           type="submit"
+          data-testid="submit-button"
           disabled={isSubmitting || createRequest.isPending}
           className="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -215,6 +263,7 @@ export const ExchangeRequestForm: React.FC<ExchangeRequestFormProps> = ({
         {onCancel && (
           <button
             type="button"
+            data-testid="cancel-button"
             onClick={onCancel}
             className="px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
           >

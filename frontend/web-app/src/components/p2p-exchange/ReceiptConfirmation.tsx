@@ -66,11 +66,11 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
   // ============================================================
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-testid="receipt-confirmation">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Confirm Receipt of Payment</h2>
 
       {/* Payment Summary */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6" data-testid="payment-summary">
         <h3 className="text-lg font-semibold text-green-900 mb-3">Payment Details</h3>
         <div className="space-y-2">
           <div className="flex justify-between">
@@ -96,10 +96,11 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
 
       {/* Proof of Payment */}
       {(proofPhotoUrl || proofVideoUrl) && (
-        <div className="mb-6">
+        <div className="mb-6" data-testid="proof-section">
           <button
             onClick={() => setShowProof(!showProof)}
             className="flex items-center justify-between w-full p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+            data-testid="view-proof-button"
           >
             <span className="text-blue-900 font-medium">View Proof of Payment</span>
             <svg
@@ -113,23 +114,25 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
           </button>
 
           {showProof && (
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-4" data-testid="proof-content">
               {proofPhotoUrl && (
-                <div>
+                <div data-testid="proof-photo-section">
                   <p className="text-sm font-medium text-gray-700 mb-2">Payment Receipt Photo</p>
                   <img
                     src={proofPhotoUrl}
                     alt="Payment receipt"
+                    data-testid="proof-photo"
                     className="w-full h-auto rounded-lg border border-gray-300"
                   />
                 </div>
               )}
               {proofVideoUrl && (
-                <div>
+                <div data-testid="proof-video-section">
                   <p className="text-sm font-medium text-gray-700 mb-2">Payment Video</p>
                   <video
                     src={proofVideoUrl}
                     controls
+                    data-testid="proof-video"
                     className="w-full h-auto rounded-lg border border-gray-300"
                   />
                 </div>
@@ -140,7 +143,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
       )}
 
       {/* Instructions */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6" data-testid="instructions-section">
         <h3 className="text-lg font-semibold text-yellow-900 mb-3">Before Confirming</h3>
         <ul className="list-disc list-inside space-y-2 text-yellow-800">
           <li>Verify that you have received the full payment amount</li>
@@ -152,7 +155,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
       </div>
 
       {/* Warning */}
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6" data-testid="warning-section">
         <div className="flex items-start space-x-3">
           <svg
             className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5"
@@ -184,6 +187,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
             type="checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
+            data-testid="receipt-confirmation-checkbox"
             className="mt-1 h-5 w-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
           />
           <span className="text-sm text-gray-700">
@@ -198,7 +202,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
 
       {/* Error Message */}
       {confirmReceipt.isError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6" data-testid="error-message">
           <p className="text-red-800">
             Error: {confirmReceipt.error instanceof Error ? confirmReceipt.error.message : 'Failed to confirm receipt'}
           </p>
@@ -210,6 +214,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
         <button
           onClick={handleConfirm}
           disabled={!confirmed || confirmReceipt.isPending}
+          data-testid="confirm-receipt-button"
           className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
             confirmed && !confirmReceipt.isPending
               ? 'bg-green-600 text-white hover:bg-green-700'
@@ -232,6 +237,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
           <button
             onClick={onCancel}
             disabled={confirmReceipt.isPending}
+            data-testid="cancel-receipt-button"
             className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
           >
             Cancel
@@ -241,7 +247,7 @@ export const ReceiptConfirmation: React.FC<ReceiptConfirmationProps> = ({
 
       {/* Success Message */}
       {confirmReceipt.isSuccess && (
-        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4" data-testid="success-message">
           <div className="flex items-start space-x-3">
             <svg
               className="h-6 w-6 text-green-600 flex-shrink-0 mt-0.5"

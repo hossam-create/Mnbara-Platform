@@ -36,9 +36,15 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
     match.status === 'EXPIRED';
 
   return (
-    <div className={`flex flex-col h-full bg-white rounded-lg shadow ${className}`}>
+    <div 
+      className={`flex flex-col h-full bg-white rounded-lg shadow ${className}`}
+      data-testid="match-chat"
+    >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+      <div 
+        className="flex items-center justify-between border-b border-gray-200 px-4 py-3"
+        data-testid="match-chat-header"
+      >
         <div className="flex items-center gap-3">
           <div className="bg-primary-100 rounded-full p-2">
             <svg
@@ -57,7 +63,7 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">محادثة التبادل</h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500" data-testid="message-count">
               {messages.length} {messages.length === 1 ? 'رسالة' : 'رسائل'}
             </p>
           </div>
@@ -67,6 +73,7 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
         <button
           onClick={() => refetch()}
           disabled={isLoading}
+          data-testid="refresh-messages-button"
           className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
           title="تحديث الرسائل"
         >
@@ -88,7 +95,10 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
 
       {/* External contact warning */}
       {hasExternalContact && showWarning && (
-        <div className="mx-4 mt-4 flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+        <div 
+          className="mx-4 mt-4 flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
+          data-testid="external-contact-warning"
+        >
           <svg
             className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
             fill="currentColor"
@@ -110,6 +120,7 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
           </div>
           <button
             onClick={() => setShowWarning(false)}
+            data-testid="close-warning-button"
             className="text-red-400 hover:text-red-600"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -125,7 +136,10 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
 
       {/* Flagged messages warning */}
       {flaggedMessages.length > 0 && (
-        <div className="mx-4 mt-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+        <div 
+          className="mx-4 mt-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3"
+          data-testid="flagged-messages-warning"
+        >
           <svg
             className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5"
             fill="currentColor"
@@ -149,7 +163,10 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
 
       {/* Chat disabled notice */}
       {isChatDisabled && (
-        <div className="mx-4 mt-4 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+        <div 
+          className="mx-4 mt-4 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3"
+          data-testid="chat-disabled-notice"
+        >
           <svg
             className="w-6 h-6 text-gray-400 flex-shrink-0"
             fill="none"
@@ -171,7 +188,10 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
 
       {/* Error message */}
       {error && (
-        <div className="mx-4 mt-4 flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+        <div 
+          className="mx-4 mt-4 flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
+          data-testid="chat-error-message"
+        >
           <svg
             className="w-6 h-6 text-red-600 flex-shrink-0"
             fill="currentColor"
@@ -189,6 +209,7 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
             </p>
             <button
               onClick={() => refetch()}
+              data-testid="retry-load-messages-button"
               className="text-sm text-red-600 hover:text-red-800 font-medium mt-1"
             >
               حاول مرة أخرى
@@ -198,7 +219,10 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
       )}
 
       {/* Messages list */}
-      <div className="flex-1 overflow-hidden">
+      <div 
+        className="flex-1 overflow-hidden"
+        data-testid="messages-container"
+      >
         <MessageList
           messages={messages}
           currentUserId={currentUserId}
@@ -208,13 +232,15 @@ export function MatchChat({ match, currentUserId, className = '' }: MatchChatPro
 
       {/* Message input */}
       {!isChatDisabled && (
-        <MessageInput
-          onSend={sendMessage}
-          isSending={isSending}
-          disabled={isChatDisabled}
-          placeholder="اكتب رسالتك هنا..."
-          maxLength={1000}
-        />
+        <div data-testid="message-input-container">
+          <MessageInput
+            onSend={sendMessage}
+            isSending={isSending}
+            disabled={isChatDisabled}
+            placeholder="اكتب رسالتك هنا..."
+            maxLength={1000}
+          />
+        </div>
       )}
     </div>
   );

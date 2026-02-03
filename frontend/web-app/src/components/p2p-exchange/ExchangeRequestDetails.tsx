@@ -48,7 +48,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex justify-center items-center py-12" data-testid="exchange-request-details-loading">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -57,7 +57,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
   // Error state
   if (isError || !data?.data) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg" data-testid="exchange-request-details-error">
         <p className="text-red-600">Failed to load request details.</p>
       </div>
     );
@@ -67,15 +67,15 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
   const canCancel = request.status === ExchangeStatus.OPEN;
 
   return (
-    <div className="bg-white rounded-lg shadow-lg">
+    <div className="bg-white rounded-lg shadow-lg" data-testid="exchange-request-details">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200" data-testid="details-header">
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">
               Exchange Request #{request.id}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-gray-500 mt-1" data-testid="created-at">
               Created {new Date(request.createdAt).toLocaleString()}
             </p>
           </div>
@@ -83,6 +83,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
+              data-testid="close-button"
             >
               <svg
                 className="w-6 h-6"
@@ -103,9 +104,9 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6" data-testid="details-content">
         {/* Status */}
-        <div>
+        <div data-testid="status-section">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Status
           </label>
@@ -117,14 +118,15 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
                 ? 'bg-gray-100 text-gray-800'
                 : 'bg-blue-100 text-blue-800'
             }`}
+            data-testid="status-badge"
           >
             {request.status}
           </span>
         </div>
 
         {/* Exchange Details */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
+        <div className="grid grid-cols-2 gap-6" data-testid="exchange-details">
+          <div data-testid="from-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               From
             </label>
@@ -136,7 +138,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
             </div>
           </div>
 
-          <div>
+          <div data-testid="to-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               To
             </label>
@@ -150,8 +152,8 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
         </div>
 
         {/* Rate & Fees */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
+        <div className="grid grid-cols-2 gap-6" data-testid="rate-fees-section">
+          <div data-testid="rate-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Exchange Rate
             </label>
@@ -160,7 +162,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
             </p>
           </div>
 
-          <div>
+          <div data-testid="fee-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Platform Fee
             </label>
@@ -171,8 +173,8 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
         </div>
 
         {/* Security & Trust */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
+        <div className="grid grid-cols-2 gap-6" data-testid="security-trust-section">
+          <div data-testid="deposit-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Security Deposit
             </label>
@@ -181,7 +183,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
             </p>
           </div>
 
-          <div>
+          <div data-testid="trust-level-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Trust Level
             </label>
@@ -192,7 +194,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
         </div>
 
         {/* Escrow Type */}
-        <div>
+        <div data-testid="escrow-section">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Escrow Type
           </label>
@@ -202,7 +204,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
         </div>
 
         {/* Expiration */}
-        <div>
+        <div data-testid="expiration-section">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Expires At
           </label>
@@ -213,7 +215,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
 
         {/* Matched/Completed Timestamps */}
         {request.matchedAt && (
-          <div>
+          <div data-testid="matched-at-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Matched At
             </label>
@@ -224,7 +226,7 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
         )}
 
         {request.completedAt && (
-          <div>
+          <div data-testid="completed-at-section">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Completed At
             </label>
@@ -237,11 +239,12 @@ export const ExchangeRequestDetails: React.FC<ExchangeRequestDetailsProps> = ({
 
       {/* Actions */}
       {canCancel && (
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-200" data-testid="actions-section">
           <button
             onClick={handleCancel}
             disabled={cancelRequest.isPending}
             className="w-full px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="cancel-request-button"
           >
             {cancelRequest.isPending ? 'Cancelling...' : 'Cancel Request'}
           </button>

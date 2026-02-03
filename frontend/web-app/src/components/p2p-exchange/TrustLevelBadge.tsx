@@ -67,42 +67,44 @@ export const TrustLevelBadge: React.FC<TrustLevelBadgeProps> = ({
   // ============================================================
 
   return (
-    <div className="inline-flex flex-col items-start">
+    <div className="inline-flex flex-col items-start" data-testid="trust-level-badge">
       <div
         className={`inline-flex items-center space-x-2 rounded-full border-2 font-semibold ${getLevelColor(
           displayLevel
         )} ${getSizeClasses()}`}
+        data-testid="trust-level-badge-content"
       >
         <svg
           className={`${size === 'sm' ? 'h-3 w-3' : size === 'lg' ? 'h-5 w-5' : 'h-4 w-4'}`}
           fill="currentColor"
           viewBox="0 0 20 20"
+          data-testid="trust-level-icon"
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
-        <span>
+        <span data-testid="trust-level-text">
           Level {displayLevel} - {getLevelLabel(displayLevel)}
         </span>
       </div>
 
       {showDetails && trustLevel && (
-        <div className="mt-2 text-xs text-gray-600 space-y-1">
-          <div className="flex items-center space-x-2">
+        <div className="mt-2 text-xs text-gray-600 space-y-1" data-testid="trust-level-details">
+          <div className="flex items-center space-x-2" data-testid="max-transaction-detail">
             <span className="font-medium">Max Transaction:</span>
-            <span>{trustLevel.maxTransactionAmount}</span>
+            <span data-testid="max-transaction-amount">{trustLevel.maxTransactionAmount}</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2" data-testid="successful-exchanges-detail">
             <span className="font-medium">Successful Exchanges:</span>
-            <span>{trustLevel.successfulExchanges}</span>
+            <span data-testid="successful-exchanges-count">{trustLevel.successfulExchanges}</span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2" data-testid="total-volume-detail">
             <span className="font-medium">Total Volume:</span>
-            <span>{trustLevel.totalVolume}</span>
+            <span data-testid="total-volume-amount">{trustLevel.totalVolume}</span>
           </div>
           {trustLevel.disputeCount > 0 && (
-            <div className="flex items-center space-x-2 text-red-600">
+            <div className="flex items-center space-x-2 text-red-600" data-testid="disputes-detail">
               <span className="font-medium">Disputes:</span>
-              <span>{trustLevel.disputeCount}</span>
+              <span data-testid="disputes-count">{trustLevel.disputeCount}</span>
             </div>
           )}
         </div>

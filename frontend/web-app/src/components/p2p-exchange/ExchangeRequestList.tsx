@@ -48,6 +48,7 @@ const StatusBadge: React.FC<{ status: ExchangeStatus }> = ({ status }) => {
       className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
         status
       )}`}
+      data-testid={`status-badge-${status}`}
     >
       {status}
     </span>
@@ -66,6 +67,7 @@ const RequestCard: React.FC<{
     <div
       onClick={onClick}
       className="p-6 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+      data-testid={`request-card-${request.id}`}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
@@ -73,7 +75,7 @@ const RequestCard: React.FC<{
           <h3 className="text-lg font-semibold text-gray-900">
             {request.fromCurrency} → {request.toCurrency}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500" data-testid={`request-id-${request.id}`}>
             Request #{request.id}
           </p>
         </div>
@@ -81,14 +83,14 @@ const RequestCard: React.FC<{
       </div>
 
       {/* Amounts */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
+      <div className="grid grid-cols-2 gap-4 mb-4" data-testid={`amounts-${request.id}`}>
+        <div data-testid={`from-amount-${request.id}`}>
           <p className="text-sm text-gray-500">From Amount</p>
           <p className="text-lg font-semibold text-gray-900">
             {parseFloat(request.fromAmount).toFixed(2)} {request.fromCurrency}
           </p>
         </div>
-        <div>
+        <div data-testid={`to-amount-${request.id}`}>
           <p className="text-sm text-gray-500">To Amount</p>
           <p className="text-lg font-semibold text-gray-900">
             {parseFloat(request.toAmount).toFixed(2)} {request.toCurrency}
@@ -97,14 +99,14 @@ const RequestCard: React.FC<{
       </div>
 
       {/* Rate & Trust */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
+      <div className="grid grid-cols-2 gap-4 mb-4" data-testid={`rate-trust-${request.id}`}>
+        <div data-testid={`rate-${request.id}`}>
           <p className="text-sm text-gray-500">Exchange Rate</p>
           <p className="text-sm font-medium text-gray-900">
             {parseFloat(request.desiredRate).toFixed(4)}
           </p>
         </div>
-        <div>
+        <div data-testid={`trust-level-${request.id}`}>
           <p className="text-sm text-gray-500">Trust Level</p>
           <p className="text-sm font-medium text-gray-900">
             Level {request.trustLevel}
@@ -113,12 +115,12 @@ const RequestCard: React.FC<{
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+      <div className="flex justify-between items-center pt-4 border-t border-gray-200" data-testid={`footer-${request.id}`}>
         <div className="text-sm text-gray-500">
           Created {new Date(request.createdAt).toLocaleDateString()}
         </div>
         {request.useExternalEscrow && (
-          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded" data-testid={`escrow-badge-${request.id}`}>
             External Escrow
           </span>
         )}
@@ -155,7 +157,7 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center py-12">
+      <div className="flex justify-center items-center py-12" data-testid="exchange-request-list-loading">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -164,7 +166,7 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
   // Error state
   if (isError) {
     return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg" data-testid="exchange-request-list-error">
         <p className="text-red-600">
           Failed to load exchange requests. Please try again.
         </p>
@@ -175,9 +177,9 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
   const requests = data?.data || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="exchange-request-list">
       {/* Status Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-2" data-testid="status-filter">
         {['ALL', ...Object.values(ExchangeStatus)].map((status) => (
           <button
             key={status}
@@ -187,6 +189,7 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
+            data-testid={`filter-button-${status}`}
           >
             {status}
           </button>
@@ -195,11 +198,11 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
 
       {/* Request List */}
       {requests.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="empty-state">
           <p className="text-gray-500">No exchange requests found.</p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-4" data-testid="request-cards-container">
           {requests.map((request) => (
             <RequestCard
               key={request.id}
@@ -212,21 +215,23 @@ export const ExchangeRequestList: React.FC<ExchangeRequestListProps> = ({
 
       {/* Pagination */}
       {requests.length > 0 && (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2" data-testid="pagination">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="pagination-prev"
           >
             Previous
           </button>
-          <span className="px-4 py-2 text-gray-700">
+          <span className="px-4 py-2 text-gray-700" data-testid="pagination-info">
             Page {currentPage}
           </span>
           <button
             onClick={() => setCurrentPage((p) => p + 1)}
             disabled={requests.length < 10}
             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            data-testid="pagination-next"
           >
             Next
           </button>

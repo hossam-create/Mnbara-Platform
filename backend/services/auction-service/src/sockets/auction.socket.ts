@@ -11,6 +11,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('auction:subscribe', async (data: { auctionId: string | number }) => {
       const auctionId = String(data.auctionId);
       socket.join(`auction:${auctionId}`);
+      socket.join(`auction-${auctionId}`); // Support new format
       console.log(`User ${socket.id} subscribed to auction ${auctionId}`);
 
       // Send current auction state
@@ -43,6 +44,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('auction:unsubscribe', (data: { auctionId: string | number }) => {
       const auctionId = String(data.auctionId);
       socket.leave(`auction:${auctionId}`);
+      socket.leave(`auction-${auctionId}`); // Support new format
       console.log(`User ${socket.id} unsubscribed from auction ${auctionId}`);
     });
 
@@ -50,6 +52,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('user:subscribe', (data: { userId: string | number }) => {
       const userId = String(data.userId);
       socket.join(`user:${userId}`);
+      socket.join(`user-${userId}`); // Support new format
       console.log(`User ${socket.id} subscribed to user channel ${userId}`);
     });
 
@@ -57,6 +60,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('user:unsubscribe', (data: { userId: string | number }) => {
       const userId = String(data.userId);
       socket.leave(`user:${userId}`);
+      socket.leave(`user-${userId}`); // Support new format
       console.log(`User ${socket.id} unsubscribed from user channel ${userId}`);
     });
 

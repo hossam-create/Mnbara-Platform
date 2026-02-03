@@ -23,6 +23,12 @@ model User {
   enforcementAppeals EnforcementAppeal[]
   appealSubmissions  EnforcementAppealSubmission[]
   
+  // Phase 6.2: Trust Actions
+  trustActions  TrustAction[]
+  
+  // Phase 6.4: Trust Scores
+  trustScore    TrustScore?
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -105,6 +111,9 @@ model Listing {
   // Phase 6.0: Enforcement
   enforcementActions  EnforcementAction[]
   
+  // Phase 6.2: Trust Actions
+  trustActions        TrustAction[]
+  
   // Phase 4: Decision Authority Integration
   dispositionStatus DispositionStatus @default(APPROVED) @map("disposition_status")
   decisionId        Int? @map("decision_id")
@@ -142,6 +151,10 @@ model Bid {
   // Bid status
   status     BidStatus @default(ACTIVE)
   
+  // Phase 6: Real-time auction support
+  idempotencyKey String? @unique  // Prevent duplicate bids
+  isWinning      Boolean @default(false)  // Current winning bid flag
+  
   // Phase 5.2: Dispute relations
   disputes   AuctionDispute[]
   invalidationLogs BidInvalidationLog[]
@@ -155,6 +168,7 @@ model Bid {
   @@index([bidderId])
   @@index([createdAt])
   @@index([status])
+  @@index([isWinning])
 }
 
 // Proxy bid configuration for automatic bidding

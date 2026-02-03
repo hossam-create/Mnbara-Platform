@@ -1,90 +1,68 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import { PrismaClient } from '@prisma/client';
-import escrowRoutes from './routes/escrow.routes';
-import disputeRoutes from './routes/dispute.routes';
-import milestoneRoutes from './routes/milestone.routes';
+// Escrow Service - Main Entry Point
+// Traditional Escrow inspired by Smart Contract logic
 
-const app: Express = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3022;
+import express, { Application } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import escrowRoutes from './routes/escrow.routes';
+import { logger } from './utils/logger';
+
+// Load environment variables
+dotenv.config();
+
+const app: Application = express();
+const PORT = process.env.PORT || 3011;
 
 // Middleware
-app.use(helmet());
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Request logging
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`);
   next();
 });
 
-// Health Check
-app.get('/health', (req: Request, res: Response) => {
-  res.json({ 
-    status: 'healthy', 
-    service: 'escrow-service',
-    features: [
-      'Secure Payment Holding',
-      'Milestone Payments',
-      'Dispute Resolution',
-      'Auto-Release',
-      'Inspection Period'
-    ],
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-// API Routes
+// Routes
 app.use('/api/v1/escrow', escrowRoutes);
-app.use('/api/v1/disputes', disputeRoutes);
-app.use('/api/v1/milestones', milestoneRoutes);
 
-// 404 Handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Escrow Service',
+    version: '1.0.0',
+    description: 'Traditional Escrow inspired by Smart Contract',
+    status: 'running',
+    endpoints: {
+      health: '/api/v1/escrow/health',
+      create: 'POST /api/v1/escrow',
+      get: 'GET /api/v1/escrow/:id',
+      status: 'GET /api/v1/escrow/:id/status',
+      signature: 'POST /api/v1/escrow/:id/signature',
+      lock: 'POST /api/v1/escrow/:id/lock',
+      release: 'POST /api/v1/escrow/:id/release',
+      dispute: 'POST /api/v1/escrow/:id/dispute',
+      resolve: 'POST /api/v1/escrow/:id/resolve'
+    }
+  });
+});
+
+// Error handling
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error('Unhandled error:', err);
+  res.status(500).json({
     success: false,
-    message: 'Route not found',
-    messageAr: 'المسار غير موجود'
+    error: 'Internal server error',
+    message: err.message
   });
 });
 
-// Error Handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    messageAr: 'خطأ في الخادم'
-  });
+// Start server
+app.listen(PORT, () => {
+  logger.info(`🚀 Escrow Service running on port ${PORT}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`💼 Inspired by: SmartContractEscrowSystem`);
 });
 
-// Start Server
-const server = app.listen(PORT, () => {
-  console.log(`🔒 Escrow Service running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`🛡️ Secure Payment Protection Active`);
-});
-
-// Graceful Shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully...');
-  server.close(async () => {
-    await prisma.$disconnect();
-    process.exit(0);
-  });
-});
-
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully...');
-  server.close(async () => {
-    await prisma.$disconnect();
-    process.exit(0);
-  });
-});
-
-export { app, prisma };
+export default app;

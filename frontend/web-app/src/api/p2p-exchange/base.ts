@@ -10,7 +10,7 @@ import type { ApiResponse, ApiError } from '../../types/p2p-exchange.types';
 // API CLIENT CONFIGURATION
 // ============================================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_P2P_EXCHANGE_API_URL || 'http://localhost:3000/api/v1/exchange';
+const API_BASE_URL = process.env.NEXT_PUBLIC_P2P_EXCHANGE_API_URL || 'http://localhost:3001/api';
 
 // Create axios instance with default config
 export const apiClient: AxiosInstance = axios.create({
@@ -61,6 +61,16 @@ apiClient.interceptors.response.use(
         status: response.status,
         data: response.data,
       });
+    }
+
+    // Validate response is JSON
+    if (response.headers['content-type'] && !response.headers['content-type'].includes('application/json')) {
+      const apiError: ApiErrorResponse = {
+        message: 'Invalid response format. Expected JSON.',
+        statusCode: response.status,
+        error: 'INVALID_RESPONSE_FORMAT',
+      };
+      return Promise.reject(apiError);
     }
 
     return response;

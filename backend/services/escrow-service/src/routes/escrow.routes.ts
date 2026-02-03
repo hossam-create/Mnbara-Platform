@@ -1,33 +1,34 @@
+// Escrow Routes
+
 import { Router } from 'express';
-import { escrowController } from '../controllers/escrow.controller';
+import { EscrowController } from '../controllers/escrow.controller';
 
 const router = Router();
+const controller = new EscrowController();
 
-// إنشاء معاملة ضمان - Create escrow
-router.post('/', escrowController.createEscrow);
+// Health check
+router.get('/health', controller.healthCheck.bind(controller));
 
-// حساب الرسوم - Calculate fees
-router.get('/calculate-fees', escrowController.calculateFees);
+// Create escrow
+router.post('/', controller.createEscrow.bind(controller));
 
-// الحصول على معاملة ضمان - Get escrow
-router.get('/:escrowId', escrowController.getEscrow);
+// Get escrow
+router.get('/:id', controller.getEscrow.bind(controller));
 
-// الحصول على معاملات المستخدم - Get user escrows
-router.get('/user/:userId', escrowController.getUserEscrows);
+// Get status
+router.get('/:id/status', controller.getStatus.bind(controller));
 
-// تمويل الضمان - Fund escrow
-router.post('/:escrowId/fund', escrowController.fundEscrow);
+// Add signature
+router.post('/:id/signature', controller.addSignature.bind(controller));
 
-// تأكيد الشحن - Confirm shipping
-router.post('/:escrowId/ship', escrowController.confirmShipping);
+// Lock transaction
+router.post('/:id/lock', controller.lockTransaction.bind(controller));
 
-// تأكيد التسليم - Confirm delivery
-router.post('/:escrowId/deliver', escrowController.confirmDelivery);
+// Release funds
+router.post('/:id/release', controller.releaseTransaction.bind(controller));
 
-// موافقة المشتري - Approve transaction
-router.post('/:escrowId/approve', escrowController.approveTransaction);
-
-// تمديد فترة الفحص - Extend inspection
-router.post('/:escrowId/extend-inspection', escrowController.extendInspection);
+// Dispute management
+router.post('/:id/dispute', controller.initiateDispute.bind(controller));
+router.post('/:id/resolve', controller.resolveDispute.bind(controller));
 
 export default router;

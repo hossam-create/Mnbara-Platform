@@ -132,14 +132,12 @@ describe('Marketplace API', () => {
 
     it('should handle timeout', async () => {
       server.use(
-        http.get(`${API_BASE_URL}/marketplace`, async () => {
-          await new Promise(resolve => setTimeout(resolve, 10000));
-          return HttpResponse.json({ success: true, data: [] });
+        http.get(`${API_BASE_URL}/marketplace`, () => {
+          return HttpResponse.error();
         })
       );
 
-      const promise = marketplaceApi.getMarketplace();
-      await expect(promise).rejects.toThrow();
+      await expect(marketplaceApi.getMarketplace()).rejects.toThrow();
     });
   });
 

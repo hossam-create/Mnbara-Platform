@@ -46,7 +46,7 @@ export function AdminExchangeDashboard() {
   const isLoading = statsLoading || requestsLoading || matchesLoading || proofsLoading;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="admin-exchange-dashboard">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

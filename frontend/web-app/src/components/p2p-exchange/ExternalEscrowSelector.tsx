@@ -3,7 +3,7 @@
 // Select external escrow provider for exchange
 // ============================================================
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useExternalEscrowProviders } from '../../hooks/useSecurity';
 import type { ExternalEscrowProvider, ProviderType } from '../../types/p2p-exchange.types';
 
@@ -146,8 +146,16 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
   // ============================================================
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">External Escrow Provider</h3>
+    <div 
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      data-testid="external-escrow-selector"
+    >
+      <h3 
+        className="text-lg font-semibold text-gray-900 mb-4"
+        data-testid="selector-title"
+      >
+        External Escrow Provider
+      </h3>
 
       {/* No Escrow Option */}
       <div
@@ -157,6 +165,7 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-200 hover:border-gray-300'
         }`}
+        data-testid="no-escrow-option"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -189,10 +198,13 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
 
       {/* Compatible Providers */}
       {compatibleProviders.length > 0 && (
-        <div className="space-y-3 mb-4">
+        <div 
+          className="space-y-3 mb-4"
+          data-testid="compatible-providers"
+        >
           <p className="text-sm font-medium text-gray-700">Available Providers</p>
           {compatibleProviders.map((provider) => (
-            <div key={provider.id}>
+            <div key={provider.id} data-testid={`provider-card-${provider.id}`}>
               <div
                 onClick={() => onSelect(provider)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-colors ${
@@ -200,6 +212,7 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
+                data-testid={`provider-option-${provider.id}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -207,8 +220,18 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
                       {getProviderTypeIcon(provider.type)}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{provider.name}</p>
-                      <p className="text-sm text-gray-500">{provider.type}</p>
+                      <p 
+                        className="font-medium text-gray-900"
+                        data-testid={`provider-name-${provider.id}`}
+                      >
+                        {provider.name}
+                      </p>
+                      <p 
+                        className="text-sm text-gray-500"
+                        data-testid={`provider-type-${provider.id}`}
+                      >
+                        {provider.type}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
@@ -218,11 +241,17 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
                         setShowDetails(showDetails === provider.id ? null : provider.id);
                       }}
                       className="text-sm text-blue-600 hover:text-blue-700"
+                      data-testid={`provider-details-button-${provider.id}`}
                     >
                       {showDetails === provider.id ? 'Hide' : 'Details'}
                     </button>
                     {selectedProviderId === provider.id && (
-                      <svg className="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <svg 
+                        className="h-6 w-6 text-blue-600" 
+                        fill="currentColor" 
+                        viewBox="0 0 20 20"
+                        data-testid={`provider-selected-icon-${provider.id}`}
+                      >
                         <path
                           fillRule="evenodd"
                           d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -234,26 +263,47 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
                 </div>
 
                 {showDetails === provider.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
+                  <div 
+                    className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm"
+                    data-testid={`provider-details-${provider.id}`}
+                  >
                     <div className="flex justify-between">
                       <span className="text-gray-600">Supported Currencies:</span>
-                      <span className="font-medium">{provider.supportedCurrencies.join(', ')}</span>
+                      <span 
+                        className="font-medium"
+                        data-testid={`provider-currencies-${provider.id}`}
+                      >
+                        {provider.supportedCurrencies.join(', ')}
+                      </span>
                     </div>
                     {provider.minAmount && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Min Amount:</span>
-                        <span className="font-medium">{provider.minAmount}</span>
+                        <span 
+                          className="font-medium"
+                          data-testid={`provider-min-amount-${provider.id}`}
+                        >
+                          {provider.minAmount}
+                        </span>
                       </div>
                     )}
                     {provider.maxAmount && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Max Amount:</span>
-                        <span className="font-medium">{provider.maxAmount}</span>
+                        <span 
+                          className="font-medium"
+                          data-testid={`provider-max-amount-${provider.id}`}
+                        >
+                          {provider.maxAmount}
+                        </span>
                       </div>
                     )}
                     <div className="flex justify-between">
                       <span className="text-gray-600">Fee:</span>
-                      <span className="font-medium">
+                      <span 
+                        className="font-medium"
+                        data-testid={`provider-fee-${provider.id}`}
+                      >
                         {provider.feePercentage}%
                         {provider.feeFixed && ` + ${provider.feeFixed}`}
                         {amount && ` (≈ ${calculateFee(provider, amount)})`}
@@ -261,12 +311,22 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Settlement Time:</span>
-                      <span className="font-medium">{provider.settlementTime} hours</span>
+                      <span 
+                        className="font-medium"
+                        data-testid={`provider-settlement-time-${provider.id}`}
+                      >
+                        {provider.settlementTime} hours
+                      </span>
                     </div>
                     {provider.country && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Country:</span>
-                        <span className="font-medium">{provider.country}</span>
+                        <span 
+                          className="font-medium"
+                          data-testid={`provider-country-${provider.id}`}
+                        >
+                          {provider.country}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -279,12 +339,16 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
 
       {/* Incompatible Providers */}
       {incompatibleProviders.length > 0 && (
-        <div className="space-y-3">
+        <div 
+          className="space-y-3"
+          data-testid="incompatible-providers"
+        >
           <p className="text-sm font-medium text-gray-500">Unavailable Providers</p>
           {incompatibleProviders.map((provider) => (
             <div
               key={provider.id}
               className="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 opacity-60"
+              data-testid={`incompatible-provider-${provider.id}`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -307,7 +371,10 @@ export const ExternalEscrowSelector: React.FC<ExternalEscrowSelectorProps> = ({
       )}
 
       {providers.length === 0 && (
-        <div className="text-center py-8">
+        <div 
+          className="text-center py-8"
+          data-testid="no-providers-empty-state"
+        >
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             fill="none"

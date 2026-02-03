@@ -22,14 +22,12 @@
     "dev:payment": "cd backend/services/payment-service && npm run dev"
   },
   "devDependencies": {
+    "@prisma/client": "^5.22.0",
     "@types/node": "^20.10.0",
     "axios": "^1.6.2",
     "concurrently": "^8.2.2",
+    "prisma": "^5.22.0",
     "typescript": "^5.3.3",
     "vitest": "^1.0.4"
-  },
-  "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "prisma": "^7.2.0"
   }
 }

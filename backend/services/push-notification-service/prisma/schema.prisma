@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  platform  Platform
+  provider  Provider
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastUsed  DateTime @default(now())
+  
+  notifications PushNotification[]
+  
+  @@index([userId])
+  @@index([token])
+  @@index([isActive])
+  @@map("device_tokens")
+}
+
+model PushNotification {
+  id              String             @id @default(uuid())
+  deviceTokenId   String
+  userId          String
+  title           String
+  body            String
+  data            Json?
+  imageUrl        String?
+  actionUrl       String?
+  priority        Priority           @default(NORMAL)
+  status          NotificationStatus @default(PENDING)
+  provider        Provider
+  providerMsgId   String?
+  error           String?
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  clickedAt       DateTime?
+  createdAt       DateTime           @default(now())
+  
+  deviceToken DeviceToken @relation(fields: [deviceTokenId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("push_notifications")
+}
+
+model NotificationTemplate {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  title       String
+  body        String
+  data        Json?
+  imageUrl    String?
+  actionUrl   String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("notification_templates")
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  WEB
+}
+
+enum Provider {
+  FCM
+  ONESIGNAL
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  CLICKED
+  FAILED
+}

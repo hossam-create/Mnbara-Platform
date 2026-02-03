@@ -293,3 +293,93 @@ export const mockExternalEscrowProviders: ExternalEscrowProvider[] = [
   mockExternalEscrowProvider,
   mockExternalEscrowProviderSecondary,
 ];
+
+// Alias for backward compatibility
+export const mockMatches = mockExchangeMatches;
+
+
+// ============================================================
+// FACTORY FUNCTIONS FOR CREATING MOCK DATA WITH OVERRIDES
+// ============================================================
+
+/**
+ * Create a mock external escrow provider with optional overrides
+ * @param overrides - Partial provider properties to override
+ * @returns ExternalEscrowProvider with merged properties
+ */
+export const createMockExternalEscrowProvider = (
+  overrides: Partial<ExternalEscrowProvider> = {}
+): ExternalEscrowProvider => ({
+  ...mockExternalEscrowProvider,
+  ...overrides,
+});/**
+ * Create a mock exchange request with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns ExchangeRequest with merged properties
+ */
+export const createMockExchangeRequest = (
+  overrides: Partial<ExchangeRequest> = {}
+): ExchangeRequest => ({
+  ...mockExchangeRequest,
+  ...overrides,
+});
+
+/**
+ * Create a mock exchange match with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns ExchangeMatch with merged properties
+ */
+export const createMockExchangeMatch = (
+  overrides: Partial<ExchangeMatch> = {}
+): ExchangeMatch => ({
+  ...mockExchangeMatch,
+  ...overrides,
+});
+
+/**
+ * Create a mock settlement with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns Settlement with merged properties
+ */
+export const createMockSettlement = (
+  overrides: Partial<Settlement> = {}
+): Settlement => ({
+  ...mockSettlement,
+  ...overrides,
+});
+
+/**
+ * Create a mock proof of payment with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns ProofOfPayment with merged properties
+ */
+export const createMockProofOfPayment = (
+  overrides: Partial<ProofOfPayment> = {}
+): ProofOfPayment => ({
+  ...mockProofOfPayment,
+  ...overrides,
+});
+
+/**
+ * Create a mock security deposit with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns SecurityDeposit with merged properties
+ */
+export const createMockSecurityDeposit = (
+  overrides: Partial<SecurityDeposit> = {}
+): SecurityDeposit => ({
+  ...mockSecurityDeposit,
+  ...overrides,
+});
+
+/**
+ * Create a mock message with optional overrides
+ * @param overrides - Partial properties to override defaults
+ * @returns Message with merged properties
+ */
+export const createMockMessage = (
+  overrides: Partial<Message> = {}
+): Message => ({
+  ...mockMessage,
+  ...overrides,
+});

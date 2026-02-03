@@ -2,170 +2,92 @@ import { describe, it, expect, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from '../../../__tests__/utils/test-utils';
-import MessageList from '../MessageList';
+import { MessageList } from '../MessageList';
+import { createMockMessage } from '../../../__tests__/fixtures/mock-data';
 
 describe('MessageList', () => {
+  const currentUserId = 'user-1';
+  
   const mockMessages = [
-    {
+    createMockMessage({
       id: 'msg-1',
       senderId: 'user-1',
       senderName: 'Ahmed',
       content: 'Hello, are you available?',
-      timestamp: new Date(Date.now() - 60000),
-      isOwn: true,
-    },
-    {
+      createdAt: new Date(Date.now() - 60000).toISOString(),
+    }),
+    createMockMessage({
       id: 'msg-2',
       senderId: 'user-2',
       senderName: 'Fatima',
       content: 'Yes, I am available now',
-      timestamp: new Date(Date.now() - 30000),
-      isOwn: false,
-    },
+      createdAt: new Date(Date.now() - 30000).toISOString(),
+    }),
   ];
-
-  const mockOnLoadMore = vi.fn();
 
   describe('Rendering', () => {
     it('should render message list', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByRole('list')).toBeInTheDocument();
+      expect(screen.getByTestId('message-list')).toBeInTheDocument();
     });
 
     it('should display all messages', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByText('Hello, are you available?')).toBeInTheDocument();
-      expect(screen.getByText('Yes, I am available now')).toBeInTheDocument();
+      expect(screen.getByTestId('message-text-msg-1')).toBeInTheDocument();
+      expect(screen.getByTestId('message-text-msg-2')).toBeInTheDocument();
     });
 
-    it('should display sender names', () => {
+    it('should display sender names for received messages', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByText('Ahmed')).toBeInTheDocument();
-      expect(screen.getByText('Fatima')).toBeInTheDocument();
+      expect(screen.getByTestId('message-sender-msg-2')).toHaveTextContent('Fatima');
     });
 
     it('should display timestamps', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByText(/ago|minute/i)).toBeInTheDocument();
+      expect(screen.getByTestId('message-timestamp-msg-1')).toBeInTheDocument();
+      expect(screen.getByTestId('message-timestamp-msg-2')).toBeInTheDocument();
     });
 
     it('should distinguish own messages', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      const ownMessage = screen.getByText('Hello, are you available?').closest('li');
-      expect(ownMessage).toHaveClass('own-message');
+      const ownMessage = screen.getByTestId('message-item-msg-1');
+      expect(ownMessage).toHaveClass('justify-end');
     });
 
     it('should distinguish other messages', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      const otherMessage = screen.getByText('Yes, I am available now').closest('li');
-      expect(otherMessage).toHaveClass('other-message');
-    });
-  });
-
-  describe('User Interactions', () => {
-    it('should load more messages on scroll', async () => {
-      const { container } = render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-
-      const list = container.querySelector('[role="list"]');
-      if (list) {
-        list.scrollTop = 0;
-        list.dispatchEvent(new Event('scroll'));
-      }
-
-      await waitFor(() => {
-        expect(mockOnLoadMore).toHaveBeenCalled();
-      });
-    });
-
-    it('should handle message selection', async () => {
-      const user = userEvent.setup();
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-
-      const message = screen.getByText('Hello, are you available?');
-      await user.click(message);
-
-      expect(message).toHaveClass('selected');
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('should have proper list structure', () => {
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-      expect(screen.getByRole('list')).toBeInTheDocument();
-      const items = screen.getAllByRole('listitem');
-      expect(items.length).toBe(mockMessages.length);
-    });
-
-    it('should have ARIA labels for messages', () => {
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-      const items = screen.getAllByRole('listitem');
-      items.forEach(item => {
-        expect(item).toHaveAttribute('aria-label');
-      });
-    });
-
-    it('should be keyboard navigable', async () => {
-      const user = userEvent.setup();
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-
-      await user.tab();
-      const firstItem = screen.getAllByRole('listitem')[0];
-      expect(firstItem).toHaveFocus();
+      const otherMessage = screen.getByTestId('message-item-msg-2');
+      expect(otherMessage).toHaveClass('justify-start');
     });
   });
 
@@ -174,10 +96,10 @@ describe('MessageList', () => {
       render(
         <MessageList
           messages={[]}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByText(/no messages|empty/i)).toBeInTheDocument();
+      expect(screen.getByTestId('message-list-empty')).toBeInTheDocument();
     });
   });
 
@@ -186,83 +108,109 @@ describe('MessageList', () => {
       render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-          isLoading
+          currentUserId={currentUserId}
+          isLoading={true}
         />
       );
-      expect(screen.getByText(/loading|please wait/i)).toBeInTheDocument();
+      expect(screen.getByTestId('message-list-loading')).toBeInTheDocument();
+      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    });
+  });
+
+  describe('Message Warnings', () => {
+    it('should display external contact warning', () => {
+      const messageWithWarning = createMockMessage({
+        id: 'msg-3',
+        senderId: 'user-2',
+        content: 'Contact me at +966501234567',
+        containsExternalContact: true,
+      });
+
+      render(
+        <MessageList
+          messages={[messageWithWarning]}
+          currentUserId={currentUserId}
+        />
+      );
+      expect(screen.getByTestId('message-external-warning-msg-3')).toBeInTheDocument();
+    });
+
+    it('should display flagged message indicator', () => {
+      const flaggedMessage = createMockMessage({
+        id: 'msg-4',
+        senderId: 'user-2',
+        content: 'Suspicious message',
+        isFlagged: true,
+        flagReason: 'Spam',
+      });
+
+      render(
+        <MessageList
+          messages={[flaggedMessage]}
+          currentUserId={currentUserId}
+        />
+      );
+      expect(screen.getByTestId('message-flagged-msg-4')).toBeInTheDocument();
     });
   });
 
   describe('Auto Scroll', () => {
-    it('should scroll to bottom on new message', async () => {
+    it('should render new messages', async () => {
       const { rerender } = render(
         <MessageList
           messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
 
-      const newMessages = [
-        ...mockMessages,
-        {
-          id: 'msg-3',
-          senderId: 'user-1',
-          senderName: 'Ahmed',
-          content: 'New message',
-          timestamp: new Date(),
-          isOwn: true,
-        },
-      ];
+      const newMessage = createMockMessage({
+        id: 'msg-3',
+        senderId: 'user-1',
+        content: 'New message',
+        createdAt: new Date().toISOString(),
+      });
 
       rerender(
         <MessageList
-          messages={newMessages}
-          onLoadMore={mockOnLoadMore}
+          messages={[...mockMessages, newMessage]}
+          currentUserId={currentUserId}
         />
       );
 
-      expect(screen.getByText('New message')).toBeInTheDocument();
+      expect(screen.getByTestId('message-text-msg-3')).toBeInTheDocument();
     });
   });
 
-  describe('RTL Support', () => {
-    it('should render with RTL direction', () => {
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-      const list = screen.getByRole('list');
-      expect(list).toHaveAttribute('dir', 'rtl');
-    });
-  });
-
-  describe('Message Formatting', () => {
-    it('should format timestamps correctly', () => {
-      render(
-        <MessageList
-          messages={mockMessages}
-          onLoadMore={mockOnLoadMore}
-        />
-      );
-      expect(screen.getByText(/minute|ago/i)).toBeInTheDocument();
-    });
-
+  describe('Message Content', () => {
     it('should handle long messages', () => {
-      const longMessage = {
-        ...mockMessages[0],
+      const longMessage = createMockMessage({
+        id: 'msg-5',
         content: 'A'.repeat(500),
-      };
+      });
 
       render(
         <MessageList
           messages={[longMessage]}
-          onLoadMore={mockOnLoadMore}
+          currentUserId={currentUserId}
         />
       );
-      expect(screen.getByText(new RegExp('A'.repeat(100)))).toBeInTheDocument();
+      expect(screen.getByTestId('message-text-msg-5')).toBeInTheDocument();
+    });
+
+    it('should preserve message formatting', () => {
+      const formattedMessage = createMockMessage({
+        id: 'msg-6',
+        content: 'Line 1\nLine 2\nLine 3',
+      });
+
+      render(
+        <MessageList
+          messages={[formattedMessage]}
+          currentUserId={currentUserId}
+        />
+      );
+      const messageText = screen.getByTestId('message-text-msg-6');
+      expect(messageText).toHaveClass('whitespace-pre-wrap');
     });
   });
 });

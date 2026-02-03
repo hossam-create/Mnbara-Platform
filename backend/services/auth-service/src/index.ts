@@ -1,92 +1,109 @@
-import express from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
+import express, { Application } from 'express';
 import dotenv from 'dotenv';
-import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
+import passport from 'passport';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import authRoutes from './routes/auth.routes';
+import { logger } from './utils/logger';
+import { configureGoogleStrategy } from './strategies/google.strategy';
+import { configureFacebookStrategy } from './strategies/facebook.strategy';
+import { configureAppleStrategy } from './strategies/apple.strategy';
+import { configureJwtStrategy } from './strategies/jwt.strategy';
 
-// Import routes
-import authRoutes from './routes/auth';
-import profileRoutes from './routes/profile';
-import adminRoutes from './routes/admin';
-
-// Import middleware
-import { authenticate, authorize } from './middleware/auth';
-import { errorHandler } from './middleware/errorHandler';
-import { requestLogger } from './middleware/requestLogger';
-
-// Load environment variables
 dotenv.config();
 
-const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3001;
+const app: Application = express();
+const PORT = process.env.PORT || 3014;
 
-// Security middleware
-app.use(helmet());
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
 }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Session (required for OAuth)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
-// Logging middleware
-app.use(morgan('combined'));
-app.use(requestLogger);
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Health check endpoint
-app.get('/health', (req, res) => {
+// Configure Passport strategies
+configureGoogleStrategy();
+configureFacebookStrategy();
+configureAppleStrategy();
+configureJwtStrategy();
+
+// Passport serialization (required for session)
+passport.serializeUser((user: any, done) => {
+  done(null, user);
+});
+
+passport.deserializeUser((user: any, done) => {
+  done(null, user);
+});
+
+// Request logging
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`);
+  next();
+});
+
+// Routes
+app.use('/auth', authRoutes);
+
+// Root endpoint
+app.get('/', (req, res) => {
   res.json({
-    status: 'success',
-    data: {
-      service: 'auth-service',
-      version: '1.0.0',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    }
+    service: 'Auth Service',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      register: 'POST /auth/register',
+      login: 'POST /auth/login',
+      refresh: 'POST /auth/refresh',
+      logout: 'POST /auth/logout',
+      me: 'GET /auth/me',
+      google: 'GET /auth/google',
+      facebook: 'GET /auth/facebook',
+      apple: 'GET /auth/apple',
+    },
   });
 });
 
-// API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', authenticate, profileRoutes);
-app.use('/api/admin', authenticate, authorize(['ADMIN']), adminRoutes);
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy' });
+});
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({
-    status: 'error',
-    error: {
-      code: 'NOT_FOUND',
-      message: 'Endpoint not found'
-    }
+// Error handling
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
   });
-});
-
-// Error handling middleware
-app.use(errorHandler);
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Auth Service running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔐 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🚀 Auth Service running on port ${PORT}`);
+  logger.info(`📝 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 export default app;

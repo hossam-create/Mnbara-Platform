@@ -152,25 +152,29 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
   // ============================================================
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div 
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      data-testid="proof-upload"
+    >
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Upload Proof of Payment</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" data-testid="proof-upload-form">
         {/* Photo Upload */}
-        <div>
+        <div data-testid="photo-upload-section">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Payment Receipt Photo <span className="text-red-500">*</span>
           </label>
           {!photoFile ? (
             <div
               {...getPhotoRootProps()}
+              data-testid="photo-dropzone"
               className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
                 isPhotoDragActive
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
-              <input {...getPhotoInputProps()} />
+              <input {...getPhotoInputProps()} data-testid="photo-input" />
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"
                 stroke="currentColor"
@@ -196,11 +200,13 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
               <img
                 src={photoPreview!}
                 alt="Payment receipt"
+                data-testid="photo-preview"
                 className="w-full h-64 object-contain rounded-lg border border-gray-300"
               />
               <button
                 type="button"
                 onClick={handleRemovePhoto}
+                data-testid="remove-photo-button"
                 className="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-full hover:bg-red-700"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,20 +218,21 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
         </div>
 
         {/* Video Upload (Optional) */}
-        <div>
+        <div data-testid="video-upload-section">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Payment Video (Optional)
           </label>
           {!videoFile ? (
             <div
               {...getVideoRootProps()}
+              data-testid="video-dropzone"
               className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
                 isVideoDragActive
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
-              <input {...getVideoInputProps()} />
+              <input {...getVideoInputProps()} data-testid="video-input" />
               <svg
                 className="mx-auto h-10 w-10 text-gray-400"
                 fill="none"
@@ -247,7 +254,10 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
               <p className="mt-1 text-xs text-gray-500">MP4, MOV, AVI up to 50MB</p>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-300">
+            <div 
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-300"
+              data-testid="video-preview"
+            >
               <div className="flex items-center space-x-3">
                 <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
@@ -267,6 +277,7 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
               <button
                 type="button"
                 onClick={handleRemoveVideo}
+                data-testid="remove-video-button"
                 className="p-2 text-red-600 hover:bg-red-50 rounded-full"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -286,11 +297,14 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
             {...register('referenceId')}
             type="text"
             id="referenceId"
+            data-testid="reference-id-input"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter transaction reference number"
           />
           {errors.referenceId && (
-            <p className="mt-1 text-sm text-red-600">{errors.referenceId.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="reference-id-error">
+              {errors.referenceId.message}
+            </p>
           )}
         </div>
 
@@ -303,11 +317,14 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
             {...register('recipientName')}
             type="text"
             id="recipientName"
+            data-testid="recipient-name-input"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter recipient name"
           />
           {errors.recipientName && (
-            <p className="mt-1 text-sm text-red-600">{errors.recipientName.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="recipient-name-error">
+              {errors.recipientName.message}
+            </p>
           )}
         </div>
 
@@ -319,6 +336,7 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
           <select
             {...register('paymentMethod')}
             id="paymentMethod"
+            data-testid="payment-method-select"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Select payment method</option>
@@ -328,7 +346,9 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
             <option value="other">Other</option>
           </select>
           {errors.paymentMethod && (
-            <p className="mt-1 text-sm text-red-600">{errors.paymentMethod.message}</p>
+            <p className="mt-1 text-sm text-red-600" data-testid="payment-method-error">
+              {errors.paymentMethod.message}
+            </p>
           )}
         </div>
 
@@ -340,6 +360,7 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
           <textarea
             {...register('notes')}
             id="notes"
+            data-testid="notes-textarea"
             rows={3}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Add any additional information..."
@@ -348,7 +369,10 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
 
         {/* Error Message */}
         {uploadProof.isError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div 
+            className="bg-red-50 border border-red-200 rounded-lg p-4"
+            data-testid="upload-error-message"
+          >
             <p className="text-red-800">
               Error: {uploadProof.error instanceof Error ? uploadProof.error.message : 'Failed to upload proof'}
             </p>
@@ -360,6 +384,7 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
           <button
             type="submit"
             disabled={!photoFile || uploadProof.isPending}
+            data-testid="upload-proof-button"
             className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
               photoFile && !uploadProof.isPending
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -383,6 +408,7 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
               type="button"
               onClick={onCancel}
               disabled={uploadProof.isPending}
+              data-testid="cancel-upload-button"
               className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
             >
               Cancel
@@ -392,7 +418,10 @@ export const ProofUpload: React.FC<ProofUploadProps> = ({
 
         {/* Success Message */}
         {uploadProof.isSuccess && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div 
+            className="bg-green-50 border border-green-200 rounded-lg p-4"
+            data-testid="upload-success-message"
+          >
             <p className="text-green-800 font-medium">
               Proof uploaded successfully! Waiting for counter party to confirm receipt.
             </p>

@@ -17,6 +17,31 @@ import type {
 
 export class SecurityAPI {
   /**
+   * Get user's security deposits
+   * GET /api/v1/exchange/deposits
+   */
+  static async getDeposits(): Promise<ApiResponse<SecurityDeposit[]>> {
+    const response = await apiClient.get<ApiResponse<SecurityDeposit[]>>(
+      '/deposits'
+    );
+    return response.data;
+  }
+
+  /**
+   * Add security deposit
+   * POST /api/v1/exchange/deposits
+   */
+  static async addDeposit(
+    data: AddDepositInput
+  ): Promise<ApiResponse<SecurityDeposit>> {
+    const response = await apiClient.post<ApiResponse<SecurityDeposit>>(
+      '/deposits',
+      data
+    );
+    return response.data;
+  }
+
+  /**
    * Get user's security deposit
    * GET /api/v1/exchange/security-deposit
    */
@@ -54,6 +79,19 @@ export class SecurityAPI {
 
   /**
    * Get available external escrow providers
+   * GET /api/v1/exchange/external-escrow-providers
+   */
+  static async getEscrowProviders(): Promise<
+    ApiResponse<ExternalEscrowProvider[]>
+  > {
+    const response = await apiClient.get<ApiResponse<ExternalEscrowProvider[]>>(
+      '/external-escrow-providers'
+    );
+    return response.data;
+  }
+
+  /**
+   * Get available external escrow providers (alias)
    * GET /api/v1/exchange/external-escrow-providers
    */
   static async getExternalEscrowProviders(): Promise<

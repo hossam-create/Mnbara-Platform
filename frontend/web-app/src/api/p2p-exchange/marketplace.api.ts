@@ -16,7 +16,21 @@ import type {
 
 export class MarketplaceAPI {
   /**
-   * Browse marketplace with filters
+   * Get marketplace with filters
+   * GET /api/v1/exchange/marketplace
+   */
+  static async getMarketplace(
+    filters?: MarketplaceFilters
+  ): Promise<PaginatedResponse<ExchangeRequest>> {
+    const queryString = filters ? buildQueryString(filters) : '';
+    const response = await apiClient.get<PaginatedResponse<ExchangeRequest>>(
+      `/marketplace${queryString}`
+    );
+    return response.data;
+  }
+
+  /**
+   * Browse marketplace with filters (alias)
    * GET /api/v1/exchange/marketplace
    */
   static async browseMarketplace(
@@ -31,13 +45,14 @@ export class MarketplaceAPI {
 
   /**
    * Accept a marketplace request
-   * POST /api/v1/exchange/marketplace/:requestId/accept
+   * POST /api/v1/exchange/marketplace/accept
    */
   static async acceptRequest(
     requestId: number
-  ): Promise<ApiResponse<{ matchId: number; message: string }>> {
-    const response = await apiClient.post<ApiResponse<{ matchId: number; message: string }>>(
-      `/marketplace/${requestId}/accept`
+  ): Promise<ApiResponse<ExchangeRequest>> {
+    const response = await apiClient.post<ApiResponse<ExchangeRequest>>(
+      `/marketplace/accept`,
+      { requestId }
     );
     return response.data;
   }

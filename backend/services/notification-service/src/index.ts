@@ -1,34 +1,53 @@
+/**
+ * Notification Service Entry Point
+ */
+
 import express, { Application } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import morgan from 'morgan';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import notificationRoutes from './routes/notification.routes';
-import { errorHandler } from './middleware/errorHandler';
+import { logger } from './utils/logger';
 
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3006;
+const PORT = process.env.PORT || 3013;
 
 // Middleware
-app.use(helmet());
-app.use(cors());
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-// Routes
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'notification-service' });
+// Request logging
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path}`);
+  next();
 });
 
-app.use('/api/notifications', notificationRoutes);
+// Routes
+app.use('/notifications', notificationRoutes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({
+    service: 'notification-service',
+    version: '1.0.0',
+    status: 'running',
+  });
+});
 
 // Error handling
-app.use(errorHandler);
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  logger.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    error: 'Internal server error',
+  });
+});
 
+// Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Notification Service running on port ${PORT}`);
+  logger.info(`🚀 Notification Service running on port ${PORT}`);
 });
 
 export default app;

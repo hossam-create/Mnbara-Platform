@@ -16,10 +16,25 @@ import type {
 
 export class MatchAPI {
   /**
-   * Get match details
+   * Get all matches (with pagination)
+   * GET /api/v1/exchange/matches
+   */
+  static async getAll(params?: {
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<ExchangeMatch[]>> {
+    const response = await apiClient.get<ApiResponse<ExchangeMatch[]>>(
+      '/matches',
+      { params }
+    );
+    return response.data;
+  }
+
+  /**
+   * Get match details by ID
    * GET /api/v1/exchange/matches/:id
    */
-  static async getMatch(id: number): Promise<ApiResponse<ExchangeMatch>> {
+  static async getById(id: number): Promise<ApiResponse<ExchangeMatch>> {
     const response = await apiClient.get<ApiResponse<ExchangeMatch>>(
       `/matches/${id}`
     );
@@ -38,6 +53,32 @@ export class MatchAPI {
     const response = await apiClient.get<ApiResponse<ExchangeMatch[]>>(
       '/matches',
       { params }
+    );
+    return response.data;
+  }
+
+  /**
+   * Create a new match
+   * POST /api/v1/exchange/matches
+   */
+  static async create(data: {
+    requestId: number;
+    counterRequestId: number;
+  }): Promise<ApiResponse<ExchangeMatch>> {
+    const response = await apiClient.post<ApiResponse<ExchangeMatch>>(
+      '/matches',
+      data
+    );
+    return response.data;
+  }
+
+  /**
+   * Accept a match
+   * POST /api/v1/exchange/matches/:id/accept
+   */
+  static async accept(id: number): Promise<ApiResponse<ExchangeMatch>> {
+    const response = await apiClient.post<ApiResponse<ExchangeMatch>>(
+      `/matches/${id}/accept`
     );
     return response.data;
   }

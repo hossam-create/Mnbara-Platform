@@ -37,11 +37,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
   };
 
   return (
-    <div className="p-6 bg-white border border-gray-200 rounded-lg space-y-6">
+    <div 
+      className="p-6 bg-white border border-gray-200 rounded-lg space-y-6"
+      data-testid="marketplace-filters"
+    >
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
         <button
           onClick={handleReset}
+          data-testid="reset-filters-button"
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
         >
           Reset All
@@ -51,10 +55,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
       {/* Currency Filters */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="from-currency"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             From Currency
           </label>
           <select
+            id="from-currency"
+            data-testid="from-currency-select"
             value={filters.fromCurrency || ''}
             onChange={(e) => handleChange('fromCurrency', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -70,10 +79,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="to-currency"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             To Currency
           </label>
           <select
+            id="to-currency"
+            data-testid="to-currency-select"
             value={filters.toCurrency || ''}
             onChange={(e) => handleChange('toCurrency', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -92,10 +106,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
       {/* Amount Range */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="min-amount"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Min Amount
           </label>
           <input
+            id="min-amount"
+            data-testid="min-amount-input"
             type="number"
             step="0.01"
             value={filters.minAmount || ''}
@@ -106,10 +125,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="max-amount"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Max Amount
           </label>
           <input
+            id="max-amount"
+            data-testid="max-amount-input"
             type="number"
             step="0.01"
             value={filters.maxAmount || ''}
@@ -123,10 +147,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
       {/* Rate Range */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="min-rate"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Min Rate
           </label>
           <input
+            id="min-rate"
+            data-testid="min-rate-input"
             type="number"
             step="0.0001"
             value={filters.minRate || ''}
@@ -137,10 +166,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="max-rate"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Max Rate
           </label>
           <input
+            id="max-rate"
+            data-testid="max-rate-input"
             type="number"
             step="0.0001"
             value={filters.maxRate || ''}
@@ -153,10 +187,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
 
       {/* Trust Level */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label 
+          htmlFor="min-trust-level"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Minimum Trust Level
         </label>
         <select
+          id="min-trust-level"
+          data-testid="min-trust-level-select"
           value={filters.minTrustLevel || ''}
           onChange={(e) => handleChange('minTrustLevel', parseInt(e.target.value))}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -173,10 +212,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
       {/* Sort Options */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="sort-by"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Sort By
           </label>
           <select
+            id="sort-by"
+            data-testid="sort-by-select"
             value={filters.sortBy || 'time'}
             onChange={(e) => handleChange('sortBy', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -189,10 +233,15 @@ export const MarketplaceFilters: React.FC<MarketplaceFiltersProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label 
+            htmlFor="sort-order"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Sort Order
           </label>
           <select
+            id="sort-order"
+            data-testid="sort-order-select"
             value={filters.sortOrder || 'desc'}
             onChange={(e) => handleChange('sortOrder', e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

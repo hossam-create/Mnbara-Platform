@@ -119,11 +119,11 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
   // ============================================================
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-testid="security-deposit-card">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Security Deposit</h3>
         {deposit && (
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(deposit.status)}`}>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(deposit.status)}`} data-testid="deposit-status-badge">
             {deposit.status}
           </span>
         )}
@@ -132,11 +132,11 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
       {deposit ? (
         <>
           {/* Deposit Information */}
-          <div className="space-y-4 mb-6">
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+          <div className="space-y-4 mb-6" data-testid="deposit-information">
+            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg" data-testid="total-deposit-section">
               <div>
                 <p className="text-sm text-blue-700">Total Deposit</p>
-                <p className="text-2xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-blue-900" data-testid="total-deposit-amount">
                   {deposit.amount} {deposit.currency}
                 </p>
               </div>
@@ -151,14 +151,14 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
             </div>
 
             {parseFloat(deposit.frozenAmount) > 0 && (
-              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg" data-testid="frozen-amount-section">
                 <div>
                   <p className="text-sm text-red-700">Frozen Amount</p>
-                  <p className="text-xl font-bold text-red-900">
+                  <p className="text-xl font-bold text-red-900" data-testid="frozen-amount">
                     {deposit.frozenAmount} {deposit.currency}
                   </p>
                   {deposit.frozenReason && (
-                    <p className="text-xs text-red-600 mt-1">{deposit.frozenReason}</p>
+                    <p className="text-xs text-red-600 mt-1" data-testid="frozen-reason">{deposit.frozenReason}</p>
                   )}
                 </div>
                 <svg className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,15 +173,15 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="p-3 bg-gray-50 rounded-lg" data-testid="available-amount-section">
                 <p className="text-xs text-gray-500">Available</p>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-lg font-semibold text-gray-900" data-testid="available-amount">
                   {(parseFloat(deposit.amount) - parseFloat(deposit.frozenAmount)).toFixed(2)} {deposit.currency}
                 </p>
               </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="p-3 bg-gray-50 rounded-lg" data-testid="source-section">
                 <p className="text-xs text-gray-500">Source</p>
-                <p className="text-lg font-semibold text-gray-900">{deposit.source}</p>
+                <p className="text-lg font-semibold text-gray-900" data-testid="deposit-source">{deposit.source}</p>
               </div>
             </div>
           </div>
@@ -190,6 +190,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
           {!showAddForm && deposit.status === DepositStatus.ACTIVE && (
             <button
               onClick={() => setShowAddForm(true)}
+              data-testid="add-to-deposit-button"
               className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Add to Deposit
@@ -198,7 +199,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
 
           {/* Add to Deposit Form */}
           {showAddForm && (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4 p-4 bg-gray-50 rounded-lg" data-testid="add-deposit-form">
               <div>
                 <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
                   Amount
@@ -208,11 +209,12 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                   type="number"
                   step="0.01"
                   id="amount"
+                  data-testid="deposit-amount-input"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter amount"
                 />
                 {errors.amount && (
-                  <p className="mt-1 text-sm text-red-600">{errors.amount.message}</p>
+                  <p className="mt-1 text-sm text-red-600" data-testid="amount-error">{errors.amount.message}</p>
                 )}
               </div>
 
@@ -223,6 +225,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                 <select
                   {...register('currency')}
                   id="currency"
+                  data-testid="deposit-currency-select"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="USD">USD</option>
@@ -233,7 +236,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                   <option value="GBP">GBP</option>
                 </select>
                 {errors.currency && (
-                  <p className="mt-1 text-sm text-red-600">{errors.currency.message}</p>
+                  <p className="mt-1 text-sm text-red-600" data-testid="currency-error">{errors.currency.message}</p>
                 )}
               </div>
 
@@ -244,6 +247,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                 <select
                   {...register('source')}
                   id="source"
+                  data-testid="deposit-source-select"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value={DepositSource.CASH_DEPOSIT}>Cash Deposit</option>
@@ -252,12 +256,12 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                   <option value={DepositSource.INITIAL_DEPOSIT}>Initial Deposit</option>
                 </select>
                 {errors.source && (
-                  <p className="mt-1 text-sm text-red-600">{errors.source.message}</p>
+                  <p className="mt-1 text-sm text-red-600" data-testid="source-error">{errors.source.message}</p>
                 )}
               </div>
 
               {addToDeposit.isError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3" data-testid="add-deposit-error">
                   <p className="text-sm text-red-800">
                     Error: {addToDeposit.error instanceof Error ? addToDeposit.error.message : 'Failed to add deposit'}
                   </p>
@@ -268,6 +272,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                 <button
                   type="submit"
                   disabled={addToDeposit.isPending}
+                  data-testid="submit-deposit-button"
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
                   {addToDeposit.isPending ? 'Adding...' : 'Add Deposit'}
@@ -279,6 +284,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
                     reset();
                   }}
                   disabled={addToDeposit.isPending}
+                  data-testid="cancel-deposit-button"
                   className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
                 >
                   Cancel
@@ -288,7 +294,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
           )}
         </>
       ) : (
-        <div className="text-center py-8">
+        <div className="text-center py-8" data-testid="no-deposit-section">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             fill="none"
@@ -305,6 +311,7 @@ export const SecurityDepositCard: React.FC<SecurityDepositCardProps> = ({
           <p className="mt-2 text-sm text-gray-600">No security deposit found</p>
           <button
             onClick={() => setShowAddForm(true)}
+            data-testid="create-deposit-button"
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Create Deposit

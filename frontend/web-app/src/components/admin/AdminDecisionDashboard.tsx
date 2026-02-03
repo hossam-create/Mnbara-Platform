@@ -80,7 +80,10 @@ export const AdminDecisionDashboard: React.FC<AdminDecisionDashboardProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div 
+      className="space-y-6"
+      data-testid="admin-decision-dashboard"
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -90,6 +93,7 @@ export const AdminDecisionDashboard: React.FC<AdminDecisionDashboardProps> = ({
         <button
           onClick={onRefresh}
           disabled={isLoading}
+          data-testid="refresh-button"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? 'Refreshing...' : 'Refresh'}
@@ -97,13 +101,13 @@ export const AdminDecisionDashboard: React.FC<AdminDecisionDashboardProps> = ({
       </div>
 
       {/* Statistics */}
-      <div>
+      <div data-testid="statistics-section">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h2>
         <AdminDecisionStats stats={stats} isLoading={isLoading} />
       </div>
 
       {/* Decision List */}
-      <div>
+      <div data-testid="decision-list-section">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Decisions</h2>
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <AdminDecisionList

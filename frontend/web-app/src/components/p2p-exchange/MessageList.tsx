@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import type { Message } from '../../types/p2p-exchange.types';
@@ -18,20 +18,31 @@ export function MessageList({
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current && typeof messagesEndRef.current.scrollIntoView === 'function') {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages.length]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div 
+        className="flex items-center justify-center h-full"
+        data-testid="message-list-loading"
+      >
+        <div 
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"
+          data-testid="loading-spinner"
+        ></div>
       </div>
     );
   }
 
   if (messages.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-500">
+      <div 
+        className="flex flex-col items-center justify-center h-full text-gray-500"
+        data-testid="message-list-empty"
+      >
         <svg
           className="w-16 h-16 mb-4 text-gray-300"
           fill="none"
@@ -52,7 +63,10 @@ export function MessageList({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div 
+      className="flex-1 overflow-y-auto p-4 space-y-4"
+      data-testid="message-list"
+    >
       {messages.map((message) => {
         const isOwnMessage = message.senderId === currentUserId;
         const messageTime = format(new Date(message.createdAt), 'HH:mm', {
@@ -63,6 +77,7 @@ export function MessageList({
           <div
             key={message.id}
             className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
+            data-testid={`message-item-${message.id}`}
           >
             <div
               className={`max-w-[70%] rounded-lg px-4 py-2 ${
@@ -70,22 +85,32 @@ export function MessageList({
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 text-gray-900'
               }`}
+              data-testid={`message-content-${message.id}`}
             >
               {/* Sender name (for received messages) */}
               {!isOwnMessage && message.senderName && (
-                <p className="text-xs font-medium text-gray-600 mb-1">
+                <p 
+                  className="text-xs font-medium text-gray-600 mb-1"
+                  data-testid={`message-sender-${message.id}`}
+                >
                   {message.senderName}
                 </p>
               )}
 
               {/* Message content */}
-              <p className="text-sm whitespace-pre-wrap break-words">
+              <p 
+                className="text-sm whitespace-pre-wrap break-words"
+                data-testid={`message-text-${message.id}`}
+              >
                 {message.content}
               </p>
 
               {/* Warning for external contact */}
               {message.containsExternalContact && (
-                <div className="mt-2 flex items-center gap-1 text-xs text-yellow-600 bg-yellow-50 rounded px-2 py-1">
+                <div 
+                  className="mt-2 flex items-center gap-1 text-xs text-yellow-600 bg-yellow-50 rounded px-2 py-1"
+                  data-testid={`message-external-warning-${message.id}`}
+                >
                   <svg
                     className="w-4 h-4"
                     fill="currentColor"
@@ -103,7 +128,10 @@ export function MessageList({
 
               {/* Flagged message indicator */}
               {message.isFlagged && (
-                <div className="mt-2 flex items-center gap-1 text-xs text-red-600 bg-red-50 rounded px-2 py-1">
+                <div 
+                  className="mt-2 flex items-center gap-1 text-xs text-red-600 bg-red-50 rounded px-2 py-1"
+                  data-testid={`message-flagged-${message.id}`}
+                >
                   <svg
                     className="w-4 h-4"
                     fill="currentColor"
@@ -127,6 +155,7 @@ export function MessageList({
                 className={`text-xs mt-1 ${
                   isOwnMessage ? 'text-primary-100' : 'text-gray-500'
                 }`}
+                data-testid={`message-timestamp-${message.id}`}
               >
                 {messageTime}
               </p>

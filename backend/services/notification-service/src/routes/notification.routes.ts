@@ -1,19 +1,24 @@
+/**
+ * Notification Routes
+ */
+
 import { Router } from 'express';
 import { NotificationController } from '../controllers/notification.controller';
 
 const router = Router();
-const notificationController = new NotificationController();
+const controller = new NotificationController();
 
-// Send Email
-router.post('/email', notificationController.sendEmail);
+// Email
+router.post('/email', controller.sendEmail.bind(controller));
+router.post('/email/template', controller.sendTemplatedEmail.bind(controller));
 
-// Send Push Notification
-router.post('/push', notificationController.sendPush);
+// SMS
+router.post('/sms', controller.sendSMS.bind(controller));
+router.post('/otp', controller.sendOTP.bind(controller));
+router.get('/sms/:sid/status', controller.getSMSStatus.bind(controller));
 
-// Send SMS
-router.post('/sms', notificationController.sendSMS);
-
-// Get user notifications
-router.get('/user/:userId', notificationController.getUserNotifications);
+// Convenience endpoints
+router.post('/welcome', controller.sendWelcome.bind(controller));
+router.post('/order-confirmation', controller.sendOrderConfirmation.bind(controller));
 
 export default router;

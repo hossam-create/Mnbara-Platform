@@ -1,4 +1,4 @@
-import { PrismaClient, AssetType, DecisionStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { DecisionSourceFactory } from '../sources/DecisionSourceFactory';
 import { AuditLogService } from './AuditLogService';
 import { 
@@ -7,7 +7,7 @@ import {
   ValidationError,
   DecisionSourceError 
 } from '../utils/errors';
-import { DecisionRequest, DecisionResponse } from '../interfaces/IDecisionSource';
+import { DecisionRequest, DecisionResponse, AssetType, DecisionStatus } from '../interfaces/IDecisionSource';
 
 /**
  * DecisionAuthorityService - Core business logic for decision management
@@ -63,10 +63,10 @@ export class DecisionAuthorityService {
       // Create decision record in database
       const decision = await this.prisma.assetDecisionRecord.create({
         data: {
-          assetType: request.assetType,
+          assetType: request.assetType as any,
           assetId: request.assetId,
           decisionId: sourceResponse.decisionId,
-          status: sourceResponse.status,
+          status: sourceResponse.status as any,
           decisionRef: sourceResponse.decisionRef,
           reason: sourceResponse.reason,
           decisionSource: decisionSource.getSourceName(),
@@ -237,14 +237,14 @@ export class DecisionAuthorityService {
 
     const decision = await this.getDecisionByDecisionId(decisionId);
 
-    // Validate state transition
-    this.validateStateTransition(decision.status, newStatus, 'SOURCE');
+    // Validate state transition (cast Prisma enum to interface enum)
+    this.validateStateTransition(decision.status as any, newStatus, 'SOURCE');
 
     // Update decision
     const updated = await this.prisma.assetDecisionRecord.update({
       where: { id: decision.id },
       data: {
-        status: newStatus,
+        status: newStatus as any,
         reason,
         decidedAt: decidedAt || new Date()
       }
@@ -271,8 +271,8 @@ export class DecisionAuthorityService {
   async expireDecision(id: number): Promise<any> {
     const decision = await this.getDecision(id);
 
-    // Validate state transition
-    this.validateStateTransition(decision.status, DecisionStatus.EXPIRED, 'SYSTEM');
+    // Validate state transition (cast Prisma enum to interface enum)
+    this.validateStateTransition(decision.status as any, DecisionStatus.EXPIRED, 'SYSTEM');
 
     // Update decision
     const updated = await this.prisma.assetDecisionRecord.update({
@@ -300,8 +300,8 @@ export class DecisionAuthorityService {
   async cancelDecision(id: number, reason?: string): Promise<any> {
     const decision = await this.getDecision(id);
 
-    // Validate state transition
-    this.validateStateTransition(decision.status, DecisionStatus.CANCELLED, 'SYSTEM');
+    // Validate state transition (cast Prisma enum to interface enum)
+    this.validateStateTransition(decision.status as any, DecisionStatus.CANCELLED, 'SYSTEM');
 
     // Update decision
     const updated = await this.prisma.assetDecisionRecord.update({

@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  
+  // Type
+  type        String   // EMAIL, SMS, PUSH
+  
+  // Recipient
+  recipient   String   // Email or phone number
+  
+  // Content
+  subject     String?  // For emails
+  content     String   // Message body
+  
+  // Status
+  status      String   // PENDING, SENT, FAILED, DELIVERED
+  
+  // Provider
+  provider    String   // SENDGRID, TWILIO, FIREBASE
+  providerId  String?  // Provider's message ID
+  
+  // Error
+  error       String?
+  
+  // Metadata
+  metadata    Json?
+  
+  // Timestamps
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([type])
+  @@index([recipient])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationTemplate {
+  id          String   @id @default(uuid())
+  
+  // Template info
+  name        String   @unique
+  type        String   // EMAIL, SMS
+  
+  // Content
+  subject     String?  // For emails
+  template    String   // Template content (Handlebars)
+  
+  // Variables
+  variables   Json?    // List of required variables
+  
+  // Status
+  active      Boolean  @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([name])
+  @@index([type])
+  @@map("notification_templates")
+}

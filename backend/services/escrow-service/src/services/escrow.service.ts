@@ -1,90 +1,70 @@
-import { PrismaClient, EscrowStatus, PaymentMethod, TimelineEvent } from '@prisma/client';
+// Escrow Service - Traditional Implementation
+// Inspired by: SmartContractEscrowSystem/EscrowContract.sol
+
+import { PrismaClient, EscrowStatus, DisputeStatus } from '@prisma/client';
+import {
+  CreateEscrowDto,
+  AddSignatureDto,
+  LockTransactionDto,
+  InitiateDisputeDto,
+  ResolveDisputeDto,
+  EscrowTransaction,
+  Signature
+} from '../types/escrow.types';
+import { logger } from '../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
 
-const prisma = new PrismaClient();
+export class EscrowService {
+  private prisma: PrismaClient;
 
-// Default escrow settings
-const DEFAULT_SETTINGS = {
-  escrowFeePercentage: 2.5,
-  minEscrowFee: 5,
-  maxEscrowFee: 500,
-  defaultInspectionDays: 3,
-  autoReleaseDays: 7
-};
+  constructor() {
+    this.prisma = new PrismaClient();
+  }
 
-export const escrowService = {
-  // إنشاء معاملة ضمان - Create escrow transaction
-  async createEscrow(data: {
-    orderId: string;
-    buyerId: string;
-    sellerId: string;
-    amount: number;
-    currency?: string;
-    paymentMethod: PaymentMethod;
-    description?: string;
-    inspectionDays?: number;
-    metadata?: any;
-  }) {
-    const { orderId, buyerId, sellerId, amount, currency = 'USD', paymentMethod, description, inspectionDays, metadata } = data;
+  /**
+   * Create Escrow Transaction
+   * Inspired by: function createTransaction(bytes32 transactionId, address _seller, address _arbitrator)
+   */
+  async createTransaction(data: CreateEscrowDto): Promise<EscrowTransaction> {
+    logger.info(`Creating escrow transaction for buyer: ${data.buyerId}`);
 
-    // Check if escrow already exists for this order
-    const existing = await prisma.escrowTransaction.findUnique({
-      where: { orderId }
-    });
+    // Generate unique transaction ID (like bytes32 in Solidity)
+    const transactionId = uuidv4();
 
-    if (existing) {
-      throw new Error('Escrow already exists for this order');
-    }
-
-    // Calculate fees
-    const escrowFeePercentage = DEFAULT_SETTINGS.escrowFeePercentage;
-    let escrowFee = amount * (escrowFeePercentage / 100);
-    
-    // Apply min/max fee limits
-    escrowFee = Math.max(escrowFee, DEFAULT_SETTINGS.minEscrowFee);
-    escrowFee = Math.min(escrowFee, DEFAULT_SETTINGS.maxEscrowFee);
-    
-    // Platform fee (1%)
-    const platformFee = amount * 0.01;
-    
-    // Seller receives
-    const sellerReceives = amount - escrowFee - platformFee;
-
-    const escrow = await prisma.escrowTransaction.create({
+    const escrow = await this.prisma.escrow.create({
       data: {
-        orderId,
-        buyerId,
-        sellerId,
-        amount,
-        currency,
-        escrowFee,
-        platformFee,
-        sellerReceives,
-        paymentMethod,
-        description,
-        inspectionDays: inspectionDays || DEFAULT_SETTINGS.defaultInspectionDays,
-        metadata,
-        timeline: {
-          create: {
-            event: 'CREATED',
-            description: 'Escrow transaction created',
-            descriptionAr: 'تم إنشاء معاملة الضمان',
-            actor: buyerId,
-            actorRole: 'buyer'
-          }
-        }
-      },
-      include: {
-        timeline: true
+        transactionId,
+        buyerId: data.buyerId,
+        sellerId: data.sellerId,
+        arbitratorId: data.arbitratorId,
+        amount: data.amount,
+        currency: data.currency || 'USD',
+        status: EscrowStatus.CREATED,
+        disputeStatus: DisputeStatus.NONE,
+        signatures: []
       }
     });
 
-    return escrow;
-  },
+    // Log event (like emit TransactionCreated in Smart Contract)
+    await this.logEvent(escrow.id, 'TransactionCreated', {
+      buyer: data.buyerId,
+      seller: data.sellerId,
+      amount: data.amount
+    }, data.buyerId);
 
-  // تمويل الضمان - Fund escrow (buyer pays)
-  async fundEscrow(escrowId: string, paymentReference: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
+    logger.info(`Escrow created: ${escrow.id}`);
+    return this.mapToEscrowTransaction(escrow);
+  }
+
+  /**
+   * Add Signature
+   * Inspired by: function addSignature(bytes32 transactionId)
+   */
+  async addSignature(
+    escrowId: string,
+    signatureData: AddSignatureDto
+  ): Promise<void> {
+    const escrow = await this.prisma.escrow.findUnique({
       where: { id: escrowId }
     });
 
@@ -92,290 +72,62 @@ export const escrowService = {
       throw new Error('Escrow not found');
     }
 
-    if (escrow.status !== 'PENDING') {
-      throw new Error('Escrow is not in pending status');
+    // Check status (like in Smart Contract)
+    if (escrow.status !== EscrowStatus.CREATED && escrow.status !== EscrowStatus.LOCKED) {
+      throw new Error('Transaction status does not allow adding signatures');
     }
 
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'FUNDED',
-        paymentReference,
-        fundedAt: new Date(),
-        timeline: {
-          create: {
-            event: 'FUNDED',
-            description: `Payment received: ${paymentReference}`,
-            descriptionAr: 'تم استلام الدفع',
-            actor: escrow.buyerId,
-            actorRole: 'buyer'
-          }
-        }
-      }
-    });
+    // Get existing signatures
+    const signatures = (escrow.signatures as any[]) || [];
 
-    return updated;
-  },
+    // Check if already signed
+    const alreadySigned = signatures.some(
+      (sig: any) => sig.userId === signatureData.userId
+    );
 
-  // تأكيد الشحن - Confirm shipping
-  async confirmShipping(escrowId: string, trackingNumber?: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
+    if (alreadySigned) {
+      throw new Error('Signature already added');
     }
 
-    if (escrow.status !== 'FUNDED') {
-      throw new Error('Escrow must be funded before shipping');
-    }
-
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'SHIPPED',
-        shippedAt: new Date(),
-        metadata: {
-          ...(escrow.metadata as object || {}),
-          trackingNumber
-        },
-        timeline: {
-          create: {
-            event: 'SHIPPED',
-            description: `Item shipped${trackingNumber ? `: ${trackingNumber}` : ''}`,
-            descriptionAr: 'تم شحن المنتج',
-            actor: escrow.sellerId,
-            actorRole: 'seller',
-            metadata: { trackingNumber }
-          }
-        }
-      }
-    });
-
-    return updated;
-  },
-
-  // تأكيد التسليم - Confirm delivery
-  async confirmDelivery(escrowId: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
-    }
-
-    if (escrow.status !== 'SHIPPED') {
-      throw new Error('Item must be shipped before delivery confirmation');
-    }
-
-    // Calculate inspection end date
-    const inspectionEndsAt = new Date();
-    inspectionEndsAt.setDate(inspectionEndsAt.getDate() + escrow.inspectionDays);
-
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'INSPECTION',
-        deliveredAt: new Date(),
-        inspectionEndsAt,
-        timeline: {
-          create: {
-            event: 'DELIVERED',
-            description: `Item delivered. Inspection period: ${escrow.inspectionDays} days`,
-            descriptionAr: `تم تسليم المنتج. فترة الفحص: ${escrow.inspectionDays} أيام`,
-            actor: escrow.buyerId,
-            actorRole: 'buyer'
-          }
-        }
-      }
-    });
-
-    return updated;
-  },
-
-  // موافقة المشتري - Buyer approval
-  async approveTransaction(escrowId: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
-    }
-
-    if (!['DELIVERED', 'INSPECTION'].includes(escrow.status)) {
-      throw new Error('Item must be delivered before approval');
-    }
-
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'APPROVED',
-        timeline: {
-          create: {
-            event: 'APPROVED',
-            description: 'Buyer approved the transaction',
-            descriptionAr: 'وافق المشتري على المعاملة',
-            actor: escrow.buyerId,
-            actorRole: 'buyer'
-          }
-        }
-      }
-    });
-
-    // Auto-release funds
-    return this.releaseFunds(escrowId);
-  },
-
-  // تحرير الأموال للبائع - Release funds to seller
-  async releaseFunds(escrowId: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
-    }
-
-    if (!['APPROVED', 'INSPECTION'].includes(escrow.status)) {
-      throw new Error('Transaction must be approved before release');
-    }
-
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'RELEASED',
-        releasedAt: new Date(),
-        timeline: {
-          create: {
-            event: 'RELEASED',
-            description: `Funds released to seller: ${escrow.sellerReceives} ${escrow.currency}`,
-            descriptionAr: `تم تحرير الأموال للبائع: ${escrow.sellerReceives} ${escrow.currency}`,
-            actorRole: 'system'
-          }
-        }
-      }
-    });
-
-    // TODO: Trigger actual payment to seller via payment service
-
-    return updated;
-  },
-
-  // استرداد للمشتري - Refund to buyer
-  async refundBuyer(escrowId: string, reason: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
-    }
-
-    if (['RELEASED', 'REFUNDED', 'CANCELLED'].includes(escrow.status)) {
-      throw new Error('Cannot refund this transaction');
-    }
-
-    const updated = await prisma.escrowTransaction.update({
-      where: { id: escrowId },
-      data: {
-        status: 'REFUNDED',
-        refundedAt: new Date(),
-        timeline: {
-          create: {
-            event: 'REFUNDED',
-            description: `Refunded to buyer: ${reason}`,
-            descriptionAr: `تم الاسترداد للمشتري: ${reason}`,
-            actorRole: 'system',
-            metadata: { reason }
-          }
-        }
-      }
-    });
-
-    // TODO: Trigger actual refund via payment service
-
-    return updated;
-  },
-
-  // الحصول على معاملة ضمان - Get escrow transaction
-  async getEscrow(escrowId: string) {
-    const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: escrowId },
-      include: {
-        timeline: {
-          orderBy: { createdAt: 'desc' }
-        },
-        milestones: {
-          orderBy: { order: 'asc' }
-        },
-        dispute: true
-      }
-    });
-
-    if (!escrow) {
-      throw new Error('Escrow not found');
-    }
-
-    return escrow;
-  },
-
-  // الحصول على معاملات المستخدم - Get user escrows
-  async getUserEscrows(userId: string, role: 'buyer' | 'seller' | 'all', options: {
-    status?: EscrowStatus;
-    limit?: number;
-    offset?: number;
-  } = {}) {
-    const { status, limit = 20, offset = 0 } = options;
-
-    const where: any = {};
-    
-    if (role === 'buyer') {
-      where.buyerId = userId;
-    } else if (role === 'seller') {
-      where.sellerId = userId;
-    } else {
-      where.OR = [
-        { buyerId: userId },
-        { sellerId: userId }
-      ];
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    const escrows = await prisma.escrowTransaction.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset,
-      include: {
-        timeline: {
-          take: 1,
-          orderBy: { createdAt: 'desc' }
-        }
-      }
-    });
-
-    const total = await prisma.escrowTransaction.count({ where });
-
-    return {
-      escrows,
-      pagination: {
-        total,
-        limit,
-        offset,
-        hasMore: offset + limit < total
-      }
+    // Add new signature
+    const newSignature: Signature = {
+      userId: signatureData.userId,
+      role: signatureData.role,
+      signature: signatureData.signature,
+      timestamp: new Date()
     };
-  },
 
-  // تمديد فترة الفحص - Extend inspection period
-  async extendInspection(escrowId: string, additionalDays: number) {
-    const escrow = await prisma.escrowTransaction.findUnique({
+    signatures.push(newSignature);
+
+    // Update escrow
+    await this.prisma.escrow.update({
+      where: { id: escrowId },
+      data: {
+        signatures,
+        // If both buyer and seller signed, change status to SIGNED
+        status: signatures.length >= 2 ? EscrowStatus.SIGNED : escrow.status
+      }
+    });
+
+    // Log event (like emit SignatureAdded)
+    await this.logEvent(escrowId, 'SignatureAdded', {
+      signer: signatureData.userId,
+      role: signatureData.role
+    }, signatureData.userId);
+
+    logger.info(`Signature added to escrow: ${escrowId} by ${signatureData.userId}`);
+  }
+
+  /**
+   * Lock Transaction
+   * Inspired by: function lockTransaction(bytes32 transactionId, uint256 disputeDuration)
+   */
+  async lockTransaction(
+    escrowId: string,
+    buyerId: string,
+    lockData: LockTransactionDto
+  ): Promise<void> {
+    const escrow = await this.prisma.escrow.findUnique({
       where: { id: escrowId }
     });
 
@@ -383,56 +135,307 @@ export const escrowService = {
       throw new Error('Escrow not found');
     }
 
-    if (escrow.status !== 'INSPECTION') {
-      throw new Error('Can only extend during inspection period');
+    // Only buyer can lock (like onlyBuyer modifier)
+    if (escrow.buyerId !== buyerId) {
+      throw new Error('Only the buyer can lock this transaction');
     }
 
-    const maxDays = 14;
-    const currentDays = escrow.inspectionDays;
-    const newDays = Math.min(currentDays + additionalDays, maxDays);
+    // Check status (like inStatus modifier)
+    if (escrow.status !== EscrowStatus.SIGNED) {
+      throw new Error('Transaction must be signed before locking');
+    }
 
-    const newInspectionEndsAt = new Date(escrow.inspectionEndsAt!);
-    newInspectionEndsAt.setDate(newInspectionEndsAt.getDate() + (newDays - currentDays));
+    // Check seller signature
+    const signatures = (escrow.signatures as any[]) || [];
+    const sellerSigned = signatures.some(
+      (sig: any) => sig.userId === escrow.sellerId
+    );
 
-    const updated = await prisma.escrowTransaction.update({
+    if (!sellerSigned) {
+      throw new Error('Seller has not signed the transaction');
+    }
+
+    // Calculate dispute deadline
+    const disputeDuration = lockData.disputeDuration || 7; // default 7 days
+    const disputeDeadline = new Date();
+    disputeDeadline.setDate(disputeDeadline.getDate() + disputeDuration);
+
+    // Lock the transaction
+    await this.prisma.escrow.update({
       where: { id: escrowId },
       data: {
-        inspectionDays: newDays,
-        inspectionEndsAt: newInspectionEndsAt,
-        timeline: {
-          create: {
-            event: 'INSPECTION_EXTENDED',
-            description: `Inspection period extended to ${newDays} days`,
-            descriptionAr: `تم تمديد فترة الفحص إلى ${newDays} أيام`,
-            actor: escrow.buyerId,
-            actorRole: 'buyer'
-          }
-        }
+        status: EscrowStatus.LOCKED,
+        lockedAt: new Date(),
+        disputeDeadline
       }
     });
 
-    return updated;
-  },
+    // Hold funds (integrate with payment service)
+    await this.holdFunds(escrow.buyerId, escrow.amount);
 
-  // حساب الرسوم - Calculate fees
-  async calculateFees(amount: number) {
-    const escrowFeePercentage = DEFAULT_SETTINGS.escrowFeePercentage;
-    let escrowFee = amount * (escrowFeePercentage / 100);
-    
-    escrowFee = Math.max(escrowFee, DEFAULT_SETTINGS.minEscrowFee);
-    escrowFee = Math.min(escrowFee, DEFAULT_SETTINGS.maxEscrowFee);
-    
-    const platformFee = amount * 0.01;
-    const sellerReceives = amount - escrowFee - platformFee;
+    // Log event (like emit TransactionLocked)
+    await this.logEvent(escrowId, 'TransactionLocked', {
+      disputeDeadline
+    }, buyerId);
 
+    logger.info(`Transaction locked: ${escrowId}`);
+  }
+
+  /**
+   * Release Transaction
+   * Inspired by: function releaseTransaction(bytes32 transactionId)
+   */
+  async releaseTransaction(escrowId: string, buyerId: string): Promise<void> {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId }
+    });
+
+    if (!escrow) {
+      throw new Error('Escrow not found');
+    }
+
+    // Only buyer can release (like onlyBuyer modifier)
+    if (escrow.buyerId !== buyerId) {
+      throw new Error('Only the buyer can release this transaction');
+    }
+
+    // Check status (like inStatus modifier)
+    if (escrow.status !== EscrowStatus.LOCKED) {
+      throw new Error('Transaction must be locked before releasing');
+    }
+
+    // Check seller signature
+    const signatures = (escrow.signatures as any[]) || [];
+    const sellerSigned = signatures.some(
+      (sig: any) => sig.userId === escrow.sellerId
+    );
+
+    if (!sellerSigned) {
+      throw new Error('Seller has not signed the transaction');
+    }
+
+    // Release funds to seller
+    await this.transferFunds(escrow.buyerId, escrow.sellerId, escrow.amount);
+
+    // Update status
+    await this.prisma.escrow.update({
+      where: { id: escrowId },
+      data: {
+        status: EscrowStatus.RELEASED,
+        releasedAt: new Date()
+      }
+    });
+
+    // Log event (like emit TransactionReleased)
+    await this.logEvent(escrowId, 'TransactionReleased', {
+      seller: escrow.sellerId,
+      amount: escrow.amount
+    }, buyerId);
+
+    logger.info(`Funds released for escrow: ${escrowId}`);
+  }
+
+  /**
+   * Initiate Dispute
+   * Inspired by: function initiateDispute(bytes32 transactionId, string memory disputeReasonIPFS)
+   */
+  async initiateDispute(
+    escrowId: string,
+    disputeData: InitiateDisputeDto
+  ): Promise<void> {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId }
+    });
+
+    if (!escrow) {
+      throw new Error('Escrow not found');
+    }
+
+    // Only buyer or seller can initiate dispute
+    if (disputeData.userId !== escrow.buyerId && disputeData.userId !== escrow.sellerId) {
+      throw new Error('Only buyer or seller can initiate dispute');
+    }
+
+    // Check status (like inStatus modifier)
+    if (escrow.status !== EscrowStatus.LOCKED) {
+      throw new Error('Can only dispute locked transactions');
+    }
+
+    // Check arbitrator signature (if arbitrator exists)
+    if (escrow.arbitratorId) {
+      const signatures = (escrow.signatures as any[]) || [];
+      const arbitratorSigned = signatures.some(
+        (sig: any) => sig.userId === escrow.arbitratorId
+      );
+
+      if (!arbitratorSigned) {
+        throw new Error('Arbitrator has not signed the transaction');
+      }
+    }
+
+    // Update to disputed status
+    await this.prisma.escrow.update({
+      where: { id: escrowId },
+      data: {
+        status: EscrowStatus.DISPUTED,
+        disputeStatus: DisputeStatus.INITIATED,
+        disputeReason: disputeData.reason,
+        disputeReasonIPFS: disputeData.evidence ? JSON.stringify(disputeData.evidence) : undefined
+      }
+    });
+
+    // Log event (like emit TransactionDispute)
+    await this.logEvent(escrowId, 'TransactionDispute', {
+      initiatedBy: disputeData.userId,
+      reason: disputeData.reason
+    }, disputeData.userId);
+
+    logger.info(`Dispute initiated for escrow: ${escrowId}`);
+  }
+
+  /**
+   * Resolve Dispute
+   * Inspired by: function resolveDispute(bytes32 transactionId, bool isBuyerWinner)
+   */
+  async resolveDispute(
+    escrowId: string,
+    resolutionData: ResolveDisputeDto
+  ): Promise<void> {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId }
+    });
+
+    if (!escrow) {
+      throw new Error('Escrow not found');
+    }
+
+    // Only arbitrator can resolve (like onlyArbitrator modifier)
+    if (escrow.arbitratorId !== resolutionData.arbitratorId) {
+      throw new Error('Only the arbitrator can resolve this dispute');
+    }
+
+    // Check status (like inStatus modifier)
+    if (escrow.status !== EscrowStatus.DISPUTED) {
+      throw new Error('Escrow is not in dispute');
+    }
+
+    // Transfer funds based on resolution
+    if (resolutionData.resolution === 'BUYER') {
+      // Buyer wins - refund to buyer
+      await this.refundFunds(escrow.buyerId, escrow.amount);
+    } else {
+      // Seller wins - transfer to seller
+      await this.transferFunds(escrow.buyerId, escrow.sellerId, escrow.amount);
+    }
+
+    // Update status
+    await this.prisma.escrow.update({
+      where: { id: escrowId },
+      data: {
+        status: EscrowStatus.RESOLVED,
+        disputeStatus: DisputeStatus.RESOLVED,
+        resolution: resolutionData.resolution,
+        resolvedBy: resolutionData.arbitratorId,
+        resolvedAt: new Date()
+      }
+    });
+
+    // Log event (like emit TransactionResolved)
+    await this.logEvent(escrowId, 'TransactionResolved', {
+      winner: resolutionData.resolution,
+      arbitrator: resolutionData.arbitratorId
+    }, resolutionData.arbitratorId);
+
+    logger.info(`Dispute resolved for escrow: ${escrowId} - Winner: ${resolutionData.resolution}`);
+  }
+
+  /**
+   * Get Transaction Status
+   * Inspired by: function getTransactionStatus(bytes32 transactionId)
+   */
+  async getTransactionStatus(escrowId: string): Promise<EscrowStatus> {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId },
+      select: { status: true }
+    });
+
+    if (!escrow) {
+      throw new Error('Escrow not found');
+    }
+
+    return escrow.status;
+  }
+
+  /**
+   * Get Escrow by ID
+   */
+  async getEscrowById(escrowId: string): Promise<EscrowTransaction | null> {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId }
+    });
+
+    if (!escrow) {
+      return null;
+    }
+
+    return this.mapToEscrowTransaction(escrow);
+  }
+
+  // Private helper methods
+
+  private async holdFunds(userId: string, amount: any): Promise<void> {
+    // TODO: Integrate with payment service or internal ledger
+    logger.info(`Holding ${amount} from user: ${userId}`);
+  }
+
+  private async transferFunds(fromId: string, toId: string, amount: any): Promise<void> {
+    // TODO: Integrate with payment service or internal ledger
+    logger.info(`Transferring ${amount} from ${fromId} to ${toId}`);
+  }
+
+  private async refundFunds(userId: string, amount: any): Promise<void> {
+    // TODO: Integrate with payment service or internal ledger
+    logger.info(`Refunding ${amount} to user: ${userId}`);
+  }
+
+  private async logEvent(
+    escrowId: string,
+    eventType: string,
+    eventData: any,
+    triggeredBy: string
+  ): Promise<void> {
+    await this.prisma.escrowEvent.create({
+      data: {
+        escrowId,
+        eventType,
+        eventData,
+        triggeredBy
+      }
+    });
+  }
+
+  private mapToEscrowTransaction(escrow: any): EscrowTransaction {
     return {
-      amount,
-      escrowFee,
-      escrowFeePercentage,
-      platformFee,
-      platformFeePercentage: 1,
-      totalFees: escrowFee + platformFee,
-      sellerReceives
+      id: escrow.id,
+      transactionId: escrow.transactionId,
+      buyerId: escrow.buyerId,
+      sellerId: escrow.sellerId,
+      arbitratorId: escrow.arbitratorId,
+      amount: parseFloat(escrow.amount),
+      currency: escrow.currency,
+      status: escrow.status,
+      disputeStatus: escrow.disputeStatus,
+      signatures: escrow.signatures || [],
+      disputeReason: escrow.disputeReason,
+      disputeDeadline: escrow.disputeDeadline,
+      disputeReasonIPFS: escrow.disputeReasonIPFS,
+      resolution: escrow.resolution,
+      resolvedBy: escrow.resolvedBy,
+      resolvedAt: escrow.resolvedAt,
+      createdAt: escrow.createdAt,
+      updatedAt: escrow.updatedAt,
+      lockedAt: escrow.lockedAt,
+      releasedAt: escrow.releasedAt
     };
   }
-};
+}

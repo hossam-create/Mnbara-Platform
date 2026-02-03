@@ -59,22 +59,34 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
   // ============================================================
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div 
+      className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+      data-testid="payment-initiation"
+    >
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Initiate Payment</h2>
 
       {/* Payment Summary */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div 
+        className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+        data-testid="payment-summary"
+      >
         <h3 className="text-lg font-semibold text-blue-900 mb-3">Payment Summary</h3>
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="text-blue-700">You will send:</span>
-            <span className="font-semibold text-blue-900">
+            <span 
+              className="font-semibold text-blue-900"
+              data-testid="send-amount"
+            >
               {fromAmount} {fromCurrency}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-blue-700">You will receive:</span>
-            <span className="font-semibold text-blue-900">
+            <span 
+              className="font-semibold text-blue-900"
+              data-testid="receive-amount"
+            >
               {toAmount} {toCurrency}
             </span>
           </div>
@@ -82,7 +94,10 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
       </div>
 
       {/* Instructions */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+      <div 
+        className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6"
+        data-testid="payment-instructions"
+      >
         <h3 className="text-lg font-semibold text-yellow-900 mb-3">Important Instructions</h3>
         <ul className="list-disc list-inside space-y-2 text-yellow-800">
           <li>Make sure you have sufficient funds in your account</li>
@@ -98,6 +113,7 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
         <label className="flex items-start space-x-3 cursor-pointer">
           <input
             type="checkbox"
+            data-testid="payment-confirmation-checkbox"
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
             className="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -118,7 +134,10 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
 
       {/* Error Message */}
       {initiatePayment.isError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div 
+          className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+          data-testid="payment-error-message"
+        >
           <p className="text-red-800">
             Error: {initiatePayment.error instanceof Error ? initiatePayment.error.message : 'Failed to initiate payment'}
           </p>
@@ -130,6 +149,7 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
         <button
           onClick={handleInitiate}
           disabled={!confirmed || initiatePayment.isPending}
+          data-testid="initiate-payment-button"
           className={`flex-1 px-6 py-3 rounded-lg font-medium transition-colors ${
             confirmed && !initiatePayment.isPending
               ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -152,6 +172,7 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
           <button
             onClick={onCancel}
             disabled={initiatePayment.isPending}
+            data-testid="cancel-payment-button"
             className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50"
           >
             Cancel
@@ -161,7 +182,10 @@ export const PaymentInitiation: React.FC<PaymentInitiationProps> = ({
 
       {/* Success Message */}
       {initiatePayment.isSuccess && (
-        <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+        <div 
+          className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4"
+          data-testid="payment-success-message"
+        >
           <p className="text-green-800 font-medium">
             Payment initiated successfully! Please proceed to upload proof of payment.
           </p>

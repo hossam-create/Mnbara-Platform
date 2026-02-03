@@ -1,12 +1,13 @@
-import { PrismaClient, AssetType, DecisionStatus } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { DecisionAuthorityService } from '../DecisionAuthorityService';
 import { DecisionSourceFactory } from '../../sources/DecisionSourceFactory';
 import { 
   DecisionNotFoundError, 
   InvalidDecisionStateError, 
   ValidationError,
-  DecisionSourceError 
+  DecisionSourceError
 } from '../../utils/errors';
+import { AssetType, DecisionStatus } from '../../interfaces/IDecisionSource';
 
 // Mock DecisionSourceFactory
 jest.mock('../../sources/DecisionSourceFactory');
@@ -25,8 +26,6 @@ const mockPrisma = {
     findMany: jest.fn()
   }
 } as unknown as PrismaClient;
-
-describe('DecisionAuthorityService', () => {
 
 describe('DecisionAuthorityService', () => {
   let service: DecisionAuthorityService;
@@ -541,3 +540,4 @@ describe('DecisionAuthorityService', () => {
       await expect(service.cancelDecision(999)).rejects.toThrow(DecisionNotFoundError);
     });
   });
+});
