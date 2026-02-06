@@ -29,6 +29,14 @@ enum DisputeStatus {
   RESOLVED
 }
 
+// Escrow Type Enum
+enum EscrowType {
+  STANDARD
+  AUCTION
+  TRAVEL
+  P2P
+}
+
 // Escrow Transaction Model
 // Based on: struct Transaction { buyer, seller, arbitrator, amount, status, ... }
 model Escrow {
@@ -48,6 +56,9 @@ model Escrow {
   status          EscrowStatus  @default(CREATED)
   disputeStatus   DisputeStatus @default(NONE)
   
+  // Escrow Type
+  escrowType      EscrowType    @default(STANDARD)
+  
   // Signatures (mapping in Smart Contract)
   signatures      Json          @default("[]")  // Array of Signature objects
   
@@ -55,17 +66,39 @@ model Escrow {
   disputeReason   String?
   disputeDeadline DateTime?
   disputeReasonIPFS String?     // IPFS hash like in Smart Contract
+  desiredResolution String?
+  amountDisputed  Decimal?       @db.Decimal(18, 2)
+  disputedAt     DateTime?
   
   // Resolution
   resolution      String?       // 'BUYER' or 'SELLER'
   resolvedBy      String?
-  resolvedAt      DateTime?
+  resolvedAt     DateTime?
+  buyerAmount     Decimal?      @db.Decimal(18, 2)
+  sellerAmount    Decimal?      @db.Decimal(18, 2)
+  
+  // Timeline fields
+  releaseWindowHours Int         @default(72)
+  autoReleaseAt   DateTime?
+  refundReason    String?
+  
+  // External references
+  orderId         String?
+  tripId          String?
+  metadata        Json?
   
   // Timestamps
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   lockedAt        DateTime?
   releasedAt      DateTime?
+  expiredAt       DateTime?
+  
+  // Relations
+  events          EscrowEvent[]
+  disputes        Dispute[]
+  refundRequests  RefundRequest[]
+  timelines       EscrowTimeline[]
   
   // Indexes
   @@index([buyerId])
@@ -84,7 +117,80 @@ model EscrowEvent {
   triggeredBy     String
   createdAt       DateTime @default(now())
   
+  // Relation
+  escrow          Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
   @@index([escrowId])
   @@index([eventType])
   @@map("escrow_events")
+}
+
+// Dispute Model
+model Dispute {
+  id              String   @id @default(uuid())
+  escrowId        String
+  initiatorId     String
+  reason          String
+  evidence        Json     @default("{}")
+  desiredResolution String?
+  amountDisputed  Decimal  @db.Decimal(18, 2)
+  status          String   @default("OPEN")  // OPEN, UNDER_REVIEW, RESOLVED, CLOSED
+  deadline        DateTime?
+  resolution      String?
+  resolutionReason String?
+  buyerAmount     Decimal? @db.Decimal(18, 2)
+  sellerAmount    Decimal? @db.Decimal(18, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  resolvedAt      DateTime?
+  
+  // Relation
+  escrow          Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
+  @@index([escrowId])
+  @@index([initiatorId])
+  @@index([status])
+  @@map("disputes")
+}
+
+// Refund Request Model
+model RefundRequest {
+  id              String   @id @default(uuid())
+  escrowId        String
+  requestedBy     String
+  amount          Decimal  @db.Decimal(18, 2)
+  reason          String
+  status          String   @default("PENDING")  // PENDING, APPROVED, REJECTED
+  approverRole    String   // admin, system, arbitrator
+  approvedBy      String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relation
+  escrow          Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
+  @@index([escrowId])
+  @@index([status])
+  @@index([requestedBy])
+  @@map("refund_requests")
+}
+
+// Escrow Timeline Model
+model EscrowTimeline {
+  id              String   @id @default(uuid())
+  escrowId        String
+  phase           String   // CREATED, HELD, DISPUTED, RELEASED, RESOLVED
+  startedAt       DateTime @default(now())
+  expiresAt       DateTime?
+  metadata        Json     @default("{}")
+  
+  // Relation
+  escrow          Escrow   @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
+  @@index([escrowId])
+  @@index([phase])
+  @@index([startedAt])
+  @@map("escrow_timelines")
 }

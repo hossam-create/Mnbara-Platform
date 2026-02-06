@@ -1,0 +1,487 @@
+# Mnbara Platform - Development Docker Compose with Hot Reload
+# This file provides an optimized local development environment with hot-reload support
+version: '3.8'
+
+services:
+  # =============================================
+  # DATABASE SERVICES
+  # =============================================
+
+  # PostgreSQL with PostGIS Extension
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: mnbarh-postgres-dev
+    environment:
+      POSTGRES_USER: mnbarh
+      POSTGRES_PASSWORD: mnbarh_dev_password
+      POSTGRES_DB: mnbarh_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./scripts/init-postgis.sh:/docker-entrypoint-initdb.d/init-postgis.sh:ro
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    networks:
+      - mnbarh-dev-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnbarh -d mnbarh_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=md5
+
+  # Redis with persistence
+  redis:
+    image: redis:7-alpine
+    container_name: mnbarh-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - mnbarh-dev-network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # RabbitMQ Management UI
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mnbarh-rabbitmq-dev
+    environment:
+      RABBITMQ_DEFAULT_USER: mnbarh
+      RABBITMQ_DEFAULT_PASS: mnbarh_dev_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_dev_data:/var/lib/rabbitmq
+    networks:
+      - mnbarh-dev-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch for search
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: mnbarh-elasticsearch-dev
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - bootstrap.memory_lock=true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_dev_data:/usr/share/elasticsearch/data
+    networks:
+      - mnbarh-dev-network
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  # =============================================
+  # CORE MICROSERVICES (with Hot Reload)
+  # =============================================
+
+  # API Gateway with hot-reload
+  api-gateway:
+    build:
+      context: ./backend/services/api-gateway
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-api-gateway-dev
+    ports:
+      - "8080:8080"
+      - "9229:9229"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - DEBUG=api-gateway:*
+    volumes:
+      - ./backend/services/api-gateway/src:/app/src:ro
+      - api-gateway-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - redis
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Auth Service with hot-reload
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-auth-service-dev
+    ports:
+      - "3001:3001"
+      - "9231:9231"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/auth_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=auth-service:*
+    volumes:
+      - ./backend/services/auth-service/src:/app/src:ro
+      - auth-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Listing Service with hot-reload
+  listing-service:
+    build:
+      context: ./backend/services/listing-service-node
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-listing-service-dev
+    ports:
+      - "3002:3002"
+      - "9232:9232"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
+      - DEBUG=listing-service:*
+    volumes:
+      - ./backend/services/listing-service-node/src:/app/src:ro
+      - listing-service-dev-node_modules:/app/node_modules
+      - listing-service-uploads:/app/uploads
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Auction Service with hot-reload
+  auction-service:
+    build:
+      context: ./backend/services/auction-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-auction-service-dev
+    ports:
+      - "3005:3005"
+      - "9235:9235"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/auction_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
+      - DEBUG=auction-service:*
+    volumes:
+      - ./backend/services/auction-service/src:/app/src:ro
+      - auction-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Payment Service with hot-reload
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-payment-service-dev
+    ports:
+      - "3008:3008"
+      - "9238:9238"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3008
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/payment_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=payment-service:*
+    volumes:
+      - ./backend/services/payment-service/src:/app/src:ro
+      - payment-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3008/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Escrow Service with hot-reload
+  escrow-service:
+    build:
+      context: ./backend/services/escrow-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-escrow-service-dev
+    ports:
+      - "3010:3010"
+      - "9240:9240"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/escrow_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=escrow-service:*
+    volumes:
+      - ./backend/services/escrow-service/src:/app/src:ro
+      - escrow-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Notification Service with hot-reload
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-notification-service-dev
+    ports:
+      - "3004:3004"
+      - "9234:9234"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/notification_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=notification-service:*
+    volumes:
+      - ./backend/services/notification-service/src:/app/src:ro
+      - notification-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Orders Service with hot-reload
+  orders-service:
+    build:
+      context: ./backend/services/orders-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-orders-service-dev
+    ports:
+      - "3003:3003"
+      - "9233:9233"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/orders_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=orders-service:*
+    volumes:
+      - ./backend/services/orders-service/src:/app/src:ro
+      - orders-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Matching Service (AI) with hot-reload
+  matching-service:
+    build:
+      context: ./backend/services/matching-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-matching-service-dev
+    ports:
+      - "3010:3010"
+      - "9241:9241"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/matching_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=matching-service:*
+    volumes:
+      - ./backend/services/matching-service/src:/app/src:ro
+      - matching-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # Internal Ledger Service with hot-reload
+  internal-ledger-service:
+    build:
+      context: ./backend/services/internal-ledger-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbarh-internal-ledger-service-dev
+    ports:
+      - "3015:3015"
+      - "9245:9245"  # Debug port
+    environment:
+      - NODE_ENV=development
+      - PORT=3015
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/ledger_db
+      - REDIS_URL=redis://redis:6379
+      - DEBUG=internal-ledger-service:*
+    volumes:
+      - ./backend/services/internal-ledger-service/src:/app/src:ro
+      - internal-ledger-service-dev-node_modules:/app/node_modules
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3015/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command: npm run dev:debug
+
+  # =============================================
+  # DEBUGGING TOOLS
+  # =============================================
+
+  # Adminer - Database Management UI
+  adminer:
+    image: adminer:latest
+    container_name: mnbarh-adminer-dev
+    ports:
+      - "8081:8080"
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # pgAdmin - PostgreSQL Management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: mnbarh-pgadmin-dev
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mnbarh.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8082:80"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # Redis Commander - Redis Management UI
+  redis-commander:
+    image: ghcr.io/joeferner/redis-commander:latest
+    container_name: mnbarh-redis-commander-dev
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8083:8081"
+    networks:
+      - mnbarh-dev-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # =============================================
+  # VOLUMES
+  # =============================================
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  rabbitmq_dev_data:
+    driver: local
+  elasticsearch_dev_data:
+    driver: local
+  pgadmin_dev_data:
+    driver: local
+  listing-service-uploads:
+    driver: local
+  # Anonymous volumes for node_modules (to avoid overwriting)
+  api-gateway-dev-node_modules:
+  auth-service-dev-node_modules:
+  listing-service-dev-node_modules:
+  auction-service-dev-node_modules:
+  payment-service-dev-node_modules:
+  escrow-service-dev-node_modules:
+  notification-service-dev-node_modules:
+  orders-service-dev-node_modules:
+  matching-service-dev-node_modules:
+  internal-ledger-service-dev-node_modules:
+
+# =============================================
+# NETWORKS
+# =============================================
+
+networks:
+  mnbarh-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

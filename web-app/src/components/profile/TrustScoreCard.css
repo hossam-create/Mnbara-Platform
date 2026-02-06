@@ -1,0 +1,252 @@
+/**
+ * TrustScoreCard Styles
+ */
+
+.mnbara-trust-score-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mnbara-trust-score-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.mnbara-trust-score-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+}
+
+.mnbara-trust-score-card__details-btn {
+  padding: 6px 12px;
+  background-color: #f1f3f5;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-trust-score-card__details-btn:hover {
+  background-color: #e9ecef;
+}
+
+.mnbara-trust-score-card__main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+.mnbara-trust-score-card__grade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mnbara-trust-score-card__grade-value {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mnbara-trust-score-card__grade-label {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+.mnbara-trust-score-card__score-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.mnbara-trust-score-card__circular-progress {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.mnbara-trust-score-card__circular-bg {
+  fill: none;
+  stroke: #e9ecef;
+  stroke-width: 8;
+}
+
+.mnbara-trust-score-card__circular-progress-bar {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.3s ease;
+}
+
+.mnbara-trust-score-card__score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.mnbara-trust-score-card__score-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #212529;
+}
+
+.mnbara-trust-score-card__score-max {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mnbara-trust-score-card__details {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.mnbara-trust-score-card__section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+.mnbara-trust-score-card__breakdown {
+  margin-bottom: 20px;
+}
+
+.mnbara-trust-score-card__breakdown-item {
+  margin-bottom: 12px;
+}
+
+.mnbara-trust-score-card__breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.mnbara-trust-score-card__breakdown-label {
+  font-size: 13px;
+  color: #495057;
+}
+
+.mnbara-trust-score-card__breakdown-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #212529;
+}
+
+.mnbara-trust-score-card__breakdown-bar {
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mnbara-trust-score-card__breakdown-progress {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.mnbara-trust-score-card__breakdown-weight {
+  font-size: 11px;
+  color: #6c757d;
+  margin-top: 2px;
+  display: block;
+}
+
+.mnbara-trust-score-card__improvements {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnbara-trust-score-card__improvement-item {
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #6c757d;
+}
+
+.mnbara-trust-score-card__improvement-item.priority-high {
+  border-left-color: #dc3545;
+}
+
+.mnbara-trust-score-card__improvement-item.priority-medium {
+  border-left-color: #ffc107;
+}
+
+.mnbara-trust-score-card__improvement-item.priority-low {
+  border-left-color: #0dcaf0;
+}
+
+.mnbara-trust-score-card__improvement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mnbara-trust-score-card__improvement-area {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+}
+
+.mnbara-trust-score-card__improvement-priority {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.mnbara-trust-score-card__improvement-priority.priority-high {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.mnbara-trust-score-card__improvement-priority.priority-medium {
+  background-color: #fff3cd;
+  color: #664d03;
+}
+
+.mnbara-trust-score-card__improvement-priority.priority-low {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.mnbara-trust-score-card__improvement-scores {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.mnbara-trust-score-card__improvement-impact {
+  color: #198754;
+  font-weight: 600;
+}
+
+.mnbara-trust-score-card__improvement-actions {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: #495057;
+}
+
+.mnbara-trust-score-card__improvement-actions li {
+  margin-bottom: 4px;
+}

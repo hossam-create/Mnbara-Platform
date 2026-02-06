@@ -1,0 +1,591 @@
+// AI Pricing Service - Dynamic Pricing & Predictive Buying Models
+// Mnbara E-commerce Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🤖 PREDICTIVE BUYING MODELS
+// ==========================================
+
+// User Behavior Profile
+model UserBehaviorProfile {
+  id                    String   @id @default(uuid())
+  userId                String   @unique
+  
+  // Purchase Patterns
+  avgPurchaseInterval   Float    // Average days between purchases
+  preferredCategories  String[] // Top categories by purchase frequency
+  priceRangeMin         Float    // Minimum price range
+  priceRangeMax         Float    // Maximum price range
+  preferredDaysOfWeek  Int[]    // 0-6 (Sunday = 0)
+  preferredHours        Int[]    // 0-23
+  
+  // Engagement Metrics
+  totalSessions         Int      @default(0)
+  avgSessionDuration    Float    @default(0)
+  cartAbandonmentRate   Float    @default(0)
+  wishlistConversionRate Float  @default(0)
+  
+  // AI Features
+  behaviorScore         Float    @default(0.5) // 0-1 score
+  predictedLTV          Float?   // Lifetime value prediction
+  
+  // Seasonal Patterns
+  seasonalMultiplier    Json?    // Monthly purchase patterns
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// Purchase Need Prediction
+model PurchaseNeed {
+  id                    String   @id @default(uuid())
+  userId                String
+  
+  // Product/Category Target
+  targetType            TargetType
+  targetId              String    // productId, categoryId, or brandId
+  targetName            String
+  
+  // Prediction
+  needScore             Float     // 0-1 likelihood of purchase need
+  urgency               Urgency   @default(LOW)
+  predictedPrice        Float?
+  confidence            Float     @default(0.5)
+  
+  // Timing
+  predictedPurchaseDate DateTime?
+  optimalPurchaseWindow DateTime? // Best time to buy
+  purchaseDeadline     DateTime?  // When need becomes critical
+  
+  // Triggers
+  triggerType           TriggerType?
+  triggerDetails        Json?
+  
+  // Status
+  status                PredictionStatus @default(ACTIVE)
+  result                PurchaseResult?
+  actualPurchaseDate    DateTime?
+  
+  createdAt             DateTime @default(now())
+  expiresAt             DateTime
+  
+  @@index([userId, status])
+  @@index([needScore])
+  @@index([targetType, targetId])
+}
+
+enum TargetType {
+  PRODUCT
+  CATEGORY
+  BRAND
+}
+
+// Need Prediction Triggers
+enum TriggerType {
+  REPLENISHMENT      // Running out of consumable
+  SEASONAL           // Seasonal change
+  TREND              // Trending product
+  PRICE_DROP         // Price drop detected
+  SOCIAL_PROOF       // Friends bought it
+  CART_REMINDER      // Abandoned cart
+  WISHLIST           // Wishlist item
+  RECURRING          // Subscription/recurring
+  EVENT              // Upcoming event/holiday
+  LIFESTYLE          // Lifestyle change detected
+}
+
+enum Urgency {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PredictionStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  PURCHASED
+  EXPIRED
+  DISMISSED
+}
+
+enum PurchaseResult {
+  PURCHASED
+  NOT_PURCHASED
+  PURCHASED_ELSEWHERE
+}
+
+// ==========================================
+// 💰 DYNAMIC PRICING MODELS
+// ==========================================
+
+// Product Price History
+model PriceHistory {
+  id                    String   @id @default(uuid())
+  productId             String
+  
+  // Price Data
+  basePrice             Float
+  sellingPrice          Float
+  originalPrice         Float?   // MSRP or original
+  
+  // Cost Info
+  costPrice             Float?
+  margin                Float?
+  marginPercentage      Float?
+  
+  // Competitive
+  competitorPrice       Float?   // Lowest competitor price
+  competitorSource      String?  // Amazon, Noon, etc.
+  
+  // Market
+  marketAverage         Float?
+  marketMin             Float?
+  marketMax             Float?
+  
+  // Demand
+  demandScore           Float?   // 0-1
+  supplyScore           Float?   // 0-1
+  
+  // Factors Applied
+  demandMultiplier      Float?
+  competitionMultiplier Float?
+  urgencyMultiplier     Float?
+  trendMultiplier       Float?
+  
+  // Timestamp
+  recordedAt            DateTime @default(now())
+  
+  @@index([productId, recordedAt])
+  @@index([productId])
+}
+
+// Dynamic Pricing Rules
+model PricingRule {
+  id                    String   @id @default(uuid())
+  
+  // Rule Scope
+  ruleType              PricingRuleType
+  targetType            TargetType
+  targetId              String?  // Specific product/category or null for global
+  
+  // Conditions
+  conditions            Json     // Array of rule conditions
+  
+  // Pricing Action
+  actionType            PricingAction
+  actionValue           Float    // Percentage or fixed amount
+  actionMax             Float?   // Maximum adjustment
+  
+  // Limits
+  minPrice              Float?   // Floor price
+  maxPrice              Float?   // Ceiling price
+  
+  // Priority (higher = applied first)
+  priority              Int      @default(0)
+  
+  // Status
+  isActive              Boolean  @default(true)
+  
+  // Validation
+  minDataPoints         Int      @default(30) // Minimum data points required
+  
+  // Timestamps
+  validFrom             DateTime?
+  validTo               DateTime?
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([isActive, priority])
+  @@index([targetType, targetId])
+}
+
+enum PricingRuleType {
+  DEMAND_BASED          // Adjust based on demand
+  COMPETITION_BASED     // Match/beat competitors
+  TIME_BASED            // Time-limited offers
+  INVENTORY_BASED       // Based on stock levels
+  MARGIN_BASED          // Maintain margins
+  PROMOTIONAL           // Promotional discounts
+  CLEARANCE             // Price to clear
+  PREMIUM               // Premium pricing
+  PSYCHOLOGICAL         // $9.99 style pricing
+}
+
+enum PricingAction {
+  SET_FIXED             // Set to specific price
+  SET_PERCENTAGE        // Set as % of base
+  INCREASE_PERCENTAGE   // Increase by %
+  DECREASE_PERCENTAGE   // Decrease by %
+  MATCH_LOWEST          // Match lowest competitor
+  BEAT_LOWEST           // Beat lowest by X%
+  ADD_MARGIN            // Add margin to cost
+  SET_PSYCHOLOGICAL     // Set to psychological price
+}
+
+// Price Optimization Results
+model PriceOptimization {
+  id                    String   @id @default(uuid())
+  productId             String
+  
+  // Analysis Period
+  periodStart           DateTime
+  periodEnd             DateTime
+  
+  // Current State
+  currentPrice          Float
+  currentDemand         Float
+  currentRevenue        Float?
+  
+  // Optimization Results
+  optimalPrice          Float
+  expectedDemand        Float
+  expectedRevenue       Float
+  expectedConversion    Float?
+  
+  // Metrics
+  priceElasticity       Float?
+  confidence            Float    @default(0.5)
+  
+  // Price Changes Tested
+  scenarios             Json?    // Array of price scenarios tested
+  
+  // Recommendation
+  recommendation       PriceRecommendation
+  justification        String?
+  
+  // Status
+  status               OptimizationStatus @default(PENDING)
+  appliedAt            DateTime?
+  appliedBy            String?
+  
+  createdAt            DateTime @default(now())
+  expiresAt            DateTime
+  
+  @@index([productId])
+  @@index([status])
+}
+
+enum PriceRecommendation {
+  INCREASE_PRICE
+  DECREASE_PRICE
+  MAINTAIN_PRICE
+  DYNAMIC_ADJUST
+  NO_DATA
+}
+
+enum OptimizationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  APPLIED
+  CANCELLED
+  EXPIRED
+}
+
+// ==========================================
+// 📊 MARKET INTELLIGENCE MODELS
+// ==========================================
+
+// Market Trends
+model MarketTrend {
+  id                    String   @id @default(uuid())
+  
+  // Target
+  targetType            TargetType
+  targetId              String
+  targetName            String
+  
+  // Trend Data
+  trendType             TrendType
+  direction             TrendDirection
+  strength              Float    // 0-1 confidence
+  
+  // Metrics
+  currentValue          Float
+  previousValue         Float
+  changePercentage      Float
+  changeDirection       Float    // Positive or negative
+  
+  // Period
+  periodType            PeriodType
+  periodStart           DateTime
+  periodEnd             DateTime
+  
+  // Forecast
+  forecastValue         Float?
+  forecastConfidence     Float?
+  forecastDate          DateTime?
+  
+  // Drivers
+  keyDrivers            String[] // Contributing factors
+  sentimentScore        Float?   // 0-1 positive/negative
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([targetType, targetId])
+  @@index([trendType])
+  @@index([periodStart])
+}
+
+enum TrendType {
+  DEMAND_TREND
+  PRICE_TREND
+  SALES_TREND
+  SEARCH_TREND
+  SOCIAL_TREND
+}
+
+enum TrendDirection {
+  RISING
+  STABLE
+  FALLING
+  VOLATILE
+}
+
+enum PeriodType {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+// Price Index Tracking
+model PriceIndex {
+  id                    String   @id @default(uuid())
+  
+  // Category/Market
+  categoryId            String?
+  categoryName          String?
+  
+  // Index Values
+  indexValue            Float    // Base = 100
+  indexChange           Float    // Daily change %
+  indexChangeDirection  Float
+  
+  // Components
+  avgPrice              Float
+  avgPriceChange        Float
+  priceVariance         Float    // Price dispersion
+  
+  // Volume
+  totalVolume           Int?
+  volumeChange          Float?
+  
+  // Competition
+  competitionIndex      Float?   // Competitive intensity 0-1
+  marketShareTop        Float?   // Top seller share
+  
+  // Period
+  periodDate            DateTime @db.Date
+  periodType            PeriodType @default(DAILY)
+  
+  createdAt             DateTime @default(now())
+  
+  @@unique([categoryId, periodDate])
+  @@index([categoryId])
+  @@index([periodDate])
+}
+
+// Market Insights Cache
+model MarketInsight {
+  id                    String   @id @default(uuid())
+  
+  // Insight Details
+  insightType           InsightType
+  title                 String
+  description           String
+  
+  // Target
+  targetType            TargetType?
+  targetId              String?
+  targetName            String?
+  
+  // Impact
+  impactLevel           ImpactLevel
+  affectedUsers         Int?     // Estimated users affected
+  
+  // Recommendation
+  action                String?
+  actionUrl             String?
+  
+  // Data
+  data                  Json?
+  
+  // Expiry
+  expiresAt             DateTime
+  
+  createdAt             DateTime @default(now())
+  
+  @@index([insightType, expiresAt])
+  @@index([impactLevel])
+}
+
+enum InsightType {
+  PRICE_DROP
+  DEMAND_SPIKE
+  SUPPLY_ISSUE
+  TREND_ALERT
+  COMPETITOR_MOVE
+  SEASONAL_OPPORTUNITY
+  MARKET_ENTRY
+  NEW_COMPETITOR
+  REGULATORY_CHANGE
+  ECONOMIC_INDICATOR
+}
+
+enum ImpactLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ==========================================
+// 📈 ANALYTICS & REPORTING
+// ==========================================
+
+// Pricing Performance Metrics
+model PricingPerformance {
+  id                    String   @id @default(uuid())
+  productId             String
+  
+  // Period
+  periodStart           DateTime
+  periodEnd             DateTime
+  periodType            PeriodType
+  
+  // Sales Metrics
+  unitsSold             Int
+  revenue               Float
+  avgPrice              Float
+  conversionRate        Float?
+  
+  // Pricing Metrics
+  avgDiscount           Float?
+  priceChangesCount     Int?
+  optimalPriceHits      Int?     // Times sold at optimal price
+  
+  // AI Metrics
+  aiRecommendationCount Int?
+  aiAppliedCount        Int?
+  revenueChangeFromAI   Float?   // % change from baseline
+  
+  // Benchmark
+  categoryAvgRevenue    Float?
+  categoryRank          Int?
+  
+  createdAt             DateTime @default(now())
+  
+  @@unique([productId, periodStart, periodType])
+  @@index([productId])
+}
+
+// A/B Test Results
+model PricingExperiment {
+  id                    String   @id @default(uuid())
+  productId             String?
+  experimentName        String
+  
+  // Variants
+  controlVariant       Json     // Control pricing
+  testVariant          Json     // Test pricing
+  
+  // Split
+  trafficSplit         Float    // % traffic to test
+  
+  // Results
+  controlResults        Json?
+  testResults           Json?
+  
+  // Winner
+  winner                String?  // control, test, or inconclusive
+  confidence            Float?
+  uplift                Float?   // % improvement
+  
+  // Status
+  status               ExperimentStatus @default(RUNNING)
+  startedAt            DateTime @default(now())
+  completedAt          DateTime?
+  
+  createdAt            DateTime @default(now())
+  
+  @@index([status])
+  @@index([productId])
+}
+
+enum ExperimentStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// ==========================================
+// 🎯 USER NOTIFICATIONS
+// ==========================================
+
+model PriceAlert {
+  id                    String   @id @default(uuid())
+  userId                String
+  
+  // Product
+  productId             String
+  productName           String
+  productImage          String?
+  
+  // Alert Type
+  alertType             PriceAlertType
+  
+  // Thresholds
+  targetPrice           Float?
+  discountPercentage    Float?
+  
+  // Current State
+  currentPrice          Float
+  previousPrice         Float?
+  priceChange           Float?
+  
+  // Status
+  status                AlertStatus @default(ACTIVE)
+  notifiedAt           DateTime?
+  triggeredAt           DateTime?
+  
+  // Unsubscribe
+  unsubscribedAt        DateTime?
+  unsubscribedReason    String?
+  
+  createdAt             DateTime @default(now())
+  expiresAt             DateTime?
+  
+  @@index([userId, status])
+  @@index([productId, status])
+  @@index([alertType])
+}
+
+enum PriceAlertType {
+  PRICE_DROP
+  PRICE_INCREASE
+  TARGET_PRICE_REACHED
+  DISCOUNT_AVAILABLE
+  PRICE_BACK_IN_STOCK
+}
+
+enum AlertStatus {
+  ACTIVE
+  NOTIFIED
+  EXPIRED
+  UNSUBSCRIBED
+}

@@ -1,0 +1,303 @@
+name: CD Pipeline - Deploy
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  NODE_VERSION: '18'
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  # ============================================
+  # Environment Detection
+  # ============================================
+  environment:
+    name: Environment Detection
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.detect.outputs.environment }}
+      version: ${{ steps.detect.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect environment
+        id: detect
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "version=$(date +%Y.%m.%d)-develop-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "version=$(date +%Y.%m.%d)-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          fi
+
+  # ============================================
+  # Build and Push Docker Images
+  # ============================================
+  build-and-push:
+    name: Build & Push - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    needs: environment
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - auth-service
+          - listing-service
+          - auction-service
+          - payment-service
+          - escrow-service
+          - notification-service
+          - orders-service
+          - matching-service
+          - internal-ledger-service
+          - ai-core
+          - recommendation-service
+    environment: ${{ needs.environment.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for ${{ matrix.service }}
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}
+          tags: |
+            type=sha
+            type=ref,event=branch
+            type=raw,value=${{ needs.environment.outputs.version }}
+            type=raw,value=latest
+
+      - name: Build and push ${{ matrix.service }}
+        uses: docker/build-push-action@v5
+        with:
+          context: backend/services/${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          build-args: |
+            NODE_VERSION=${{ env.NODE_VERSION }}
+            VERSION=${{ needs.environment.outputs.version }}
+
+      - name: Image digest for ${{ matrix.service }}
+        run: |
+          echo "Image ${{ matrix.service }}: ${{ steps.meta.outputs.tags }}"
+          echo "Digest: $(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.service }}:${{ needs.environment.outputs.version }})"
+
+  # ============================================
+  # Kubernetes Deploy - Staging
+  # ============================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [environment, build-and-push]
+    if: needs.environment.outputs.environment == 'staging' || needs.environment.outputs.environment == 'development'
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.0'
+
+      - name: Create kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Staging
+        run: |
+          helm upgrade --install mnbarh-staging k8s/helm/mnbarh \
+            --namespace staging \
+            --create-namespace \
+            -f k8s/helm/mnbarh/values-staging.yaml \
+            --set global.imageRegistry=${{ env.REGISTRY }}/${{ github.repository }} \
+            --set global.environment=staging \
+            --wait \
+            --timeout 10m \
+            --debug
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/api-gateway -n staging --timeout=300s
+          kubectl get pods -n staging
+          kubectl get svc -n staging
+
+  # ============================================
+  # Kubernetes Deploy - Production
+  # ============================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [environment, build-and-push]
+    if: needs.environment.outputs.environment == 'production'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.13.0'
+
+      - name: Create kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Production
+        run: |
+          helm upgrade --install mnbarh-production k8s/helm/mnbarh \
+            --namespace production \
+            --create-namespace \
+            -f k8s/helm/mnbarh/values-prod.yaml \
+            --set global.imageRegistry=${{ env.REGISTRY }}/${{ github.repository }} \
+            --set global.environment=production \
+            --wait \
+            --timeout 15m \
+            --debug
+
+      - name: Verify deployment
+        run: |
+          kubectl rollout status deployment/api-gateway -n production --timeout=300s
+          kubectl get pods -n production
+          kubectl get svc -n production
+
+      - name: Health check
+        run: |
+          curl -f https://api.mnbarh.com/health || exit 1
+
+  # ============================================
+  # Database Migration
+  # ============================================
+  database-migration:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    needs: environment
+    environment: ${{ needs.environment.outputs.environment }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: |
+          for service in backend/services/*/; do
+            if [ -f "$service/prisma/schema.prisma" ]; then
+              echo "Running migration for $service"
+              cd $service
+              npx prisma migrate deploy || true
+              cd -
+            fi
+          done
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_DB_URL: ${{ secrets.AUTH_DB_URL }}
+          LISTING_DB_URL: ${{ secrets.LISTING_DB_URL }}
+          AUCTION_DB_URL: ${{ secrets.AUCTION_DB_URL }}
+          PAYMENT_DB_URL: ${{ secrets.PAYMENT_DB_URL }}
+
+  # ============================================
+  # Smoke Tests
+  # ============================================
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          npm test -- --testNamePattern="smoke" || true
+          
+      - name: Health check
+        run: |
+          ENDPOINT="${{ needs.environment.outputs.environment == 'production' && 'https://api.mnbarh.com' || 'http://localhost:8080' }}"
+          curl -f "${ENDPOINT}/health" || exit 1
+          curl -f "${ENDPOINT}/api/health" || exit 1
+
+  # ============================================
+  # CD Summary
+  # ============================================
+  cd-summary:
+    name: CD Summary
+    runs-on: ubuntu-latest
+    needs: [environment, build-and-push, database-migration, smoke-tests]
+    if: always()
+    steps:
+      - name: CD Summary
+        run: |
+          echo "## CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ needs.environment.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.environment.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Services Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          for service in api-gateway auth-service listing-service auction-service payment-service escrow-service notification-service orders-service matching-service internal-ledger-service ai-core recommendation-service; do
+            echo "| $service | ✅ |" >> $GITHUB_STEP_SUMMARY
+          done

@@ -7,43 +7,137 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Notification {
-  id          String   @id @default(uuid())
+// Notification types enum
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+  WEBHOOK
+}
+
+enum NotificationType {
+  // Auction notifications
+  AUCTION_ENDING_SOON
+  NEW_BID_RECEIVED
+  OUTBID
+  AUCTION_WON
+  AUCTION_LOST
+  AUCTION_CANCELLED
   
-  // Type
-  type        String   // EMAIL, SMS, PUSH
+  // Payment notifications
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  REFUND_ISSUED
+  
+  // Order notifications
+  ORDER_CONFIRMED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  ORDER_DISPUTE
+  
+  // Chat notifications
+  NEW_MESSAGE
+  MESSAGE_RECEIVED
+  
+  // System notifications
+  ACCOUNT_VERIFIED
+  PASSWORD_CHANGED
+  NEW_REVIEW
+  SYSTEM_ALERT
+}
+
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+  DISMISSED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Notification {
+  id            String              @id @default(uuid())
+  
+  // Type and Channel
+  type          NotificationType
+  channel       NotificationChannel
   
   // Recipient
-  recipient   String   // Email or phone number
+  userId        String
+  recipient     String              // Email, phone, or device token
+  deviceTokenId String?
   
   // Content
-  subject     String?  // For emails
-  content     String   // Message body
+  title         String?
+  subject       String?              // For emails
+  content       String               // Message body
+  data          Json?                // Additional payload data
   
-  // Status
-  status      String   // PENDING, SENT, FAILED, DELIVERED
+  // Status and Priority
+  status        NotificationStatus   @default(PENDING)
+  priority      Priority            @default(NORMAL)
   
-  // Provider
-  provider    String   // SENDGRID, TWILIO, FIREBASE
-  providerId  String?  // Provider's message ID
+  // Provider info
+  provider      String?             // SENDGRID, TWILIO, FCM
+  providerId    String?             // Provider's message ID
   
-  // Error
-  error       String?
+  // Error handling
+  error         String?
+  retryCount    Int                 @default(0)
+  maxRetries    Int                 @default(3)
   
-  // Metadata
-  metadata    Json?
+  // Delivery tracking
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  readAt        DateTime?
+  
+  // Scheduling
+  scheduledFor  DateTime?
+  expiresAt     DateTime?
   
   // Timestamps
-  sentAt      DateTime?
-  deliveredAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
   
+  // Relations
+  deviceToken   DeviceToken?        @relation(fields: [deviceTokenId], references: [id])
+  
+  @@index([userId])
   @@index([type])
-  @@index([recipient])
+  @@index([channel])
   @@index([status])
   @@index([createdAt])
+  @@index([scheduledFor])
   @@map("notifications")
+}
+
+model DeviceToken {
+  id          String         @id @default(uuid())
+  userId      String
+  token       String         @unique
+  platform    String         // IOS, ANDROID, WEB
+  provider    String         // FCM, ONESIGNAL
+  isActive    Boolean        @default(true)
+  lastUsed    DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  notifications Notification[]
+  
+  @@index([userId])
+  @@index([token])
+  @@map("device_tokens")
 }
 
 model NotificationTemplate {
@@ -51,9 +145,11 @@ model NotificationTemplate {
   
   // Template info
   name        String   @unique
-  type        String   // EMAIL, SMS
+  type        NotificationType
+  channel     NotificationChannel
   
   // Content
+  title       String?
   subject     String?  // For emails
   template    String   // Template content (Handlebars)
   
@@ -69,5 +165,50 @@ model NotificationTemplate {
   
   @@index([name])
   @@index([type])
+  @@index([channel])
   @@map("notification_templates")
+}
+
+model UserNotificationSettings {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Channel preferences
+  emailEnabled    Boolean  @default(true)
+  smsEnabled      Boolean  @default(true)
+  pushEnabled     Boolean  @default(true)
+  inAppEnabled    Boolean  @default(true)
+  
+  // Notification type preferences
+  auctionAlerts   Boolean  @default(true)
+  bidAlerts       Boolean  @default(true)
+  outbidAlerts    Boolean  @default(true)
+  paymentAlerts   Boolean  @default(true)
+  orderAlerts      Boolean  @default(true)
+  chatAlerts       Boolean  @default(true)
+  marketingAlerts  Boolean  @default(false)
+  
+  // Quiet hours
+  quietHoursEnabled Boolean  @default(false)
+  quietHoursStart   String?   // "22:00"
+  quietHoursEnd     String?   // "08:00"
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("user_notification_settings")
+}
+
+model NotificationDeliveryLog {
+  id              String   @id @default(uuid())
+  notificationId  String
+  event           String   // SENT, DELIVERED, FAILED, CLICKED, OPENED
+  timestamp       DateTime @default(now())
+  metadata        Json?
+  
+  @@index([notificationId])
+  @@index([event])
+  @@index([timestamp])
+  @@map("notification_delivery_logs")
 }

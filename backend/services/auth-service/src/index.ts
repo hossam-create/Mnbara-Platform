@@ -5,11 +5,13 @@ import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
+import sessionRoutes from './routes/session.routes';
 import { logger } from './utils/logger';
 import { configureGoogleStrategy } from './strategies/google.strategy';
 import { configureFacebookStrategy } from './strategies/facebook.strategy';
 import { configureAppleStrategy } from './strategies/apple.strategy';
 import { configureJwtStrategy } from './strategies/jwt.strategy';
+import { sessionService } from './services/session.service';
 
 dotenv.config();
 
@@ -66,6 +68,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/sessions', sessionRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -82,13 +85,20 @@ app.get('/', (req, res) => {
       google: 'GET /auth/google',
       facebook: 'GET /auth/facebook',
       apple: 'GET /auth/apple',
+      sessions: 'GET /sessions/me, DELETE /sessions/current',
     },
   });
 });
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy' });
+app.get('/health', async (req, res) => {
+  try {
+    // Check Redis connection
+    await sessionService.connect();
+    res.json({ status: 'healthy', redis: 'connected' });
+  } catch (error) {
+    res.json({ status: 'healthy', redis: 'disconnected' });
+  }
 });
 
 // Error handling

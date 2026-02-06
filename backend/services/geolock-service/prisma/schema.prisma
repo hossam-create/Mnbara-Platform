@@ -1,0 +1,602 @@
+// GeoLock Service - نظام تأمين جغرافي وتنبيهات الموقع الذكية
+// GeoLock & Smart Location Alerts System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🌍 GEOLOCK CORE - تأمين جغرافي
+// ==========================================
+
+model GeoLockConfig {
+  id                String   @id @default(uuid())
+  
+  // Configuration Name
+  name              String
+  description       String?
+  isActive          Boolean  @default(true)
+  
+  // Lock Type
+  lockType          GeoLockType
+  
+  // Target Scope
+  targetType        GeoTargetType  @default(ALL)
+  targetIds         String[]        // Specific user IDs, roles, etc.
+  
+  // Geographic Rules
+  countries         String[]
+  regions           String[]        // States, provinces
+  cities            String[]
+  
+  // Coordinates-based (for precise control)
+  allowedPolygons   Json?           // Array of polygon coordinates
+  blockedPolygons   Json?
+  
+  // IP-based Rules
+  allowedIPs        String[]        // CIDR notation supported
+  blockedIPs        String[]
+  ipWhitelistMode   Boolean        @default(false) // true = only allow listed IPs
+  
+  // VPN/Proxy Detection
+  blockVPNs         Boolean        @default(false)
+  blockProxies      Boolean        @default(false)
+  blockTor          Boolean        @default(false)
+  blockDataCenters  Boolean        @default(false)
+  
+  // Time-based Restrictions
+  timeRestrictions  Json?          // { "start": "09:00", "end": "17:00", "timezone": "UTC" }
+  dayRestrictions   Int[]          // 0-6 (Sunday-Saturday)
+  
+  // Bypass Prevention
+  requireMFA        Boolean        @default(false)
+  allowBypassWithIP String[]        // IPs that can bypass
+  bypassRoles       String[]        // Roles that can bypass
+  
+  // Actions on Block
+  blockAction       BlockAction    @default(RETURN_403)
+  redirectURL       String?
+  message           String?
+  messageAr         String?
+  
+  // Priority (higher = checked first)
+  priority          Int            @default(0)
+  
+  // Logging
+  logBlockedAttempts Boolean       @default(true)
+  logAllowedAccess   Boolean       @default(false)
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([isActive, priority])
+  @@index([lockType])
+}
+
+enum GeoLockType {
+  WHITELIST    // Only allow listed locations
+  BLACKLIST    // Block listed locations
+  RESTRICTIVE  // Allow all except restricted
+  PERMISSIVE   // Block all except allowed
+}
+
+enum GeoTargetType {
+  ALL
+  USER
+  ROLE
+  IP_RANGE
+  ENDPOINT
+}
+
+enum BlockAction {
+  RETURN_403
+  RETURN_404
+  REDIRECT
+  SHOW_MESSAGE
+  LOG_ONLY
+}
+
+// ==========================================
+// 📍 LOCATION DETECTION - كشف الموقع
+// ==========================================
+
+model LocationDetection {
+  id                String   @id @default(uuid())
+  
+  // Detection Target
+  targetType        String   // user, session, request
+  targetId          String   // userId, sessionId, requestId
+  
+  // IP Information
+  ipAddress         String
+  ipVersion         Int      @default(4) // 4 or 6
+  
+  // IP Geolocation
+  country           String?
+  countryCode       String?  // ISO 3166-1 alpha-2
+  region            String?
+  regionCode        String?
+  city              String?
+  cityCode          String?
+  postalCode        String?
+  latitude          Float?
+  longitude         Float?
+  timezone          String?
+  isInEU            Boolean?
+  isp               String?
+  organization      String?
+  asn               String?
+  
+  // Network Analysis
+  isVPN             Boolean  @default(false)
+  isProxy           Boolean  @default(false)
+  isTor             Boolean  @default(false)
+  isDataCenter      Boolean  @default(false)
+  isResidential     Boolean  @default(false)
+  isMobile          Boolean  @default(false)
+  isHosting         Boolean  @default(false)
+  
+  // GPS Coordinates (if available)
+  gpsLatitude       Float?
+  gpsLongitude      Float?
+  gpsAccuracy       Float?
+  gpsAltitude       Float?
+  gpsHeading        Float?
+  
+  // GPS vs IP Comparison
+  ipGpsMismatch     Boolean  @default(false)
+  mismatchDistance  Float?   // km
+  
+  // Device Fingerprint
+  deviceFingerprint String?
+  userAgent         String?
+  
+  // Assessment
+  riskScore         Float    @default(0)
+  isTrusted         Boolean  @default(false)
+  
+  // Request Info
+  requestPath       String?
+  requestMethod     String?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([targetType, targetId])
+  @@index([ipAddress])
+  @@index([countryCode])
+  @@index([isTrusted])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 🏢 GEOFENCING - تحديد المناطق الجغرافية
+// ==========================================
+
+model GeofenceZone {
+  id                String   @id @default(uuid())
+  
+  // Zone Identity
+  name              String
+  description       String?
+  code              String   @unique
+  
+  // Zone Type
+  zoneType          GeofenceZoneType
+  
+  // Geography
+  centerLatitude    Float
+  centerLongitude   Float
+  radius            Float    // meters
+  
+  // Polygon (alternative to circle)
+  polygonCoords     Json?    // Array of {lat, lng} points
+  
+  // Airport-specific (for travel zones)
+  airportCode       String?  // IATA code (CAI, LHR, JFK)
+  airportName       String?
+  isAirport         Boolean  @default(false)
+  
+  // Zone Properties
+  isActive          Boolean  @default(true)
+  isPermanent       Boolean  @default(true)
+  
+  // Entry/Exit Rules
+  triggerOnEntry    Boolean  @default(true)
+  triggerOnExit     Boolean  @default(true)
+  
+  // Business Rules
+  offersEnabled     Boolean  @default(false)
+  maxOfferRadius    Float?   // meters
+  travelSpeedAlert  Boolean  @default(false)
+  
+  // Alerts Configuration
+  alertTypes        String[] // ENTRY, EXIT, PROXIMITY, SPEED
+  notifyAdmins      Boolean  @default(true)
+  notifyUsers       Boolean  @default(true)
+  
+  // Time-based
+  activeFrom        DateTime?
+  activeUntil       DateTime?
+  timezone          String   @default("UTC")
+  
+  // Metadata
+  tags              String[]
+  metadata          Json?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([zoneType])
+  @@index([airportCode])
+}
+
+enum GeofenceZoneType {
+  AIRPORT           // Airport zone
+  SHOPPING_MALL     // Shopping center
+  DELIVERY_ZONE     // Delivery area
+  RESTRICTED_AREA   // Restricted region
+  TRAVEL_CORRIDOR   // Travel route
+  PROMOTIONAL_ZONE  // Offer zone
+  HOME_ZONE         // User's home
+  OFFICE_ZONE       // Office location
+  CUSTOM            // Custom zone
+}
+
+// ==========================================
+// 📱 GEOFENCE EVENTS - أحداث تحديد الموقع
+// ==========================================
+
+model GeofenceEvent {
+  id                String   @id @default(uuid())
+  
+  // Zone
+  zoneId            String
+  zone              GeofenceZone @relation(fields: [zoneId], references: [id])
+  
+  // User
+  userId            String
+  sessionId         String?
+  
+  // Event Details
+  eventType         GeofenceEventType
+  
+  // Location at Event
+  latitude          Float
+  longitude         Float
+  accuracy          Float?
+  
+  // Distance
+  distanceFromCenter Float?  // meters
+  
+  // Speed (for travel alerts)
+  speed             Float?   // km/h
+  heading           Float?
+  
+  // Previous Zone (for travel)
+  previousZoneId    String?
+  previousZone      GeofenceZone? @relation("PreviousZone", fields: [previousZoneId], references: [id])
+  nextZoneId        String?
+  nextZone          GeofenceZone? @relation("NextZone", fields: [nextZoneId], references: [id])
+  
+  // Duration in zone (for exit events)
+  durationInZone    Int?     // seconds
+  
+  // Travel Calculation
+  travelTime        Int?     // seconds between zones
+  travelDistance    Float?   // km
+  
+  // Notifications Sent
+  notificationsSent Json?    // { admin: [], user: [] }
+  
+  // Status
+  processed         Boolean  @default(false)
+  processedAt       DateTime?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([zoneId, eventType])
+  @@index([userId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+enum GeofenceEventType {
+  ENTER            // User entered zone
+  EXIT             // User exited zone
+  PROXIMITY_ALERT  // Near zone boundary
+  SPEED_ALERT      // Moving too fast (traveling)
+  DWELL_ALERT      // Spent too long in zone
+  TRAVEL_DETECTED  // Travel between zones detected
+  ORDER_NEARBY     // Near order location
+}
+
+// ==========================================
+// ✈️ SMART LOCATION ALERTS - التنبيهات الذكية
+// ==========================================
+
+model LocationAlert {
+  id                String   @id @default(uuid())
+  
+  // Alert Configuration
+  name              String
+  description       String?
+  isActive          Boolean  @default(true)
+  
+  // Alert Type
+  alertType         LocationAlertType
+  
+  // Trigger Conditions
+  triggerType       TriggerType
+  triggerValue      Float    // radius in km, or other value
+  
+  // Location Points
+  targetLatitude    Float
+  targetLongitude   Float
+  targetName        String?  // Airport name, city name, etc.
+  targetCode        String?  // Airport code, city code
+  
+  // User Scope
+  userIds           String[] // Specific users (empty = all)
+  userRoles         String[] // All users with these roles
+  isGlobal          Boolean  @default(true)
+  
+  // Alert Content
+  title             String
+  titleAr           String
+  message           String
+  messageAr         String
+  
+  // Actions
+  actions           Json?    // [{ type: "offer", data: {...} }, { type: "notification" }]
+  
+  // Timing
+  activeHours       Json?    // { start: "09:00", end: "18:00" }
+  daysOfWeek        Int[]    // 0-6
+  validFrom         DateTime?
+  validUntil        DateTime?
+  
+  // Frequency Limits
+  maxAlertsPerUser  Int      @default(3)
+  cooldownMinutes   Int      @default(60)
+  
+  // Status
+  totalTriggered    Int      @default(0)
+  lastTriggeredAt   DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([isActive, alertType])
+  @@index([targetCode])
+}
+
+enum LocationAlertType {
+  AIRPORT_PROXIMITY    // Near airport
+  ORDER_LOCATION       // Near order location
+  TRAVEL_ZONE          // In travel corridor
+  PROMOTIONAL          // Promotional offer zone
+  DELIVERY_READY       // Ready for delivery
+  PICKUP_READY         // Ready for pickup
+  NEARBY_DEAL          // Deal nearby
+  TRAVEL_SPEED         // Speed-based travel alert
+  CUSTOM               // Custom alert
+}
+
+enum TriggerType {
+  PROXIMITY            // Within radius
+  EXIT_PROXIMITY       // Leaving radius
+  ENTER_PROXIMITY      // Entering radius
+  TRAVEL_SPEED         // Speed-based
+  DWELL_TIME           // Time-based
+}
+
+// ==========================================
+// 🚨 ALERT NOTIFICATIONS - إشعارات التنبيهات
+// ==========================================
+
+model AlertNotification {
+  id                String   @id @default(uuid())
+  
+  // Alert
+  alertId           String
+  alert             LocationAlert @relation(fields: [alertId], references: [id])
+  
+  // Target User
+  userId            String
+  
+  // Event Location
+  latitude          Float
+  longitude         Float
+  
+  // Notification Status
+  status            AlertNotificationStatus @default(PENDING)
+  
+  // Delivery Info
+  channel           String?  // push, email, sms, inapp
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  
+  // Action Taken
+  actionTaken       String?
+  actionData        Json?
+  
+  // Error/Retry
+  errorMessage      String?
+  retryCount        Int      @default(0)
+  maxRetries        Int      @default(3)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([alertId, userId])
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+enum AlertNotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+  EXPIRED
+}
+
+// ==========================================
+// 🛡️ BYPASS REQUESTS - طلبات التجاوز
+// ==========================================
+
+model BypassRequest {
+  id                String   @id @default(uuid())
+  
+  // Requester
+  userId            String
+  userEmail         String?
+  userRole          String?
+  
+  // Requested Bypass
+  lockId            String?
+  lockType          String?
+  
+  // Reason
+  reason            String
+  reasonAr          String?
+  
+  // Supporting Evidence
+  evidence          Json?    // Documents, tickets, etc.
+  
+  // Duration
+  duration          Int?     // hours
+  requestedUntil    DateTime?
+  
+  // Approval
+  status            BypassRequestStatus @default(PENDING)
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  reviewerNotes     String?
+  
+  // Approved Bypass
+  approvedUntil     DateTime?
+  approverIp        String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([userId, status])
+  @@index([status])
+}
+
+enum BypassRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+// ==========================================
+// 📊 LOCATION HISTORY - تاريخ الموقع
+// ==========================================
+
+model LocationHistory {
+  id                String   @id @default(uuid())
+  
+  // User
+  userId            String
+  
+  // Location
+  latitude          Float
+  longitude         Float
+  accuracy          Float?
+  source            String   // gps, ip, network
+  
+  // Context
+  sessionId         String?
+  requestId         String?
+  
+  // Activity
+  activityType      String?  // login, purchase, browse, etc.
+  activityId        String?
+  
+  // Geofence State
+  currentZoneId     String?
+  zoneEnteredAt     DateTime?
+  distanceFromZone  Float?
+  
+  // Risk
+  riskScore         Float    @default(0)
+  anomalyDetected   Boolean  @default(false)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([currentZoneId])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 📋 COUNTRY CONFIGURATION - تكوين الدول
+// ==========================================
+
+model CountryConfig {
+  id                String   @id @default(uuid())
+  
+  // Country Info
+  countryCode       String   @unique // ISO 3166-1 alpha-2
+  countryName       String
+  countryNameAr     String
+  
+  // Geographic
+  region            String?
+  subRegion         String?
+  continent         String?
+  
+  // Mnbara Configuration
+  isSupported       Boolean  @default(true)
+  isHighRisk        Boolean  @default(false)
+  currency          String?
+  timezone          String?
+  
+  // Logistics
+  shippingAvailable Boolean  @default(true)
+  customsEnabled    Boolean  @default(false)
+  
+  // Compliance
+  kycRequired       Boolean  @default(false)
+  restrictions     Json?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([isSupported])
+  @@index([isHighRisk])
+}
+
+// ==========================================
+// 🔄 SYNC TRACKING - تتبع المزامنة
+// ==========================================
+
+model SyncLog {
+  id                String   @id @default(uuid())
+  
+  // Sync Info
+  entityType        String
+  entityId          String
+  operation         String
+  
+  // Status
+  status            String   @default("pending")
+  errorMessage      String?
+  
+  // Timestamp
+  syncedAt          DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([syncedAt])
+}

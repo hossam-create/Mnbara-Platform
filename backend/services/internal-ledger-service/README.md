@@ -1,48 +1,162 @@
-# Internal Ledger Service
+# Internal Ledger Service v2.0
 
-Simple internal wallet system for mnbarh platform with escrow functionality.
+## Overview
+
+Enhanced Internal Ledger & Settlement System for Mnbara e-commerce platform with:
+- **Double-Entry Bookkeeping** - Proper debit/credit tracking
+- **Buyer/Seller Matching Algorithm** - Automatic order matching
+- **Real-time Settlement Processing** - Instant transactions with fee calculation
+- **AML/KYC Compliance** - Integrated compliance checks
+- **Complete Audit Trail** - Full transaction logging
+- **Transaction Rollback** - Failure recovery mechanism
 
 ## Features
 
-- **Simple Wallet System**: User wallets with available and locked balances
-- **Multi-Currency Support**: Support for USD, EUR, SAR, and other currencies
-- **Transaction Tracking**: Complete audit trail of all wallet movements
-- **Escrow Management**: Lock and release funds for secure transactions
-- **DECIMAL(19,4) Precision**: High-precision financial calculations
+### 1. Double-Entry Ledger System
+
+Tracks all financial movements with proper accounting:
+
+```typescript
+// Create balanced double-entry
+await ledgerService.createDoubleEntry(
+  transactionId,
+  'Payment for order #123',
+  { accountType: AccountType.WALLET_AVAILABLE, accountId: 'WALLET-1', amount: 100, currency: 'USD' },
+  { accountType: AccountType.WALLET_AVAILABLE, accountId: 'WALLET-2', amount: 100, currency: 'USD' }
+);
+```
+
+### 2. Matching Algorithm
+
+Automatic matching of buyer requests with seller offers:
+
+```typescript
+// Create a buy request
+const buyRequest = await matchingService.createBuyRequest({
+  userId: 1,
+  currency: 'USD',
+  amount: 1000,
+  maxPricePerUnit: 1.10,
+});
+
+// Create a sell offer
+const sellOffer = await matchingService.createSellOffer({
+  userId: 2,
+  currency: 'USD',
+  amount: 500,
+  minPricePerUnit: 1.05,
+});
+
+// Run matching
+await matchingService.runMatching(buyRequest.id, 'USD');
+```
+
+### 3. Real-time Settlement
+
+Process settlements with automatic fee calculation:
+
+```typescript
+const result = await settlementService.processSettlement({
+  fromUserId: 1,
+  toUserId: 2,
+  amount: new Decimal('1000'),
+  currency: 'USD',
+  referenceType: 'Order',
+  referenceId: 'ORD-123',
+  description: 'Payment for order #123',
+});
+
+// Fees calculated automatically
+console.log(result.fees); // { platformFee, processingFee, totalFees, netAmount }
+```
+
+### 4. Fee Calculation
+
+Configurable fee structure:
+
+| Fee Type | Rate | Fixed |
+|----------|------|-------|
+| Platform Fee | 2% | - |
+| Processing Fee | 2.9% | $0.30 |
+
+### 5. Compliance Integration
+
+Automated AML/KYC checks:
+
+```typescript
+const status = await complianceService.getComplianceStatus(userId);
+// Returns: { kycVerified, watchlistStatus, riskLevel, activeLimits }
+```
+
+### 6. Audit Trail
+
+Complete logging of all actions:
+
+```typescript
+await auditService.log({
+  action: 'SETTLEMENT_PROCESSED',
+  entityType: 'Settlement',
+  entityId: 'SETT-123',
+  userId: 1,
+  description: 'Settlement completed',
+});
+```
+
+### 7. Rollback Mechanism
+
+Recover from failed transactions:
+
+```typescript
+await settlementService.rollbackSettlement(
+  'SETT-123',
+  'Customer requested cancellation',
+  adminUserId
+);
+```
 
 ## Database Schema
 
-### Tables
+### Core Tables
 
-1. **Wallet**
-   - `id`: Primary key
-   - `userId`: User identifier
-   - `currency`: Currency code (USD, EUR, SAR, etc.)
-   - `availableBalance`: Available funds (DECIMAL 19,4)
-   - `lockedBalance`: Funds locked in escrow (DECIMAL 19,4)
-   - `createdAt`, `updatedAt`: Timestamps
+1. **Wallet** - User wallets per currency
+2. **WalletTransaction** - Transaction history
+3. **EscrowHold** - Escrow balances
+4. **LedgerEntry** - Double-entry records
+5. **BuyRequest** - Buyer orders
+6. **SellOffer** - Seller offers
+7. **MatchingSettlement** - Trade settlements
+8. **PayoutRequest** - Withdrawal requests
+9. **ComplianceCheck** - AML/KYC records
+10. **TransactionLimit** - User limits
+11. **AuditLog** - Audit trail
+12. **RollbackRecord** - Rollback records
 
-2. **WalletTransaction**
-   - `id`: Primary key
-   - `walletId`: Foreign key to Wallet
-   - `transactionType`: DEPOSIT, WITHDRAWAL, ESCROW_LOCK, ESCROW_RELEASE, ESCROW_REFUND, FEE_DEDUCTION, PAYOUT
-   - `amount`: Transaction amount (DECIMAL 19,4)
-   - `referenceType`: External entity type (Request, Payout, etc.)
-   - `referenceId`: External entity ID
-   - `status`: PENDING, COMPLETED, FAILED
-   - `metadata`: JSON for additional details
-   - `createdAt`: Timestamp
+## API Endpoints
 
-3. **EscrowHold**
-   - `id`: Primary key
-   - `requestId`: Unique request identifier
-   - `buyerWalletId`: Buyer's wallet
-   - `sellerWalletId`: Seller's wallet
-   - `amount`: Escrow amount (DECIMAL 19,4)
-   - `platformFee`: Platform fee (DECIMAL 19,4)
-   - `status`: HELD, RELEASED, REFUNDED
-   - `heldAt`, `releasedAt`, `expiresAt`: Timestamps
-   - `releaseConditions`: JSON for release rules
+### Ledger
+- `GET /api/ledger/balances` - Get balance summary
+- `GET /api/ledger/entries/:transactionId` - Get transaction entries
+
+### Matching
+- `GET /api/matching/buy-requests` - List buy requests
+- `GET /api/matching/sell-offers` - List sell offers
+- `POST /api/matching/run` - Run matching algorithm
+
+### Settlement
+- `POST /api/settlement/process` - Process settlement
+- `POST /api/settlement/rollback` - Rollback settlement
+
+### Compliance
+- `GET /api/compliance/status/:userId` - Get compliance status
+- `GET /api/compliance/limits/:userId` - Get transaction limits
+
+### Audit
+- `GET /api/audit/logs` - List audit logs
+- `GET /api/audit/trail/:transactionId` - Get transaction audit trail
+
+### Rollback
+- `GET /api/rollback/status/:rollbackId` - Get rollback status
+- `POST /api/rollback/retry/:rollbackId` - Retry failed rollback
 
 ## Setup
 
@@ -72,74 +186,108 @@ npm run prisma:generate
 npm run dev
 ```
 
-## Usage
+## Configuration
 
-### Create a Wallet
+### Fee Configuration
+
 ```typescript
-const wallet = await prisma.wallet.create({
-  data: {
-    userId: 123,
-    currency: 'USD',
-    availableBalance: 0,
-    lockedBalance: 0
-  }
+settlementService.configureFees({
+  platformFeeRate: new Decimal('0.02'),
+  processingFeeRate: new Decimal('0.029'),
+  processingFeeFixed: new Decimal('0.30'),
+  minPlatformFee: new Decimal('1.00'),
+  maxPlatformFee: new Decimal('1000.00'),
+  feeExemptUserIds: [1, 2, 3],
 });
 ```
 
-### Record a Transaction
-```typescript
-const transaction = await prisma.walletTransaction.create({
-  data: {
-    walletId: wallet.id,
-    transactionType: 'DEPOSIT',
-    amount: 100.00,
-    status: 'COMPLETED'
-  }
-});
+### Transaction Limits
+
+Default limits:
+- Daily Deposit: $10,000
+- Daily Withdrawal: $5,000
+- Daily Transaction: $25,000
+- Single Transaction: $50,000
+
+## Running Tests
+
+```bash
+npm test
+npm run test:coverage
 ```
 
-### Create Escrow Hold
-```typescript
-const escrow = await prisma.escrowHold.create({
-  data: {
-    requestId: 456,
-    buyerWalletId: buyerWallet.id,
-    sellerWalletId: sellerWallet.id,
-    amount: 50.00,
-    platformFee: 5.00,
-    status: 'HELD'
-  }
-});
+## Deployment
+
+```bash
+npm run build
+npm start
 ```
 
-## Transaction Types
+## Service Health
 
-- **DEPOSIT**: Add funds to wallet
-- **WITHDRAWAL**: Remove funds from wallet
-- **ESCROW_LOCK**: Lock funds for escrow
-- **ESCROW_RELEASE**: Release escrowed funds to seller
-- **ESCROW_REFUND**: Refund escrowed funds to buyer
-- **FEE_DEDUCTION**: Deduct platform fees
-- **PAYOUT**: Payout to external account
+```bash
+curl http://localhost:3010/health
+```
 
-## Indexes
+Response:
+```json
+{
+  "status": "healthy",
+  "service": "internal-ledger-service",
+  "version": "2.0.0",
+  "features": [
+    "double-entry-ledger",
+    "matching-algorithm",
+    "real-time-settlement",
+    "compliance-kyc",
+    "audit-trail",
+    "rollback-support"
+  ],
+  "timestamp": "2026-02-05T01:00:00.000Z"
+}
+```
 
-All tables have proper indexes for:
-- User lookups
-- Currency filtering
-- Transaction type queries
-- Status filtering
-- Reference lookups
-- Time-based queries
+## Integration
 
-## Foreign Key Constraints
+### With Wallet Service
 
-- WalletTransaction → Wallet
-- EscrowHold → Wallet (buyer and seller)
+```typescript
+import { walletService } from '@mnbarh/wallet-service';
+import { ledgerService } from '@mnbarh/internal-ledger-service';
 
-## Precision
+// Lock funds in wallet and create ledger entry
+await walletService.lockFunds(userId, amount, requestId);
+await ledgerService.createEntry({...});
+```
 
-All monetary values use `DECIMAL(19,4)` for:
-- 15 digits before decimal point
-- 4 digits after decimal point
-- Accurate financial calculations
+### With Escrow Service
+
+```typescript
+import { escrowService } from '@mnbarh/escrow-service';
+import { settlementService } from '@mnbarh/internal-ledger-service';
+
+// Release escrow and process settlement
+await escrowService.releaseFunds(requestId);
+await settlementService.processSettlement({...});
+```
+
+## Error Handling
+
+All services throw typed errors:
+
+```typescript
+try {
+  await settlementService.processSettlement(params);
+} catch (error) {
+  if (error instanceof InsufficientFundsError) {
+    // Handle insufficient funds
+  }
+  if (error instanceof ComplianceCheckFailedError) {
+    // Handle compliance failure
+  }
+}
+```
+
+## License
+
+MIT

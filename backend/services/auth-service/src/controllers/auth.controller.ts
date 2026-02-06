@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/auth.service';
+import { sessionService } from '../services/session.service';
 import { logger } from '../utils/logger';
 import { OAuthProfile } from '../types/auth.types';
 
@@ -98,6 +99,22 @@ export class AuthController {
       }
 
       const { user, tokens, isNewUser } = await this.authService.oauthLogin(profile);
+
+      // Create session in Redis
+      const deviceFingerprint = req.headers['user-agent'] || '';
+      const ipAddress = (req.ip || req.socket.remoteAddress) || '';
+
+      await sessionService.createSession({
+        userId: String(user.id),
+        deviceName: req.headers['x-device-name'] as string || 'OAuth Device',
+        deviceFingerprint,
+        ipAddress,
+        userAgent: req.headers['user-agent'] || '',
+        metadata: {
+          provider: profile.provider,
+          isNewUser,
+        },
+      });
 
       // Redirect to frontend with tokens
       const redirectUrl = `${process.env.FRONTEND_URL}/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}&isNewUser=${isNewUser}`;

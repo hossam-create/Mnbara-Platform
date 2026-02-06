@@ -1,0 +1,79 @@
+# Fraud Detection Service Docker Compose
+# ملف نشر خدمة كشف الاحتيال
+
+version: '3.8'
+
+services:
+  fraud-detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mnbara-fraud-detection
+    restart: unless-stopped
+    ports:
+      - "3020:3020"
+    environment:
+      - NODE_ENV=production
+      - PORT=3020
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fraud_detection
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fraud-detection.rule=Host(`fraud.${DOMAIN:-localhost}`)"
+      - "traefik.http.services.fraud-detection.loadbalancer.server.port=3020"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: mnbara-fraud-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fraud_detection
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mnbara-fraud-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - mnbara-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  mnbara-network:
+    driver: bridge

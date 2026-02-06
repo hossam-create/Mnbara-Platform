@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  rewards-service:
+    build:
+      context: ./services/rewards-service
+      dockerfile: Dockerfile
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+      - DATABASE_URL=postgresql://mnbara:mnbara@postgres:5432/mnbara_db?schema=public
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbara-network
+    restart: unless-stopped
+
+networks:
+  mnbara-network:
+    driver: bridge

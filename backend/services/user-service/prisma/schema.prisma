@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  password      String?
+  name          String?
+  avatar        String?
+  role          UserRole       @default(USER)
+  status        UserStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Profile fields
+  phoneNumber         String?
+  phoneNumberVerified Boolean        @default(false)
+  bio                 String?
+  dateOfBirth         DateTime?
+  gender              String?
+  language            String?        @default("en")
+  timezone            String?        @default("UTC")
+  
+  // Address
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  postalCode   String?
+  country      String?
+  
+  // Preferences
+  marketingEmails Boolean @default(true)
+  pushNotifications Boolean @default(true)
+  
+  // Relations
+  sessions     Session[]
+  devices      UserDevice[]
+  
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model Session {
+  id               String   @id @default(uuid())
+  userId           String
+  deviceId         String
+  deviceName       String
+  deviceFingerprint String?
+  ipAddress        String
+  userAgent        String
+  createdAt        DateTime @default(now())
+  lastActivityAt   DateTime @default(now())
+  expiresAt        DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([deviceId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model UserDevice {
+  id          @default(uuid())
+ String   @id  userId      String
+  fingerprint String
+  name        String
+  type        String   // mobile, desktop, tablet
+  os          String?
+  browser     String?
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, fingerprint])
+  @@index([userId])
+  @@map("user_devices")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+  SELLER
+  BUYER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+  PENDING
+}

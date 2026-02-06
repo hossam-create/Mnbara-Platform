@@ -41,3 +41,24 @@ model KYCVerification {
   @@index([status])
   @@map("kyc_verifications")
 }
+
+model KYCAuditLog {
+  id          Int      @id @default(autoincrement())
+  userId      String?
+  action      String
+  severity    String   @default("INFO")
+  resourceType String
+  resourceId  String
+  ipAddress   String?
+  userAgent   String?
+  metadata    String?
+  errorMessage String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+  @@map("kyc_audit_logs")
+}

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MatchingModule } from './matching/matching.module';
 import { GeoModule } from './geo/geo.module';
+import { RecommendationModule } from './recommendation/recommendation.module';
 import { PrismaModule } from './common/prisma/prisma.module';
 import { CacheModule } from './common/cache/cache.module';
 
@@ -12,6 +13,7 @@ import { CacheModule } from './common/cache/cache.module';
     CacheModule,
     MatchingModule,
     GeoModule,
+    RecommendationModule,
   ],
 })
 export class AppModule {}

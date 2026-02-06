@@ -1,0 +1,209 @@
+.mnbara-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.mnbara-button:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+.mnbara-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.mnbara-button--sm {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+}
+
+.mnbara-button--md {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  min-height: 40px;
+}
+
+.mnbara-button--lg {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  min-height: 48px;
+}
+
+/* Variants */
+.mnbara-button--primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+.mnbara-button--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+.mnbara-button--primary:active:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.mnbara-button--secondary {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  border-color: var(--color-secondary);
+}
+
+.mnbara-button--secondary:hover:not(:disabled) {
+  background-color: var(--color-secondary-hover);
+  border-color: var(--color-secondary-hover);
+}
+
+.mnbara-button--success {
+  background-color: var(--color-success);
+  color: var(--color-white);
+  border-color: var(--color-success);
+}
+
+.mnbara-button--success:hover:not(:disabled) {
+  background-color: var(--color-success-hover);
+  border-color: var(--color-success-hover);
+}
+
+.mnbara-button--warning {
+  background-color: var(--color-warning);
+  color: var(--color-gray-900);
+  border-color: var(--color-warning);
+}
+
+.mnbara-button--warning:hover:not(:disabled) {
+  background-color: var(--color-warning-hover);
+  border-color: var(--color-warning-hover);
+}
+
+.mnbara-button--error {
+  background-color: var(--color-error);
+  color: var(--color-white);
+  border-color: var(--color-error);
+}
+
+.mnbara-button--error:hover:not(:disabled) {
+  background-color: var(--color-error-hover);
+  border-color: var(--color-error-hover);
+}
+
+.mnbara-button--ghost {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: transparent;
+}
+
+.mnbara-button--ghost:hover:not(:disabled) {
+  background-color: var(--color-gray-100);
+}
+
+[data-theme="dark"] .mnbara-button--ghost:hover:not(:disabled) {
+  background-color: var(--color-gray-700);
+}
+
+.mnbara-button--outline {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.mnbara-button--outline:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Full Width */
+.mnbara-button--full-width {
+  width: 100%;
+}
+
+/* Loading State */
+.mnbara-button--loading {
+  pointer-events: none;
+}
+
+.mnbara-button__spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mnbara-button__spinner-icon {
+  width: 1em;
+  height: 1em;
+  animation: mnbara-spin 1s linear infinite;
+}
+
+.mnbara-button__spinner-track {
+  stroke: currentColor;
+  opacity: 0.25;
+}
+
+.mnbara-button__spinner-head {
+  stroke: currentColor;
+  stroke-dasharray: 90;
+  stroke-dashoffset: 0;
+  transform-origin: center;
+  animation: mnbara-spinner-dash 1.5s ease-in-out infinite;
+}
+
+@keyframes mnbara-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mnbara-spinner-dash {
+  0% {
+    stroke-dashoffset: 90;
+  }
+  50% {
+    stroke-dashoffset: 22.5;
+    transform: rotate(135deg);
+  }
+  100% {
+    stroke-dashoffset: 90;
+    transform: rotate(450deg);
+  }
+}
+
+/* Icons */
+.mnbara-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mnbara-button__icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.mnbara-button__icon--left {
+  margin-inline-end: var(--spacing-xs);
+}
+
+.mnbara-button__icon--right {
+  margin-inline-start: var(--spacing-xs);
+}

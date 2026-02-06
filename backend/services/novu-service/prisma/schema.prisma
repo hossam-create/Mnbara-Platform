@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Subscriber {
+  id           String   @id @default(cuid())
+  subscriberId String   @unique
+  email        String?
+  phone        String?
+  firstName    String?
+  lastName     String?
+  data         Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([subscriberId])
+  @@index([email])
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  subscriberId  String
+  templateId    String
+  payload       Json
+  transactionId String
+  status        String   // sent, failed, cancelled
+  error         String?
+  createdAt     DateTime @default(now())
+
+  @@index([subscriberId])
+  @@index([templateId])
+  @@index([transactionId])
+  @@index([status])
+}

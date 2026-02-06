@@ -35,6 +35,7 @@ model Wallet {
   transfers     Transfer[]
   autoConversions AutoConversion[]
   hedgingOrders HedgingOrder[]
+  auditLogs     WalletAuditLog[]
 }
 
 // رصيد المحفظة بكل عملة - Wallet Balance per Currency
@@ -204,6 +205,26 @@ model ForexRate {
   @@index([baseCurrency, quoteCurrency, createdAt])
 }
 
+// سجل تدقيق المحفظة - Wallet Audit Log
+model WalletAuditLog {
+  id            String   @id @default(uuid())
+  walletId      String
+  wallet        Wallet   @relation(fields: [walletId], references: [id])
+  
+  action        String   // DEPOSIT, WITHDRAWAL, CONVERSION, etc.
+  performedBy   String
+  metadata      Json?
+  
+  ipAddress     String?
+  userAgent     String?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([walletId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 // Enums
 enum Currency {
   USD
@@ -216,6 +237,50 @@ enum Currency {
   CNY
   INR
   TRY
+  THB
+  IDR
+  MYR
+  SGD
+  AUD
+  CAD
+  CHF
+  KWD
+  QAR
+  BHD
+  OMR
+  JOD
+  MAD
+  TND
+  DZD
+  LBP
+  SYR
+  IQD
+  ALL
+  BGN
+  HRK
+  CZK
+  DKK
+  HUF
+  ISK
+  NOK
+  PLN
+  RON
+  SEK
+  UAH
+  ZAR
+  BRL
+  MXN
+  CLP
+  COP
+  PEN
+  UYU
+  VND
+  PHP
+  NZD
+  KRW
+  TWD
+  HKD
+  MOP
 }
 
 enum TransactionType {
@@ -228,6 +293,8 @@ enum TransactionType {
   REFUND
   HEDGING_PREMIUM
   HEDGING_PAYOUT
+  ESCROW_LOCK
+  ESCROW_RELEASE
 }
 
 enum TransactionStatus {

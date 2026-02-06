@@ -1167,10 +1167,914 @@ async getRate(base, quote) {
 
 ---
 
-**END OF BUILD MAP**
+## EXECUTION ROADMAP - PRODUCTION LAUNCH STRATEGY
 
-**Document Generated**: January 31, 2026  
-**Auditor**: Senior Technical Architect  
-**Status**: COMPLETE  
-**Next Review**: After executive decision on budget and timeline
+**Date Added**: January 31, 2026  
+**Purpose**: Comprehensive roadmap from current state (35%) to production launch (100%)  
+**Timeline**: 9-12 months (Realistic Scenario)  
+**Budget**: $335K
+
+---
+
+### ROADMAP OVERVIEW
+
+This roadmap addresses three parallel tracks:
+1. **Regulatory Track**: Obtain licenses and compliance (6-12 months)
+2. **Infrastructure Track**: Build real financial systems (3-4 months)
+3. **Feature Track**: Complete original vision features (4-6 months)
+
+**Critical Path**: Regulatory Track (longest duration, must start immediately)
+
+---
+
+### TRACK 1: REGULATORY & COMPLIANCE (Months 1-12)
+
+#### Month 1: Legal Foundation
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $15K-$25K
+
+**Deliverables**:
+- [ ] Engage financial services attorney (specialized in fintech)
+- [ ] Conduct regulatory assessment (federal + state requirements)
+- [ ] Create compliance roadmap
+- [ ] Identify required licenses by jurisdiction
+- [ ] Draft initial license applications
+
+**Key Milestones**:
+- Week 1: Attorney selection and engagement
+- Week 2: Regulatory assessment complete
+- Week 3: Compliance roadmap finalized
+- Week 4: License applications drafted
+
+---
+
+#### Months 2-4: License Applications
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $20K-$40K
+
+**Deliverables**:
+- [ ] Submit money transmitter license applications
+- [ ] Submit payment processor registrations
+- [ ] Implement AML/KYC compliance procedures
+- [ ] Create regulatory reporting framework
+- [ ] Appoint compliance officer
+- [ ] Set up compliance monitoring systems
+
+**Key Milestones**:
+- Month 2: Applications submitted (federal)
+- Month 3: State applications submitted (priority states)
+- Month 4: Compliance framework operational
+
+---
+
+#### Months 5-12: License Processing & Compliance
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $15K-$35K
+
+**Deliverables**:
+- [ ] Respond to regulatory inquiries
+- [ ] Complete background checks
+- [ ] Provide additional documentation
+- [ ] Implement required controls
+- [ ] Pass regulatory audits
+- [ ] Receive license approvals
+
+**Key Milestones**:
+- Month 6: First license approval (optimistic)
+- Month 9: Core licenses approved (realistic)
+- Month 12: All required licenses obtained (conservative)
+
+**Risk Mitigation**:
+- Start with limited jurisdiction launch
+- Expand as licenses are obtained
+- Maintain compliance buffer
+
+---
+
+### TRACK 2: FINANCIAL INFRASTRUCTURE (Months 2-5)
+
+#### Month 2: Provider Selection
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $10K-$15K
+
+**Deliverables**:
+- [ ] Research and evaluate providers:
+  - Bank integration (Plaid/Stripe Connect/Dwolla)
+  - Custodian services (licensed custodian)
+  - Escrow provider (licensed escrow agent)
+  - FX provider (OpenExchangeRates/XE/Oanda)
+- [ ] Create RFP documents
+- [ ] Conduct vendor demos
+- [ ] Negotiate contracts
+- [ ] Sign agreements
+
+**Key Milestones**:
+- Week 1-2: Research and RFP
+- Week 3-4: Vendor evaluation
+- Week 5-6: Contract negotiation
+- Week 7-8: Agreements signed
+
+---
+
+#### Month 3: Real Money Custody
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $30K-$75K  
+**Dependencies**: Provider contracts signed
+
+**Deliverables**:
+```typescript
+// Replace mock implementation
+backend/services/internal-ledger-service/src/services/wallet.service.ts
+backend/services/internal-ledger-service/src/adapters/custodian-adapter.ts (NEW)
+
+✅ Open segregated bank accounts
+✅ Integrate custodian APIs
+✅ Build reconciliation system
+✅ Link internal ledger to external custody
+✅ Implement real balance checks
+✅ Add transaction verification
+✅ Create audit trail
+```
+
+**Files to Create/Modify**:
+- `backend/services/internal-ledger-service/src/adapters/custodian-adapter.ts`
+- `backend/services/internal-ledger-service/src/services/reconciliation.service.ts`
+- `backend/services/internal-ledger-service/src/services/custody-sync.service.ts`
+
+**Acceptance Criteria**:
+- [ ] Real money held in segregated accounts
+- [ ] Internal ledger syncs with custodian
+- [ ] Reconciliation runs daily
+- [ ] Discrepancies flagged and resolved
+- [ ] Audit trail complete
+- [ ] Tests: 95%+ coverage
+
+---
+
+#### Month 4: Bank Integration
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $20K-$40K  
+**Dependencies**: Month 3 complete
+
+**Deliverables**:
+```typescript
+// Replace mock implementation
+backend/services/wallet-service/src/adapters/bank-adapter.ts
+
+✅ Integrate bank APIs (Plaid/Stripe Connect)
+✅ Implement ACH transfers
+✅ Implement wire transfers
+✅ Add account verification
+✅ Build deposit flow
+✅ Build withdrawal flow
+✅ Add transaction limits
+✅ Implement fraud checks
+```
+
+**Files to Create/Modify**:
+- `backend/services/wallet-service/src/adapters/plaid-adapter.ts`
+- `backend/services/wallet-service/src/services/ach-transfer.service.ts`
+- `backend/services/wallet-service/src/services/wire-transfer.service.ts`
+- `backend/services/wallet-service/src/services/account-verification.service.ts`
+
+**Acceptance Criteria**:
+- [ ] Users can link bank accounts
+- [ ] Users can deposit funds (ACH)
+- [ ] Users can withdraw funds (ACH)
+- [ ] Wire transfers supported
+- [ ] Account verification works
+- [ ] Transaction limits enforced
+- [ ] Tests: 95%+ coverage
+
+---
+
+#### Month 5: Licensed Escrow & FX
+**Priority**: 🔴 CRITICAL BLOCKER  
+**Budget**: $35K-$90K  
+**Dependencies**: Month 4 complete
+
+**Deliverables**:
+```typescript
+// Licensed Escrow Integration
+backend/services/escrow-service/src/adapters/licensed-escrow-adapter.ts
+
+✅ Integrate licensed escrow provider APIs
+✅ Build sync system (internal ↔ external)
+✅ Implement hold/release workflow
+✅ Add dispute integration
+✅ Create audit trail
+
+// Real FX Integration
+backend/services/wallet-service/src/services/forex.service.ts
+
+✅ Integrate OpenExchangeRates API
+✅ Implement real-time rate updates
+✅ Add rate caching (Redis)
+✅ Build conversion service
+✅ Add FX risk monitoring
+✅ Implement rate alerts
+```
+
+**Files to Create/Modify**:
+- `backend/services/escrow-service/src/adapters/licensed-escrow-adapter.ts`
+- `backend/services/escrow-service/src/services/escrow-sync.service.ts`
+- `backend/services/wallet-service/src/services/forex.service.ts`
+- `backend/services/wallet-service/src/adapters/openexchangerates-adapter.ts`
+
+**Acceptance Criteria**:
+- [ ] Funds held in licensed escrow
+- [ ] Internal/external escrow synced
+- [ ] Real-time FX rates
+- [ ] Currency conversion accurate
+- [ ] Rate caching works
+- [ ] Tests: 95%+ coverage
+
+---
+
+### TRACK 3: FEATURE COMPLETION (Months 2-7)
+
+#### Phase 3.1: Traveler System (Months 2-3)
+**Priority**: 🔴 CRITICAL (Original Vision)  
+**Budget**: $25K-$40K  
+**Effort**: 6 weeks
+
+**Deliverables**:
+```typescript
+backend/services/traveler-service/ (NEW)
+
+✅ Database schema:
+   - travelers (user_id, verification_status, rating, trust_score)
+   - travel_routes (traveler_id, origin, destination, dates, capacity_kg)
+   - buyer_requests (buyer_id, product_url, destination, max_price, deadline)
+   - matches (route_id, request_id, status, commission)
+
+✅ Core APIs:
+   - POST /api/travelers/routes (create trip)
+   - GET /api/travelers/routes (list trips)
+   - POST /api/buyers/requests (create request)
+   - GET /api/buyers/requests (list requests)
+   - POST /api/matches (create match)
+   - GET /api/matches/:id (get match details)
+
+✅ Matching algorithm:
+   - Match by destination
+   - Match by date range (+/- 3 days)
+   - Match by capacity
+   - Match by trust score
+   - Prioritize by commission
+
+✅ Frontend:
+   - Traveler dashboard
+   - Trip creation form
+   - Buyer request form
+   - Match browsing
+   - Match acceptance flow
+```
+
+**Files to Create**:
+- `backend/services/traveler-service/prisma/schema.prisma`
+- `backend/services/traveler-service/src/services/traveler.service.ts`
+- `backend/services/traveler-service/src/services/matching.service.ts`
+- `backend/services/traveler-service/src/controllers/traveler.controller.ts`
+- `frontend/web-app/src/pages/traveler/TravelerDashboard.tsx`
+- `frontend/web-app/src/components/traveler/TripForm.tsx`
+- `frontend/web-app/src/components/traveler/MatchBrowser.tsx`
+
+**Acceptance Criteria**:
+- [ ] Traveler can create trip listing
+- [ ] Buyer can create purchase request
+- [ ] System matches automatically
+- [ ] Match creates order
+- [ ] Commission calculated
+- [ ] Tests: 90%+ coverage
+
+---
+
+#### Phase 3.2: AI/ML Recommendations (Months 3-4)
+**Priority**: 🔴 CRITICAL (Original Vision)  
+**Budget**: $30K-$50K  
+**Effort**: 6 weeks
+
+**Deliverables**:
+```python
+backend/services/recommendation-service/ (COMPLETE)
+
+✅ Collaborative filtering:
+   - User-based recommendations
+   - Item-based recommendations
+   - Matrix factorization
+
+✅ Content-based filtering:
+   - Product similarity
+   - Category matching
+   - Price range matching
+
+✅ Hybrid approach:
+   - Combine collaborative + content
+   - Weighted scoring
+   - Personalization
+
+✅ Real-time updates:
+   - Event stream processing
+   - Model retraining pipeline
+   - A/B testing framework
+
+✅ APIs:
+   - GET /api/recommendations/products (personalized)
+   - GET /api/recommendations/similar/:productId
+   - GET /api/recommendations/trending
+   - POST /api/recommendations/feedback (track clicks/purchases)
+```
+
+**Files to Complete**:
+- `backend/services/recommendation-service/src/models/collaborative_filtering.py`
+- `backend/services/recommendation-service/src/models/content_based.py`
+- `backend/services/recommendation-service/src/models/hybrid.py`
+- `backend/services/recommendation-service/src/api/recommendations.py`
+- `backend/services/recommendation-service/src/training/pipeline.py`
+
+**Acceptance Criteria**:
+- [ ] Personalized recommendations work
+- [ ] Similar products suggested
+- [ ] Trending products identified
+- [ ] Click tracking works
+- [ ] Model retrains daily
+- [ ] Tests: 85%+ coverage
+
+---
+
+#### Phase 3.3: Smart Auction Enhancements (Month 4)
+**Priority**: 🔴 HIGH (Original Vision)  
+**Budget**: $15K-$25K  
+**Effort**: 3 weeks
+
+**Deliverables**:
+```typescript
+backend/services/auction-service/ (ENHANCE)
+
+✅ Auto-extend logic:
+   - Extend by 5 min if bid in last 2 min
+   - Max 3 extensions per auction
+   - Notify all bidders
+
+✅ Grace period:
+   - No bids in last 10 seconds
+   - Prevent sniping
+   - Fair bidding window
+
+✅ Distributed locking:
+   - Redis-based locks
+   - Prevent race conditions
+   - Handle concurrent bids
+
+✅ Scheduled notifications:
+   - 5 min before end
+   - 1 min before end
+   - 10 sec before end
+   - Auction ended
+
+✅ UTC synchronization:
+   - All times in UTC
+   - Timezone conversion in frontend
+   - Consistent time display
+```
+
+**Files to Modify**:
+- `backend/services/auction-service/src/services/auction.service.ts`
+- `backend/services/auction-service/src/services/bid-throttle.service.ts`
+- `backend/services/auction-service/src/lib/redis-lock.ts` (NEW)
+- `backend/services/auction-service/src/services/notification-scheduler.service.ts` (NEW)
+
+**Acceptance Criteria**:
+- [ ] Auto-extend works correctly
+- [ ] Grace period enforced
+- [ ] No race conditions
+- [ ] Notifications sent on time
+- [ ] UTC times consistent
+- [ ] Tests: 95%+ coverage
+
+---
+
+#### Phase 3.4: Delivery System (Months 5-6)
+**Priority**: 🔴 HIGH (Original Vision)  
+**Budget**: $30K-$50K  
+**Effort**: 6 weeks
+
+**Deliverables**:
+```typescript
+backend/services/delivery-service/ (NEW)
+
+✅ Delivery tracking:
+   - Real-time status updates
+   - GPS tracking integration
+   - Photo proof of delivery
+   - Signature capture
+
+✅ Carrier integration:
+   - FedEx API
+   - UPS API
+   - DHL API
+   - Local carriers
+
+✅ Label generation:
+   - Shipping labels
+   - Customs forms
+   - Tracking numbers
+
+✅ Delivery confirmation:
+   - Automatic escrow release
+   - Buyer notification
+   - Seller notification
+   - Rating prompt
+
+✅ Dispute handling:
+   - Delivery issues
+   - Lost packages
+   - Damaged items
+   - Refund processing
+```
+
+**Files to Create**:
+- `backend/services/delivery-service/prisma/schema.prisma`
+- `backend/services/delivery-service/src/services/delivery.service.ts`
+- `backend/services/delivery-service/src/services/tracking.service.ts`
+- `backend/services/delivery-service/src/adapters/fedex-adapter.ts`
+- `backend/services/delivery-service/src/adapters/ups-adapter.ts`
+- `frontend/web-app/src/pages/delivery/TrackingPage.tsx`
+
+**Acceptance Criteria**:
+- [ ] Tracking works for all carriers
+- [ ] Labels generated correctly
+- [ ] Delivery confirmation triggers escrow release
+- [ ] Disputes handled properly
+- [ ] Tests: 90%+ coverage
+
+---
+
+#### Phase 3.5: Rewards & Referrals (Month 6)
+**Priority**: 🟡 MEDIUM (Original Vision)  
+**Budget**: $20K-$30K  
+**Effort**: 4 weeks
+
+**Deliverables**:
+```typescript
+backend/services/rewards-service/ (COMPLETE)
+
+✅ Points system:
+   - Earn points on purchases
+   - Earn points on referrals
+   - Earn points on reviews
+   - Redeem points for discounts
+
+✅ Referral program:
+   - Unique referral codes
+   - Track referrals
+   - Reward referrer
+   - Reward referee
+
+✅ Loyalty tiers:
+   - Bronze/Silver/Gold/Platinum
+   - Tier benefits
+   - Tier progression
+   - Tier rewards
+
+✅ Gamification:
+   - Badges
+   - Achievements
+   - Leaderboards
+   - Challenges
+```
+
+**Files to Complete**:
+- `backend/services/rewards-service/src/services/points.service.ts`
+- `backend/services/rewards-service/src/services/referral.service.ts`
+- `backend/services/rewards-service/src/services/loyalty.service.ts`
+- `frontend/web-app/src/pages/rewards/RewardsPage.tsx`
+
+**Acceptance Criteria**:
+- [ ] Points earned and redeemed
+- [ ] Referrals tracked
+- [ ] Loyalty tiers work
+- [ ] Gamification engaging
+- [ ] Tests: 90%+ coverage
+
+---
+
+#### Phase 3.6: Camera/Mic Tracking (Month 7)
+**Priority**: 🟡 MEDIUM (Original Vision)  
+**Budget**: $25K-$40K  
+**Effort**: 4 weeks
+
+**Deliverables**:
+```typescript
+backend/services/signal-aggregation-service/ (ENHANCE)
+
+✅ Camera tracking:
+   - Product view duration
+   - Zoom interactions
+   - Image carousel engagement
+   - Video watch time
+
+✅ Microphone tracking:
+   - Voice search queries
+   - Voice commands
+   - Audio feedback
+   - Sentiment analysis
+
+✅ Privacy controls:
+   - Explicit user consent
+   - Opt-in/opt-out
+   - Data encryption
+   - GDPR compliance
+
+✅ Analytics:
+   - Engagement metrics
+   - Conversion tracking
+   - A/B testing
+   - Personalization
+```
+
+**Files to Enhance**:
+- `backend/services/signal-aggregation-service/src/services/camera-tracking.service.ts`
+- `backend/services/signal-aggregation-service/src/services/mic-tracking.service.ts`
+- `backend/services/signal-aggregation-service/src/services/privacy.service.ts`
+- `frontend/web-app/src/hooks/useCameraTracking.ts`
+- `frontend/web-app/src/hooks/useMicTracking.ts`
+
+**Acceptance Criteria**:
+- [ ] Camera tracking works
+- [ ] Mic tracking works
+- [ ] Privacy controls enforced
+- [ ] Analytics actionable
+- [ ] Tests: 90%+ coverage
+
+---
+
+### TRACK 4: PRODUCTION INFRASTRUCTURE (Months 6-9)
+
+#### Month 6: Cloud Infrastructure
+**Priority**: 🔴 CRITICAL  
+**Budget**: $15K-$30K
+
+**Deliverables**:
+- [ ] Select cloud provider (AWS/GCP/Azure)
+- [ ] Set up production environment
+- [ ] Configure load balancers
+- [ ] Set up CDN (CloudFlare/CloudFront)
+- [ ] Configure SSL/TLS certificates
+- [ ] Set up domain and DNS
+- [ ] Implement auto-scaling
+- [ ] Configure backup systems
+
+**Key Milestones**:
+- Week 1-2: Provider selection and setup
+- Week 3-4: Infrastructure configuration
+- Week 5-6: Testing and optimization
+- Week 7-8: Production readiness
+
+---
+
+#### Month 7: CI/CD & Monitoring
+**Priority**: 🔴 HIGH  
+**Budget**: $10K-$20K
+
+**Deliverables**:
+- [ ] Set up CI/CD pipelines (GitHub Actions)
+- [ ] Implement automated testing
+- [ ] Configure automated deployment
+- [ ] Set up Sentry for error tracking
+- [ ] Configure Prometheus/Grafana
+- [ ] Implement log aggregation
+- [ ] Set up alerting system
+- [ ] Create runbooks
+
+**Key Milestones**:
+- Week 1-2: CI/CD setup
+- Week 3-4: Monitoring setup
+- Week 5-6: Testing and validation
+- Week 7-8: Documentation
+
+---
+
+#### Month 8: Security & Compliance
+**Priority**: 🔴 CRITICAL  
+**Budget**: $20K-$40K
+
+**Deliverables**:
+- [ ] Conduct security audit
+- [ ] Perform penetration testing
+- [ ] Implement security fixes
+- [ ] Set up WAF (Web Application Firewall)
+- [ ] Configure DDoS protection
+- [ ] Implement rate limiting
+- [ ] Set up fraud detection
+- [ ] Create incident response plan
+
+**Key Milestones**:
+- Week 1-2: Security audit
+- Week 3-4: Penetration testing
+- Week 5-6: Fix implementation
+- Week 7-8: Final validation
+
+---
+
+#### Month 9: Load Testing & Optimization
+**Priority**: 🔴 HIGH  
+**Budget**: $15K-$25K
+
+**Deliverables**:
+- [ ] Conduct load testing
+- [ ] Perform stress testing
+- [ ] Optimize database queries
+- [ ] Implement caching strategies
+- [ ] Optimize API performance
+- [ ] Reduce latency
+- [ ] Improve throughput
+- [ ] Document performance baselines
+
+**Key Milestones**:
+- Week 1-2: Load testing
+- Week 3-4: Optimization
+- Week 5-6: Validation
+- Week 7-8: Documentation
+
+---
+
+### TRACK 5: LAUNCH PREPARATION (Months 9-12)
+
+#### Month 9-10: Soft Launch (Beta)
+**Priority**: 🔴 CRITICAL  
+**Budget**: $20K-$35K
+
+**Deliverables**:
+- [ ] Select beta users (100-500)
+- [ ] Launch beta program
+- [ ] Collect user feedback
+- [ ] Monitor system performance
+- [ ] Fix critical bugs
+- [ ] Optimize user experience
+- [ ] Refine features
+- [ ] Prepare for public launch
+
+**Key Milestones**:
+- Week 1-2: Beta user selection
+- Week 3-4: Beta launch
+- Week 5-8: Feedback collection and iteration
+
+---
+
+#### Month 11: Marketing & Support
+**Priority**: 🔴 HIGH  
+**Budget**: $25K-$40K
+
+**Deliverables**:
+- [ ] Create marketing materials
+- [ ] Set up social media presence
+- [ ] Build email campaigns
+- [ ] Create video tutorials
+- [ ] Write help documentation
+- [ ] Train support team
+- [ ] Set up support ticketing system
+- [ ] Create FAQ and knowledge base
+
+**Key Milestones**:
+- Week 1-2: Marketing materials
+- Week 3-4: Support setup
+- Week 5-6: Training
+- Week 7-8: Final preparations
+
+---
+
+#### Month 12: Public Launch
+**Priority**: 🔴 CRITICAL  
+**Budget**: $30K-$50K
+
+**Deliverables**:
+- [ ] Final production deployment
+- [ ] Launch announcement
+- [ ] Press release
+- [ ] Social media campaign
+- [ ] Email blast to waitlist
+- [ ] Monitor launch metrics
+- [ ] Rapid response team on standby
+- [ ] Post-launch optimization
+
+**Key Milestones**:
+- Week 1: Final deployment
+- Week 2: Launch announcement
+- Week 3-4: Monitor and optimize
+
+---
+
+### SUCCESS METRICS
+
+#### Technical Metrics
+- [ ] 99.9% uptime
+- [ ] < 200ms API response time (p95)
+- [ ] < 2s page load time
+- [ ] 0 critical security vulnerabilities
+- [ ] 95%+ test coverage
+- [ ] 0 data breaches
+
+#### Business Metrics
+- [ ] 1,000+ registered users (Month 1)
+- [ ] 100+ transactions (Month 1)
+- [ ] $50K+ GMV (Month 1)
+- [ ] 10% month-over-month growth
+- [ ] 4.5+ star rating
+- [ ] < 5% churn rate
+
+#### Compliance Metrics
+- [ ] All required licenses obtained
+- [ ] 100% AML/KYC compliance
+- [ ] 0 regulatory violations
+- [ ] Quarterly compliance audits passed
+- [ ] All reports filed on time
+
+---
+
+### RISK MANAGEMENT
+
+#### High-Risk Items
+1. **Regulatory Delays** (Probability: 60%, Impact: CRITICAL)
+   - Mitigation: Start immediately, engage experienced counsel, apply to multiple jurisdictions
+   
+2. **Provider Integration Issues** (Probability: 40%, Impact: HIGH)
+   - Mitigation: Select proven providers, allocate buffer time, have backup options
+
+3. **Budget Overruns** (Probability: 50%, Impact: HIGH)
+   - Mitigation: 20% contingency buffer, phased spending, regular budget reviews
+
+4. **Technical Complexity** (Probability: 30%, Impact: MEDIUM)
+   - Mitigation: Experienced team, thorough testing, incremental rollout
+
+#### Medium-Risk Items
+1. **User Adoption** (Probability: 40%, Impact: MEDIUM)
+   - Mitigation: Beta program, user feedback, marketing investment
+
+2. **Competition** (Probability: 50%, Impact: MEDIUM)
+   - Mitigation: Unique features (traveler system), superior UX, competitive pricing
+
+3. **Scaling Issues** (Probability: 30%, Impact: MEDIUM)
+   - Mitigation: Load testing, auto-scaling, performance monitoring
+
+---
+
+### BUDGET BREAKDOWN
+
+| Category | Optimistic | Realistic | Conservative |
+|----------|-----------|-----------|--------------|
+| **Regulatory** | $50K | $75K | $100K |
+| **Infrastructure** | $95K | $160K | $220K |
+| **Features** | $120K | $185K | $250K |
+| **Production** | $60K | $90K | $120K |
+| **Launch** | $75K | $105K | $140K |
+| **Contingency** | $0K | $50K | $100K |
+| **TOTAL** | **$400K** | **$665K** | **$930K** |
+
+**Recommended Budget**: $665K (Realistic Scenario with contingency)
+
+---
+
+### TIMELINE SUMMARY
+
+```
+Month 1-2:   Legal foundation + Provider selection
+Month 2-3:   Traveler system + Money custody
+Month 3-4:   AI recommendations + Bank integration
+Month 4-5:   Smart auctions + Licensed escrow + FX
+Month 5-6:   Delivery system + Cloud infrastructure
+Month 6-7:   Rewards + CI/CD + Monitoring
+Month 7-8:   Camera/Mic tracking + Security audit
+Month 8-9:   Load testing + Optimization
+Month 9-10:  Soft launch (Beta)
+Month 11:    Marketing + Support
+Month 12:    Public launch
+```
+
+**Critical Path**: Regulatory track (12 months)  
+**Parallel Execution**: Infrastructure and features can proceed while awaiting licenses  
+**Launch Readiness**: Month 9 (technical), Month 12 (regulatory)
+
+---
+
+## PHASE 1 EXECUTION ROADMAP - ORIGINAL VISION RECONCILIATION
+
+**Date Added**: January 31, 2026  
+**Source**: `ORIGINAL_VISION_VS_CURRENT_REALITY.md` + `chatgpt.txt`  
+**Purpose**: Bridge gap between original vision (100%) and current reality (35%)
+
+---
+
+### GAP ANALYSIS SUMMARY
+
+| Feature Category | Original Vision | Current Reality | Gap | Priority |
+|-----------------|----------------|-----------------|-----|----------|
+| **Traveler System** | 100% | 0% | 100% | 🔴 CRITICAL |
+| **AI/ML Recommendations** | 100% | 0% | 100% | 🔴 CRITICAL |
+| **Camera/Mic Tracking** | 100% | 0% | 100% | 🟡 MEDIUM |
+| **Smart Auctions** | 100% | 40% | 60% | 🔴 HIGH |
+| **Escrow System** | 100% | 50% | 50% | 🔴 HIGH |
+| **Rewards/Referrals** | 100% | 0% | 100% | 🟡 MEDIUM |
+| **Delivery System** | 100% | 0% | 100% | 🔴 HIGH |
+| **Trend Tracking** | 100% | 0% | 100% | 🟢 LOW |
+| **Marketplace Basic** | 100% | 80% | 20% | ✅ DONE |
+| **Payment Processing** | 100% | 90% | 10% | ✅ DONE |
+
+**Overall Gap**: 65% of original vision features missing
+
+---
+
+### PHASE 1: CRITICAL FOUNDATIONS (4 weeks)
+
+**Goal**: Implement core differentiators from original vision
+
+#### Task 1.1: Traveler Service Foundation
+**Priority**: 🔴 CRITICAL  
+**Effort**: 1.5 weeks  
+**Dependencies**: None
+
+**Deliverables**:
+```
+✅ Create traveler-service/
+✅ Database schema:
+   - travelers table (user_id, verification_status, rating)
+   - travel_routes table (traveler_id, origin, destination, departure_date, arrival_date, capacity_kg)
+   - buyer_requests table (buyer_id, product_url, destination, max_price, deadline)
+✅ Basic CRUD APIs:
+   - POST /api/travelers/routes (create trip)
+   - GET /api/travelers/routes (list trips)
+   - POST /api/buyers/requests (create request)
+   - GET /api/buyers/requests (list requests)
+✅ Simple matching algorithm:
+   - Match by destination
+   - Match by date range
+   - Match by capacity
+```
+
+**Files to Create**:
+- `backend/services/traveler-service/`
+- `backend/services/traveler-service/prisma/schema.prisma`
+- `backend/services/traveler-service/src/services/traveler.service.ts`
+- `backend/services/traveler-service/src/services/matching.service.ts`
+- `backend/services/traveler-service/src/controllers/traveler.controller.ts`
+
+**Acceptance Criteria**:
+- [ ] Traveler can create trip listing
+- [ ] Buyer can create purchase request
+- [ ] System matches traveler + buyer automatically
+- [ ] Match creates order with status PENDING_DECISION
+- [ ] Tests: 90%+ coverage
+
+---
+
+#### Task 1.2: Complete Escrow Workflow
+**Priority**: 🔴 HIGH  
+**Effort**: 1 week  
+**Dependencies**: Task 1.1
+
+**Deliverables**:
+```
+✅ Complete hold/release workflow in internal-ledger-service
+✅ Integration with dispute system
+✅ Automatic release after confirmation
+✅ Refund logic for disputes
+✅ Escrow state machine:
+   - CREATED → FUNDED → HELD → RELEASED/REFUNDED
+```
+
+**Files to Modify**:
+- `backend/services/internal-ledger-service/src/services/escrow.service.ts`
+- `backend/services/internal-ledger-service/src/services/wallet.service.ts`
+- `backend/services/request-engine/src/services/DisputeService.ts`
+
+**Acceptance Criteria**:
+- [ ] Funds held on order creation
+- [ ] Funds released on delivery confirmation
+- [ ] Funds refunded on dispute resolution
+- [ ] State transitions logged
+- [ ] Tests: 95%+ coverage
+
+---
+
+#### Task 1.3: Smart Auction Enhancements
+**Priority**: 🔴 HIGH  
+**Effort**: 1 week  
+**Dependencies**: None
+
+**Deliverables**:
+```
+✅ Auto-extend logic (extend by 5 min if bid in last 2 min)
+✅ Grace period (no bids in last 10 seconds)
+✅ Distributed locking with Redis
+✅ Scheduled notifications (5 min, 1 min, 10 sec before end)
+✅ UTC time synchronization
+```
+
+**Files to Modify**:
+- `backend/services/auction-service/src/services/auction.service.ts`
+- `backend/services/auction-service/src/services/bid-throttle.service.ts`
+- `backend/services/auction-service/src/lib/redis-lock.ts` (new)
+
+**Acceptance C
 

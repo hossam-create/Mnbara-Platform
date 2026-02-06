@@ -10,6 +10,7 @@ import { fraudRoutes } from './routes/fraud.routes';
 import { alertRoutes } from './routes/alert.routes';
 import { blacklistRoutes } from './routes/blacklist.routes';
 import { ruleRoutes } from './routes/rule.routes';
+import riskRoutes from './routes/risk.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3020;
@@ -20,13 +21,14 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (req: express.Request, res: express.Response) => {
   res.json({ status: 'healthy', service: 'fraud-detection-service', timestamp: new Date().toISOString() });
 });
 
 // Routes
 app.use('/api/trust', trustRoutes);
 app.use('/api/fraud', fraudRoutes);
+app.use('/api/risk', riskRoutes);
 
 app.use('/api/alerts', alertRoutes);
 app.use('/api/blacklist', blacklistRoutes);

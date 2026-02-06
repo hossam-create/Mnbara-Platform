@@ -1,0 +1,57 @@
+/**
+ * ProfileStats Styles
+ */
+
+.mnbara-profile-stats {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mnbara-profile-stats__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 16px;
+}
+
+.mnbara-profile-stats__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .mnbara-profile-stats__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.mnbara-profile-stats__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.mnbara-profile-stats__icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.mnbara-profile-stats__value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 4px;
+}
+
+.mnbara-profile-stats__label {
+  font-size: 12px;
+  color: #6c757d;
+  line-height: 1.3;
+}

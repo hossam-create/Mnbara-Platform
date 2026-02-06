@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id         String   @id @default(cuid())
+  userId     String?
+  sessionId  String?
+  eventName  String
+  properties Json     @default("{}")
+  timestamp  DateTime @default(now())
+  source     String   // posthog, plausible, custom
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([eventName])
+  @@index([timestamp])
+  @@index([source])
+}
+
+model PageView {
+  id         String   @id @default(cuid())
+  userId     String?
+  sessionId  String
+  url        String
+  referrer   String?
+  userAgent  String?
+  country    String?
+  device     String?
+  browser    String?
+  os         String?
+  duration   Int?     // seconds
+  timestamp  DateTime @default(now())
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([url])
+  @@index([timestamp])
+}
+
+model Funnel {
+  id          String   @id @default(cuid())
+  name        String
+  steps       Json     // array of step definitions
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([name])
+  @@index([isActive])
+}
+
+model Cohort {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  filters     Json     // cohort definition filters
+  userCount   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([name])
+  @@index([isActive])
+}

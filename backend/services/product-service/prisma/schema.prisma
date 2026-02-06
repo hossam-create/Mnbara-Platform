@@ -1,0 +1,360 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// Product Service Models
+// ============================================================
+
+model Product {
+  id              String    @id @default(uuid())
+  sellerId        String
+  categoryId       String
+  
+  // Basic Info
+  title           String
+  titleAr         String
+  description     String    @db.Text
+  descriptionAr   String    @db.Text
+  
+  // Pricing
+  price           Decimal   @db.Decimal(10, 2)
+  originalPrice   Decimal?  @db.Decimal(10, 2)
+  currency        String    @default("USD")
+  discount        Float     @default(0)
+  
+  // Stock & Inventory
+  stock           Int       @default(0)
+  sku             String?   @unique
+  
+  // Condition & Status
+  condition       ProductCondition @default(NEW)
+  status         ProductStatus   @default(DRAFT)
+  
+  // Listing Type (Buy It Now, Auction, Make Offer)
+  listingType    ListingType @default(BUY_IT_NOW)
+  
+  // Auction specific fields
+  isAuction      Boolean   @default(false)
+  startingBid    Decimal?  @db.Decimal(10, 2)
+  reservePrice  Decimal?  @db.Decimal(10, 2)
+  buyNowPrice   Decimal?  @db.Decimal(10, 2)
+  currentBid    Decimal?  @db.Decimal(10, 2)
+  auctionEndsAt DateTime?
+  minBidIncrement Decimal? @db.Decimal(10, 2) @default(1.00)
+  
+  // Location (PostGIS integration)
+  location       Unsupported("geography(Point, 4326)")?
+  city           String?
+  country        String?
+  
+  // Views & Engagement
+  views          Int       @default(0)
+  likes          Int       @default(0)
+  shares         Int       @default(0)
+  
+  // Moderation
+  moderationStatus ModerationStatus @default(PENDING)
+  moderationNote  String?
+  restrictedFlag  Boolean   @default(false)
+  restrictedReason String?
+  
+  // Timestamps
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  // Relations
+  seller         Seller    @relation(fields: [sellerId], references: [id])
+  category       Category  @relation(fields: [categoryId], references: [id])
+  images         ProductImage[]
+  specifications ProductSpecification[]
+  bids           Bid[]
+  offers         MakeOffer[]
+  
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([listingType])
+  @@index([price])
+  @@index([condition])
+  @@index([auctionEndsAt])
+  @@index([moderationStatus])
+  @@index([city, country])
+}
+
+model ProductImage {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  url         String
+  thumbnailUrl String?
+  position    Int      @default(0)
+  isPrimary   Boolean  @default(false)
+  
+  width       Int?
+  height      Int?
+  size        Int?     // File size in bytes
+  mimeType    String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([productId])
+}
+
+model ProductSpecification {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  key         String   // e.g., "brand", "color", "size"
+  value       String
+  keyAr       String?  // Arabic translation
+  
+  category    String?  // Category this spec applies to
+  searchable  Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([productId])
+  @@index([key, value])
+}
+
+// Seller model (simplified - actual seller service handles this)
+model Seller {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  storeName   String?
+  rating      Float    @default(0)
+  trustScore  Float    @default(100)
+  
+  products    Product[]
+  createdAt   DateTime @default(now())
+}
+
+// ============================================================
+// Category Model
+// ============================================================
+
+model Category {
+  id            String   @id @default(uuid())
+  parentId      String?
+  parent        Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryHierarchy")
+  
+  nameEn        String
+  nameAr        String
+  slug          String   @unique
+  
+  description   String?  @db.Text
+  descriptionAr String?  @db.Text
+  
+  icon          String?
+  image         String?
+  banner        String?
+  
+  productCount  Int      @default(0)
+  level         Int      @default(1)
+  sortOrder     Int      @default(0)
+  
+  isActive      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  isLeaf        Boolean  @default(true)
+  
+  // Filter configuration
+  filterableAttributes String[]
+  requiredAttributes   String[]
+  
+  // SEO
+  metaTitle     String?
+  metaDescription String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  products      Product[]
+  
+  @@index([parentId])
+  @@index([isActive])
+  @@index([level])
+  @@index([sortOrder])
+}
+
+// ============================================================
+// Make Offer Model
+// ============================================================
+
+model MakeOffer {
+  id          String          @id @default(uuid())
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  buyerId     String
+  sellerId    String
+  
+  offerPrice  Decimal         @db.Decimal(10, 2)
+  status      OfferStatus     @default(PENDING)
+  
+  counterOffer Decimal?       @db.Decimal(10, 2)
+  message     String?        @db.Text
+  
+  expiresAt   DateTime
+  respondedAt DateTime?
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  @@index([productId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// ============================================================
+// Bid Model (for auctions)
+// ============================================================
+
+model Bid {
+  id          String      @id @default(uuid())
+  productId   String
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  bidderId    String
+  amount      Decimal     @db.Decimal(10, 2)
+  
+  isAutoBid   Boolean     @default(false)
+  maxAmount   Decimal?    @db.Decimal(10, 2) // For proxy bidding
+  
+  status      BidStatus   @default(ACTIVE)
+  isWinning   Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([productId])
+  @@index([bidderId])
+  @@index([status])
+}
+
+// ============================================================
+// Restricted Products Model (for moderation)
+// ============================================================
+
+model RestrictedProduct {
+  id          String   @id @default(uuid())
+  
+  keyword     String   @unique
+  category    String?  // Category restriction applies to
+  severity    RestrictedSeverity @default(WARN)
+  
+  messageEn   String
+  messageAr   String
+  
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([severity])
+}
+
+// ============================================================
+// Product Moderation Log
+// ============================================================
+
+model ModerationLog {
+  id          String   @id @default(uuid())
+  productId   String
+  
+  action      ModerationAction
+  previousStatus ModerationStatus?
+  newStatus   ModerationStatus
+  
+  reason      String?
+  moderatorId String?
+  
+  metadata    Json?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([productId])
+  @@index([action])
+}
+
+// ============================================================
+// Enums
+// ============================================================
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+  PARTS
+  REFURBISHED
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  SOLD
+  ARCHIVED
+  DELETED
+  REJECTED
+}
+
+enum ListingType {
+  BUY_IT_NOW
+  AUCTION
+  MAKE_OFFER
+  COMBINED  // All three options available
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+  UNDER_REVIEW
+}
+
+enum RestrictedSeverity {
+  WARN
+  BLOCK
+  FLAG_FOR_REVIEW
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COUNTERED
+  EXPIRED
+  WITHDRAWN
+}
+
+enum BidStatus {
+  ACTIVE
+  WINNING
+  OUTBID
+  WON
+  CANCELLED
+}
+
+enum ModerationAction {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  FLAGGED
+  ESCALATED
+  APPEALED
+}
