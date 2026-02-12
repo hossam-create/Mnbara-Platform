@@ -1,207 +1,160 @@
-/**
- * File Validation Utilities
- * 
- * Provides utilities for validating, sanitizing, and processing uploaded files.
- */
+// ============================================
+// File Validation Utilities
+// ============================================
 
-import crypto from 'crypto';
-import path from 'path';
-import { Express } from 'express';
-import { 
-  InvalidFileTypeError, 
-  FileTooLargeError, 
-  TooManyFilesError 
+import {
+  InvalidFileTypeError,
+  FileTooLargeError,
+  TooManyFilesError
 } from '../errors/DisputeErrors';
-import { EvidenceType } from '../types/dispute.types';
+import { EvidenceType, MulterFile } from '../types/dispute.types';
 
-/**
- * File upload constants
- */
-export const FILE_UPLOAD_CONSTANTS = {
-  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
-  MAX_FILES_PER_UPLOAD: 5,
-  MAX_TOTAL_FILES: 10,
-  ALLOWED_MIME_TYPES: [
-    'image/jpeg',
-    'image/jpg',
-    'image/png',
-    'application/pdf'
-  ],
-  ALLOWED_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.pdf']
-};
+// Configuration
+export const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp'
+];
+
+export const ALLOWED_DOCUMENT_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+];
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+export const MAX_FILES_PER_UPLOAD = 5;
+
+export interface FileValidationResult {
+  valid: boolean;
+  fileType?: EvidenceType;
+  errors?: string[];
+}
 
 /**
  * Validate a single file
  */
-export function validateFile(file: Express.Multer.File): void {
-  // Check file type
-  if (!FILE_UPLOAD_CONSTANTS.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-    throw new InvalidFileTypeError(
-      file.mimetype,
-      FILE_UPLOAD_CONSTANTS.ALLOWED_MIME_TYPES
-    );
-  }
+export function validateFile(file: MulterFile): FileValidationResult {
+  const errors: string[] = [];
 
   // Check file size
-  if (file.size > FILE_UPLOAD_CONSTANTS.MAX_FILE_SIZE) {
-    throw new FileTooLargeError(
-      file.size,
-      FILE_UPLOAD_CONSTANTS.MAX_FILE_SIZE
-    );
+  if (file.size > MAX_FILE_SIZE) {
+    errors.push(`File size exceeds maximum allowed size of ${MAX_FILE_SIZE / 1024 / 1024}MB`);
   }
 
-  // Check file extension
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (!FILE_UPLOAD_CONSTANTS.ALLOWED_EXTENSIONS.includes(ext)) {
-    throw new InvalidFileTypeError(
-      ext,
-      FILE_UPLOAD_CONSTANTS.ALLOWED_EXTENSIONS
-    );
+  // Determine file type
+  let evidenceType: EvidenceType | undefined;
+  if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+    evidenceType = EvidenceType.IMAGE;
+  } else if (ALLOWED_DOCUMENT_TYPES.includes(file.mimetype)) {
+    evidenceType = EvidenceType.DOCUMENT;
+  } else {
+    errors.push(`Invalid file type: ${file.mimetype}`);
   }
+
+  // Check for empty file
+  if (file.size === 0) {
+    errors.push('File is empty');
+  }
+
+  return {
+    valid: errors.length === 0,
+    fileType: evidenceType,
+    errors: errors.length > 0 ? errors : undefined
+  };
 }
 
 /**
  * Validate multiple files
  */
-export function validateFiles(files: Express.Multer.File[]): void {
+export function validateFiles(files: MulterFile[]): {
+  valid: boolean;
+  results: FileValidationResult[];
+  error?: Error;
+} {
   // Check file count
-  if (files.length > FILE_UPLOAD_CONSTANTS.MAX_FILES_PER_UPLOAD) {
-    throw new TooManyFilesError(
-      files.length,
-      FILE_UPLOAD_CONSTANTS.MAX_FILES_PER_UPLOAD
-    );
+  if (files.length > MAX_FILES_PER_UPLOAD) {
+    throw new TooManyFilesError(files.length, MAX_FILES_PER_UPLOAD);
   }
 
-  // Validate each file
-  files.forEach(file => validateFile(file));
+  const results = files.map(file => validateFile(file));
+  const allValid = results.every(r => r.valid);
+
+  return {
+    valid: allValid,
+    results
+  };
 }
 
 /**
- * Validate total evidence count
- */
-export function validateTotalEvidenceCount(
-  currentCount: number,
-  newCount: number
-): void {
-  const totalCount = currentCount + newCount;
-  if (totalCount > FILE_UPLOAD_CONSTANTS.MAX_TOTAL_FILES) {
-    throw new TooManyFilesError(
-      totalCount,
-      FILE_UPLOAD_CONSTANTS.MAX_TOTAL_FILES
-    );
-  }
-}
-
-/**
- * Sanitize filename to prevent path traversal and other attacks
+ * Sanitize filename
  */
 export function sanitizeFilename(filename: string): string {
+  // Remove potentially dangerous characters
   return filename
-    // Remove any path separators
-    .replace(/[/\\]/g, '')
-    // Replace special characters with underscores
-    .replace(/[^a-zA-Z0-9.-]/g, '_')
-    // Remove consecutive dots (path traversal attempt)
-    .replace(/\.{2,}/g, '.')
-    // Limit length
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_{2,}/g, '_')
     .substring(0, 255);
 }
 
 /**
- * Generate unique filename with timestamp and random hash
+ * Generate unique filename
  */
-export function generateUniqueFilename(originalName: string): string {
+export function generateUniqueFilename(
+  originalName: string,
+  disputeId: string,
+  party: string
+): string {
   const sanitized = sanitizeFilename(originalName);
-  const ext = path.extname(sanitized);
-  const nameWithoutExt = path.basename(sanitized, ext);
-  
   const timestamp = Date.now();
-  const randomHash = crypto.randomBytes(8).toString('hex');
+  const randomSuffix = Math.random().toString(36).substring(2, 8);
+  const extension = sanitized.split('.').pop() || '';
   
-  return `${nameWithoutExt}-${timestamp}-${randomHash}${ext}`;
+  const baseName = `${disputeId}_${party}_${timestamp}_${randomSuffix}`;
+  
+  return extension ? `${baseName}.${extension}` : baseName;
 }
 
 /**
  * Get evidence type from mimetype
  */
-export function getFileType(mimetype: string): EvidenceType {
-  if (mimetype.startsWith('image/')) {
+export function getEvidenceType(mimetype: string): EvidenceType {
+  if (ALLOWED_IMAGE_TYPES.includes(mimetype)) {
     return EvidenceType.IMAGE;
   }
-  if (mimetype === 'application/pdf') {
+  if (ALLOWED_DOCUMENT_TYPES.includes(mimetype)) {
     return EvidenceType.DOCUMENT;
   }
-  throw new Error(`Unsupported mimetype: ${mimetype}`);
-}
-
-/**
- * Get file extension from mimetype
- */
-export function getExtensionFromMimetype(mimetype: string): string {
-  const mimetypeMap: Record<string, string> = {
-    'image/jpeg': '.jpg',
-    'image/jpg': '.jpg',
-    'image/png': '.png',
-    'application/pdf': '.pdf'
-  };
-
-  return mimetypeMap[mimetype] || '';
+  throw new InvalidFileTypeError(mimetype, [
+    ...ALLOWED_IMAGE_TYPES,
+    ...ALLOWED_DOCUMENT_TYPES
+  ]);
 }
 
 /**
  * Format file size for display
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
-
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(2)} KB`;
+  }
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
 /**
  * Check if file is an image
  */
-export function isImage(mimetype: string): boolean {
-  return mimetype.startsWith('image/');
+export function isImageFile(mimetype: string): boolean {
+  return ALLOWED_IMAGE_TYPES.includes(mimetype);
 }
 
 /**
- * Check if file is a PDF
+ * Check if file is a document
  */
-export function isPDF(mimetype: string): boolean {
-  return mimetype === 'application/pdf';
-}
-
-/**
- * Validate file buffer (basic check for corrupted files)
- */
-export function validateFileBuffer(buffer: Buffer, mimetype: string): boolean {
-  if (!buffer || buffer.length === 0) {
-    return false;
-  }
-
-  // Check file signatures (magic numbers)
-  const signatures: Record<string, Buffer[]> = {
-    'image/jpeg': [
-      Buffer.from([0xFF, 0xD8, 0xFF])
-    ],
-    'image/png': [
-      Buffer.from([0x89, 0x50, 0x4E, 0x47])
-    ],
-    'application/pdf': [
-      Buffer.from([0x25, 0x50, 0x44, 0x46]) // %PDF
-    ]
-  };
-
-  const expectedSignatures = signatures[mimetype];
-  if (!expectedSignatures) {
-    return true; // Unknown type, skip validation
-  }
-
-  return expectedSignatures.some(signature => 
-    buffer.slice(0, signature.length).equals(signature)
-  );
+export function isDocumentFile(mimetype: string): boolean {
+  return ALLOWED_DOCUMENT_TYPES.includes(mimetype);
 }

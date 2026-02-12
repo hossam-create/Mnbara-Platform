@@ -1,0 +1,184 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Kustomization Root Configuration
+# =============================================================================
+# This file coordinates all Kubernetes manifests for the platform
+# Use kustomize to build and apply configurations
+# =============================================================================
+
+# =============================================================================
+# Common Labels
+# =============================================================================
+# These labels are applied to all resources
+# =============================================================================
+commonLabels:
+  app: mnbara-platform
+  organization: mnbara
+  managed-by: kubectl
+  environment: ${ENVIRONMENT:-dev}
+
+# =============================================================================
+# Common Annotations
+# =============================================================================
+# These annotations are applied to all resources
+# =============================================================================
+commonAnnotations:
+  maintainer: dev@mnbara.com
+  version: ${SERVICE_VERSION:-1.0.0}
+
+# =============================================================================
+# Namespace
+# =============================================================================
+# The target namespace for all resources
+# =============================================================================
+namespace: ${NAMESPACE:-mnbara}
+
+# =============================================================================
+# Resources
+# =============================================================================
+# Base resources that are common across all environments
+# =============================================================================
+resources:
+  - base/namespace.yaml
+  - base/configmap.yaml
+  # Add more base resources as needed
+  # - base/deployment.yaml
+  # - base/service.yaml
+
+# =============================================================================
+# Secret Generators
+# =============================================================================
+# Generate secrets from files or literals
+# =============================================================================
+secretGenerator:
+  # Database credentials
+  - name: db-credentials
+    literals:
+      - username=${DB_USERNAME:-mnbara}
+      - password=${DB_PASSWORD:-changeme}
+      - host=${DB_HOST:-postgres}
+      - port=${DB_PORT:-5432}
+      - database=${DB_NAME:-mnbara}
+    files:
+      - secrets/ca.crt=secrets/ca.crt
+    options:
+      disableNameSuffixHash: false
+  
+  # Redis credentials
+  - name: redis-credentials
+    literals:
+      - password=${REDIS_PASSWORD:-changeme}
+    options:
+      disableNameSuffixHash: false
+  
+  # JWT secrets
+  - name: jwt-secrets
+    literals:
+      - secret=${JWT_SECRET:-your-secret-key-here}
+      - expiry=${JWT_EXPIRY:-3600}
+    options:
+      disableNameSuffixHash: true
+  
+  # API keys (external services)
+  - name: api-keys
+    literals:
+      - stripe_key=${STRIPE_SECRET_KEY:-sk_test_xxx}
+      - mapbox_token=${MAPBOX_ACCESS_TOKEN:-xxx}
+    options:
+      disableNameSuffixHash: true
+
+# =============================================================================
+# ConfigMap Generator
+# =============================================================================
+# Generate ConfigMaps from files or literals
+# =============================================================================
+configMapGenerator:
+  # Application configuration
+  - name: app-config
+    literals:
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - SERVICE_PORT=${SERVICE_PORT:-3000}
+    files:
+      - config/app.config.yaml=config.yaml
+    options:
+      disableNameSuffixHash: false
+  
+  # Environment-specific settings
+  - name: env-config
+    literals:
+      - DEPLOYMENT_REGION=${DEPLOYMENT_REGION:-us-central1}
+      - CLUSTER_NAME=${CLUSTER_NAME:-mnbara-cluster}
+
+# =============================================================================
+# Patches
+# =============================================================================
+# Strategic patches applied to resources
+# =============================================================================
+patches:
+  # Image patch for all deployments
+  - target:
+      kind: Deployment
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: ${DOCKER_REGISTRY:-docker.io}/mnbara/${SERVICE_NAME:-service}:${SERVICE_VERSION:-latest}
+  
+  # Resource limits patch
+  - target:
+      kind: Deployment
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: ${CPU_LIMIT:-1000m}
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: ${MEMORY_LIMIT:-1024Mi}
+
+# =============================================================================
+# Replicas
+# =============================================================================
+# Set replica counts for Deployments
+# =============================================================================
+replicas:
+  # Example: Set specific replica counts
+  # - name: api-gateway
+  #   count: 3
+  # - name: user-service
+  #   count: 2
+
+# =============================================================================
+# Images
+# =============================================================================
+# Update image versions centrally
+# =============================================================================
+images:
+  - name: mnbara/api-gateway
+    newName: ${DOCKER_REGISTRY:-docker.io}/mnbara/api-gateway
+    newTag: ${API_GATEWAY_VERSION:-latest}
+  - name: mnbara/user-service
+    newName: ${DOCKER_REGISTRY:-docker.io}/mnbara/user-service
+    newTag: ${USER_SERVICE_VERSION:-latest}
+  - name: mnbara/matching-service
+    newName: ${DOCKER_REGISTRY:-docker.io}/mnbara/matching-service
+    newTag: ${MATCHING_SERVICE_VERSION:-latest}
+
+# =============================================================================
+# Helm Compatibility
+# =============================================================================
+# Options for Helm chart compatibility
+# =============================================================================
+helmGlobals:
+  # Chart name for helm release
+  chartHome: charts/
+
+# =============================================================================
+# Build Options
+# =============================================================================
+# Kustomize build options
+# =============================================================================
+buildOptions:
+  # Enable analyzers
+  enableAlphaPlugins: false
+  # Sort resources
+  sortOptions:
+    order: legacy

@@ -1,38 +1,22 @@
-/**
- * Disputes & Refunds System - Custom Error Classes
- * 
- * This file contains all custom error classes for the dispute system.
- * Each error provides specific context and error codes for better debugging.
- */
+// ============================================
+// Dispute System Error Classes
+// ============================================
 
-import { DisputeStatus } from '../types/dispute.types';
-
-/**
- * Base error class for all dispute-related errors
- */
 export class DisputeError extends Error {
-  public readonly code: string;
-  public readonly statusCode: number;
-
-  constructor(message: string, code: string, statusCode: number = 400) {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 400
+  ) {
     super(message);
     this.name = 'DisputeError';
-    this.code = code;
-    this.statusCode = statusCode;
-    Error.captureStackTrace(this, this.constructor);
   }
 }
 
-/**
- * Error thrown when dispute window has expired
- */
 export class DisputeWindowExpiredError extends DisputeError {
-  constructor(deliveredAt: Date) {
-    const hoursElapsed = Math.floor(
-      (Date.now() - deliveredAt.getTime()) / (1000 * 60 * 60)
-    );
+  constructor(disputeId: string) {
     super(
-      `Dispute window expired. ${hoursElapsed} hours have passed since delivery. Disputes must be opened within 48 hours.`,
+      `Dispute window has expired for dispute: ${disputeId}`,
       'DISPUTE_WINDOW_EXPIRED',
       400
     );
@@ -40,13 +24,10 @@ export class DisputeWindowExpiredError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when a duplicate dispute is attempted
- */
 export class DuplicateDisputeError extends DisputeError {
-  constructor(requestId: string) {
+  constructor(requestId: number) {
     super(
-      `A dispute already exists for request #${requestId}`,
+      `A dispute already exists for request: ${requestId}`,
       'DUPLICATE_DISPUTE',
       409
     );
@@ -54,13 +35,10 @@ export class DuplicateDisputeError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when dispute status is invalid for the requested action
- */
 export class InvalidDisputeStatusError extends DisputeError {
-  constructor(currentStatus: DisputeStatus, action: string) {
+  constructor(currentStatus: string, expectedStatus: string[]) {
     super(
-      `Cannot ${action} dispute in status: ${currentStatus}`,
+      `Invalid dispute status: ${currentStatus}. Expected one of: ${expectedStatus.join(', ')}`,
       'INVALID_DISPUTE_STATUS',
       400
     );
@@ -68,13 +46,10 @@ export class InvalidDisputeStatusError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when refund processing fails
- */
 export class RefundFailedError extends DisputeError {
-  constructor(reason: string) {
+  constructor(disputeId: string, reason: string) {
     super(
-      `Refund failed: ${reason}`,
+      `Refund failed for dispute ${disputeId}: ${reason}`,
       'REFUND_FAILED',
       500
     );
@@ -82,14 +57,10 @@ export class RefundFailedError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when file type is invalid
- */
 export class InvalidFileTypeError extends DisputeError {
-  constructor(mimetype: string, allowedTypes?: string[]) {
-    const allowed = allowedTypes?.join(', ') || 'JPG, PNG, PDF';
+  constructor(fileType: string, allowedTypes: string[]) {
     super(
-      `Invalid file type: ${mimetype}. Allowed types: ${allowed}`,
+      `Invalid file type: ${fileType}. Allowed types: ${allowedTypes.join(', ')}`,
       'INVALID_FILE_TYPE',
       400
     );
@@ -97,15 +68,10 @@ export class InvalidFileTypeError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when file size exceeds limit
- */
 export class FileTooLargeError extends DisputeError {
-  constructor(size: number, maxSize: number) {
-    const sizeMB = (size / (1024 * 1024)).toFixed(2);
-    const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
+  constructor(fileSize: number, maxSize: number) {
     super(
-      `File too large: ${sizeMB}MB. Maximum size: ${maxSizeMB}MB`,
+      `File size ${fileSize} bytes exceeds maximum allowed size of ${maxSize} bytes`,
       'FILE_TOO_LARGE',
       400
     );
@@ -113,13 +79,10 @@ export class FileTooLargeError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when too many files are uploaded
- */
 export class TooManyFilesError extends DisputeError {
-  constructor(count: number, maxCount: number) {
+  constructor(fileCount: number, maxFiles: number) {
     super(
-      `Too many files: ${count}. Maximum allowed: ${maxCount}`,
+      `Too many files: ${fileCount}. Maximum allowed: ${maxFiles}`,
       'TOO_MANY_FILES',
       400
     );
@@ -127,9 +90,6 @@ export class TooManyFilesError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when dispute is not found
- */
 export class DisputeNotFoundError extends DisputeError {
   constructor(disputeId: string) {
     super(
@@ -141,65 +101,43 @@ export class DisputeNotFoundError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when request is not found
- */
-export class RequestNotFoundError extends DisputeError {
-  constructor(requestId: string) {
+export class UnauthorizedDisputeAccessError extends DisputeError {
+  constructor(userId: string, disputeId: string) {
     super(
-      `Request not found: ${requestId}`,
-      'REQUEST_NOT_FOUND',
+      `User ${userId} is not authorized to access dispute ${disputeId}`,
+      'UNAUTHORIZED_DISPUTE_ACCESS',
+      403
+    );
+    this.name = 'UnauthorizedDisputeAccessError';
+  }
+}
+
+export class EvidenceNotFoundError extends DisputeError {
+  constructor(evidenceId: number) {
+    super(
+      `Evidence not found: ${evidenceId}`,
+      'EVIDENCE_NOT_FOUND',
       404
     );
-    this.name = 'RequestNotFoundError';
+    this.name = 'EvidenceNotFoundError';
   }
 }
 
-/**
- * Error thrown when request status is invalid for disputes
- */
-export class InvalidRequestStatusError extends DisputeError {
-  constructor(currentStatus: string) {
+export class InvalidEvidencePartyError extends DisputeError {
+  constructor(party: string) {
     super(
-      `Cannot open dispute for request in status: ${currentStatus}. Request must be in DELIVERED status.`,
-      'INVALID_REQUEST_STATUS',
+      `Invalid evidence submission party: ${party}. Must be BUYER or SELLER`,
+      'INVALID_EVIDENCE_PARTY',
       400
     );
-    this.name = 'InvalidRequestStatusError';
+    this.name = 'InvalidEvidencePartyError';
   }
 }
 
-/**
- * Error thrown when user is not authorized to access dispute
- */
-export class UnauthorizedAccessError extends DisputeError {
-  constructor(message: string = 'You are not authorized to access this dispute') {
-    super(message, 'UNAUTHORIZED_ACCESS', 403);
-    this.name = 'UnauthorizedAccessError';
-  }
-}
-
-/**
- * Error thrown when evidence limit is reached
- */
-export class EvidenceLimitReachedError extends DisputeError {
-  constructor(currentCount: number, maxCount: number) {
-    super(
-      `Evidence limit reached: ${currentCount}/${maxCount}. Cannot add more evidence.`,
-      'EVIDENCE_LIMIT_REACHED',
-      400
-    );
-    this.name = 'EvidenceLimitReachedError';
-  }
-}
-
-/**
- * Error thrown when resolution percentage is invalid
- */
 export class InvalidResolutionPercentageError extends DisputeError {
   constructor(percentage: number) {
     super(
-      `Invalid resolution percentage: ${percentage}. Must be between 0 and 100.`,
+      `Invalid resolution percentage: ${percentage}. Must be between 0 and 100`,
       'INVALID_RESOLUTION_PERCENTAGE',
       400
     );
@@ -207,87 +145,13 @@ export class InvalidResolutionPercentageError extends DisputeError {
   }
 }
 
-/**
- * Error thrown when wallet operation fails
- */
-export class WalletOperationError extends DisputeError {
-  constructor(operation: string, reason: string) {
+export class RequestNotEligibleForDisputeError extends DisputeError {
+  constructor(requestId: number, reason: string) {
     super(
-      `Wallet operation failed (${operation}): ${reason}`,
-      'WALLET_OPERATION_FAILED',
-      500
-    );
-    this.name = 'WalletOperationError';
-  }
-}
-
-/**
- * Error thrown when escrow operation fails
- */
-export class EscrowOperationError extends DisputeError {
-  constructor(operation: string, reason: string) {
-    super(
-      `Escrow operation failed (${operation}): ${reason}`,
-      'ESCROW_OPERATION_FAILED',
-      500
-    );
-    this.name = 'EscrowOperationError';
-  }
-}
-
-/**
- * Error thrown when file upload fails
- */
-export class FileUploadError extends DisputeError {
-  constructor(filename: string, reason: string) {
-    super(
-      `File upload failed (${filename}): ${reason}`,
-      'FILE_UPLOAD_FAILED',
-      500
-    );
-    this.name = 'FileUploadError';
-  }
-}
-
-/**
- * Error thrown when malware is detected in uploaded file
- */
-export class MalwareDetectedError extends DisputeError {
-  constructor(filename: string) {
-    super(
-      `Malware detected in file: ${filename}. Upload rejected for security reasons.`,
-      'MALWARE_DETECTED',
+      `Request ${requestId} is not eligible for dispute: ${reason}`,
+      'REQUEST_NOT_ELIGIBLE',
       400
     );
-    this.name = 'MalwareDetectedError';
+    this.name = 'RequestNotEligibleForDisputeError';
   }
 }
-
-/**
- * Error thrown when notification sending fails
- */
-export class NotificationError extends DisputeError {
-  constructor(type: string, reason: string) {
-    super(
-      `Notification failed (${type}): ${reason}`,
-      'NOTIFICATION_FAILED',
-      500
-    );
-    this.name = 'NotificationError';
-  }
-}
-
-/**
- * Error thrown when webhook delivery fails
- */
-export class WebhookError extends DisputeError {
-  constructor(url: string, reason: string) {
-    super(
-      `Webhook delivery failed (${url}): ${reason}`,
-      'WEBHOOK_FAILED',
-      500
-    );
-    this.name = 'WebhookError';
-  }
-}
-

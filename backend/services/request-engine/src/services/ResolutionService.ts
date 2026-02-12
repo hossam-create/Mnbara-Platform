@@ -1,520 +1,245 @@
-/**
- * Resolution Service
- * 
- * Handles dispute resolution including refunds, escrow releases, and partial refunds.
- * Integrates with Stripe, Wallet Service, and Escrow Service.
- */
+// ============================================
+// Resolution Service
+// Handles dispute resolution and refunds
+// ============================================
 
-import { Pool } from 'pg';
-import Stripe from 'stripe';
+import { PrismaClient } from '@prisma/client';
 import {
   Dispute,
-  DisputeResolution,
   DisputeStatus,
+  DisputeResolution,
+  ResolutionInput,
   ResolutionResult
 } from '../types/dispute.types';
 import {
-  RefundFailedError,
+  DisputeNotFoundError,
   InvalidDisputeStatusError,
-  InvalidResolutionPercentageError,
-  WalletOperationError,
-  EscrowOperationError
+  RefundFailedError,
+  InvalidResolutionPercentageError
 } from '../errors/DisputeErrors';
-import { logger } from '../utils/logger';
+
+const prisma = new PrismaClient();
+
+// Mock Stripe service for now
+const stripeService = {
+  async createRefund(paymentIntentId: string, amount?: number): Promise<{ id: string; status: string }> {
+    console.log(`[Stripe Mock] Creating refund for ${paymentIntentId}, amount: ${amount || 'full'}`);
+    return {
+      id: `re_${Date.now()}`,
+      status: 'succeeded'
+    };
+  }
+};
+
+// Mock Wallet service for now
+const walletService = {
+  async credit(userId: string, amount: number, currency: string, description: string): Promise<void> {
+    console.log(`[Wallet Mock] Crediting ${userId}: ${amount} ${currency} - ${description}`);
+  },
+  async debit(userId: string, amount: number, currency: string, description: string): Promise<void> {
+    console.log(`[Wallet Mock] Debiting ${userId}: ${amount} ${currency} - ${description}`);
+  }
+};
 
 export class ResolutionService {
-  private db: Pool;
-  private stripe: Stripe;
-
-  constructor(db: Pool) {
-    this.db = db;
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-      apiVersion: '2023-10-16'
+  /**
+   * Resolve a dispute with a specific resolution
+   */
+  async resolveDispute(
+    disputeId: string,
+    input: ResolutionInput,
+    adminId: string
+  ): Promise<ResolutionResult> {
+    const dispute = await prisma.dispute.findUnique({
+      where: { id: disputeId },
+      include: { request: true }
     });
-  }
 
-  /**
-   * Refund buyer (full refund)
-   */
-  async refundBuyer(
-    disputeId: string,
-    adminId: number,
-    notes?: string
-  ): Promise<ResolutionResult> {
-    const client = await this.db.connect();
-
-    try {
-      await client.query('BEGIN');
-
-      logger.info('Processing refund to buyer', { disputeId, adminId });
-
-      // Get dispute and request details
-      const { dispute, request } = await this.getDisputeWithRequest(disputeId, client);
-
-      // Validate dispute status
-      this.validateDisputeStatus(dispute.status);
-
-      // Process Stripe refund
-      const refund = await this.processStripeRefund(
-        request.paymentIntentId,
-        request.amount,
-        'Dispute resolved - refund to buyer'
-      );
-
-      // Credit buyer's wallet
-      await this.creditWallet(
-        request.buyerId,
-        request.amount,
-        disputeId,
-        'DISPUTE_REFUND'
-      );
-
-      // Update request status
-      await this.updateRequestStatus(request.id, 'REFUNDED', client);
-
-      // Update dispute
-      await this.updateDisputeResolution(
-        disputeId,
-        DisputeResolution.REFUND_BUYER,
-        adminId,
-        refund.id,
-        notes,
-        client
-      );
-
-      await client.query('COMMIT');
-
-      logger.info('Buyer refund completed', { disputeId, refundId: refund.id });
-
-      return {
-        dispute: await this.getDispute(disputeId),
-        refund: {
-          amount: request.amount,
-          stripeRefundId: refund.id
-        }
-      };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Buyer refund failed', { disputeId, error });
-      throw error;
-    } finally {
-      client.release();
+    if (!dispute) {
+      throw new DisputeNotFoundError(disputeId);
     }
-  }
 
-  /**
-   * Release to seller (seller wins)
-   */
-  async releaseToSeller(
-    disputeId: string,
-    adminId: number,
-    notes?: string
-  ): Promise<ResolutionResult> {
-    const client = await this.db.connect();
-
-    try {
-      await client.query('BEGIN');
-
-      logger.info('Processing release to seller', { disputeId, adminId });
-
-      // Get dispute and request details
-      const { dispute, request } = await this.getDisputeWithRequest(disputeId, client);
-
-      // Validate dispute status
-      this.validateDisputeStatus(dispute.status);
-
-      // Release escrow to seller
-      const escrowRelease = await this.releaseEscrow(
-        request.id,
-        request.sellerId,
-        request.amount,
-        'DISPUTE_RESOLVED'
-      );
-
-      // Update request status
-      await this.updateRequestStatus(request.id, 'COMPLETED', client);
-
-      // Update dispute
-      await this.updateDisputeResolution(
-        disputeId,
-        DisputeResolution.RELEASE_TO_SELLER,
-        adminId,
-        null,
-        notes,
-        client
-      );
-
-      await client.query('COMMIT');
-
-      logger.info('Seller release completed', { disputeId });
-
-      return {
-        dispute: await this.getDispute(disputeId),
-        escrowRelease: {
-          amount: request.amount,
-          transactionId: escrowRelease.transactionId
-        }
-      };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Seller release failed', { disputeId, error });
-      throw error;
-    } finally {
-      client.release();
+    if (dispute.status !== DisputeStatus.UNDER_REVIEW) {
+      throw new InvalidDisputeStatusError(dispute.status, [DisputeStatus.UNDER_REVIEW]);
     }
-  }
 
-  /**
-   * Partial refund (split between buyer and seller)
-   */
-  async partialRefund(
-    disputeId: string,
-    percentage: number,
-    adminId: number,
-    notes?: string
-  ): Promise<ResolutionResult> {
-    const client = await this.db.connect();
+    // Validate resolution percentage for partial refund
+    if (input.resolution === DisputeResolution.PARTIAL_REFUND) {
+      if (input.resolutionPercentage === undefined || input.resolutionPercentage === null) {
+        throw new InvalidResolutionPercentageError(0);
+      }
+      if (input.resolutionPercentage < 0 || input.resolutionPercentage > 100) {
+        throw new InvalidResolutionPercentageError(input.resolutionPercentage);
+      }
+    }
 
     try {
-      await client.query('BEGIN');
-
-      logger.info('Processing partial refund', { disputeId, percentage, adminId });
-
-      // Validate percentage
-      if (percentage < 0 || percentage > 100) {
-        throw new InvalidResolutionPercentageError(percentage);
+      switch (input.resolution) {
+        case DisputeResolution.REFUND_BUYER:
+          await this.refundBuyer(dispute);
+          break;
+        case DisputeResolution.RELEASE_TO_SELLER:
+          await this.releaseToSeller(dispute);
+          break;
+        case DisputeResolution.PARTIAL_REFUND:
+          await this.partialRefund(dispute, input.resolutionPercentage!);
+          break;
       }
 
-      // Get dispute and request details
-      const { dispute, request } = await this.getDisputeWithRequest(disputeId, client);
-
-      // Validate dispute status
-      this.validateDisputeStatus(dispute.status);
-
-      // Calculate amounts
-      const refundAmount = Math.round((request.amount * percentage) / 100);
-      const sellerAmount = request.amount - refundAmount;
-
-      logger.info('Partial refund amounts', { 
-        total: request.amount,
-        refundAmount, 
-        sellerAmount,
-        percentage 
+      // Update dispute status
+      await prisma.dispute.update({
+        where: { id: disputeId },
+        data: {
+          status: DisputeStatus.RESOLVED,
+          resolution: input.resolution,
+          resolutionPercentage: input.resolutionPercentage || null,
+          adminNotes: input.adminNotes || null,
+          resolvedAt: new Date(),
+          resolvedByAdminId: parseInt(adminId)
+        }
       });
-
-      // Process Stripe refund (partial)
-      const refund = await this.processStripeRefund(
-        request.paymentIntentId,
-        refundAmount,
-        `Dispute resolved - partial refund (${percentage}%)`
-      );
-
-      // Credit buyer's wallet
-      await this.creditWallet(
-        request.buyerId,
-        refundAmount,
-        disputeId,
-        'DISPUTE_PARTIAL_REFUND'
-      );
-
-      // Release remaining to seller
-      await this.releaseEscrow(
-        request.id,
-        request.sellerId,
-        sellerAmount,
-        'DISPUTE_PARTIAL_RELEASE'
-      );
 
       // Update request status
-      await this.updateRequestStatus(request.id, 'PARTIALLY_REFUNDED', client);
-
-      // Update dispute
-      await this.updateDisputeResolution(
-        disputeId,
-        DisputeResolution.PARTIAL_REFUND,
-        adminId,
-        refund.id,
-        notes,
-        client,
-        percentage
-      );
-
-      await client.query('COMMIT');
-
-      logger.info('Partial refund completed', { disputeId, refundId: refund.id });
-
-      return {
-        dispute: await this.getDispute(disputeId),
-        refund: {
-          amount: refundAmount,
-          stripeRefundId: refund.id
-        },
-        escrowRelease: {
-          amount: sellerAmount,
-          transactionId: 'partial-release'
-        }
-      };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Partial refund failed', { disputeId, error });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  // Private helper methods
-
-  /**
-   * Process Stripe refund
-   */
-  private async processStripeRefund(
-    paymentIntentId: string,
-    amount: number,
-    reason: string
-  ): Promise<Stripe.Refund> {
-    try {
-      logger.info('Processing Stripe refund', { paymentIntentId, amount });
-
-      const refund = await this.stripe.refunds.create({
-        payment_intent: paymentIntentId,
-        amount: Math.round(amount * 100), // Convert to cents
-        reason: 'requested_by_customer',
-        metadata: {
-          dispute_reason: reason
-        }
+      await prisma.request.update({
+        where: { id: dispute.requestId },
+        data: { status: 'RESOLVED' }
       });
 
-      logger.info('Stripe refund successful', { refundId: refund.id });
-
-      return refund;
-    } catch (error) {
-      logger.error('Stripe refund failed', { paymentIntentId, error });
-      throw new RefundFailedError(error.message);
+      return {
+        success: true,
+        dispute: await this.getResolvedDispute(disputeId) || undefined
+      };
+    } catch (error: any) {
+      console.error(`Error resolving dispute ${disputeId}:`, error);
+      throw new RefundFailedError(disputeId, error.message);
     }
   }
 
   /**
-   * Credit wallet (placeholder - integrate with actual wallet service)
+   * Refund buyer and release escrow
    */
-  private async creditWallet(
-    userId: number,
-    amount: number,
-    referenceId: string,
-    referenceType: string
-  ): Promise<void> {
-    try {
-      logger.info('Crediting wallet', { userId, amount, referenceType });
+  private async refundBuyer(dispute: any): Promise<void> {
+    const request = dispute.request;
 
-      // TODO: Integrate with actual WalletService
-      // await walletService.credit(userId, amount, referenceType, referenceId, 'DISPUTE');
-
-      // Placeholder implementation
-      const query = `
-        INSERT INTO wallet_transactions (
-          user_id,
-          amount,
-          type,
-          reference_id,
-          reference_type,
-          description
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-      `;
-
-      await this.db.query(query, [
-        userId,
-        amount,
-        'CREDIT',
-        referenceId,
-        referenceType,
-        `Dispute resolution: ${referenceType}`
-      ]);
-
-      logger.info('Wallet credited successfully', { userId, amount });
-    } catch (error) {
-      logger.error('Wallet credit failed', { userId, error });
-      throw new WalletOperationError('credit', error.message);
-    }
-  }
-
-  /**
-   * Release escrow (placeholder - integrate with actual escrow service)
-   */
-  private async releaseEscrow(
-    requestId: number,
-    sellerId: number,
-    amount: number,
-    reason: string
-  ): Promise<{ transactionId: string }> {
-    try {
-      logger.info('Releasing escrow', { requestId, sellerId, amount });
-
-      // TODO: Integrate with actual EscrowService
-      // await escrowService.release(requestId, sellerId, amount, reason);
-
-      // Placeholder implementation
-      const query = `
-        INSERT INTO escrow_releases (
-          request_id,
-          seller_id,
-          amount,
-          reason,
-          released_at
-        ) VALUES ($1, $2, $3, $4, NOW())
-        RETURNING id
-      `;
-
-      const result = await this.db.query(query, [
-        requestId,
-        sellerId,
-        amount,
-        reason
-      ]);
-
-      const transactionId = `escrow-${result.rows[0].id}`;
-
-      logger.info('Escrow released successfully', { requestId, transactionId });
-
-      return { transactionId };
-    } catch (error) {
-      logger.error('Escrow release failed', { requestId, error });
-      throw new EscrowOperationError('release', error.message);
-    }
-  }
-
-  /**
-   * Update request status
-   */
-  private async updateRequestStatus(
-    requestId: number,
-    status: string,
-    client: any
-  ): Promise<void> {
-    const query = `
-      UPDATE requests
-      SET status = $1, updated_at = NOW()
-      WHERE id = $2
-    `;
-
-    await client.query(query, [status, requestId]);
-  }
-
-  /**
-   * Update dispute resolution
-   */
-  private async updateDisputeResolution(
-    disputeId: string,
-    resolution: DisputeResolution,
-    adminId: number,
-    stripeRefundId: string | null,
-    notes: string | undefined,
-    client: any,
-    percentage?: number
-  ): Promise<void> {
-    const query = `
-      UPDATE disputes
-      SET 
-        status = $1,
-        resolution = $2,
-        resolution_percentage = $3,
-        resolved_by_admin_id = $4,
-        stripe_refund_id = $5,
-        admin_notes = $6,
-        resolved_at = NOW(),
-        updated_at = NOW()
-      WHERE id = $7
-    `;
-
-    await client.query(query, [
-      DisputeStatus.RESOLVED,
-      resolution,
-      percentage || null,
-      adminId,
-      stripeRefundId,
-      notes || null,
-      disputeId
-    ]);
-  }
-
-  /**
-   * Get dispute with request details
-   */
-  private async getDisputeWithRequest(
-    disputeId: string,
-    client: any
-  ): Promise<{ dispute: any; request: any }> {
-    const query = `
-      SELECT 
-        d.*,
-        r.id as request_id,
-        r.amount as request_amount,
-        r.buyer_id as request_buyer_id,
-        r.seller_id as request_seller_id,
-        r.payment_intent_id as request_payment_intent_id
-      FROM disputes d
-      INNER JOIN requests r ON d.request_id = r.id
-      WHERE d.id = $1
-    `;
-
-    const result = await client.query(query, [disputeId]);
-
-    if (result.rows.length === 0) {
-      throw new Error(`Dispute not found: ${disputeId}`);
+    // Process Stripe refund
+    if (request.stripePaymentIntentId) {
+      await stripeService.createRefund(request.stripePaymentIntentId);
     }
 
-    const row = result.rows[0];
+    // Credit buyer's wallet (store credit)
+    await walletService.credit(
+      request.buyerId,
+      request.amount,
+      request.currency,
+      `Refund for dispute ${dispute.id}`
+    );
+
+    console.log(`[Resolution] Refunded buyer ${request.buyerId} for dispute ${dispute.id}`);
+  }
+
+  /**
+   * Release funds to seller
+   */
+  private async releaseToSeller(dispute: any): Promise<void> {
+    const request = dispute.request;
+
+    // Release escrow to seller
+    await walletService.credit(
+      request.sellerId,
+      request.amount,
+      request.currency,
+      `Escrow release for dispute ${dispute.id}`
+    );
+
+    console.log(`[Resolution] Released to seller ${request.sellerId} for dispute ${dispute.id}`);
+  }
+
+  /**
+   * Partial refund - split between buyer and seller
+   */
+  private async partialRefund(dispute: any, percentage: number): Promise<void> {
+    const request = dispute.request;
+    const refundAmount = Math.floor((request.amount * percentage) / 100);
+    const releaseAmount = request.amount - refundAmount;
+
+    // Process Stripe partial refund
+    if (request.stripePaymentIntentId) {
+      await stripeService.createRefund(request.stripePaymentIntentId, refundAmount);
+    }
+
+    // Credit buyer with partial refund
+    await walletService.credit(
+      request.buyerId,
+      refundAmount,
+      request.currency,
+      `Partial refund (${percentage}%) for dispute ${dispute.id}`
+    );
+
+    // Release remaining to seller
+    await walletService.credit(
+      request.sellerId,
+      releaseAmount,
+      request.currency,
+      `Partial release (${100 - percentage}%) for dispute ${dispute.id}`
+    );
+
+    console.log(`[Resolution] Partial refund: ${refundAmount} to buyer, ${releaseAmount} to seller for dispute ${dispute.id}`);
+  }
+
+  /**
+   * Get resolved dispute details
+   */
+  async getResolvedDispute(disputeId: string): Promise<Dispute | null> {
+    const dispute = await prisma.dispute.findUnique({
+      where: { id: disputeId }
+    });
+
+    if (!dispute) {
+      throw new DisputeNotFoundError(disputeId);
+    }
 
     return {
-      dispute: {
-        id: row.id,
-        status: row.status
-      },
-      request: {
-        id: row.request_id,
-        amount: row.request_amount,
-        buyerId: row.request_buyer_id,
-        sellerId: row.request_seller_id,
-        paymentIntentId: row.request_payment_intent_id
-      }
+      id: dispute.id,
+      requestId: dispute.requestId,
+      openedBy: dispute.openedBy as any,
+      reason: dispute.reason as any,
+      description: dispute.description,
+      evidenceUrls: [],
+      status: dispute.status as DisputeStatus,
+      resolution: dispute.resolution as DisputeResolution,
+      resolutionPercentage: dispute.resolutionPercentage || undefined,
+      adminNotes: dispute.adminNotes || undefined,
+      openedAt: dispute.openedAt,
+      reviewedAt: dispute.reviewedAt || undefined,
+      resolvedAt: dispute.resolvedAt || undefined,
+      closedAt: dispute.closedAt || undefined,
+      reviewedByAdminId: dispute.reviewedByAdminId || undefined,
+      resolvedByAdminId: dispute.resolvedByAdminId || undefined,
+      stripeRefundId: dispute.stripeRefundId || undefined,
+      createdAt: dispute.createdAt,
+      updatedAt: dispute.updatedAt
     };
   }
 
   /**
-   * Get dispute
+   * Get resolution statistics
    */
-  private async getDispute(disputeId: string): Promise<Dispute> {
-    const query = `
-      SELECT 
-        id,
-        request_id as "requestId",
-        opened_by as "openedBy",
-        reason,
-        description,
-        evidence_urls as "evidenceUrls",
-        status,
-        resolution,
-        resolution_percentage as "resolutionPercentage",
-        admin_notes as "adminNotes",
-        opened_at as "openedAt",
-        reviewed_at as "reviewedAt",
-        resolved_at as "resolvedAt",
-        closed_at as "closedAt",
-        created_at as "createdAt",
-        updated_at as "updatedAt"
-      FROM disputes
-      WHERE id = $1
-    `;
+  async getResolutionStats(): Promise<any> {
+    const [total, refundBuyer, releaseToSeller, partialRefund] = await Promise.all([
+      prisma.dispute.count({ where: { status: DisputeStatus.RESOLVED } }),
+      prisma.dispute.count({ where: { status: DisputeStatus.RESOLVED, resolution: DisputeResolution.REFUND_BUYER } }),
+      prisma.dispute.count({ where: { status: DisputeStatus.RESOLVED, resolution: DisputeResolution.RELEASE_TO_SELLER } }),
+      prisma.dispute.count({ where: { status: DisputeStatus.RESOLVED, resolution: DisputeResolution.PARTIAL_REFUND } })
+    ]);
 
-    const result = await this.db.query(query, [disputeId]);
-    return result.rows[0];
-  }
-
-  /**
-   * Validate dispute status
-   */
-  private validateDisputeStatus(status: DisputeStatus): void {
-    if (status !== DisputeStatus.UNDER_REVIEW) {
-      throw new InvalidDisputeStatusError(status, 'resolve');
-    }
+    return {
+      totalResolved: total,
+      refundBuyer,
+      releaseToSeller,
+      partialRefund,
+      buyerWinRate: total > 0 ? (refundBuyer / total * 100).toFixed(2) : 0,
+      sellerWinRate: total > 0 ? (releaseToSeller / total * 100).toFixed(2) : 0,
+      partialRate: total > 0 ? (partialRefund / total * 100).toFixed(2) : 0
+    };
   }
 }

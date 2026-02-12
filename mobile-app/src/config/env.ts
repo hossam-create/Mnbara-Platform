@@ -1,4 +1,5 @@
 import Config from 'react-native-config';
+import { Platform } from 'react-native';
 
 const ENV = {
   development: 'development',

@@ -1,0 +1,103 @@
+{
+  "$schema": "./schemas/migrations-config.schema.json",
+  "version": "1.0.0",
+  "description": "Mnbara Platform Database Migration Configuration",
+  "environments": {
+    "development": {
+      "database": {
+        "host": "localhost",
+        "port": 5432,
+        "username": "mnbara_dev",
+        "password": "${DB_PASSWORD}",
+        "name": "mnbara_development",
+        "schema": "public",
+        "pool": {
+          "min": 2,
+          "max": 10,
+          "idleTimeoutMillis": 30000,
+          "connectionTimeoutMillis": 5000
+        }
+      },
+      "options": {
+        "migrationsTable": "schema_migrations",
+        "migrationsPath": "./migrations",
+        "seedsPath": "./seeds",
+        "dryRun": false,
+        "verbose": true,
+        "transactional": true
+      }
+    },
+    "staging": {
+      "database": {
+        "host": "${DB_HOST}",
+        "port": 5432,
+        "username": "${DB_USERNAME}",
+        "password": "${DB_PASSWORD}",
+        "name": "${DB_NAME}",
+        "schema": "public",
+        "pool": {
+          "min": 2,
+          "max": 20,
+          "idleTimeoutMillis": 60000,
+          "connectionTimeoutMillis": 10000
+        }
+      },
+      "options": {
+        "migrationsTable": "schema_migrations",
+        "migrationsPath": "./migrations",
+        "seedsPath": "./seeds",
+        "dryRun": false,
+        "verbose": true,
+        "transactional": true
+      }
+    },
+    "production": {
+      "database": {
+        "host": "${DB_HOST}",
+        "port": 5432,
+        "username": "${DB_USERNAME}",
+        "password": "${DB_PASSWORD}",
+        "name": "${DB_NAME}",
+        "schema": "public",
+        "pool": {
+          "min": 5,
+          "max": 50,
+          "idleTimeoutMillis": 60000,
+          "connectionTimeoutMillis": 15000
+        }
+      },
+      "options": {
+        "migrationsTable": "schema_migrations",
+        "migrationsPath": "./migrations",
+        "seedsPath": "./seeds",
+        "dryRun": false,
+        "verbose": false,
+        "transactional": true,
+        "locking": true
+      }
+    }
+  },
+  "defaultEnvironment": "development",
+  "migrations": {
+    "tableName": "schema_migrations",
+    "lockTableName": "schema_migrations_lock",
+    "lockTimeoutMs": 60000,
+    "fileNamingPattern": "{number}_{name}.sql",
+    "numberPadding": 3
+  },
+  "seeds": {
+    "categories": ["countries", "currencies", "categories", "payment_methods", "delivery_statuses", "order_statuses"],
+    "tableName": "seed_logs",
+    "enabled": true
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "outputFile": "./logs/migrations.log"
+  },
+  "safety": {
+    "requireConfirmation": true,
+    "maxRollbackSteps": 100,
+    "preventDataLoss": true
+  }
+}

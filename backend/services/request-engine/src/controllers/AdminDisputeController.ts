@@ -1,256 +1,155 @@
-/**
- * Admin Dispute Controller
- * 
- * Handles admin-facing dispute endpoints.
- * Provides REST API for reviewing disputes, resolving disputes, and viewing statistics.
- */
+// ============================================
+// Admin Dispute Controller
+// Admin-facing API endpoints for dispute management
+// ============================================
 
 import { Request, Response, NextFunction } from 'express';
-import { Pool } from 'pg';
 import { DisputeService } from '../services/DisputeService';
 import { ResolutionService } from '../services/ResolutionService';
-import { DisputeReason, DisputeStatus, DisputeResolution } from '../types/dispute.types';
-import { logger } from '../utils/logger';
+import { DisputeFilters, ResolutionInput } from '../types/dispute.types';
 
-export class AdminDisputeController {
-  private disputeService: DisputeService;
-  private resolutionService: ResolutionService;
+const disputeService = new DisputeService();
+const resolutionService = new ResolutionService();
 
-  constructor(db: Pool) {
-    this.disputeService = new DisputeService(db);
-    this.resolutionService = new ResolutionService(db);
+/**
+ * GET /api/admin/disputes
+ * Get all disputes with filtering
+ */
+export async function getAllDisputes(req: Request, res: Response, next: NextFunction) {
+  try {
+    const filters: DisputeFilters = {
+      status: req.query.status as any,
+      reason: req.query.reason as any,
+      openedBy: req.query.openedBy as any,
+      limit: req.query.limit ? parseInt(req.query.limit as string) : 50,
+      offset: req.query.offset ? parseInt(req.query.offset as string) : 0
+    };
+
+    const result = await disputeService.getAllDisputes(filters);
+
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    next(error);
   }
+}
 
-  /**
-   * GET /api/admin/disputes
-   * Get all disputes with filters
-   */
-  getAllDisputes = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { status, reason, dateFrom, dateTo, search, limit, offset } = req.query;
+/**
+ * GET /api/admin/disputes/:id
+ * Get dispute details for admin
+ */
+export async function getDisputeDetails(req: Request, res: Response, next: NextFunction) {
+  try {
+    const disputeId = req.params.id;
+    const dispute = await disputeService.getDisputeById(disputeId, 'admin', 'ADMIN');
 
-      logger.info('Getting all disputes (admin)', { filters: req.query });
+    res.json({
+      success: true,
+      data: dispute
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-      // Validate status if provided
-      if (status && !Object.values(DisputeStatus).includes(status as DisputeStatus)) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid dispute status'
-        });
-        return;
+/**
+ * POST /api/admin/disputes/:id/review
+ * Mark dispute as under review
+ */
+export async function markUnderReview(req: Request, res: Response, next: NextFunction) {
+  try {
+    const disputeId = req.params.id;
+    const adminId = (req.user?.id || 'admin-1') as string;
+
+    const dispute = await disputeService.markUnderReview(disputeId, adminId);
+
+    res.json({
+      success: true,
+      data: dispute
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * POST /api/admin/disputes/:id/resolve
+ * Resolve a dispute
+ */
+export async function resolveDispute(req: Request, res: Response, next: NextFunction) {
+  try {
+    const disputeId = req.params.id;
+    const adminId = (req.user?.id || 'admin-1') as string;
+    
+    const input: ResolutionInput = {
+      resolution: req.body.resolution,
+      resolutionPercentage: req.body.resolutionPercentage,
+      adminNotes: req.body.adminNotes
+    };
+
+    const result = await resolutionService.resolveDispute(disputeId, input, adminId);
+
+    res.json({
+      success: result.success,
+      data: result.dispute,
+      error: result.error
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/admin/disputes/stats
+ * Get dispute statistics
+ */
+export async function getDisputeStats(req: Request, res: Response, next: NextFunction) {
+  try {
+    const [disputeStats, resolutionStats] = await Promise.all([
+      disputeService.getDisputeStats(),
+      resolutionService.getResolutionStats()
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        disputes: disputeStats,
+        resolutions: resolutionStats
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
-      // Validate reason if provided
-      if (reason && !Object.values(DisputeReason).includes(reason as DisputeReason)) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid dispute reason'
-        });
-        return;
+/**
+ * POST /api/admin/disputes/:id/close
+ * Close a resolved dispute
+ */
+export async function closeDispute(req: Request, res: Response, next: NextFunction) {
+  try {
+    const disputeId = req.params.id;
+    const adminId = (req.user?.id || 'admin-1') as string;
+
+    // Import Prisma here to avoid circular dependencies
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+
+    await prisma.dispute.update({
+      where: { id: disputeId },
+      data: {
+        status: 'CLOSED',
+        closedAt: new Date()
       }
+    });
 
-      const filters = {
-        status: status as DisputeStatus | undefined,
-        reason: reason as DisputeReason | undefined,
-        dateFrom: dateFrom as string | undefined,
-        dateTo: dateTo as string | undefined,
-        search: search as string | undefined,
-        limit: limit ? parseInt(limit as string, 10) : 50,
-        offset: offset ? parseInt(offset as string, 10) : 0
-      };
-
-      const result = await this.disputeService.getAllDisputes(filters);
-
-      res.status(200).json({
-        success: true,
-        data: result.disputes,
-        pagination: {
-          total: result.total,
-          limit: filters.limit,
-          offset: filters.offset
-        }
-      });
-    } catch (error) {
-      logger.error('Failed to get all disputes', { error });
-      next(error);
-    }
-  };
-
-  /**
-   * GET /api/admin/disputes/:id
-   * Get dispute details with full information
-   */
-  getDisputeDetails = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const disputeId = req.params.id;
-
-      logger.info('Getting dispute details (admin)', { disputeId });
-
-      // For admin, we don't need userId check
-      // We'll need to modify getDisputeById to support admin access
-      // For now, we'll use a workaround by passing 0 as userId
-      // TODO: Add getDisputeDetailsForAdmin method
-      const dispute = await this.disputeService.getDisputeById(disputeId, 0);
-
-      res.status(200).json({
-        success: true,
-        data: dispute
-      });
-    } catch (error) {
-      logger.error('Failed to get dispute details', { error });
-      next(error);
-    }
-  };
-
-  /**
-   * POST /api/admin/disputes/:id/review
-   * Mark dispute as under review
-   */
-  markUnderReview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const disputeId = req.params.id;
-      const adminId = req.user?.id;
-
-      logger.info('Marking dispute under review', { disputeId, adminId });
-
-      if (!adminId) {
-        res.status(401).json({
-          success: false,
-          error: 'Unauthorized'
-        });
-        return;
-      }
-
-      const dispute = await this.disputeService.markUnderReview(disputeId, adminId);
-
-      res.status(200).json({
-        success: true,
-        data: dispute
-      });
-    } catch (error) {
-      logger.error('Failed to mark dispute under review', { error });
-      next(error);
-    }
-  };
-
-  /**
-   * POST /api/admin/disputes/:id/resolve
-   * Resolve a dispute
-   */
-  resolveDispute = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const disputeId = req.params.id;
-      const adminId = req.user?.id;
-      const { resolution, percentage, notes } = req.body;
-
-      logger.info('Resolving dispute', { disputeId, adminId, resolution });
-
-      if (!adminId) {
-        res.status(401).json({
-          success: false,
-          error: 'Unauthorized'
-        });
-        return;
-      }
-
-      // Validate resolution
-      if (!resolution || !Object.values(DisputeResolution).includes(resolution)) {
-        res.status(400).json({
-          success: false,
-          error: 'Invalid resolution type'
-        });
-        return;
-      }
-
-      // Validate percentage for partial refund
-      if (resolution === DisputeResolution.PARTIAL_REFUND) {
-        if (percentage === undefined || percentage < 0 || percentage > 100) {
-          res.status(400).json({
-            success: false,
-            error: 'Percentage is required for partial refund and must be between 0 and 100'
-          });
-          return;
-        }
-      }
-
-      let result;
-
-      switch (resolution) {
-        case DisputeResolution.REFUND_BUYER:
-          result = await this.resolutionService.refundBuyer(disputeId, adminId, notes);
-          break;
-
-        case DisputeResolution.RELEASE_TO_SELLER:
-          result = await this.resolutionService.releaseToSeller(disputeId, adminId, notes);
-          break;
-
-        case DisputeResolution.PARTIAL_REFUND:
-          result = await this.resolutionService.partialRefund(
-            disputeId,
-            percentage,
-            adminId,
-            notes
-          );
-          break;
-
-        default:
-          res.status(400).json({
-            success: false,
-            error: 'Invalid resolution type'
-          });
-          return;
-      }
-
-      res.status(200).json({
-        success: true,
-        data: result
-      });
-    } catch (error) {
-      logger.error('Failed to resolve dispute', { error });
-      next(error);
-    }
-  };
-
-  /**
-   * GET /api/admin/disputes/stats
-   * Get dispute statistics
-   */
-  getDisputeStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      logger.info('Getting dispute statistics');
-
-      // TODO: Implement getDisputeStats in DisputeService
-      // For now, return placeholder data
-      const stats = {
-        total: 0,
-        byStatus: {
-          open: 0,
-          underReview: 0,
-          resolved: 0,
-          closed: 0
-        },
-        byReason: {
-          notDelivered: 0,
-          wrongItem: 0,
-          damaged: 0,
-          other: 0
-        },
-        byResolution: {
-          refundBuyer: 0,
-          releaseToSeller: 0,
-          partialRefund: 0
-        },
-        averageResolutionTime: 0,
-        refundRate: 0
-      };
-
-      res.status(200).json({
-        success: true,
-        data: stats
-      });
-    } catch (error) {
-      logger.error('Failed to get dispute statistics', { error });
-      next(error);
-    }
-  };
+    res.json({
+      success: true,
+      message: 'Dispute closed successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
 }

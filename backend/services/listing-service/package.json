@@ -11,7 +11,7 @@
     },
     "dependencies": {
         "@elastic/elasticsearch": "^9.2.0",
-        "@prisma/client": "^5.8.1",
+        "@prisma/client": "^5.22.0",
         "aws-sdk": "^2.1544.0",
         "axios": "^1.6.2",
         "cors": "^2.8.5",
@@ -23,7 +23,7 @@
         "morgan": "^1.10.0",
         "multer": "^1.4.5-lts.1",
         "pg": "^8.11.3",
-        "prisma": "^5.8.1",
+        "prisma": "^5.22.0",
         "redis": "^4.6.12",
         "csv-parse": "^5.5.3"
     },

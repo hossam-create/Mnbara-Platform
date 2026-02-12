@@ -14,7 +14,7 @@
         "@nestjs/platform-socket.io": "^11.1.13",
         "@nestjs/schedule": "^6.1.0",
         "@nestjs/websockets": "^11.1.13",
-        "@prisma/client": "^5.8.1",
+        "@prisma/client": "^5.22.0",
         "bcryptjs": "^2.4.3",
         "bullmq": "^5.1.0",
         "cors": "^2.8.5",
@@ -24,7 +24,7 @@
         "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "pg": "^8.11.3",
-        "prisma": "^5.8.1",
+        "prisma": "^5.22.0",
         "redis": "^4.6.12",
         "socket.io": "^4.8.3"
     },

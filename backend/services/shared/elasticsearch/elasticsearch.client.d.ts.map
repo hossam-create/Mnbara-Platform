@@ -1,0 +1,1 @@
+{"version":3,"file":"elasticsearch.client.d.ts","sourceRoot":"","sources":["elasticsearch.client.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,OAAO,EAAE,MAAM,EAAE,MAAM,wBAAwB,CAAC;AAKhD;;GAEG;AACH,wBAAgB,sBAAsB,IAAI,MAAM,CAW/C;AAED;;GAEG;AACH,wBAAsB,wBAAwB,IAAI,OAAO,CAAC,OAAO,CAAC,CASjE;AAED;;GAEG;AACH,wBAAsB,wBAAwB,IAAI,OAAO,CAAC,IAAI,CAAC,CAK9D"}

@@ -1,0 +1,64 @@
+{
+  "name": "@mnbara/plugin-testing",
+  "version": "1.0.0",
+  "description": "Comprehensive testing framework for the eBay Live Crafter plugin system",
+  "main": "index.ts",
+  "types": "index.ts",
+  "bin": {
+    "plugin-test": "./cli/plugin-test.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node index.ts",
+    "test": "jest",
+    "test:framework": "jest --testPathPattern=PluginTestingFramework",
+    "test:utils": "jest --testPathPattern=PluginTestUtils",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "clean": "rimraf dist",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@mnbara/plugin-manager": "workspace:*",
+    "@mnbara/hook-system": "workspace:*",
+    "@mnbara/plugin-registry": "workspace:*",
+    "@mnbara/plugin-marketplace": "workspace:*",
+    "@prisma/client": "^5.0.0",
+    "commander": "^11.0.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0"
+  },
+  "keywords": [
+    "plugin",
+    "testing",
+    "framework",
+    "test",
+    "validation",
+    "security",
+    "performance",
+    "ebay",
+    "live",
+    "crafter"
+  ],
+  "author": "MNBARA Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mnbara/mnbara-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mnbara/mnbara-platform/issues"
+  },
+  "homepage": "https://github.com/mnbara/mnbara-platform#readme"
+}

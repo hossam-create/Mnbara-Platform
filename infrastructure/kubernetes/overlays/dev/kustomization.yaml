@@ -1,0 +1,156 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Kustomization for Development Environment
+# =============================================================================
+# This overlay configures resources for the development environment
+# =============================================================================
+
+# =============================================================================
+# Namespace
+# =============================================================================
+namespace: mnbara-dev
+
+# =============================================================================
+# Name Prefix
+# =============================================================================
+# Adds prefix to all resource names
+# =============================================================================
+namePrefix: dev-
+
+# =============================================================================
+# Common Labels
+# =============================================================================
+# Override common labels for dev environment
+# =============================================================================
+commonLabels:
+  app: mnbara-platform
+  organization: mnbara
+  managed-by: kubectl
+  environment: dev
+  version: dev-latest
+
+# =============================================================================
+# Common Annotations
+# =============================================================================
+commonAnnotations:
+  maintainer: dev@mnbara.com
+  environment: development
+  description: Development deployment for Mnbara Platform
+
+# =============================================================================
+# Resources
+# =============================================================================
+# Base resources to overlay
+# =============================================================================
+resources:
+  - ../../base
+
+# =============================================================================
+# Patches
+# =============================================================================
+# Development-specific patches
+# =============================================================================
+
+patches:
+  # Reduce resources for development
+  - target:
+      kind: Deployment
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 1
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "500m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "512Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "100m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "128Mi"
+
+  # Disable HPA in dev (single replica)
+  - target:
+      kind: HorizontalPodAutoscaler
+    patch: |
+      - op: replace
+        path: /spec/minReplicas
+        value: 1
+      - op: replace
+        path: /spec/maxReplicas
+        value: 1
+
+  # Development service configuration
+  - target:
+      kind: Service
+    patch: |
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+
+# =============================================================================
+# ConfigMap Generator
+# =============================================================================
+# Development-specific configuration
+# =============================================================================
+configMapGenerator:
+  - name: app-config
+    literals:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=debug
+      - LOG_FORMAT=pretty
+      - NODE_ENV=development
+      - DEBUG=true
+      - FEATURE_CACHE_ENABLED=false
+
+# =============================================================================
+# Secret Generator
+# =============================================================================
+# Development secrets (use weaker credentials for local dev)
+# =============================================================================
+secretGenerator:
+  - name: db-credentials
+    literals:
+      - username=mnbara_dev
+      - password=mnbara_dev_password
+      - host=postgres.dev
+      - port=5432
+      - database=mnbara_dev
+    options:
+      disableNameSuffixHash: false
+
+# =============================================================================
+# Images
+# =============================================================================
+# Use latest or dev image tags
+# =============================================================================
+images:
+  - name: mnbara/api-gateway
+    newTag: dev-latest
+  - name: mnbara/user-service
+    newTag: dev-latest
+  - name: mnbara/matching-service
+    newTag: dev-latest
+  - name: mnbara/order-service
+    newTag: dev-latest
+  - name: mnbara/trip-service
+    newTag: dev-latest
+
+# =============================================================================
+# Replicas
+# =============================================================================
+# Set replica counts for development
+# =============================================================================
+replicas:
+  - name: api-gateway
+    count: 1
+  - name: user-service
+    count: 1
+  - name: matching-service
+    count: 1
+  - name: order-service
+    count: 1
+  - name: trip-service
+    count: 1

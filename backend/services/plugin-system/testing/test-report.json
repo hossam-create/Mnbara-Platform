@@ -1,0 +1,35 @@
+{
+  "plugin": "sample-test-plugin",
+  "version": "1.0.0",
+  "timestamp": "2026-02-09T20:29:22.547Z",
+  "tests": {
+    "manifest": {
+      "passed": true,
+      "errors": []
+    },
+    "hooks": {
+      "passed": true,
+      "errors": []
+    },
+    "config": {
+      "passed": true,
+      "errors": []
+    },
+    "security": {
+      "passed": true,
+      "errors": []
+    },
+    "performance": {
+      "passed": true,
+      "metrics": {
+        "loadTime": 378,
+        "hookTime": 149
+      }
+    }
+  },
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0
+  }
+}

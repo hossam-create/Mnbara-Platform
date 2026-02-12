@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "build:core": "tsc -p tsconfig.core.json",
+    "build:all": "npm run build:core && npm run build:examples",
+    "build:examples": "tsc -p tsconfig.examples.json",
+    "clean": "rimraf dist",
+    "dev": "ts-node-dev --respawn --transpile-only examples/basic-usage.ts",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

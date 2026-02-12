@@ -1,35 +1,60 @@
-/**
- * Evidence Service
- * 
- * Handles evidence upload, retrieval, and management for disputes.
- */
+// ============================================
+// Evidence Service
+// Handles file uploads for dispute evidence
+// ============================================
 
-import { Express } from 'express';
-import { Pool } from 'pg';
-import { getStorageService } from './storage/StorageFactory';
-import { 
-  validateFiles, 
-  validateTotalEvidenceCount,
-  generateUniqueFilename,
-  getFileType 
-} from '../utils/fileValidation';
-import { 
-  DisputeEvidence, 
-  DisputeParty, 
-  EvidenceType 
+import { v4 as uuidv4 } from 'uuid';
+import { FileStorageService } from './storage/FileStorageService';
+import { LocalStorageService } from './storage/LocalStorageService';
+import { S3StorageService } from './storage/S3StorageService';
+import {
+  DisputeEvidence,
+  EvidenceType,
+  DisputeParty,
+  MulterFile,
+  EvidenceResult
 } from '../types/dispute.types';
-import { 
-  FileUploadError,
-  EvidenceLimitReachedError 
+import {
+  validateFiles,
+  generateUniqueFilename,
+  getEvidenceType
+} from '../utils/fileValidation';
+import {
+  InvalidFileTypeError,
+  FileTooLargeError,
+  TooManyFilesError
 } from '../errors/DisputeErrors';
-import { logger } from '../utils/logger';
+import {
+  EvidenceNotFoundError,
+  InvalidEvidencePartyError
+} from '../errors/DisputeErrors';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class EvidenceService {
-  private db: Pool;
-  private storageService = getStorageService();
+  private storageService: FileStorageService;
+  private uploadPath: string;
 
-  constructor(db: Pool) {
-    this.db = db;
+  constructor() {
+    // Use local storage by default, can be configured for S3
+    const useS3 = process.env.USE_S3_STORAGE === 'true';
+    
+    if (useS3) {
+      this.storageService = new S3StorageService({
+        region: process.env.AWS_REGION || 'us-east-1',
+        bucket: process.env.AWS_S3_BUCKET || 'dispute-evidence',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'placeholder',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'placeholder'
+      });
+    } else {
+      this.storageService = new LocalStorageService(
+        process.env.UPLOAD_PATH || '/tmp/dispute-evidence',
+        process.env.UPLOAD_URL || '/uploads'
+      );
+    }
+
+    this.uploadPath = 'dispute-evidence';
   }
 
   /**
@@ -38,61 +63,85 @@ export class EvidenceService {
   async uploadEvidence(
     disputeId: string,
     submittedBy: DisputeParty,
-    files: Express.Multer.File[]
-  ): Promise<DisputeEvidence[]> {
+    files: MulterFile[]
+  ): Promise<EvidenceResult> {
     try {
-      logger.info('Uploading evidence', { 
-        disputeId, 
-        submittedBy, 
-        fileCount: files.length 
-      });
-
       // Validate files
-      validateFiles(files);
+      const validation = validateFiles(files);
+      if (!validation.valid) {
+        return {
+          success: false,
+          error: validation.results
+            .filter(r => !r.valid)
+            .map(r => r.errors?.join(', '))
+            .filter(Boolean)
+            .join('; ')
+        };
+      }
 
-      // Check total evidence count
-      const currentCount = await this.getEvidenceCount(disputeId);
-      validateTotalEvidenceCount(currentCount, files.length);
-
-      // Generate unique filenames
-      const filenames = files.map(f => generateUniqueFilename(f.originalname));
-
-      // Upload files to storage
-      const uploadResults = await this.storageService.uploadFiles(files, filenames);
-
-      // Create evidence records
+      // Upload files and create evidence records
       const evidenceRecords: DisputeEvidence[] = [];
 
-      for (let i = 0; i < uploadResults.length; i++) {
-        const result = uploadResults[i];
-        const file = files[i];
-
-        const evidence = await this.createEvidenceRecord({
+      for (const file of files) {
+        // Generate unique filename
+        const uniqueFilename = generateUniqueFilename(
+          file.originalname,
           disputeId,
-          submittedBy,
-          fileUrl: result.url,
-          fileType: getFileType(file.mimetype),
-          fileSize: file.size,
-          originalFilename: file.originalname
+          submittedBy
+        );
+
+        // Upload to storage
+        const fileUrl = await this.storageService.upload(
+          file.buffer,
+          uniqueFilename,
+          file.mimetype,
+          this.uploadPath
+        );
+
+        // Determine evidence type
+        const evidenceType = getEvidenceType(file.mimetype);
+
+        // Create evidence record in database
+        const evidence = await prisma.disputeEvidence.create({
+          data: {
+            disputeId,
+            submittedBy,
+            fileUrl,
+            fileType: evidenceType,
+            fileSize: file.size,
+            originalFilename: file.originalname
+          }
         });
 
-        evidenceRecords.push(evidence);
+        evidenceRecords.push({
+          id: evidence.id,
+          disputeId: evidence.disputeId,
+          submittedBy: evidence.submittedBy as DisputeParty,
+          fileUrl: evidence.fileUrl,
+          fileType: evidence.fileType as EvidenceType,
+          fileSize: evidence.fileSize,
+          originalFilename: evidence.originalFilename,
+          submittedAt: evidence.submittedAt
+        });
       }
 
-      logger.info('Evidence uploaded successfully', { 
-        disputeId, 
-        count: evidenceRecords.length 
-      });
-
-      return evidenceRecords;
+      return {
+        success: true,
+        evidence: evidenceRecords
+      };
     } catch (error) {
-      logger.error('Evidence upload failed', { disputeId, error });
+      console.error('Error uploading evidence:', error);
       
-      if (error.name === 'DisputeError') {
+      if (error instanceof InvalidFileTypeError ||
+          error instanceof FileTooLargeError ||
+          error instanceof TooManyFilesError) {
         throw error;
       }
-      
-      throw new FileUploadError('evidence', error.message);
+
+      return {
+        success: false,
+        error: 'Failed to upload evidence'
+      };
     }
   }
 
@@ -100,169 +149,75 @@ export class EvidenceService {
    * Get all evidence for a dispute
    */
   async getDisputeEvidence(disputeId: string): Promise<DisputeEvidence[]> {
-    try {
-      const query = `
-        SELECT 
-          id,
-          dispute_id as "disputeId",
-          submitted_by as "submittedBy",
-          file_url as "fileUrl",
-          file_type as "fileType",
-          file_size as "fileSize",
-          original_filename as "originalFilename",
-          submitted_at as "submittedAt"
-        FROM dispute_evidence
-        WHERE dispute_id = $1
-        ORDER BY submitted_at ASC
-      `;
+    const evidence = await prisma.disputeEvidence.findMany({
+      where: { disputeId },
+      orderBy: { submittedAt: 'asc' }
+    });
 
-      const result = await this.db.query(query, [disputeId]);
+    return evidence.map((e: any) => ({
+      id: e.id,
+      disputeId: e.disputeId,
+      submittedBy: e.submittedBy as DisputeParty,
+      fileUrl: e.fileUrl,
+      fileType: e.fileType as EvidenceType,
+      fileSize: e.fileSize,
+      originalFilename: e.originalFilename,
+      submittedAt: e.submittedAt
+    }));
+  }
 
-      return result.rows;
-    } catch (error) {
-      logger.error('Failed to get dispute evidence', { disputeId, error });
-      throw error;
+  /**
+   * Get evidence by ID
+   */
+  async getEvidenceById(evidenceId: number): Promise<DisputeEvidence | null> {
+    const evidence = await prisma.disputeEvidence.findUnique({
+      where: { id: evidenceId }
+    });
+
+    if (!evidence) {
+      return null;
     }
+
+    return {
+      id: evidence.id,
+      disputeId: evidence.disputeId,
+      submittedBy: evidence.submittedBy as DisputeParty,
+      fileUrl: evidence.fileUrl,
+      fileType: evidence.fileType as EvidenceType,
+      fileSize: evidence.fileSize,
+      originalFilename: evidence.originalFilename,
+      submittedAt: evidence.submittedAt
+    };
+  }
+
+  /**
+   * Delete evidence
+   */
+  async deleteEvidence(evidenceId: number, userId: string): Promise<void> {
+    const evidence = await this.getEvidenceById(evidenceId);
+    
+    if (!evidence) {
+      throw new EvidenceNotFoundError(evidenceId);
+    }
+
+    // Delete from storage
+    await this.storageService.delete(evidence.fileUrl);
+
+    // Delete from database
+    await prisma.disputeEvidence.delete({
+      where: { id: evidenceId }
+    });
   }
 
   /**
    * Get evidence count for a dispute
    */
-  async getEvidenceCount(disputeId: string): Promise<number> {
-    try {
-      const query = `
-        SELECT COUNT(*) as count
-        FROM dispute_evidence
-        WHERE dispute_id = $1
-      `;
-
-      const result = await this.db.query(query, [disputeId]);
-      return parseInt(result.rows[0].count, 10);
-    } catch (error) {
-      logger.error('Failed to get evidence count', { disputeId, error });
-      throw error;
-    }
-  }
-
-  /**
-   * Delete evidence (admin only)
-   */
-  async deleteEvidence(evidenceId: number): Promise<void> {
-    try {
-      logger.info('Deleting evidence', { evidenceId });
-
-      // Get evidence record
-      const getQuery = `
-        SELECT file_url as "fileUrl"
-        FROM dispute_evidence
-        WHERE id = $1
-      `;
-
-      const getResult = await this.db.query(getQuery, [evidenceId]);
-
-      if (getResult.rows.length === 0) {
-        throw new Error(`Evidence not found: ${evidenceId}`);
+  async getEvidenceCount(disputeId: string, submittedBy?: DisputeParty): Promise<number> {
+    return prisma.disputeEvidence.count({
+      where: {
+        disputeId,
+        ...(submittedBy && { submittedBy })
       }
-
-      const fileUrl = getResult.rows[0].fileUrl;
-
-      // Delete from storage
-      await this.storageService.deleteFile(fileUrl);
-
-      // Delete from database
-      const deleteQuery = `
-        DELETE FROM dispute_evidence
-        WHERE id = $1
-      `;
-
-      await this.db.query(deleteQuery, [evidenceId]);
-
-      logger.info('Evidence deleted successfully', { evidenceId });
-    } catch (error) {
-      logger.error('Failed to delete evidence', { evidenceId, error });
-      throw error;
-    }
-  }
-
-  /**
-   * Create evidence record in database
-   */
-  private async createEvidenceRecord(data: {
-    disputeId: string;
-    submittedBy: DisputeParty;
-    fileUrl: string;
-    fileType: EvidenceType;
-    fileSize: number;
-    originalFilename: string;
-  }): Promise<DisputeEvidence> {
-    try {
-      const query = `
-        INSERT INTO dispute_evidence (
-          dispute_id,
-          submitted_by,
-          file_url,
-          file_type,
-          file_size,
-          original_filename
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING 
-          id,
-          dispute_id as "disputeId",
-          submitted_by as "submittedBy",
-          file_url as "fileUrl",
-          file_type as "fileType",
-          file_size as "fileSize",
-          original_filename as "originalFilename",
-          submitted_at as "submittedAt"
-      `;
-
-      const values = [
-        data.disputeId,
-        data.submittedBy,
-        data.fileUrl,
-        data.fileType,
-        data.fileSize,
-        data.originalFilename
-      ];
-
-      const result = await this.db.query(query, values);
-
-      return result.rows[0];
-    } catch (error) {
-      logger.error('Failed to create evidence record', { data, error });
-      throw error;
-    }
-  }
-
-  /**
-   * Get evidence by party
-   */
-  async getEvidenceByParty(
-    disputeId: string,
-    party: DisputeParty
-  ): Promise<DisputeEvidence[]> {
-    try {
-      const query = `
-        SELECT 
-          id,
-          dispute_id as "disputeId",
-          submitted_by as "submittedBy",
-          file_url as "fileUrl",
-          file_type as "fileType",
-          file_size as "fileSize",
-          original_filename as "originalFilename",
-          submitted_at as "submittedAt"
-        FROM dispute_evidence
-        WHERE dispute_id = $1 AND submitted_by = $2
-        ORDER BY submitted_at ASC
-      `;
-
-      const result = await this.db.query(query, [disputeId, party]);
-
-      return result.rows;
-    } catch (error) {
-      logger.error('Failed to get evidence by party', { disputeId, party, error });
-      throw error;
-    }
+    });
   }
 }

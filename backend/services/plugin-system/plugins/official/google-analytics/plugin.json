@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "id": "google-analytics",
+    "name": "Google Analytics Integration",
+    "version": "1.0.0",
+    "description": "Google Analytics tracking and reporting integration",
+    "author": "mnbara team",
+    "main": "index.js",
+    "dependencies": {
+      "@google-analytics/data": "^4.0.0"
+    },
+    "permissions": [
+      "analytics.read",
+      "analytics.write",
+      "user.tracking",
+      "event.tracking"
+    ],
+    "hooks": [
+      "analytics:trackEvent",
+      "analytics:trackPageView",
+      "analytics:beforeSend",
+      "analytics:afterSend"
+    ],
+    "config": {
+      "trackingId": "",
+      "measurementId": "",
+      "apiSecret": "",
+      "debugMode": false
+    }
+  },
+  "entry": "index.js",
+  "enabled": true,
+  "installedAt": "2024-01-01T00:00:00.000Z",
+  "config": {}
+}

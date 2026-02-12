@@ -1,0 +1,201 @@
+version: '3.8'
+
+services:
+  # CrafterCMS Studio - Content Management Interface
+  crafter-studio:
+    image: craftercms/studio:4.1.2
+    ports:
+      - "8080:8080"  # Studio web interface
+      - "8009:8009"  # Management port
+    environment:
+      - CRAFTER_ENVIRONMENT=development
+      - CRAFTER_DB_URL=jdbc:postgresql://postgres:5432/crafter
+      - CRAFTER_DB_USERNAME=crafter
+      - CRAFTER_DB_PASSWORD=crafter_password
+      - CRAFTER_ES_URL=http://elasticsearch:9200
+      - CRAFTER_REDIS_URL=redis://redis:6379
+      - CRAFTER_SECURITY_TYPE=default
+      - CRAFTER_GIT_REPO_URL=/opt/crafter/data/repos
+    volumes:
+      - crafter_data:/opt/crafter/data
+      - crafter_logs:/opt/crafter/logs
+      - ./content-repo:/opt/crafter/data/repos/sites/mnbara
+    depends_on:
+      - postgres
+      - elasticsearch
+      - redis
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/studio/api/1/monitoring/status.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # CrafterCMS Engine - Content Delivery
+  crafter-engine:
+    image: craftercms/engine:4.1.2
+    ports:
+      - "8081:8080"  # Engine web interface
+    environment:
+      - CRAFTER_ENVIRONMENT=development
+      - CRAFTER_STUDIO_URL=http://crafter-studio:8080
+      - CRAFTER_DB_URL=jdbc:postgresql://postgres:5432/crafter
+      - CRAFTER_DB_USERNAME=crafter
+      - CRAFTER_DB_PASSWORD=crafter_password
+      - CRAFTER_ES_URL=http://elasticsearch:9200
+      - CRAFTER_REDIS_URL=redis://redis:6379
+    volumes:
+      - crafter_data:/opt/crafter/data
+      - crafter_logs:/opt/crafter/logs
+    depends_on:
+      - crafter-studio
+      - postgres
+      - elasticsearch
+      - redis
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/1/monitoring/status.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # CrafterCMS Deployer - Deployment Service
+  crafter-deployer:
+    image: craftercms/deployer:4.1.2
+    ports:
+      - "9191:9191"  # Deployer port
+    environment:
+      - CRAFTER_ENVIRONMENT=development
+      - CRAFTER_STUDIO_URL=http://crafter-studio:8080
+      - CRAFTER_ES_URL=http://elasticsearch:9200
+      - CRAFTER_REDIS_URL=redis://redis:6379
+    volumes:
+      - crafter_data:/opt/crafter/data
+      - crafter_logs:/opt/crafter/logs
+      - ./deployer-config:/opt/crafter/deployer/config
+    depends_on:
+      - crafter-studio
+      - elasticsearch
+      - redis
+    networks:
+      - crafter_network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=crafter
+      - POSTGRES_USER=crafter
+      - POSTGRES_PASSWORD=crafter_password
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init-crafter.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crafter -d crafter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch - Search and Analytics
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.24
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis - Caching and Session Management
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # MongoDB - Alternative NoSQL storage for content
+  mongodb:
+    image: mongo:7.0
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin_password
+      - MONGO_INITDB_DATABASE=crafter_content
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx - Load Balancer and Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - crafter-studio
+      - crafter-engine
+    networks:
+      - crafter_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  crafter_data:
+    driver: local
+  crafter_logs:
+    driver: local
+  postgres_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  redis_data:
+    driver: local
+  mongodb_data:
+    driver: local
+
+networks:
+  crafter_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

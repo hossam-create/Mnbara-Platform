@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "id": "test-plugin",
+    "name": "test-plugin",
+    "description": "A test plugin",
+    "author": "Test Author",
+    "keywords": [
+      "test-plugin"
+    ],
+    "license": "MIT"
+  },
+  "entry": "dist/index.js",
+  "enabled": true,
+  "permissions": {
+    "wallet": {
+      "read": false,
+      "write": false,
+      "sign": false,
+      "admin": false
+    },
+    "api": {
+      "external": false,
+      "internal": true,
+      "admin": false
+    },
+    "ui": {
+      "render": true,
+      "modify": false,
+      "admin": false
+    },
+    "hooks": {
+      "register": true,
+      "trigger": true,
+      "admin": false
+    },
+    "storage": {
+      "read": true,
+      "write": true,
+      "admin": false
+    },
+    "system": {
+      "network": false,
+      "filesystem": false,
+      "process": false,
+      "admin": false
+    }
+  },
+  "configuration": {
+    "settings": {},
+    "features": {
+      "typescript": true,
+      "hooks": false,
+      "walletIntegration": false,
+      "uiComponents": false,
+      "apiEndpoints": false,
+      "storage": true,
+      "cache": false,
+      "metrics": true
+    },
+    "development": {
+      "hotReload": true,
+      "debug": true,
+      "mockData": false
+    },
+    "production": {
+      "minify": true,
+      "optimize": true,
+      "compress": true
+    }
+  }
+}

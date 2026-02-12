@@ -1,11 +1,14 @@
 // Environment variables will be loaded at runtime via react-native-config
 // This file provides default values for development
+import { Platform } from 'react-native';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 export const API_CONFIG = {
-  BASE_URL: __DEV__ 
+  BASE_URL: isDev 
     ? 'https://api.dev.mnbara.com/v1' 
     : 'https://api.mnbara.com/v1',
-  SOCKET_URL: __DEV__
+  SOCKET_URL: isDev
     ? 'wss://socket.dev.mnbara.com'
     : 'wss://socket.mnbara.com',
   TIMEOUT: 30000,

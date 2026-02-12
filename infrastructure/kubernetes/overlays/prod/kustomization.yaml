@@ -1,0 +1,154 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Kustomization for Production Environment
+# =============================================================================
+# This overlay configures resources for the production environment
+# Production requires high availability and resource allocation
+# =============================================================================
+
+# =============================================================================
+# Namespace
+# =============================================================================
+namespace: mnbara-prod
+
+# =============================================================================
+# Name Prefix
+# =============================================================================
+namePrefix: prod-
+
+# =============================================================================
+# Common Labels
+# =============================================================================
+commonLabels:
+  app: mnbara-platform
+  organization: mnbara
+  managed-by: kubectl
+  environment: production
+  version: ${PROD_VERSION:-latest}
+
+# =============================================================================
+# Common Annotations
+# =============================================================================
+commonAnnotations:
+  maintainer: dev@mnbara.com
+  environment: production
+  description: Production deployment for Mnbara Platform
+  cost-center: "mnbara-platform"
+
+# =============================================================================
+# Resources
+# =============================================================================
+resources:
+  - ../../base
+
+# =============================================================================
+# Patches
+# =============================================================================
+# Production-specific patches
+# =============================================================================
+
+patches:
+  # High resources for production
+  - target:
+      kind: Deployment
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "2000m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "2048Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "500m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "512Mi"
+
+  # Production HPA configuration
+  - target:
+      kind: HorizontalPodAutoscaler
+    patch: |
+      - op: replace
+        path: /spec/minReplicas
+        value: 3
+      - op: replace
+        path: /spec/maxReplicas
+        value: 20
+
+  # Production service configuration (LoadBalancer)
+  - target:
+      kind: Service
+    patch: |
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+      - op: add
+        path: /spec/externalTrafficPolicy
+        value: "Regional"
+
+# =============================================================================
+# ConfigMap Generator
+# =============================================================================
+configMapGenerator:
+  - name: app-config
+    literals:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=warn
+      - LOG_FORMAT=json
+      - NODE_ENV=production
+      - DEBUG=false
+      - FEATURE_CACHE_ENABLED=true
+      - FEATURE_METRICS_ENABLED=true
+
+# =============================================================================
+# Secret Generator
+# =============================================================================
+secretGenerator:
+  - name: db-credentials
+    literals:
+      - username=mnbara_prod
+      - password=${DB_PASSWORD}
+      - host=postgres.prod
+      - port=5432
+      - database=mnbara_prod
+    options:
+      disableNameSuffixHash: false
+  - name: api-keys
+    literals:
+      - stripe_key=${STRIPE_SECRET_KEY}
+      - mapbox_token=${MAPBOX_ACCESS_TOKEN}
+    options:
+      disableNameSuffixHash: true
+
+# =============================================================================
+# Images
+# =============================================================================
+images:
+  - name: mnbara/api-gateway
+    newTag: ${PROD_VERSION:-latest}
+  - name: mnbara/user-service
+    newTag: ${PROD_VERSION:-latest}
+  - name: mnbara/matching-service
+    newTag: ${PROD_VERSION:-latest}
+  - name: mnbara/order-service
+    newTag: ${PROD_VERSION:-latest}
+  - name: mnbara/trip-service
+    newTag: ${PROD_VERSION:-latest}
+
+# =============================================================================
+# Replicas
+# =============================================================================
+replicas:
+  - name: api-gateway
+    count: 3
+  - name: user-service
+    count: 3
+  - name: matching-service
+    count: 3
+  - name: order-service
+    count: 3
+  - name: trip-service
+    count: 3

@@ -9,7 +9,7 @@
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^5.22.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

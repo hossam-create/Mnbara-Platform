@@ -1,0 +1,61 @@
+{
+  "name": "mnbara-database-migrations",
+  "version": "1.0.0",
+  "description": "Centralized database migration framework for Mnbara Platform microservices",
+  "main": "dist/scripts/migrate.js",
+  "scripts": {
+    "build": "tsc",
+    "migrate": "node dist/scripts/migrate.js",
+    "migrate:dry-run": "node dist/scripts/migrate.js --dry-run",
+    "migrate:up": "node dist/scripts/migrate.js --direction=up",
+    "migrate:down": "node dist/scripts/migrate.js --direction=down",
+    "migrate:redo": "npm run migrate:down && npm run migrate:up",
+    "seed": "node dist/scripts/seed.js",
+    "seed:all": "node dist/scripts/seed.js --all",
+    "seed:countries": "node dist/scripts/seed.js --category=countries",
+    "seed:currencies": "node dist/scripts/seed.js --category=currencies",
+    "seed:categories": "node dist/scripts/seed.js --category=categories",
+    "rollback": "node dist/scripts/rollback.js",
+    "rollback:one": "node dist/scripts/rollback.js --step=1",
+    "status": "node dist/scripts/migrate.js --status",
+    "fresh": "npm run migrate:down && npm run migrate:up && npm run seed:all",
+    "lint": "eslint scripts/**/*.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "mysql2": "^3.6.5",
+    "pg-pool": "^3.6.1",
+    "uuid": "^9.0.1",
+    "dotenv": "^16.3.1",
+    "js-yaml": "^4.1.0",
+    "chalk": "^4.1.2",
+    "figlet": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/pg": "^8.10.9",
+    "@types/uuid": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/chalk": "^2.2.0",
+    "@types/figlet": "^1.5.8",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.11",
+    "ts-jest": "^29.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "database",
+    "migration",
+    "mnbara",
+    "postgres",
+    "mysql",
+    "sql"
+  ],
+  "author": "Mnbara Platform Team",
+  "license": "MIT"
+}

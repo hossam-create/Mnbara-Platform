@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Blog Post Content Type Definition for CrafterCMS -->
+<form>
+  <title>Blog Post</title>
+  <description>Blog post content type for content marketing</description>
+  <objectType>content</objectType>
+  <content-type>/component/blog-post</content-type>
+  <imageThumbnail>content-types/component/blog-post/blog-post.png</imageThumbnail>
+  
+  <properties>
+    <property>
+      <name>display-template</name>
+      <label>Display Template</label>
+      <value>/templates/web/components/blog-post.ftl</value>
+      <type>template</type>
+    </property>
+    <property>
+      <name>merge-strategy</name>
+      <label>Merge Strategy</label>
+      <value>inherit-levels</value>
+      <type>string</type>
+    </property>
+  </properties>
+
+  <sections>
+    <!-- Basic Information Section -->
+    <section>
+      <title>Basic Information</title>
+      <description>Basic blog post information</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>title</id>
+          <label>Post Title</label>
+          <required>true</required>
+          <helpText>Enter the blog post title</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>255</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>slug</id>
+          <label>URL Slug</label>
+          <required>false</required>
+          <helpText>Enter the URL slug (e.g., my-blog-post)</helpText>
+          <properties>
+            <property>
+              <name>pattern</name>
+              <value>^[a-z0-9-]+$</value>
+            </property>
+            <property>
+              <name>maxlength</name>
+              <value>255</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>excerpt</id>
+          <label>Excerpt</label>
+          <required>false</required>
+          <helpText>Enter a short excerpt for the post</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>500</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>dropdown</type>
+          <id>author</id>
+          <label>Author</label>
+          <required>true</required>
+          <helpText>Select the blog post author</helpText>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>blog-authors</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>dropdown</type>
+          <id>category</id>
+          <label>Category</label>
+          <required>false</required>
+          <helpText>Select the blog post category</helpText>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>blog-categories</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>tags</type>
+          <id>tags</id>
+          <label>Tags</label>
+          <required>false</required>
+          <helpText>Add blog post tags</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Content Section -->
+    <section>
+      <title>Content</title>
+      <description>Blog post content</description>
+      <fields>
+        <field>
+          <type>rte</type>
+          <id>content</id>
+          <label>Post Content</label>
+          <required>true</required>
+          <helpText>Enter the blog post content</helpText>
+          <properties>
+            <property>
+              <name>height</name>
+              <value>400</value>
+            </property>
+            <property>
+              <name>toolbar</name>
+              <value>full</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>image-picker</type>
+          <id>featuredImage</id>
+          <label>Featured Image</label>
+          <required>false</required>
+          <helpText>Select the featured image for the blog post</helpText>
+          <properties>
+            <property>
+              <name>width</name>
+              <value>1200</value>
+            </property>
+            <property>
+              <name>height</name>
+              <value>630</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>repeat</type>
+          <id>gallery</id>
+          <label>Image Gallery</label>
+          <required>false</required>
+          <helpText>Add images for the blog post</helpText>
+          <properties>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+            <property>
+              <name>max</name>
+              <value>20</value>
+            </property>
+          </properties>
+          <fields>
+            <field>
+              <type>image-picker</type>
+              <id>image</id>
+              <label>Image</label>
+              <required>true</required>
+            </field>
+            <field>
+              <type>input</type>
+              <id>alt</id>
+              <label>Alt Text</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>255</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>caption</id>
+              <label>Caption</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>500</value>
+                </property>
+              </properties>
+            </field>
+          </fields>
+        </field>
+
+        <field>
+          <type>video-picker</type>
+          <id>video</id>
+          <label>Video</label>
+          <required>false</required>
+          <helpText>Add a video for the blog post</helpText>
+        </field>
+
+        <field>
+          <type>file-picker</type>
+          <id>attachments</id>
+          <label>Attachments</label>
+          <required>false</required>
+          <helpText>Add file attachments for the blog post</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- SEO Section -->
+    <section>
+      <title>SEO</title>
+      <description>Search engine optimization settings</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>seoTitle</id>
+          <label>SEO Title</label>
+          <required>false</required>
+          <helpText>Enter the SEO title (max 60 characters)</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>60</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>textarea</type>
+          <id>seoDescription</id>
+          <label>SEO Description</label>
+          <required>false</required>
+          <helpText>Enter the SEO description (max 160 characters)</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>160</value>
+            </property>
+            <property>
+              <name>rows</name>
+              <value>3</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>tags</type>
+          <id>seoKeywords</id>
+          <label>SEO Keywords</label>
+          <required>false</required>
+          <helpText>Add SEO keywords</helpText>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>canonicalUrl</id>
+          <label>Canonical URL</label>
+          <required>false</required>
+          <helpText>Enter the canonical URL</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>url</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>noindex</id>
+          <label>No Index</label>
+          <required>false</required>
+          <helpText>Prevent search engines from indexing this page</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>nofollow</id>
+          <label>No Follow</label>
+          <required>false</required>
+          <helpText>Prevent search engines from following links on this page</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Publishing Section -->
+    <section>
+      <title>Publishing</title>
+      <description>Publishing settings</description>
+      <fields>
+        <field>
+          <type>date-time</type>
+          <id>publishDate</id>
+          <label>Publish Date</label>
+          <required>false</required>
+          <helpText>Set the publish date</helpText>
+        </field>
+
+        <field>
+          <type>date-time</type>
+          <id>expiryDate</id>
+          <label>Expiry Date</label>
+          <required>false</required>
+          <helpText>Set the expiry date (optional)</helpText>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>featured</id>
+          <label>Featured Post</label>
+          <required>false</required>
+          <helpText>Mark as featured post</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>sticky</id>
+          <label>Sticky Post</label>
+          <required>false</required>
+          <helpText>Keep this post at the top</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>commentsEnabled</id>
+          <label>Comments Enabled</label>
+          <required>false</required>
+          <helpText>Enable comments for this post</helpText>
+          <defaultValue>true</defaultValue>
+        </field>
+
+        <field>
+          <type>dropdown</type>
+          <id>status</id>
+          <label>Status</label>
+          <required>true</required>
+          <helpText>Select the post status</helpText>
+          <defaultValue>draft</defaultValue>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>post-status</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Advanced Section -->
+    <section>
+      <title>Advanced</title>
+      <description>Advanced settings</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>readingTime</id>
+          <label>Reading Time (minutes)</label>
+          <required>false</required>
+          <helpText>Estimated reading time in minutes</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>1</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>wordCount</id>
+          <label>Word Count</label>
+          <required>false</required>
+          <helpText>Number of words in the post</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>difficulty</id>
+          <label>Reading Difficulty</label>
+          <required>false</required>
+          <helpText>Reading difficulty level</helpText>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>reading-difficulty</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>tags</type>
+          <id>relatedPosts</id>
+          <label>Related Posts</label>
+          <required>false</required>
+          <helpText>Add related post IDs</helpText>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>customCss</id>
+          <label>Custom CSS</label>
+          <required>false</required>
+          <helpText>Add custom CSS for this post</helpText>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>customJs</id>
+          <label>Custom JavaScript</label>
+          <required>false</required>
+          <helpText>Add custom JavaScript for this post</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Analytics Section -->
+    <section>
+      <title>Analytics</title>
+      <description>Analytics and tracking settings</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>views</id>
+          <label>Views</label>
+          <required>false</required>
+          <helpText>Number of post views</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>likes</id>
+          <label>Likes</label>
+          <required>false</required>
+          <helpText>Number of post likes</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>shares</id>
+          <label>Shares</label>
+          <required>false</required>
+          <helpText>Number of post shares</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>commentsCount</id>
+          <label>Comments Count</label>
+          <required>false</required>
+          <helpText>Number of comments</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+  </sections>
+
+  <datasources>
+    <datasource>
+      <id>blog-authors</id>
+      <title>Blog Authors</title>
+      <type>dropdown</type>
+      <values>
+        <value>admin</value>
+        <value>editor</value>
+        <value>contributor</value>
+        <value>guest</value>
+      </values>
+    </datasource>
+
+    <datasource>
+      <id>blog-categories</id>
+      <title>Blog Categories</title>
+      <type>dropdown</type>
+      <values>
+        <value>technology</value>
+        <value>business</value>
+        <value>lifestyle</value>
+        <value>travel</value>
+        <value>food</value>
+        <value>health</value>
+        <value>fitness</value>
+        <value>fashion</value>
+        <value>entertainment</value>
+        <value>education</value>
+        <value>news</value>
+        <value>opinion</value>
+        <value>tutorial</value>
+        <value>review</value>
+        <value>guide</value>
+      </values>
+    </datasource>
+
+    <datasource>
+      <id>post-status</id>
+      <title>Post Status</title>
+      <type>dropdown</type>
+      <values>
+        <value>draft</value>
+        <value>pending</value>
+        <value>published</value>
+        <value>scheduled</value>
+        <value>archived</value>
+      </values>
+    </datasource>
+
+    <datasource>
+      <id>reading-difficulty</id>
+      <title>Reading Difficulty</title>
+      <type>dropdown</type>
+      <values>
+        <value>beginner</value>
+        <value>intermediate</value>
+        <value>advanced</value>
+        <value>expert</value>
+      </values>
+    </datasource>
+  </datasources>
+</form>

@@ -1,0 +1,169 @@
+// ============================================================
+// Developer Onboarding Prisma Schema - Phase 3 Database Schema
+// ============================================================
+
+model Developer {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  username            String    @unique
+  password            String
+  fullName            String
+  company             String?
+  website             String?
+  githubUsername      String?
+  bio                 String?
+  verified            Boolean   @default(false)
+  verificationToken   String?
+  apiKey              String?   @unique
+  avatar              String?
+  location            String?
+  timezone            String?
+  language            String    @default("en")
+  
+  // Developer status and settings
+  status              DeveloperStatus @default(PENDING)
+  isActive            Boolean   @default(true)
+  isPremium           Boolean   @default(false)
+  emailNotifications  Boolean   @default(true)
+  marketingEmails     Boolean   @default(false)
+  
+  // Timestamps
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  lastLoginAt         DateTime?
+  emailVerifiedAt     DateTime?
+  
+  // Relations
+  plugins             Plugin[]
+  reviews             PluginReview[]
+  installations       PluginInstallation[]
+  documentation       PluginDocumentation[]
+  supportTickets    SupportTicket[]
+  
+  @@index([email])
+  @@index([username])
+  @@index([status])
+  @@index([isActive])
+  @@index([apiKey])
+}
+
+model PluginDocumentation {
+  id            String    @id @default(cuid())
+  pluginId      String
+  version       String
+  sections      Json      // Array of documentation sections
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  lastUpdated   DateTime  @default(now())
+  
+  // Relations
+  plugin        Plugin    @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, version])
+  @@index([pluginId])
+  @@index([isPublished])
+  @@index([lastUpdated])
+}
+
+model DocumentationTemplate {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String
+  category    String
+  sections    Json      // Array of template sections
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+model SupportTicket {
+  id          String         @id @default(cuid())
+  developerId String
+  subject     String
+  description String
+  category    TicketCategory @default(GENERAL)
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  
+  // Additional fields
+  tags        String[]
+  metadata    Json?
+  
+  // Relations
+  developer   Developer      @relation(fields: [developerId], references: [id])
+  messages    TicketMessage[]
+  
+  // Timestamps
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  resolvedAt  DateTime?
+  
+  @@index([developerId])
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+}
+
+model TicketMessage {
+  id            String    @id @default(cuid())
+  ticketId      String
+  senderId      String
+  senderType    MessageSenderType @default(DEVELOPER)
+  message       String
+  isInternal    Boolean   @default(false)
+  attachments   String[]
+  
+  // Relations
+  ticket        SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  
+  @@index([ticketId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+// Enums
+enum DeveloperStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+  BANNED
+}
+
+enum TicketCategory {
+  GENERAL
+  TECHNICAL
+  BILLING
+  PLUGIN_SUBMISSION
+  PLUGIN_REVIEW
+  ACCOUNT_ISSUE
+  API_SUPPORT
+  DOCUMENTATION
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_FOR_RESPONSE
+  RESOLVED
+  CLOSED
+}
+
+enum MessageSenderType {
+  DEVELOPER
+  SUPPORT_AGENT
+  SYSTEM
+  BOT
+}

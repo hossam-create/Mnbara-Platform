@@ -1,0 +1,157 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Namespace Configuration
+# =============================================================================
+# Base namespace manifest for all Mnbara services
+# =============================================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ${NAMESPACE:-mnbara}
+  labels:
+    # Environment label for resource organization
+    environment: ${ENVIRONMENT:-dev}
+    # Managed by label for tracking
+    managed-by: kubectl
+    # Organization label
+    org: mnbara
+    # Version label
+    version: ${SERVICE_VERSION:-latest}
+  annotations:
+    # Description for documentation
+    description: ${NAMESPACE_DESCRIPTION:-Mnbara Platform Namespace}
+    # Contact information
+    contact: ${CONTACT_EMAIL:-dev@mnbara.com}
+    # Owner reference
+    owner: ${OWNER:-platform-team}
+
+---
+
+# =============================================================================
+# Network Policy - Default Deny
+# =============================================================================
+# Restricts all ingress traffic by default within the namespace
+# Only explicitly allowed traffic will be permitted
+# =============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: mnbara
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  # Apply to all pods in the namespace
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  # No ingress rules means all ingress is denied
+  # Explicit rules must be added for each service
+
+---
+
+# =============================================================================
+# Network Policy - Allow DNS
+# =============================================================================
+# Essential for service discovery and internal communication
+# =============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: mnbara
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow DNS queries (TCP and UDP on port 53)
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+
+# =============================================================================
+# Resource Quota - Namespace Limits
+# =============================================================================
+# Limits total resource consumption within the namespace
+# Adjust values based on environment and cluster capacity
+# =============================================================================
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: namespace-quota
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: mnbara
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  hard:
+    # CPU limits (cores)
+    cpu: "${NAMESPACE_CPU_LIMIT:-100}"
+    memory: "${NAMESPACE_MEMORY_LIMIT:-200Gi}"
+    # Storage limits
+    persistentvolumeclaims: "${NAMESPACE_PVC_LIMIT:-50}"
+    # Pod limits
+    pods: "${NAMESPACE_PODS_LIMIT:-100}"
+    # Service limits
+    services: "${NAMESPACE_SERVICES_LIMIT:-50}"
+    # Replication controller limits
+    replicationcontrollers: "${NAMESPACE_RC_LIMIT:-20}"
+    # Secret/configmap limits
+    secrets: "${NAMESPACE_SECRETS_LIMIT:-100}"
+    configmaps: "${NAMESPACE_CONFIGMAPS_LIMIT:-100}"
+
+---
+
+# =============================================================================
+# Limit Range - Container Resource Bounds
+# =============================================================================
+# Sets default and maximum resource limits for containers
+# =============================================================================
+
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: container-limits
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: mnbara
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  limits:
+    # Container limits
+    - type: Container
+      # Default resource requests
+      defaultRequest:
+        cpu: "${DEFAULT_CPU_REQUEST:-100m}"
+        memory: "${DEFAULT_MEMORY_REQUEST:-128Mi}"
+      # Default resource limits
+      default:
+        cpu: "${DEFAULT_CPU_LIMIT:-500m}"
+        memory: "${DEFAULT_MEMORY_LIMIT:-512Mi}"
+      # Maximum resource limits
+      max:
+        cpu: "${MAX_CPU_LIMIT:-4}"
+        memory: "${MAX_MEMORY_LIMIT:-8Gi}"
+      # Minimum resource requests
+      min:
+        cpu: "${MIN_CPU_REQUEST:-50m}"
+        memory: "${MIN_MEMORY_REQUEST:-64Mi}"
+    # Pod limits
+    - type: Pod
+      max:
+        cpu: "${POD_MAX_CPU:-8}"
+        memory: "${POD_MAX_MEMORY:-16Gi}"

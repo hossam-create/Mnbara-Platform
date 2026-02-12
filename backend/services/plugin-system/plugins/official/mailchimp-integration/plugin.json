@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "id": "mailchimp-integration",
+    "name": "Mailchimp Email Marketing",
+    "version": "1.0.0",
+    "description": "Mailchimp email marketing and automation integration",
+    "author": "mnbara team",
+    "main": "index.js",
+    "dependencies": {
+      "@mailchimp/mailchimp_marketing": "^3.0.0"
+    },
+    "permissions": [
+      "email.send",
+      "email.template",
+      "user.read",
+      "audience.manage",
+      "campaign.manage"
+    ],
+    "hooks": [
+      "email:beforeSend",
+      "email:afterSend",
+      "user:onSignup",
+      "campaign:beforeCreate",
+      "campaign:afterCreate"
+    ],
+    "config": {
+      "apiKey": "",
+      "serverPrefix": "us1",
+      "defaultListId": "",
+      "doubleOptIn": true,
+      "trackOpens": true,
+      "trackClicks": true
+    }
+  },
+  "entry": "index.js",
+  "enabled": true,
+  "installedAt": "2024-01-01T00:00:00.000Z",
+  "config": {}
+}

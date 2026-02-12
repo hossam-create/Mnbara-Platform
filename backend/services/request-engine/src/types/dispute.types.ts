@@ -1,17 +1,8 @@
-/**
- * Disputes & Refunds System - Type Definitions
- * 
- * This file contains all TypeScript types, interfaces, and enums
- * for the dispute resolution and refund management system.
- */
+// ============================================
+// Dispute System Type Definitions
+// ============================================
 
-// ============================================================================
-// ENUMS
-// ============================================================================
-
-/**
- * Reason for opening a dispute
- */
+// Enums
 export enum DisputeReason {
   NOT_DELIVERED = 'NOT_DELIVERED',
   WRONG_ITEM = 'WRONG_ITEM',
@@ -19,9 +10,6 @@ export enum DisputeReason {
   OTHER = 'OTHER'
 }
 
-/**
- * Current status of the dispute
- */
 export enum DisputeStatus {
   OPEN = 'OPEN',
   UNDER_REVIEW = 'UNDER_REVIEW',
@@ -29,41 +17,26 @@ export enum DisputeStatus {
   CLOSED = 'CLOSED'
 }
 
-/**
- * Resolution type for the dispute
- */
 export enum DisputeResolution {
   REFUND_BUYER = 'REFUND_BUYER',
   RELEASE_TO_SELLER = 'RELEASE_TO_SELLER',
   PARTIAL_REFUND = 'PARTIAL_REFUND'
 }
 
-/**
- * Party involved in the dispute
- */
 export enum DisputeParty {
   BUYER = 'BUYER',
   SELLER = 'SELLER'
 }
 
-/**
- * Type of evidence file
- */
 export enum EvidenceType {
   IMAGE = 'IMAGE',
   DOCUMENT = 'DOCUMENT'
 }
 
-// ============================================================================
-// INTERFACES
-// ============================================================================
-
-/**
- * Main dispute interface
- */
+// Interfaces
 export interface Dispute {
   id: string;
-  requestId: string;
+  requestId: number;
   openedBy: DisputeParty;
   reason: DisputeReason;
   description: string;
@@ -76,16 +49,13 @@ export interface Dispute {
   reviewedAt?: Date;
   resolvedAt?: Date;
   closedAt?: Date;
-  reviewedByAdminId?: string;
-  resolvedByAdminId?: string;
+  reviewedByAdminId?: number;
+  resolvedByAdminId?: number;
   stripeRefundId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/**
- * Dispute evidence interface
- */
 export interface DisputeEvidence {
   id: number;
   disputeId: string;
@@ -97,208 +67,109 @@ export interface DisputeEvidence {
   submittedAt: Date;
 }
 
-/**
- * Dispute with related data
- */
-export interface DisputeWithDetails extends Dispute {
-  request: {
-    id: string;
-    title: string;
-    amount: number;
-    buyer: {
-      id: string;
-      name: string;
-      email: string;
-    };
-    seller: {
-      id: string;
-      name: string;
-      email: string;
-    };
-  };
-  evidence: DisputeEvidence[];
-}
-
-/**
- * Dispute with full details for admin
- */
-export interface DisputeWithFullDetails extends DisputeWithDetails {
-  timeline: DisputeEvent[];
-  buyerWalletHistory: WalletTransaction[];
-  sellerWalletHistory: WalletTransaction[];
-}
-
-/**
- * Dispute event for timeline
- */
-export interface DisputeEvent {
-  id: string;
-  disputeId: string;
-  type: string;
-  title: string;
+export interface CreateDisputeInput {
+  requestId: number;
+  reason: DisputeReason;
   description: string;
-  data?: any;
-  createdBy: string;
-  createdAt: Date;
+  evidenceFiles?: MulterFile[];
 }
 
-/**
- * Wallet transaction interface
- */
-export interface WalletTransaction {
-  id: string;
-  userId: string;
-  amount: number;
-  type: string;
-  referenceId: string;
-  referenceType: string;
-  createdAt: Date;
+export interface UpdateDisputeInput {
+  description?: string;
+  reason?: DisputeReason;
 }
 
-// ============================================================================
-// FILTER INTERFACES
-// ============================================================================
-
-/**
- * Filters for user disputes
- */
 export interface DisputeFilters {
   status?: DisputeStatus;
+  reason?: DisputeReason;
+  openedBy?: DisputeParty;
+  requestId?: number;
+  startDate?: Date;
+  endDate?: Date;
   limit?: number;
   offset?: number;
 }
 
-/**
- * Filters for admin disputes
- */
-export interface AdminDisputeFilters extends DisputeFilters {
-  reason?: DisputeReason;
-  dateFrom?: string;
-  dateTo?: string;
-  search?: string;
+export interface ResolutionInput {
+  resolution: DisputeResolution;
+  resolutionPercentage?: number;
+  adminNotes?: string;
 }
 
-// ============================================================================
-// REQUEST/RESPONSE INTERFACES
-// ============================================================================
+export interface ResolutionResult {
+  success: boolean;
+  dispute?: Dispute;
+  error?: string;
+  stripeRefundId?: string;
+}
 
-/**
- * Request to open a dispute
- */
-export interface OpenDisputeRequest {
+export interface SubmitEvidenceInput {
+  disputeId: string;
+  submittedBy: DisputeParty;
+  files: MulterFile[];
+}
+
+export interface EvidenceResult {
+  success: boolean;
+  evidence?: DisputeEvidence[];
+  error?: string;
+}
+
+// API Response Types
+export interface DisputeResponse {
+  id: string;
+  requestId: number;
+  openedBy: DisputeParty;
   reason: DisputeReason;
   description: string;
-  evidence?: Express.Multer.File[];
+  evidence: DisputeEvidenceResponse[];
+  status: DisputeStatus;
+  resolution?: DisputeResolution;
+  resolutionPercentage?: number;
+  adminNotes?: string;
+  openedAt: Date;
+  reviewedAt?: Date;
+  resolvedAt?: Date;
+  closedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-/**
- * Request to add evidence
- */
-export interface AddEvidenceRequest {
-  evidence: Express.Multer.File[];
+export interface DisputeEvidenceResponse {
+  id: number;
+  disputeId: string;
+  submittedBy: DisputeParty;
+  fileUrl: string;
+  fileType: EvidenceType;
+  originalFilename: string;
+  submittedAt: Date;
 }
 
-/**
- * Request to resolve a dispute
- */
-export interface ResolveDisputeRequest {
-  resolution: DisputeResolution;
-  percentage?: number;
-  notes?: string;
-}
-
-/**
- * Result of dispute resolution
- */
-export interface ResolutionResult {
-  dispute: Dispute;
-  refund?: {
-    amount: number;
-    stripeRefundId: string;
-  };
-  escrowRelease?: {
-    amount: number;
-    transactionId: string;
-  };
-}
-
-/**
- * Dispute statistics
- */
-export interface DisputeStats {
+export interface DisputeListResponse {
+  disputes: DisputeResponse[];
   total: number;
-  byStatus: {
-    open: number;
-    underReview: number;
-    resolved: number;
-    closed: number;
-  };
-  byReason: {
-    notDelivered: number;
-    wrongItem: number;
-    damaged: number;
-    other: number;
-  };
-  byResolution: {
-    refundBuyer: number;
-    releaseToSeller: number;
-    partialRefund: number;
-  };
-  averageResolutionTime: number;
-  refundRate: number;
+  limit: number;
+  offset: number;
 }
 
-// ============================================================================
-// VALIDATION INTERFACES
-// ============================================================================
-
-/**
- * File validation configuration
- */
-export interface FileValidationConfig {
-  allowedMimeTypes: string[];
-  maxFileSize: number;
-  maxFilesPerUpload: number;
-  maxTotalFiles: number;
+// Pagination
+export interface PaginationParams {
+  limit?: number;
+  offset?: number;
 }
 
-/**
- * Dispute validation result
- */
-export interface DisputeValidationResult {
-  valid: boolean;
-  errors: string[];
+// Sort options
+export interface SortParams {
+  sortBy?: 'openedAt' | 'updatedAt' | 'status';
+  sortOrder?: 'asc' | 'desc';
 }
 
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-/**
- * File upload constants
- */
-export const FILE_UPLOAD_CONSTANTS = {
-  ALLOWED_MIME_TYPES: [
-    'image/jpeg',
-    'image/png',
-    'image/jpg',
-    'application/pdf'
-  ],
-  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
-  MAX_FILES_PER_UPLOAD: 5,
-  MAX_TOTAL_FILES: 10
-};
-
-/**
- * Dispute window constants
- */
-export const DISPUTE_CONSTANTS = {
-  WINDOW_HOURS: 48,
-  AUTO_CLOSE_DAYS: 30
-};
-
-/**
- * Request status that allows disputes
- */
-export const DISPUTABLE_REQUEST_STATUS = 'DELIVERED';
-
+// Multer File interface (simplified)
+export interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  buffer: Buffer;
+  size: number;
+}

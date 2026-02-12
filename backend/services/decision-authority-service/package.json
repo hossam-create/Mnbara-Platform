@@ -14,7 +14,7 @@
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@prisma/client": "^5.8.1",
+    "@prisma/client": "^5.22.0",
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "helmet": "^7.1.0",
@@ -42,7 +42,7 @@
     "ts-jest": "^29.1.1",
     "ts-node-dev": "^2.0.0",
     "eslint": "^8.56.0",
-    "prisma": "^5.8.1"
+    "prisma": "^5.22.0"
   },
   "engines": {
     "node": "22.20.0"

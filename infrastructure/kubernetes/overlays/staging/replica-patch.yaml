@@ -1,0 +1,68 @@
+# =============================================================================
+# Mnbara Platform - Staging Replica Patch
+# =============================================================================
+# This patch file sets replica counts for the staging environment
+# =============================================================================
+
+# =============================================================================
+# API Gateway
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: mnbara-staging
+spec:
+  replicas: 2
+
+---
+
+# =============================================================================
+# User Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: mnbara-staging
+spec:
+  replicas: 2
+
+---
+
+# =============================================================================
+# Matching Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-service
+  namespace: mnbara-staging
+spec:
+  replicas: 2
+
+---
+
+# =============================================================================
+# Order Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: mnbara-staging
+spec:
+  replicas: 2
+
+---
+
+# =============================================================================
+# Trip Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trip-service
+  namespace: mnbara-staging
+spec:
+  replicas: 2

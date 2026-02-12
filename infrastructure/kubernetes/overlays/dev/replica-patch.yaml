@@ -1,0 +1,69 @@
+# =============================================================================
+# Mnbara Platform - Development Replica Patch
+# =============================================================================
+# This patch file sets replica counts for the development environment
+# Apply this patch to deployments after the base deployment
+# =============================================================================
+
+# =============================================================================
+# API Gateway
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: mnbara-dev
+spec:
+  replicas: 1
+
+---
+
+# =============================================================================
+# User Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: mnbara-dev
+spec:
+  replicas: 1
+
+---
+
+# =============================================================================
+# Matching Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-service
+  namespace: mnbara-dev
+spec:
+  replicas: 1
+
+---
+
+# =============================================================================
+# Order Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: mnbara-dev
+spec:
+  replicas: 1
+
+---
+
+# =============================================================================
+# Trip Service
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trip-service
+  namespace: mnbara-dev
+spec:
+  replicas: 1

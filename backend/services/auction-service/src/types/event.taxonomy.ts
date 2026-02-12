@@ -183,6 +183,40 @@ export const EVENT_TAXONOMY = {
     allowed_actors: [ActorType.SYSTEM, ActorType.ADMIN],
     allowed_targets: [TargetType.SYSTEM],
   },
+
+  // PLUGIN Category (8 events)
+  [EventCategory.PLUGIN]: {
+    allowed_events: [
+      EventType.PLUGIN_INSTALLED,
+      EventType.PLUGIN_UNINSTALLED,
+      EventType.PLUGIN_ACTIVATED,
+      EventType.PLUGIN_DEACTIVATED,
+      EventType.PLUGIN_UPDATED,
+      EventType.PLUGIN_ERROR,
+      EventType.PLUGIN_HOOK_EXECUTED,
+      EventType.PLUGIN_PERMISSION_GRANTED,
+    ],
+    allowed_actors: [ActorType.USER, ActorType.ADMIN, ActorType.SYSTEM],
+    allowed_targets: [TargetType.PLUGIN],
+  },
+
+  // LIVE_STREAMING Category (10 events)
+  [EventCategory.LIVE_STREAMING]: {
+    allowed_events: [
+      EventType.LIVE_STREAM_STARTED,
+      EventType.LIVE_STREAM_ENDED,
+      EventType.LIVE_STREAM_VIEWER_JOINED,
+      EventType.LIVE_STREAM_VIEWER_LEFT,
+      EventType.LIVE_STREAM_AUCTION_STARTED,
+      EventType.LIVE_STREAM_AUCTION_ENDED,
+      EventType.LIVE_STREAM_BID_PLACED,
+      EventType.LIVE_STREAM_PRODUCT_PINNED,
+      EventType.LIVE_STREAM_PRODUCT_UNPINNED,
+      EventType.LIVE_STREAM_ERROR,
+    ],
+    allowed_actors: [ActorType.USER, ActorType.ADMIN, ActorType.SYSTEM],
+    allowed_targets: [TargetType.LIVE_STREAM, TargetType.AUCTION, TargetType.PRODUCT],
+  },
 } as const;
 
 /**
@@ -205,21 +239,21 @@ export function validateEventAgainstTaxonomy(
   const categoryRules = EVENT_TAXONOMY[eventCategory];
 
   // Check if event type is allowed in category
-  if (!categoryRules.allowed_events.includes(eventType)) {
+  if (![...categoryRules.allowed_events].includes(eventType)) {
     errors.push(
       `Event type ${eventType} not allowed in category ${eventCategory}`
     );
   }
 
   // Check if actor type is allowed
-  if (!categoryRules.allowed_actors.includes(actorType)) {
+  if (![...categoryRules.allowed_actors].includes(actorType)) {
     errors.push(
       `Actor type ${actorType} not allowed in category ${eventCategory}`
     );
   }
 
   // Check if target type is allowed
-  if (!categoryRules.allowed_targets.includes(targetType)) {
+  if (![...categoryRules.allowed_targets].includes(targetType)) {
     errors.push(
       `Target type ${targetType} not allowed in category ${eventCategory}`
     );
@@ -237,7 +271,8 @@ export function validateEventAgainstTaxonomy(
 export function getAllowedEventTypes(
   category: EventCategory
 ): EventType[] {
-  return EVENT_TAXONOMY[category]?.allowed_events || [];
+  const events = EVENT_TAXONOMY[category]?.allowed_events;
+  return events ? [...events] : [];
 }
 
 /**
@@ -246,7 +281,8 @@ export function getAllowedEventTypes(
 export function getAllowedActorTypes(
   category: EventCategory
 ): ActorType[] {
-  return EVENT_TAXONOMY[category]?.allowed_actors || [];
+  const actors = EVENT_TAXONOMY[category]?.allowed_actors;
+  return actors ? [...actors] : [];
 }
 
 /**
@@ -255,7 +291,8 @@ export function getAllowedActorTypes(
 export function getAllowedTargetTypes(
   category: EventCategory
 ): TargetType[] {
-  return EVENT_TAXONOMY[category]?.allowed_targets || [];
+  const targets = EVENT_TAXONOMY[category]?.allowed_targets;
+  return targets ? [...targets] : [];
 }
 
 /**
@@ -263,7 +300,7 @@ export function getAllowedTargetTypes(
  */
 export function getCategoryForEventType(eventType: EventType): EventCategory | null {
   for (const [category, rules] of Object.entries(EVENT_TAXONOMY)) {
-    if (rules.allowed_events.includes(eventType)) {
+    if ([...rules.allowed_events].includes(eventType)) {
       return category as EventCategory;
     }
   }
@@ -274,8 +311,8 @@ export function getCategoryForEventType(eventType: EventType): EventCategory | n
  * Taxonomy Statistics
  */
 export const TAXONOMY_STATS = {
-  total_categories: 12,
-  total_event_types: 68,
+  total_categories: 14,
+  total_event_types: 86,
   categories: {
     AUTH: 5,
     SEARCH: 4,
@@ -289,5 +326,7 @@ export const TAXONOMY_STATS = {
     DISPUTE: 6,
     TRUST: 8,
     SYSTEM: 6,
+    PLUGIN: 8,
+    LIVE_STREAMING: 10,
   },
 } as const;

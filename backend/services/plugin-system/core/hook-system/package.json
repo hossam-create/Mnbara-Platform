@@ -1,0 +1,39 @@
+{
+  "name": "@mnbara/hook-system",
+  "version": "1.0.0",
+  "description": "Hook System for the eBay Live Crafter Plugin System",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "dependencies": {
+    "events": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "hook",
+    "plugin",
+    "extension",
+    "ebay",
+    "live",
+    "crafter",
+    "events"
+  ],
+  "author": "MNBARA Team",
+  "license": "MIT"
+}
