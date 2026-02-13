@@ -76,7 +76,7 @@ export const LiveStreamPlayer: React.FC<LiveStreamPlayerProps> = ({
 
   useEffect(() => {
     // Initialize Socket.IO connection
-    const newSocket = io(`http://localhost:3002`, {
+    const newSocket = io(process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000', {
       query: { streamId, userId: 'viewer-' + Date.now() }
     });
 

@@ -67,7 +67,8 @@ export const LiveStreamAnalytics: React.FC<LiveStreamAnalyticsProps> = ({
         ...(streamId && { streamId })
       });
 
-      const response = await fetch(`http://localhost:3002/api/analytics?${params}`, {
+      const baseUrl = process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/analytics?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

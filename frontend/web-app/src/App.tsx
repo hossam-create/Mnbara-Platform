@@ -84,6 +84,12 @@ const SellPage = React.lazy(() => import('./pages/SellPage'));
 const DealsPage = React.lazy(() => import('./pages/DealsPage'));
 const HelpSellingPage = React.lazy(() => import('./pages/HelpSellingPage'));
 
+// Plugin Marketplace
+const PluginMarketplacePage = React.lazy(() => import('./pages/plugin-marketplace/PluginMarketplacePage'));
+
+// Mnbarh Live (eBay Live – streaming + live auctions)
+const LiveStreamPage = React.lazy(() => import('./components/live-streaming/LiveStreamPage'));
+
 // Fallback loading
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -187,6 +193,12 @@ function App() {
         <Route path="/sell" element={<SellPage />} />
         <Route path="/deals" element={<DealsPage />} />
         <Route path="/help/selling" element={<HelpSellingPage />} />
+
+        {/* Plugin Marketplace */}
+        <Route path="/plugins" element={<PluginMarketplacePage />} />
+
+        {/* Mnbarh Live – eBay Live (streaming, chat, live auctions) */}
+        <Route path="/live" element={<LiveStreamPage />} />
 
         {/* Catch-all redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />

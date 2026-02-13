@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,9 +18,39 @@ import {
   Linkedin,
   Instagram
 } from 'lucide-react';
+import { getCmsContent } from '@/services/crafterContent.service';
 
 const AboutUsPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'ar'>('en');
+  const [cmsHero, setCmsHero] = useState<{ title?: string; description?: string } | null>(null);
+
+  useEffect(() => {
+    const loadCmsHero = async () => {
+      const locale = selectedLanguage === 'ar' ? 'ar' : 'en';
+      const response = await getCmsContent('about-us', {
+        siteId: 'mnbara',
+        locale,
+      });
+
+      if (response?.success && response.data?.content) {
+        const c = response.data.content as any;
+        const title =
+          c.heroTitle ||
+          c.title ||
+          c.hero?.title;
+        const description =
+          c.heroDescription ||
+          c.description ||
+          c.hero?.description;
+
+        if (title || description) {
+          setCmsHero({ title, description });
+        }
+      }
+    };
+
+    loadCmsHero();
+  }, [selectedLanguage]);
 
   const content = {
     en: {
@@ -29,8 +59,8 @@ const AboutUsPage = () => {
       description: "Building the world's most trusted marketplace",
       
       hero: {
-        title: "Welcome to Mnbarh",
-        description: "We're on a mission to make online buying, selling, and global shopping simple, secure, and accessible to everyone.",
+        title: cmsHero?.title || "Welcome to Mnbarh",
+        description: cmsHero?.description || "We're on a mission to make online buying, selling, and global shopping simple, secure, and accessible to everyone.",
         tagline: "Your Trusted Marketplace"
       },
       
@@ -199,8 +229,8 @@ const AboutUsPage = () => {
       description: "بناء سوق العالم الأكثر ثقة",
       
       hero: {
-        title: "مرحباً بك في منبره",
-        description: "مهمتنا هي جعل الشراء والبيع والتسوق العالمي عبر الإنترنت بسيطاً وآمناً ومتاحاً للجميع.",
+        title: cmsHero?.title || "مرحباً بك في منبره",
+        description: cmsHero?.description || "مهمتنا هي جعل الشراء والبيع والتسوق العالمي عبر الإنترنت بسيطاً وآمناً ومتاحاً للجميع.",
         tagline: "سوقك الموثوق"
       },
       

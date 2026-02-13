@@ -177,6 +177,288 @@ export const servicesConfig: ServiceConfig[] = [
       },
     ],
   },
+
+  // CrafterCMS Content Service - Port 3002
+  {
+    name: 'content-service',
+    url: getServiceUrl('CONTENT_SERVICE_URL', 'http://content-service:3002'),
+    healthPath: '/health',
+    routes: [
+      {
+        path: '/api/v1/content',
+        target: getServiceUrl('CONTENT_SERVICE_URL', 'http://content-service:3002'),
+        pathRewrite: { '^/api/v1/content': '/api/v1/content' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+      },
+    ],
+  },
+
+  // Plugin System Service - Port 3015
+  {
+    name: 'plugin-system',
+    url: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+    healthPath: '/health',
+    routes: [
+      // Plugin management (requires authentication)
+      {
+        path: '/api/plugins',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/plugins': '/api/plugins' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      },
+      {
+        path: '/api/plugins/:id',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/plugins': '/api/plugins' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'PUT', 'DELETE'],
+      },
+      // Plugin marketplace (public browsing)
+      {
+        path: '/api/marketplace/plugins',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/marketplace/plugins/:id',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      // Plugin installation (requires authentication)
+      {
+        path: '/api/marketplace/plugins/:id/install',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['POST'],
+      },
+      {
+        path: '/api/marketplace/plugins/:id/uninstall',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['DELETE'],
+      },
+      // Plugin reviews (public read, authenticated write)
+      {
+        path: '/api/marketplace/plugins/:id/reviews',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/marketplace/plugins/:id/reviews',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/marketplace': '/api/marketplace' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 20 },
+        methods: ['POST'],
+      },
+      // Developer dashboard (requires authentication)
+      {
+        path: '/api/developers/plugins',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/developers': '/api/developers' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'POST'],
+      },
+      {
+        path: '/api/developers/analytics',
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        pathRewrite: { '^/api/developers': '/api/developers' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+    ],
+  },
+
+  // eBay Live Service - Port 3020 (also supports /api/streams, /api/chat, /api/auction, /api/analytics)
+  {
+    name: 'ebay-live-service',
+    url: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+    healthPath: '/health',
+    routes: [
+      // Mnbarh Live – frontend paths (/api/streams, /api/chat, /api/auction, /api/analytics)
+      {
+        path: '/api/streams',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/streams': '/api/streams' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      },
+      {
+        path: '/api/chat',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/chat': '/api/chat' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      },
+      {
+        path: '/api/auction',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/auction': '/api/auction' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET', 'POST'],
+      },
+      {
+        path: '/api/analytics',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/analytics': '/api/analytics' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      // Live streams (public viewing)
+      {
+        path: '/api/live-streams',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/live-streams/:id',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      // Stream creation (requires authentication, seller role)
+      {
+        path: '/api/live-streams',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: true,
+        roles: ['seller', 'admin'],
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['POST'],
+      },
+      {
+        path: '/api/live-streams/:id',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: true,
+        roles: ['seller', 'admin'],
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['PUT', 'DELETE'],
+      },
+      // Live auctions (public viewing)
+      {
+        path: '/api/live-auctions',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-auctions': '/api/live-auctions' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/live-auctions/:id',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-auctions': '/api/live-auctions' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      // Bidding (requires authentication)
+      {
+        path: '/api/live-auctions/:id/bids',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-auctions': '/api/live-auctions' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'POST'],
+      },
+      // Chat (public read, authenticated write)
+      {
+        path: '/api/live-streams/:id/chat',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+        methods: ['GET'],
+      },
+      {
+        path: '/api/live-streams/:id/chat',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['POST'],
+      },
+      // Analytics (public basic, authenticated detailed)
+      {
+        path: '/api/live-streams/:id/analytics',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET'],
+      },
+      // Stream keys (requires authentication)
+      {
+        path: '/api/live-streams/stream-key',
+        target: getServiceUrl('EBAY_LIVE_SERVICE_URL', 'http://ebay-live-service:3020'),
+        pathRewrite: { '^/api/live-streams': '/api/live-streams' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 20 },
+        methods: ['GET', 'POST'],
+      },
+    ],
+  },
+
+  // Orders Service - Port 3009 (includes from-live-auction callback for eBay Live)
+  {
+    name: 'orders-service',
+    url: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+    healthPath: '/health',
+    routes: [
+      {
+        path: '/api/v1/orders',
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 100 },
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+      },
+      {
+        path: '/api/v1/orders/from-live-auction',
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
+        methods: ['POST'],
+      },
+      {
+        path: '/api/v1/orders/guest',
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 30 },
+        methods: ['POST'],
+      },
+    ],
+  },
 ];
 
 // Default rate limit for unspecified routes

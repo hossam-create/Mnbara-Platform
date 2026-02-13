@@ -67,8 +67,9 @@ export const LiveStreamDiscovery: React.FC<LiveStreamDiscoveryProps> = ({
   const fetchStreams = async () => {
     try {
       setLoading(true);
+      const baseUrl = process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000';
       const response = await fetch(
-        `http://localhost:3002/api/streams${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`
+        `${baseUrl}/api/streams${selectedCategory !== 'all' ? `?category=${selectedCategory}` : ''}`
       );
       
       if (response.ok) {

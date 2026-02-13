@@ -59,7 +59,7 @@ export const LiveStreamAuction: React.FC<LiveStreamAuctionProps> = ({
   const [bidIncrement, setBidIncrement] = useState<number>(1);
 
   useEffect(() => {
-    const newSocket = io(`http://localhost:3002`, {
+    const newSocket = io(process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000', {
       query: { streamId, userId, username }
     });
 

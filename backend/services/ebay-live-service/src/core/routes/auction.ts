@@ -185,27 +185,48 @@ router.post('/:streamId/carousel', asyncHandler(async (req, res) => {
   });
 }));
 
-// Process payment for auction winner
+// Process payment for auction winner (optionally notifies platform order/payment service)
 router.post('/:auctionId/payment', asyncHandler(async (req, res) => {
   const { auctionId } = req.params;
-  const { userId, paymentMethod, amount } = req.body;
-  
+  const { userId, paymentMethod, amount, currency = 'USD', streamId, itemTitle } = req.body;
+
   if (!userId || !paymentMethod || !amount) {
     throw new CustomError('User ID, payment method, and amount are required', 400);
   }
-  
-  res.status(201).json({
+
+  const paymentId = `payment_${Date.now()}`;
+  const payload = {
     payment: {
-      id: `payment_${Date.now()}`,
+      id: paymentId,
       auctionId,
       userId,
       amount,
       status: 'processing',
       paymentMethod,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     },
-    timestamp: new Date().toISOString()
-  });
+    timestamp: new Date().toISOString(),
+  };
+
+  const orderCallbackUrl = process.env.LIVE_ORDER_CALLBACK_URL;
+  if (orderCallbackUrl) {
+    fetch(orderCallbackUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source: 'live-auction',
+        auctionId,
+        userId,
+        amount: Number(amount),
+        currency: currency || 'USD',
+        paymentMethod,
+        streamId: streamId || null,
+        itemTitle: itemTitle || null,
+      }),
+    }).catch((err) => logger.error('Live auction order callback failed', { orderCallbackUrl, auctionId, err }));
+  }
+
+  res.status(201).json(payload);
 }));
 
 export { router as auctionRoutes };

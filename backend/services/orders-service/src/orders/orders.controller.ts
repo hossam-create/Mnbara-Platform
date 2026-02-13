@@ -21,6 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { FromLiveAuctionDto } from './dto/from-live-auction.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { QueryOrdersDto } from './dto/query-orders.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -49,6 +50,15 @@ export class OrdersController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   createGuestOrder(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.createGuestOrder(createOrderDto);
+  }
+
+  @Post('from-live-auction')
+  @Public()
+  @ApiOperation({ summary: 'Create order from live auction payment (callback from ebay-live-service)' })
+  @ApiResponse({ status: 201, description: 'Order created from live auction' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  createFromLiveAuction(@Body() payload: FromLiveAuctionDto) {
+    return this.ordersService.createFromLiveAuction(payload);
   }
 
   @Get()

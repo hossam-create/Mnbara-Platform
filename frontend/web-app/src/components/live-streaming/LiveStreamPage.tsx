@@ -72,7 +72,7 @@ const LiveStreamPage: React.FC<LiveStreamPageProps> = ({
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io(process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3002', {
+    const newSocket = io(process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000', {
       auth: {
         token: localStorage.getItem('authToken')
       }

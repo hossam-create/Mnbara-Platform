@@ -63,7 +63,8 @@ export const LiveStreamCreator: React.FC<LiveStreamCreatorProps> = ({
 
   const generateStreamKey = async () => {
     try {
-      const response = await fetch('http://localhost:3002/api/streams/generate-key', {
+      const baseUrl = process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/streams/generate-key`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +100,8 @@ export const LiveStreamCreator: React.FC<LiveStreamCreatorProps> = ({
     };
 
     try {
-      const response = await fetch('http://localhost:3002/api/streams', {
+      const baseUrl = process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/streams`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +129,8 @@ export const LiveStreamCreator: React.FC<LiveStreamCreatorProps> = ({
 
   const handleStopStream = async () => {
     try {
-      const response = await fetch(`http://localhost:3002/api/streams/${streamKey}/stop`, {
+      const baseUrl = process.env.REACT_APP_LIVE_SERVICE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/streams/${streamKey}/stop`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`

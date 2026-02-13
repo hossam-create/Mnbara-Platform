@@ -397,6 +397,15 @@ export const apiService = {
   // Health check
   health: () =>
     apiClient.get('/health'),
+
+  // Plugin Marketplace (via API Gateway -> plugin-system)
+  marketplace: {
+    getPlugins: () => apiClient.get<{ plugins: any[] }>('/api/marketplace/plugins'),
+    getPlugin: (id: string) => apiClient.get(`/api/marketplace/plugins/${id}`),
+    installPlugin: (id: string) => apiClient.post(`/api/marketplace/plugins/${id}/install`),
+    uninstallPlugin: (id: string) => apiClient.delete(`/api/marketplace/plugins/${id}/uninstall`),
+  },
 };
 
 export default apiService;
+export { apiClient };

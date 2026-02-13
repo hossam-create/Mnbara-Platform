@@ -3,7 +3,8 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CacheService } from '../common/cache/cache.service';
 import { EmailService } from '../common/email/email.service';
 import { EscrowClient } from '../common/payment/escrow.client';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, DeliveryType } from './dto/create-order.dto';
+import { FromLiveAuctionDto } from './dto/from-live-auction.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { QueryOrdersDto } from './dto/query-orders.dto';
 
@@ -133,6 +134,31 @@ export class OrdersService {
    */
   async createGuestOrder(createOrderDto: CreateOrderDto) {
     return this.create(null, createOrderDto);
+  }
+
+  /**
+   * Create order from live auction payment callback (ebay-live-service calls this when winner pays).
+   * Uses placeholder delivery address; buyer can update later.
+   */
+  async createFromLiveAuction(payload: FromLiveAuctionDto) {
+    const dto: CreateOrderDto = {
+      deliveryType: DeliveryType.STANDARD,
+      currency: payload.currency || 'USD',
+      items: [
+        {
+          productName: payload.itemTitle || `Live Auction ${payload.auctionId}`,
+          quantity: 1,
+          price: payload.amount,
+        },
+      ],
+      pickupCity: 'Live auction',
+      pickupCountry: 'TBC',
+      pickupAddress: `Auction ${payload.auctionId}`,
+      deliveryCity: 'Address to be confirmed',
+      deliveryCountry: 'TBC',
+      deliveryAddress: 'Buyer to update delivery address',
+    };
+    return this.create(payload.userId, dto);
   }
 
   async findAll(userId: number | null, email: string | null, query: QueryOrdersDto) {
