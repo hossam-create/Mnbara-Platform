@@ -1,0 +1,177 @@
+# ========================================
+# Node.js Dependencies
+# ========================================
+node_modules/
+**/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnp
+.pnp.js
+
+# ========================================
+# Environment Variables (CRITICAL)
+# ========================================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+
+# ========================================
+# Build Outputs
+# ========================================
+dist/
+build/
+*.tsbuildinfo
+.next/
+out/
+.nuxt/
+.cache/
+.parcel-cache/
+.vercel/
+
+# ========================================
+# Logs
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm/
+
+# ========================================
+# IDE & Editors
+# ========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# ========================================
+# OS Files
+# ========================================
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# ========================================
+# Testing & Coverage
+# ========================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+
+# ========================================
+# Docker
+# ========================================
+.dockerignore
+docker-compose.override.yml
+
+# ========================================
+# AWS & Cloud
+# ========================================
+.aws/
+.serverless/
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# ========================================
+# Mobile (React Native)
+# ========================================
+mobile/**/android/
+mobile/**/ios/
+mobile/**/.expo/
+mobile/**/node_modules/
+mobile/**/.expo-shared/
+mobile/**/web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# ========================================
+# Database Files
+# ========================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-shm
+*.db-wal
+/data/
+pgdata/
+/database/data/
+
+# ========================================
+# Prisma
+# ========================================
+prisma/migrations/*.sql
+# Keep migrations directory structure but ignore SQL files
+
+# ========================================
+# Large Files & Archives
+# ========================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.dmg
+*.pkg
+*.iso
+
+# ========================================
+# Temporary Files
+# ========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~.nib
+.lock-wscript
+
+# ========================================
+# Security & Secrets
+# ========================================
+*.pem
+*.key
+*.cert
+secrets/
+credentials/
+.secrets/
+
+# ========================================
+# Extracted Resources (VERY IMPORTANT!)
+# ========================================
+# Don't upload the extracted folder from prepare MnBarh
+**/extracted/
+**/prepare MnBarh/
