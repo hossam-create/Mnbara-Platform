@@ -80,6 +80,9 @@ export default function Header() {
                 <Link to="/affiliate/program" className="hover:text-brand-yellow font-normal">
                   Affiliate
                 </Link>
+                <Link to="/plugins" className="hover:text-brand-yellow font-normal">
+                  Plugins
+                </Link>
                 <button 
                   onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'ar' : 'en')}
                   className="hover:text-brand-yellow font-bold border-l pl-4 ml-2 border-white/20"

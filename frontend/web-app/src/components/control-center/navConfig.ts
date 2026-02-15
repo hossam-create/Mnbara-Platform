@@ -5,6 +5,7 @@ export type ControlModule =
   | 'security'
   | 'audit'
   | 'operations'
+  | 'xyops'
   | 'disputes'
   | 'logistics'
   | 'finance'
@@ -79,6 +80,13 @@ export const controlNavSections: ControlNavSection[] = [
         module: 'operations',
         icon: '💼',
         description: 'control.nav.operationsPanelDesc',
+      },
+      {
+        name: 'xyOps',
+        href: '/admin/xyops',
+        module: 'xyops',
+        icon: '⚙️',
+        description: 'جدولة مهام، workflows، مراقبة سيرفرات',
       },
       {
         name: 'control.nav.disputes',

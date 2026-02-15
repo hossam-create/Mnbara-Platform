@@ -3,12 +3,14 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CacheService } from '../common/cache/cache.service';
 import { FindTravelersDto } from './dto/find-travelers.dto';
 import { MatchRequestDto } from './dto/match-request.dto';
+import { CountryLayerClient } from './countryLayerClient';
 
 @Injectable()
 export class MatchingService {
   constructor(
     private prisma: PrismaService,
     private cache: CacheService,
+    private countryLayerClient: CountryLayerClient,
   ) {}
 
   async findCompatibleTravelers(findDto: FindTravelersDto) {
@@ -24,6 +26,32 @@ export class MatchingService {
 
     if (order.status !== 'PENDING') {
       throw new BadRequestException('Order is not in PENDING status');
+    }
+
+    // Validate country compliance for the order route
+    try {
+      const routeValidation = await this.countryLayerClient.validateTravelRoute(
+        order.pickupCountry,
+        order.deliveryCountry
+      );
+
+      if (routeValidation.complianceStatus === 'prohibited') {
+        throw new BadRequestException('Trade route between pickup and delivery countries is prohibited');
+      }
+
+      if (routeValidation.riskLevel === 'critical') {
+        console.warn('High-risk trade route detected', {
+          orderId: order.id,
+          pickupCountry: order.pickupCountry,
+          deliveryCountry: order.deliveryCountry,
+          riskLevel: routeValidation.riskLevel,
+          riskScore: routeValidation.riskScore,
+        });
+      }
+    } catch (error) {
+      console.error('Country validation error:', error);
+      // Continue with matching even if country service is unavailable
+      // This ensures the matching service remains functional
     }
 
     // Build search criteria
@@ -280,6 +308,15 @@ export class MatchingService {
       score += 5;
     }
 
+    // Country compatibility scoring
+    const countryScore = this.countryLayerClient.calculateCountryCompatibilityScore(
+      order.pickupCountry,
+      order.deliveryCountry,
+      trip.originCountry,
+      trip.destCountry
+    );
+    score += (countryScore - 100); // Adjust base score based on country compatibility
+
     return Math.max(0, Math.min(200, score)); // Clamp between 0-200
   }
 
@@ -420,5 +457,180 @@ export class MatchingService {
   private toRad(deg: number): number {
     return deg * (Math.PI / 180);
   }
+
+  /**
+   * Find compatible travelers based on country routing and compliance
+   * Enhanced matching with Country of Origin Layer (COOL) integration
+   */
+  async findCompatibleTravelersByCountry(findDto: FindTravelersDto) {
+    // Get order details
+    const order = await this.prisma.order.findUnique({
+      where: { id: findDto.orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order #${findDto.orderId} not found`);
+    }
+
+    if (order.status !== 'PENDING') {
+      throw new BadRequestException('Order is not in PENDING status');
+    }
+
+    // Validate country compliance for the order route
+    let routeValidation;
+    try {
+      routeValidation = await this.countryLayerClient.validateTravelRoute(
+        order.pickupCountry,
+        order.deliveryCountry
+      );
+
+      if (routeValidation.complianceStatus === 'prohibited') {
+        throw new BadRequestException('Trade route between pickup and delivery countries is prohibited');
+      }
+    } catch (error) {
+      console.error('Country validation error:', error);
+      // Continue with matching even if country service is unavailable
+      routeValidation = {
+        riskScore: 50,
+        riskLevel: 'medium',
+        complianceStatus: 'approved',
+        hasRestrictions: false,
+      };
+    }
+
+    // Build search criteria with country focus
+    const where: any = {
+      status: 'ACTIVE',
+      isPublic: true,
+      originCountry: order.pickupCountry,
+      destCountry: order.deliveryCountry,
+      departureDate: { gte: new Date() },
+    };
+
+    if (order.totalWeight) {
+      where.availableWeight = { gte: order.totalWeight };
+    }
+
+    if (findDto.departureAfter) {
+      where.departureDate.gte = new Date(findDto.departureAfter);
+    }
+
+    if (findDto.departureBefore) {
+      where.departureDate.lte = new Date(findDto.departureBefore);
+    }
+
+    // Find compatible trips with country validation
+    const trips = await this.prisma.trip.findMany({
+      where,
+      take: findDto.limit || 10,
+      include: {
+        traveler: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            rating: true,
+            kycStatus: true,
+          },
+        },
+      },
+      orderBy: [
+        { departureDate: 'asc' },
+      ],
+    });
+
+    // Calculate enhanced scores with country factors
+    const results = await Promise.all(
+      trips.map(async (trip) => {
+        const estimatedCost = order.totalWeight
+          ? Number(trip.pricePerKg) * Number(order.totalWeight) + (Number(trip.basePrice) || 0)
+          : Number(trip.basePrice) || 0;
+
+        // Get country risk assessment for this specific trip
+        let tripCountryScore = 100;
+        try {
+          const tripCountryValidation = await this.countryLayerClient.getRiskAssessment(
+            trip.originCountry,
+            trip.destCountry
+          );
+          
+          // Adjust score based on risk level
+          switch (tripCountryValidation.riskLevel) {
+            case 'low':
+              tripCountryScore += 20;
+              break;
+            case 'medium':
+              tripCountryScore += 0;
+              break;
+            case 'high':
+              tripCountryScore -= 30;
+              break;
+            case 'critical':
+              tripCountryScore -= 50;
+              break;
+          }
+        } catch (error) {
+          console.error('Trip country validation error:', error);
+          // Default to medium risk if service unavailable
+          tripCountryScore += 0;
+        }
+
+        // Get traveler routes for additional scoring
+        let travelerRouteBonus = 0;
+        try {
+          const travelerRoutes = await this.countryLayerClient.getTravelerRoutes(trip.travelerId);
+          const hasMatchingRoute = travelerRoutes.some(
+            route => route.originCountry === order.pickupCountry && 
+                     route.destinationCountry === order.deliveryCountry
+          );
+          if (hasMatchingRoute) {
+            travelerRouteBonus = 25;
+          }
+        } catch (error) {
+          console.error('Traveler route validation error:', error);
+        }
+
+        const baseScore = this.calculateMatchScore(order, trip);
+        const enhancedScore = baseScore + (tripCountryScore - 100) + travelerRouteBonus;
+
+        return {
+          trip,
+          matchScore: Math.max(0, Math.min(200, enhancedScore)),
+          estimatedCost,
+          estimatedDelivery: trip.arrivalDate,
+          countryRisk: {
+            riskScore: routeValidation.riskScore,
+            riskLevel: routeValidation.riskLevel,
+            complianceStatus: routeValidation.complianceStatus,
+          },
+          tripCountryScore: Math.max(0, tripCountryScore),
+          travelerRouteBonus,
+        };
+      })
+    );
+
+    // Sort by enhanced match score
+    results.sort((a, b) => b.matchScore - a.matchScore);
+
+    return {
+      order: {
+        id: order.id,
+        orderNumber: order.orderNumber,
+        pickupCity: order.pickupCity,
+        deliveryCity: order.deliveryCity,
+        pickupCountry: order.pickupCountry,
+        deliveryCountry: order.deliveryCountry,
+        totalWeight: order.totalWeight,
+      },
+      routeValidation: {
+        riskScore: routeValidation.riskScore,
+        riskLevel: routeValidation.riskLevel,
+        complianceStatus: routeValidation.complianceStatus,
+      },
+      matches: results,
+    };
+  }
+}
 }
 

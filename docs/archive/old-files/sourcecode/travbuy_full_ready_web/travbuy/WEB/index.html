@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>TravBuy — منصة بيع مع المسافر</title>
+<link rel="stylesheet" href="./styles.css"/>
+<script defer src="./app.js"></script>
+</head>
+<body class="dark">
+<header>
+  <img src="./assets/logo.svg" alt="TravBuy logo" class="logo"/>
+  <nav>
+    <a href="./index.html" data-i18n="nav.home">الرئيسية</a>
+    <a href="./privacy/ar/index.html" data-i18n="nav.privacy">الخصوصية</a>
+    <a href="./terms/ar/index.html" data-i18n="nav.terms">الشروط</a>
+  </nav>
+  <button id="langToggle">EN</button>
+</header>
+
+<main>
+  <h1 data-i18n="hero.title">منصّة TravBuy — اشترِ بضاعة مستوردة «بصحبة راكب»</h1>
+  <p data-i18n="hero.subtitle">جرّب تجربة تشبه Amazon/eBay مع لمسات Grabr: طلبات ذكية، هوية رقمية للمسافر، ومزاد على المنتجات الفريدة.</p>
+  <section class="cta">
+    <button class="primary" data-i18n="cta.getStarted">ابدأ الآن</button>
+    <button class="secondary" data-i18n="cta.explore">استعرض المنتجات</button>
+  </section>
+
+  <section class="features">
+    <article>
+      <h3 data-i18n="feature.auctionTitle">مزادات ذكية</h3>
+      <p data-i18n="feature.auctionBody">اضبط ميقات المزاد بما يناسب البائع والمشتري، مع تنبيهات فورية.</p>
+    </article>
+    <article>
+      <h3 data-i18n="feature.identityTitle">هوية رقمية للمسافر</h3>
+      <p data-i18n="feature.identityBody">تحقق من جواز السفر/الهوية لتأمين المجتمع ورفع الثقة.</p>
+    </article>
+    <article>
+      <h3 data-i18n="feature.safetyTitle">أمان ودفع محلي/دولي</h3>
+      <p data-i18n="feature.safetyBody">طبقات أمان وسياسات واضحة لحماية التعاملات.</p>
+    </article>
+  </section>
+
+  <section class="mock">
+    <h2 data-i18n="mock.title">عينات منتجات</h2>
+    <div id="products"></div>
+  </section>
+</main>
+
+<footer>
+  <small>© <span id="year"></span> TravBuy — جميع الحقوق محفوظة</small>
+</footer>
+
+<div id="consent" class="consent hidden" role="dialog" aria-modal="true">
+  <div class="card">
+    <h2 data-i18n="consent.title">سياسة الخصوصية واستخدام البيانات</h2>
+    <p data-i18n="consent.body">نستخدم بيانات الاستخدام وملفات تعريف الارتباط لتحسين التجربة. بالمتابعة، فإنك توافق على الشروط.</p>
+    <div class="actions">
+      <a class="link" href="./privacy/ar/index.html" data-i18n="consent.readMore">اطّلع على التفاصيل</a>
+      <button id="acceptBtn" class="primary" data-i18n="consent.accept">موافق</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

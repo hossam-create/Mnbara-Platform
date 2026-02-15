@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "public": true,
+  "name": "travbuy-web-demo",
+  "scope": "default",
+  "builds": [
+    {
+      "src": "WEB/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/privacy",
+      "dest": "/WEB/privacy/ar/index.html"
+    },
+    {
+      "src": "/terms",
+      "dest": "/WEB/terms/ar/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/WEB/index.html"
+    }
+  ]
+}

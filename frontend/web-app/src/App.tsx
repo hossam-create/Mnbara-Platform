@@ -32,6 +32,7 @@ const ServerMonitor = React.lazy(() => import('./pages/control-center/ServerMoni
 const Studio = React.lazy(() => import('./pages/control-center/Studio'));
 const Steganography = React.lazy(() => import('./pages/control-center/Steganography'));
 const Apocalypse = React.lazy(() => import('./pages/control-center/Apocalypse'));
+const XyOpsPage = React.lazy(() => import('./pages/control-center/XyOpsPage'));
 
 // Utility Control Pages
 const FinancePage = React.lazy(() => import('./pages/control-center/FinancePage'));
@@ -90,6 +91,9 @@ const PluginMarketplacePage = React.lazy(() => import('./pages/plugin-marketplac
 // Mnbarh Live (eBay Live – streaming + live auctions)
 const LiveStreamPage = React.lazy(() => import('./components/live-streaming/LiveStreamPage'));
 
+// KYC (integrated from KYC-Website)
+const KYCVerificationPage = React.lazy(() => import('./pages/kyc/KYCVerificationPage'));
+
 // Fallback loading
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -132,6 +136,7 @@ function App() {
           <Route path="servers" element={<ServerMonitor />} />
           <Route path="studio" element={<Studio />} />
           <Route path="stego" element={<Steganography />} />
+          <Route path="xyops" element={<XyOpsPage />} />
           <Route path="apocalypse" element={<Apocalypse />} />
           
           <Route path="cms" element={<CmsManager />} />
@@ -171,6 +176,7 @@ function App() {
         
         {/* Trust / Safety */}
         <Route path="/trust" element={<TrustSafetyPage />} />
+        <Route path="/trust/kyc" element={<KYCVerificationPage />} />
         <Route path="/trust/safety-tips" element={<TrustSafetyTipsPage />} />
         <Route path="/trust/buyer-protection" element={<TrustBuyerProtectionPage />} />
         <Route path="/trust/seller-protection" element={<TrustSellerProtectionPage />} />

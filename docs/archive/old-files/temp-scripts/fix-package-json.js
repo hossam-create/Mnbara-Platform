@@ -1,0 +1,36 @@
+const fs = require('fs');
+const path = require('path');
+
+const content = `{
+  "name": "@mnbara/api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway for Mnbara Platform",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "jsonwebtoken": "^9.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/http-proxy-middleware": "^2.0.3",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/cors": "^2.8.13",
+    "@types/morgan": "^1.9.4",
+    "@types/node": "^18.16.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.4"
+  }
+}`;
+
+fs.writeFileSync(path.join('services', 'api-gateway', 'package.json'), content, 'utf8');
+console.log('package.json written successfully');

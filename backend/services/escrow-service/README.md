@@ -9,6 +9,8 @@
 **المصدر الأصلي**: EscrowContract.sol (Solidity Smart Contract)  
 **التطبيق**: Traditional backend service (TypeScript + PostgreSQL)
 
+**Reference (blockchain):** Full Solidity project and UI in **`docs/external-projects/SmartContractEscrowSystem/`**. See [EXTERNAL_PROJECTS_INTEGRATION.md](../../../docs/EXTERNAL_PROJECTS_INTEGRATION.md).
+
 ---
 
 ## 🎯 الميزات

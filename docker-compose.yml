@@ -1,4 +1,4 @@
-﻿# mnbarh Platform - Unified Infrastructure Setup
+# mnbarh Platform - Unified Infrastructure Setup
 version: '3.8'
 
 services:
@@ -1045,6 +1045,29 @@ services:
     networks:
       - mnbarh-network
 
+  # ===================
+  # OPS (optional): xyOps - job scheduling, workflows, server monitoring
+  # See docs/external-projects/xyops/ and docs/EXTERNAL_PROJECTS_INTEGRATION.md §3.7
+  # ===================
+  xyops:
+    image: ghcr.io/pixlcore/xyops:latest
+    container_name: mnbarh-xyops
+    init: true
+    restart: unless-stopped
+    ports:
+      - "5522:5522"
+      - "5523:5523"
+    environment:
+      - TZ=UTC
+      - XYOPS_xysat_local=true
+    volumes:
+      - xyops_data:/opt/xyops/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - mnbarh-network
+    profiles:
+      - ops
+
 networks:
   mnbarh-network:
     driver: bridge
@@ -1056,5 +1079,6 @@ volumes:
   elasticsearch_data:
   prometheus_data:
   grafana_data:
+  xyops_data:
   listing_uploads:
   p2p_uploads:

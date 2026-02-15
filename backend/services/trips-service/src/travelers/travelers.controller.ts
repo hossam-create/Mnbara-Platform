@@ -76,4 +76,94 @@ export class TravelersController {
 
     return this.travelersService.getLocation(travelerId);
   }
+
+  // Country Layer Integration Endpoints
+  
+  @Post(':travelerId/routes')
+  @UseGuards(KycGuard)
+  @ApiOperation({ summary: 'Add traveler route with country validation' })
+  @ApiParam({ name: 'travelerId', description: 'Traveler ID' })
+  @ApiResponse({ status: 201, description: 'Route added successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid route data or restricted countries' })
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  async addTravelerRoute(
+    @Req() req: any,
+    @Param('travelerId') travelerId: string,
+    @Body() routeData: {
+      originCountry: string;
+      destinationCountry: string;
+      travelDate: string;
+      returnDate?: string;
+    },
+  ) {
+    // Verify that the authenticated user matches the traveler ID
+    const authenticatedUserId = req.user?.id;
+    if (authenticatedUserId !== travelerId) {
+      throw new HttpException('Unauthorized to add route for this traveler', HttpStatus.FORBIDDEN);
+    }
+
+    return this.travelersService.addTravelerRoute(travelerId, {
+      ...routeData,
+      travelDate: new Date(routeData.travelDate),
+      returnDate: routeData.returnDate ? new Date(routeData.returnDate) : undefined,
+    });
+  }
+
+  @Get(':travelerId/routes')
+  @UseGuards(KycGuard)
+  @ApiOperation({ summary: 'Get traveler routes' })
+  @ApiParam({ name: 'travelerId', description: 'Traveler ID' })
+  @ApiResponse({ status: 200, description: 'Routes retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  async getTravelerRoutes(
+    @Req() req: any,
+    @Param('travelerId') travelerId: string,
+  ) {
+    // Verify that the authenticated user matches the traveler ID
+    const authenticatedUserId = req.user?.id;
+    if (authenticatedUserId !== travelerId) {
+      throw new HttpException('Unauthorized to access routes for this traveler', HttpStatus.FORBIDDEN);
+    }
+
+    return this.travelersService.getTravelerRoutes(travelerId);
+  }
+
+  @Get(':travelerId/matching-products')
+  @UseGuards(KycGuard)
+  @ApiOperation({ summary: 'Find matching products for traveler routes' })
+  @ApiParam({ name: 'travelerId', description: 'Traveler ID' })
+  @ApiResponse({ status: 200, description: 'Matching products retrieved successfully' })
+  @ApiResponse({ status: 403, description: 'KYC verification required' })
+  async findMatchingProducts(
+    @Req() req: any,
+    @Param('travelerId') travelerId: string,
+    @Body() filters?: {
+      productType?: string;
+      maxRiskScore?: number;
+    },
+  ) {
+    // Verify that the authenticated user matches the traveler ID
+    const authenticatedUserId = req.user?.id;
+    if (authenticatedUserId !== travelerId) {
+      throw new HttpException('Unauthorized to access matching products for this traveler', HttpStatus.FORBIDDEN);
+    }
+
+    return this.travelersService.findMatchingProductsForRoutes(travelerId, filters);
+  }
+
+  @Get('countries/active')
+  @ApiOperation({ summary: 'Get active countries for travel' })
+  @ApiResponse({ status: 200, description: 'Active countries retrieved successfully' })
+  async getActiveCountries() {
+    return this.travelersService.getActiveCountries();
+  }
+
+  @Get('countries/:code')
+  @ApiOperation({ summary: 'Get country information' })
+  @ApiParam({ name: 'code', description: 'Country ISO code (2-letter)' })
+  @ApiResponse({ status: 200, description: 'Country information retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Country not found' })
+  async getCountryInfo(@Param('code') code: string) {
+    return this.travelersService.getCountryInfo(code.toUpperCase());
+  }
 }

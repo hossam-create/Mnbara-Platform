@@ -87,5 +87,14 @@ export class MatchingController {
 
     return this.matchingService.findNearbyRequests(travelerId, latitude, longitude, radiusKm);
   }
+
+  @Get('find-travelers/country-enhanced')
+  @ApiOperation({ summary: 'Find compatible travelers with country-based matching' })
+  @ApiResponse({ status: 200, description: 'Compatible travelers found with country analysis' })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  @ApiResponse({ status: 400, description: 'Invalid request or prohibited route' })
+  findTravelersCountryEnhanced(@Query() findDto: FindTravelersDto) {
+    return this.matchingService.findCompatibleTravelersByCountry(findDto);
+  }
 }
 

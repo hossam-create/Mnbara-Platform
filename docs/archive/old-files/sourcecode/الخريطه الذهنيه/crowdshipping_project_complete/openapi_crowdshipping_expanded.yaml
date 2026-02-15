@@ -1,0 +1,386 @@
+openapi: 3.0.3
+info:
+  title: Crowdshipping API (Expanded)
+  description: |
+    Bilingual API spec for the Crowdshipping platform — includes auth, traveler-location,
+    recommendations, products, auctions, bids, payments, and webhooks.
+    مواصفات واجهات برمجة التطبيقات لمنصة Crowdshipping — تشمل المصادقة، موقع المسافر، التوصيات، المنتجات، المزادات، العروض، الدفع، وwebhooks.
+  version: "1.0.0"
+servers:
+  - url: https://api.crowdshipping.example.com/v1
+    description: Production
+  - url: http://localhost:8000/v1
+    description: Local (development)
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [buyer, traveler, seller]
+        rating:
+          type: number
+          format: float
+        kyc_status:
+          type: boolean
+      required: [id, full_name, email, role]
+    AuthRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: integer
+    Location:
+      type: object
+      properties:
+        traveler_id:
+          type: string
+          format: uuid
+        lat:
+          type: number
+        lon:
+          type: number
+        country:
+          type: string
+        airport_code:
+          type: string
+        recorded_at:
+          type: string
+          format: date-time
+      required: [traveler_id, lat, lon, recorded_at]
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        seller_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        origin_country:
+          type: string
+        price:
+          type: number
+        listing_type:
+          type: string
+          enum: [buy_now, auction, make_offer]
+        location_hint:
+          type: object
+          properties:
+            airport:
+              type: string
+            city:
+              type: string
+            lat:
+              type: number
+            lon:
+              type: number
+    Auction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        product_id:
+          type: string
+        seller_id:
+          type: string
+        start_price:
+          type: number
+        current_price:
+          type: number
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [scheduled, live, ended, canceled]
+    Bid:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        auction_id:
+          type: string
+        bidder_id:
+          type: string
+        amount:
+          type: number
+        placed_at:
+          type: string
+          format: date-time
+    Recommendation:
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/Product'
+        score:
+          type: number
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        amount:
+          type: number
+        method:
+          type: string
+        status:
+          type: string
+          enum: [pending, success, failed]
+paths:
+  /auth/login:
+    post:
+      summary: Login (email/password) — تسجيل الدخول
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Auth response with JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /auth/refresh:
+    post:
+      summary: Refresh token — تجديد التوكن
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: New access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /travelers/{traveler_id}/location:
+    post:
+      summary: Post traveler location (real-time) — إرسال موقع المسافر
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: traveler_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '204':
+          description: Location accepted
+  /recommendations:
+    get:
+      summary: Get recommendations for a traveler — استرجاع التوصيات للمسافر
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: traveler_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: radius_km
+          in: query
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: List of recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Recommendation'
+  /products:
+    post:
+      summary: Create a product listing — إنشاء منتج
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '201':
+          description: Created
+    get:
+      summary: Search products — البحث عن منتجات
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: origin_country
+          in: query
+          schema:
+            type: string
+        - name: listing_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Results
+  /products/{product_id}/bid:
+    post:
+      summary: Place a bid on a product/auction — تقديم مزايدة
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+      responses:
+        '201':
+          description: Bid accepted
+  /auctions:
+    post:
+      summary: Create auction — إنشاء مزاد
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auction'
+      responses:
+        '201':
+          description: Auction created
+  /auctions/{auction_id}/start:
+    post:
+      summary: Start auction (admin/seller) — بدء المزاد
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: auction_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Auction started
+  /nearby-requests:
+    get:
+      summary: Get buyer requests near given location — استرجاع الطلبات القريبة
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: radius_km
+          in: query
+          schema:
+            type: number
+            default: 10
+      responses:
+        '200':
+          description: Nearby requests
+  /webhooks/auctions/outbid:
+    post:
+      summary: Webhook for outbid events — webhook عند تخطي عرض
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                auction_id:
+                  type: string
+                previous_bid_id:
+                  type: string
+                new_highest_bid_id:
+                  type: string
+                outbid_at:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Received
+security:
+  - BearerAuth: []

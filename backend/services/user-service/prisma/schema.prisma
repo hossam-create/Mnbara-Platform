@@ -71,8 +71,8 @@ model Session {
 }
 
 model UserDevice {
-  id          @default(uuid())
- String   @id  userId      String
+  id          String   @id @default(uuid())
+  userId      String
   fingerprint String
   name        String
   type        String   // mobile, desktop, tablet

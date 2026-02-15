@@ -26,6 +26,7 @@ const VideoCameraIcon = () => (
 
 const categories = [
   { name: 'nav.mnbarhLive', slug: '/live', highlight: true },
+  { name: 'nav.plugins', slug: '/plugins' },
   { name: 'nav.saved', slug: '/saved' },
   { name: 'nav.newArrivals', slug: '/new-arrivals' },
   { name: 'nav.electronics', slug: '/category/electronics' },

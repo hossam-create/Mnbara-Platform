@@ -1,0 +1,49 @@
+https://www.quora.com/What-is-eBays-or-Amazons-backend-written-in
+
+
+
+
+Related
+What is the backend software stack of Ebay?
+It varies team by team and use case by use case but to give you breadth of technologies that we work on
+
+Programming languages:
+
+Java,
+C/C++
+Scala
+Python
+Perl
+Objective C
+
+Databses: traditional and Nosql bases
+
+Oracle
+MySQL
+Cassandra
+Hbase
+Mongo
+Couch DB
+
+Offline processing systems
+
+Hadoop
+Cron jobs in Java and perl
+Event/queue based systems written in Java
+
+Code management:
+
+Git
+Clear-case
+CVS and SVN on very small scale
+
+There is also lot of proprietary and in-house developed systems, for which I can't share the details here.
+1. http://news.cnet.com/eBay-thinks-outside-with-eBox/2100-1032_3-6190508.html
+2. http://www.linkedin.com/in/snambi
+3. http://www.chrislacy.net/other/resume.html
+4. http://deals.ebay.com
+5. http://diamonds.ebay.com
+6. http://www.ibm.com/developerworks/opensource/library/os-eclipse-ebay1/
+7. http://www.enterpriseleadership.org/blogs/Articles/2008/03/28/james-barrese-talks-about-building-and-maintaining-ebays-agile-architecture
+8. http://www.linkedin.com/in/jamesbarrese
+9. http://developer.ebay.com

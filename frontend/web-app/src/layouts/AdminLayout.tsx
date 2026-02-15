@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { label: 'Command Deck', path: '/admin', icon: '🛰️' },
   { label: 'Threat Map', path: '/admin/threat-map', icon: '🛡️' },
   { label: 'Server Ops', path: '/admin/servers', icon: '⚡' },
+  { label: 'xyOps', path: '/admin/xyops', icon: '⚙️', description: 'جدولة مهام، workflows، مراقبة' },
   { label: 'Studio', path: '/admin/studio', icon: '🔧' },
   { label: 'Steganography', path: '/admin/stego', icon: '🔐' },
   { label: 'CMS Manager', path: '/admin/cms', icon: '📝' },

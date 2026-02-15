@@ -19,6 +19,14 @@ model Trip {
   arrivalDate     DateTime
   status          TripStatus @default(SCHEDULED)
   
+  // Country of Origin Layer (COOL) - Enhanced routing
+  originCountry      String    // ISO 3166-1 alpha-2 country code
+  destinationCountry String    // ISO 3166-1 alpha-2 country code
+  originCity         String?   // City name for origin
+  destinationCity    String?   // City name for destination
+  originAirport      String?   // IATA airport code
+  destinationAirport String?   // IATA airport code
+  
   // Capacity
   totalCapacity   Float    // in kg
   usedCapacity    Float    @default(0)
@@ -27,6 +35,7 @@ model Trip {
   // Real-time tracking
   currentLat      Float?
   currentLng      Float?
+  currentCountry  String?   // Current country location
   lastUpdate      DateTime?
   
   createdAt       DateTime @default(now())
@@ -42,6 +51,9 @@ model Stopover {
   id          String   @id @default(cuid())
   tripId      String
   location    String
+  country     String   // ISO 3166-1 alpha-2 country code
+  city        String?
+  airport     String?  // IATA airport code
   arrivalAt   DateTime
   departureAt DateTime
   order       Int

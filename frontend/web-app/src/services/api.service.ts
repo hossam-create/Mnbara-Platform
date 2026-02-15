@@ -130,6 +130,14 @@ export const apiService = {
       apiClient.get(`/api/v1/users/orders/${orderId}`),
   },
 
+  // KYC (integrated from KYC-Website)
+  kyc: {
+    submit: (formData: FormData) =>
+      apiClient.post('/api/v1/kyc/submit', formData),
+    getStatus: () =>
+      apiClient.get('/api/v1/kyc/status'),
+  },
+
   // Cart endpoints
   cart: {
     get: () =>

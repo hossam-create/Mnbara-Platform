@@ -1,0 +1,312 @@
+// AI Recommendations Engine v2 - محرك التوصيات الذكي الجيل الثاني
+// Advanced ML-based recommendations with real-time personalization
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 👤 USER PROFILES & BEHAVIOR
+// ==========================================
+
+model UserProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  
+  // Demographics
+  ageGroup          String?  // 18-24, 25-34, etc.
+  gender            String?
+  location          String?
+  language          String   @default("ar")
+  
+  // Preferences
+  preferredCategories String[]
+  preferredBrands     String[]
+  priceRange          Json?    // { min: 0, max: 1000 }
+  
+  // Behavioral Scores
+  engagementScore     Float    @default(0)
+  purchaseFrequency   Float    @default(0)
+  avgOrderValue       Float    @default(0)
+  
+  // ML Features
+  userEmbedding       Float[]  // 128-dim vector
+  clusterLabel        Int?     // User segment
+  
+  interactions        UserInteraction[]
+  recommendations     Recommendation[]
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([clusterLabel])
+}
+
+model UserInteraction {
+  id                String   @id @default(uuid())
+  userId            String
+  userProfile       UserProfile @relation(fields: [userId], references: [userId])
+  
+  // Interaction Details
+  productId         String
+  interactionType   InteractionType
+  
+  // Context
+  sessionId         String?
+  deviceType        String?  // mobile, desktop, tablet
+  source            String?  // search, browse, recommendation
+  
+  // Engagement Metrics
+  dwellTime         Int?     // seconds
+  scrollDepth       Float?   // 0-1
+  clickPosition     Int?
+  
+  // Outcome
+  converted         Boolean  @default(false)
+  purchaseAmount    Float?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([productId])
+}
+
+enum InteractionType {
+  VIEW
+  CLICK
+  ADD_TO_CART
+  PURCHASE
+  WISHLIST
+  SHARE
+  REVIEW
+  SEARCH
+}
+
+// ==========================================
+// 📦 PRODUCT EMBEDDINGS
+// ==========================================
+
+model ProductEmbedding {
+  id                String   @id @default(uuid())
+  productId         String   @unique
+  
+  // Product Info
+  title             String
+  titleAr           String?
+  category          String
+  subcategory       String?
+  brand             String?
+  price             Float
+  
+  // ML Features
+  embedding         Float[]  // 256-dim vector
+  imageEmbedding    Float[]  // 512-dim from CNN
+  textEmbedding     Float[]  // 768-dim from BERT
+  
+  // Popularity Metrics
+  viewCount         Int      @default(0)
+  purchaseCount     Int      @default(0)
+  avgRating         Float    @default(0)
+  trendingScore     Float    @default(0)
+  
+  // Similar Products (precomputed)
+  similarProducts   String[] // Top 20 similar product IDs
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([category])
+  @@index([trendingScore])
+}
+
+// ==========================================
+// 🎯 RECOMMENDATIONS
+// ==========================================
+
+model Recommendation {
+  id                String   @id @default(uuid())
+  userId            String
+  userProfile       UserProfile @relation(fields: [userId], references: [userId])
+  
+  // Recommendation Details
+  productId         String
+  score             Float    // 0-1 relevance score
+  rank              Int
+  
+  // Algorithm Info
+  algorithm         RecommendationAlgorithm
+  modelVersion      String
+  
+  // Explanation
+  reason            String?  // "Based on your recent views"
+  reasonAr          String?
+  features          Json?    // Contributing factors
+  
+  // Context
+  context           RecommendationContext
+  sessionId         String?
+  
+  // Feedback
+  shown             Boolean  @default(false)
+  clicked           Boolean  @default(false)
+  purchased         Boolean  @default(false)
+  dismissed         Boolean  @default(false)
+  
+  createdAt         DateTime @default(now())
+  expiresAt         DateTime
+  
+  @@index([userId, context, createdAt])
+  @@index([productId])
+}
+
+enum RecommendationAlgorithm {
+  COLLABORATIVE_FILTERING
+  CONTENT_BASED
+  HYBRID
+  TRENDING
+  PERSONALIZED_RANKING
+  SIMILAR_ITEMS
+  FREQUENTLY_BOUGHT_TOGETHER
+  RECENTLY_VIEWED
+  DEEP_LEARNING
+}
+
+enum RecommendationContext {
+  HOME_PAGE
+  PRODUCT_PAGE
+  CART_PAGE
+  CHECKOUT
+  SEARCH_RESULTS
+  CATEGORY_PAGE
+  EMAIL
+  PUSH_NOTIFICATION
+}
+
+// ==========================================
+// 🧠 ML MODELS
+// ==========================================
+
+model MLModel {
+  id                String   @id @default(uuid())
+  name              String   @unique
+  type              ModelType
+  version           String
+  
+  // Model Info
+  description       String?
+  architecture      String?  // e.g., "Two-Tower Neural Network"
+  
+  // Performance Metrics
+  accuracy          Float?
+  precision         Float?
+  recall            Float?
+  f1Score           Float?
+  auc               Float?
+  
+  // Training Info
+  trainedAt         DateTime?
+  trainingDuration  Int?     // minutes
+  trainingDataSize  Int?
+  
+  // Status
+  isActive          Boolean  @default(false)
+  isProduction      Boolean  @default(false)
+  
+  // Model Artifacts
+  modelPath         String?
+  configPath        String?
+  
+  experiments       Experiment[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum ModelType {
+  COLLABORATIVE_FILTERING
+  CONTENT_BASED
+  NEURAL_NETWORK
+  TRANSFORMER
+  ENSEMBLE
+}
+
+// ==========================================
+// 🧪 A/B TESTING
+// ==========================================
+
+model Experiment {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?
+  
+  // Experiment Config
+  modelId           String
+  model             MLModel  @relation(fields: [modelId], references: [id])
+  
+  // Traffic Split
+  trafficPercentage Float    @default(50)
+  
+  // Status
+  status            ExperimentStatus @default(DRAFT)
+  
+  // Results
+  controlMetrics    Json?
+  treatmentMetrics  Json?
+  winner            String?  // "control" or "treatment"
+  
+  // Dates
+  startedAt         DateTime?
+  endedAt           DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+enum ExperimentStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// ==========================================
+// 📊 ANALYTICS
+// ==========================================
+
+model RecommendationMetrics {
+  id                String   @id @default(uuid())
+  date              DateTime @db.Date
+  context           RecommendationContext
+  algorithm         RecommendationAlgorithm
+  
+  // Volume
+  totalRecommendations Int   @default(0)
+  uniqueUsers          Int   @default(0)
+  
+  // Engagement
+  impressions          Int   @default(0)
+  clicks               Int   @default(0)
+  ctr                  Float @default(0)
+  
+  // Conversion
+  addToCarts           Int   @default(0)
+  purchases            Int   @default(0)
+  conversionRate       Float @default(0)
+  revenue              Float @default(0)
+  
+  // Quality
+  avgScore             Float @default(0)
+  diversityScore       Float @default(0)
+  noveltyScore         Float @default(0)
+  
+  createdAt            DateTime @default(now())
+  
+  @@unique([date, context, algorithm])
+  @@index([date])
+}

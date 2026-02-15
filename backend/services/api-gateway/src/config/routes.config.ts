@@ -194,6 +194,23 @@ export const servicesConfig: ServiceConfig[] = [
     ],
   },
 
+  // KYC Service - Port 3007 (integrated from KYC-Website flow)
+  {
+    name: 'kyc-service',
+    url: getServiceUrl('KYC_SERVICE_URL', 'http://kyc-service:3007'),
+    healthPath: '/health',
+    routes: [
+      {
+        path: '/api/v1/kyc',
+        target: getServiceUrl('KYC_SERVICE_URL', 'http://kyc-service:3007'),
+        pathRewrite: { '^/api/v1/kyc': '/kyc' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 20 },
+        methods: ['GET', 'POST'],
+      },
+    ],
+  },
+
   // Plugin System Service - Port 3015
   {
     name: 'plugin-system',

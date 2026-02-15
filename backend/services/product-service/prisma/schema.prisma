@@ -51,7 +51,11 @@ model Product {
   // Location (PostGIS integration)
   location       Unsupported("geography(Point, 4326)")?
   city           String?
-  country        String?
+  
+  // Country of Origin Layer (COOL) - Required fields
+  originCountry    String?    @map("origin_country")    // Country where product was manufactured/originated
+  purchaseCountry  String?    @map("purchase_country")  // Country where product is being purchased from
+  deliveryCountry  String?    @map("delivery_country")  // Country where product will be delivered to
   
   // Views & Engagement
   views          Int       @default(0)

@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@mnbarh/trips-service",
   "version": "1.0.0",
   "description": "mnbarh Trips Service - Traveler Availability & Route Management",
@@ -22,7 +22,8 @@
     "class-transformer": "^0.5.1",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.1.0",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.2.1",

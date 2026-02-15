@@ -1,0 +1,525 @@
+The Wayback Machine - https://web.archive.org/web/20140625135017/http://geodesicsolutions.com/geocore-software/features-list.html
+Wellcome,, Guest ( Clliient Log IIn ||  Buy Now )
+
+US Salles (817)527-1575
+
+
+
+Home 	Software	Features	Add Ons	Our Customers	Support 	Client Area
+
+Liive Chat Contact Us
+
+
+
+GeoCore Software Detailed Features List
+
+
+
+Download GeoCore v7.3 NOW!!!
+
+v7.3 Release Notes Highlights...
+Mobile Friendly Features
+The main focus for version 7.3 is mobile-friendly features!
+
+New Responsive Web Design (RWD) Based Theme
+The entire design has been changed to use RWD, so that the layout and design elements respond to look the best they can on the device, whether a mobile phone, tablet, Google TV, Wall Screen, or anything in between.
+
+In other words, get the full desktop "power" packed into a size and layout that responds and works great on any device, no matter how large or small!
+New HTML5 Image Uploader
+To compliment the other mobile-friendly features, the software now uses an HTML5 image uploader, which means it will work on any modern smart phone or tablet that supports HTML5 uploads. That means you can upload images from your iPhone or android device!
+Dedicated Mobile Templates "Capable"
+The default design uses RWD, so it uses a single set of templates that respond to the device, the default does not use "mobile only" templates. But we realize that some may still wish to use mobile-only templates, instead of or in addition to a RWD based design. So we've added that as a choice within the software: The software has ability to use "mobile only" or "desktop only" templates if you wish to. See our Design Philosophy page in the user manual for more information about that.
+Optimized Page Speed
+The new version includes options to minify, compress, and combine the common CSS and JS files, along with other optimization options. These optimizations make the software load much faster on mobile devices, making for a much better experience for mobile visitors on your site. And of course desktop users will benifit from the speed improvements as well!
+These features are on top of the v7.1 and v7.2 released earlier this year and listed below...
+
+v7.2 Release Notes Highlights...
+
+New Place A Listing Process
+We've made the "page to page" process of inserting a listing into the system much more admin configurable. You can make the place a listing process one page or combine two or more consecutive pages of the process into one. You can even have the software skip the cart if the currently placed listing will be free.
+New Buy Now Item Feature
+You can now sell individual items from a buy now auction type format instead of the buy now bid purchasing the full amount of items. You no longer need to create separate buy now item listing for each individual item you wish to sell. Within this new feature your clients can click to buy and then enter an amount of the whole to purchase. The listing will stay open until the
+full quantity of items in the listing have been purchased.
+
+
+v7.1 Release Notes Highlights...
+New Browsing Views and Sort Dropdown
+Your site visitors will now have three options for viewing listing results while browsing categories. Gallery, List, and Grid views are easily accessed with the simple click of an icon. As always, these views are html template based, so you can customize which fields get displayed and where, by editing the templates for each. Additionally, a "sort" dropdown has been added for additional browsing convenience.
+Powerful {listing} Tag Feature
+Massive development overhaul that allows you to essentially take any data that is ordinarily displayed on a listing display page and place it on your browsing categories pages for each listing... Google Maps, thumbnail images & YouTube videos open in Lightbox, Contact Seller link, etc... TRUE DESIGN FLEXIBILITY!!!
+Category Browsing Filters
+The new (and FREE) Core Display Addon allows site visitors to browse your site's categories and fine-tune their browsing results by clicking 'filters' that will appear on the left of the screen. This will help them to really target the product or service they are seeking.
+jQuery Gallery Carousel for Featured Listings
+Your sellers will enjoy extra exposure for their featured listings as they scroll across the screen drawing the attention of
+potential buyers. With GeoCore's Smarty Template structure you have the flexibility to override the admin settings with your own settings directly in the template for a truly custom display, such as number of columns and thumbnail sizes!
+Multiple Regions per Listing
+Your sellers can now choose multiple regions to associate their listing with, thus expanding their potential exposure to buyers. Additionally, you can charge sellers for those additional regions selected if you choose to.
+Report Abuse Form
+New Report Abuse form allows visitors to quickly and easily report listings to you that are deemed suspicious.
+
+Multi-Level Fields
+Create groups of fields that have parent/child dependencies (levels). So, once an item is selected from a dropdown, its child dropdown automatically populates with the appropriate fields for that parent. Example: Choose an Auto Maker from the parent dropdown, and its child dropdown will refresh to display appropriate Models. These fields will be used throughout your site including the Listing Process and Search Processes. A convenient "batch upload" feature allows you to easily populate an unlimited number of groups with unlimited levels.
+
+
+The Geodesic Customer Experience
+Developing GeoCore(formerly known as GeoClassAuctions, GeoClassifieds, and GeoAuctions) Since 2001 - We are not an individual writing a script to earn some additional income. We are an organization who is growing a business around professional level software development for the classifieds, auctions, and directory based markets. We have been in business in excess of 10 years and are not going anywhere any time soon.
+Happy and Successful Clients - Many of our clients have found great success and reward using our software to build all kinds of classifieds, auctions, and directory web sites. Take a moment and review Our Customers page for their stories and their web sites.
+
+Client Area - As a customer of Geodesic Solutions, you will have access to your own personal client area on our site that allows you to access and download your software any time, day or night. In addition, you can also chat with our support staff live, manage existing support tickets, update your account information, review your license information, add users to your account for support access, etc... all from within one Client Area.
+Premier Support - You will receive Free Live Chat Support with our developers for 3 months after your purchase. Support includes Live Support Chat(during business hours) and Priority Support Ticket Management. Our email/ticket support option is LIFETIME so you will always be able to reach us for help. Renewing access to Priority Support(Live Chat) is optional and can be done at any time from within the Client Area.
+Note: Email support, User Forum, User Manual, etc... are always open. The only part of our support service that expires is access to the live chat service. You can always contact us through our Sales Department for any other issues or questions as well.
+Software Updates - You will receive free updates on your software for 6 months after your purchase. You will automatically be notified by Email, within your Admin, Twitter, Facebook, and/or Google+ if a new update is available for your installation. This includes not only bug fixes and efficiency improvements but any New Features we create during that time frame.
+Renewing access to software development updates is optional and can be done at anytime from within the Client Area.
+Installation Wizard - Simpler self installation. Allows you to click on an icon to begin the installation process, similar to installing traditional pc-based software. The file transfer process of the software to your domain takes place automatically using this executable file.
+Paid Installation Available - Available for those customers who would prefer that we install the software for them. Installation can typically be performed on the same day as the order is received.
+
+
+FREE Add Ons
+Storefront - Offers each seller who has a StoreFront subscription an interactive set of pages built directly into your site. This gives the seller the opportunity to highlight their listings.
+Geographic Navigation - Offers similar browsing that is found on sites like OLX, Craigslist, Gumtree and Kijiji.
+Account Balance Add On - Equips your GeoCore web site with account balance billing. This Add On will allow you to offer some users or all of them the ability to maintain an account balance with your site.
+Bulk Uploader - Allows you, as the site administrator, to upload mass quantities of classifieds or auctions on a category by category basis for each user in your GeoCore database.
+Enterprise Pricing - Expands the pricing flexibility of GeoCore offering you many many new ways to earn money and charge customers for placing listing. Have multiple price plans and multiple user groups.
+Featured Level - Allows you to spread out featured displays around your website and charge for each type. Offer up to 5 different levels of featured listings and place them in different areas of your site for added visitor exposure.
+Forum Bridge - A product integration tool that allows you to operate one or more of our products while sharing the users between these installations and either vBulletin or Phorum forum software.
+Listing Exporter - Offers you the ability to search and export listings into csv or xml format. These formats then can be imported into other applications such as those used to generate print classifieds.
+Mobile API - Offers you the ability to let your customers browse your site's classifieds and auctions using a mobile application that can be downloaded to the user's smart phone.
+Multi-Admin - Gives you the ability to create additional Admin Users and allow them to have permission-based access to the areas of your software's Admin Control Panel that you specify.
+Pedigree Tree - Offers you the ability to collect pedigree information and display it in a common format within any of your classified ads or auctons. Generation levels can also be defined so the pedigree chart can suit your needs.
+Sharing - The Sharing Add On offers your visitors and sellers alike the ability to share links to your site's listings with Social Networking sites and Craigslist.
+Social Connect - The Social Connect Add On allows your users to both register, and log in, using Facebook. Other popular social websites coming soon.
+Subscriptions - Power your GeoCore web site with subscription billing. This Add On will allow you to generate recurring revenue through subscription based access.
+Twitter Feed - Allows your sellers to place a Twitter Feed directly on their Listing Display Page. The feed shows all of their latest tweets.
+Zip/Postal Codes - A versatile search tool that allows your customers to process dynamic zip (postal) code searches in your installation of GeoCore.
+Tokens (free listings) - You can automatically issue tokens upon user registration, or after registration, on a user by user basis.
+Discount Codes - Offers your sellers the opportunity to receive a discount off of the total bill when placing listings on your site. Offer as many discount codes as you like.
+Google Maps - Offers you the ability to display mapping information using the Google Map API on the listing details page.
+Search Engine Optimization (SEO) - Offers you the ability to deploy your site with Search Engine Friendly URL's for increased page indexing. The Add On installs easily into your Geo Classifieds scripts and Geo Auctions scripts.
+Signs and Flyers - Your customers will have the ability to easily print a sign and/or flyer through a dynamically generated form for each active classified ad or auction they have placed on your site.
+Joomla / JFusion Plugin - The JFusion Add On integrates GeoCore with Joomla through the popular Joomla Component -
+
+> JFusion. The site's users and design are then managed using Joomla extending Joomla's features to GeoCore.
+Security Image - Offers added security to the forms submitted through your site. Choose between the popular types of CAPTCHA or reCAPTCHA. A Security Image will display at the bottom of each form for your visitors to verify each time they submit a form.
+Contact Us Form - Offers your classified and auction site visitors and clients the ability to securely submit questions/feedback to you directly through your Geodesic Auction and Classified Software installation.
+Debug Message Display - Will display debug output in the browser for you should the need arise.
+Debug Logging - Logs debug output for your site, which is helpful for third party development or if your site is experiencing problems.
+Example Add On - Skeletal framework of an Add On. It illustrates programmatically what is required to develop Add Ons for our software.
+GeoCore Bridge Add On - A product integration tool that allows you to operate multiple installations of our products separately while sharing the users between the installations.
+License Activity - Displays any license errors that are produced by your site. Typically this add on is disabled after initial installation as it will not log any more license entries unless there is a problem.
+Main Email Sender - Provides the software with email functionality. It utilizes the Swift library and is capable of utilizing, Sendmail, SMTP, or PHP mail() function to send emails.
+
+[ Back to Top ]
+
+GeoCore Scalability & Flexibility
+Proven on High Traffic Web Sites - Built for Success!
+Unlimited Listings Unlimited Users
+Unlimited Categories and Subcategories - Built for Flexibility!
+Category by Category Features - You can set everything on a category by category basis. Want one of your web site categories to have a unique look, questions, pricing, etc...?
+Seamless Updates - Your site design and settings are stored in the database, allowing for you to receive and implement software updates seamlessly without affecting your existing changes.
+Hosting Portability - Your MySQL database and files can be backed up and moved to a different host if you wish without losing any of your data...site design, users, listings, everything can be moved.
+Dynamic Extra Pages - Allows you to create your own extra pages to use for whatever content you wish to display...contact us, about us, pricing schemes, special promo offers, whatever you want.
+Intelligent Thumbnail Scaling - Specify thumbnail image sizes within the software's admin panel so that your client's imagery display professionally.
+Zip/Postal Code Proximity Search - Allows your site visitors to perform proximity search (in miles or kilometers) based upon a Zip / Postal Code entered. Requires the Zip / Postal Code Add On.
+Share User Registrations - Can be integrated with the GeoCore Bridge Add On, which allows connection to other GeoCore installations, vBulletin, and/or Phorum.
+PHP Source Code NOT Encrypted - Gives you full access to the PHP Source Code so that you can make edits, enhancements, and feature additions to the software. NOTE: Unencrypted Source code files are not provided with Leased Licenses.
+"Powered by" Link NOT Required - Although appreciated, you are NOT required to display a 'powered by Geodesic Solutions' icon or link on your site. NOTE:For Leased Licenses, this option can be added.
+Adaptable for Multiple Industries - This software can be set up to cater to a wide variety of industries...autos, real estate, boats, horses, personals, jobs, etc...
+Enhanced Email Settings - Allows you to take advantage of either your server's,Native Mail, Standard SendMail configuration, or SMTP configuration.
+Time Savers Example: You can copy categories from one to another along with any specific questions. Depending on the setup of your site this alone can save you days of setup time.
+Template Design Flexibility - The design layer of the software is completely separated from the software source code into Smarty Templates. This allows complete flexibility in design layout just as if you were setting up a static html website. From the opening html tag to closing html tag allowing for total customization.
+Module Based Features - Each feature (module) of the software has it's own specific tag, which allows you to move/edit/delete that tag anywhere within the template that you want the feature to be displayed.
+Oodle Feed - An Oodle feed can be used to send a list of classifieds and auctions on your site to oodle.com. The file can be edited to change settings within the source code to customize various aspects of what information the feed displays. This is an advantage to your sellers because not only will they be placing their listing on your site, but they will also have their listing posted into the Oodle network.
+Optimized Site Speed - The Geo Cache system will cache data, and module output, in cache files. Using the cache system will greatly reduce the amount of data that is retrieved from the database, resulting in faster page loads and less strain on the database server.
+
+Create Unlimited Templates - Develop individual templates for as many pages as you'd like... html developer's dream. No PHP experience is required!!! Since you can create an unlimited number of templates, you can assign a unique template for every page if you want to.
+Ready Made Color Themes - The software offers many primary and secondary color themes which allows for 100's of possible color combinations. You can mix and match the color themes to suit your needs. The original image files are provided as well should you want to change them. Show Me
+Create Category Specific Templates - Develop individual templates and assign a unique template on a category by category basis. In other words, you can have a unique template design for an Automobiles category, Real Estate category, Personals category, etc.
+Optional Fields - These fields are in addition to the standard listing fields (title, description, etc.) and there are several ways to use these fields:
+Sortable Columns - These fields can be set up to be used as 'sortable columns' (sort listings) while browsing the site's categories and search results pages.
+Add Cost - You can also specify these fields for the seller "add cost" over and above the 'price' field they enter. In other words, the seller can use these fields to specify additional fees (i.e. shipping costs) to be added to the "normal price" of the listing. So, for example, at the end of an auction, the software will automatically calculate the winning bid price and add the seller's "additional fees" to the total that the winning bidder needs to pay.
+Flexibility - May be set to 'required', 'editable', and you can choose the field type (text, numeric, dropdown box, add cost) to display.
+
+Additional Featured Listing Levels - Using the Featured Level Add On implement up to 5 levels of featured listings levels. Display each level in a prominent location on your site and charge sellers based upon the level of exposure for each level. For example, you could display Level 2 Featured Listings on the front page and charge a premium. You could then display Level 3 Featured Listings on a subcategory page and charge less for those listings. Each level has its own
+individual display settings.
+
+[ Back to Top ]
+
+SEO (Search Engine Optimization)
+Meta Tags - Software gives you the ability to enter meta tags through the admin panel so that the meta tags are applied across all pages of your site. You can enter your meta tags directly into the template html just as you would for an ordinary static html file and/or you can enter meta tags on a category by category basis within the admin's category menu.
+Page Title - Unique titles are dynamically produced for each page by the software based upon the page of your site that the visitor is browsing. For example, if a visitor is browsing the 'Automobiles' category, 'Automobiles' will be displayed in the browser's page title. If the visitor is viewing a listing, the actual title of the listing will be used for the browser's page title.
+Unique Urls - Every page of the software has a distinct URL that can be 'linked to' from other websites. This includes individual categories, subcategories, listings, etc.
+Editable Text Areas - Every piece of text displayed on the site has a 'text area' associated with it. Since it is a 'text area' and not a 'text field', you can enter 'html' into that area which may be used to improve search engine effectiveness.
+Detailed Control - Every piece of text displayed on the site has a 'text area' associated with it. Since it is a 'text area' and not a 'text field', you can enter 'html' into that area which may be used to improve search engine results.
+Search Engine Friendly URLs - Using the SEO Add On The software takes advantage of the Unix based 'mod-rewrite' to display your site's URLs in a .html format rather than a .php format.Note: Check with your host for support for this add on.
+
+
+
+International Capabilities
+
+[ Back to Top ]
+
+Simpler Navigation - Ability to set up countries in a dropdown box format for users to select when registering and listing their items making the process much easier then a traditional process.
+Assign International monetary/currency prefixes/suffixes - for all monetary data in your site's listings.
+International Date Display - allows you to select from many different date formats.
+Multiple Languages - Conversion of entire site into limitless number of languages. Admin sets a default language. Visitor selects to view site in any language you've entered. Cookie remembers and automatically opens site in visitor's language of choice upon next visit up to one year later. Language option can be turned on/off by admin.
+Payment Gateways Supported - 2Checkout, Authorize.net, CashU, Internet Secure Source, Linkpoint, Moneris, NetCash, Nochex, Payment Express, Paypal, Paypal Pro, PayScape, Verisign Payflow Pro, and WorldPay.
+Language Import / Export - Allows you to export all text from the database to perform a translation in MS Excel or other Spreadsheet program. Once you are done editing simply upload the file back and voila!
+Character Encoding Switch - Allows you to specify the character set you are entering within the text areas of the software's admin panel so that user input appears correctly.
+Server Time Offset - Allows you to specify the time zone of your site relative to the time zone that your server (host) is located.
+Phone Number Grouping/Formatting - Allows you to specify the number of digits to be displayed within each grouping of numbers. Allows you to specify the display format of dashes, dots and digits based upon the phone number grouping
+
+chosen unleashing all display options for monetary data.
+
+[ Back to Top ]
+
+Browser-Based Control Panel
+Admin Control Panel - Complete administrative control over your site through a Control Panel that is complex, yet user- friendly. This browser based control panel allows you to access and manage your software from anywhere in the world with an Internet connection.
+Manage Everything - Everything that can be set up or changed or configured in the software is done entirely in this web based administration. Below are some of the bigger section explanations.
+Manage Registrations - Offer "secure" registrations with your domain's SSL Security Certificate. Specify which fields will be used and required for users to fill out. Automatically or manually approve all registrations. Require users to approve your registration/user agreement.
+Manage Listings - Offer a "secure" listing process with your domain's SSL Security Certificate. Specify which fields will be used during the listing process, pixel size of thumbnail images, camera icon, listing durations, pre-valued dropdown boxes, allowed upload types (jpg, gif, mpeg, etc), number of photos, maximum size of photos, and more. Automatically or manually approve all listings.
+Manage Emails - Specify where emails will be sent and at what frequency. Send and save "form emails" to be sent to your site's users.
+Manage Categories - Set up an unlimited number of categories, subcategories, and category specific questions. Display a unique icon in front of each category and subcategory. Control the number of columns of categories to be displayed on the front and browsing pages. Turn on or off the category counts. Set the category order.
+Manage Users - List/Search/Sort users of your site. View their personal information, listings, and transaction history. Suspend users as you deem necessary.
+Manage Pricing - If charging for listings, set up your own simple/complex pricing scheme(s) that will be applied to users of your site.
+Manage Payments - If charging for listings, you can specify the currency type you are willing to accept, as well as, the payment types that you offer (credit card, paypal, manual payments, etc).
+Manage Transactions - Search for and view past transactions. Approve listings that waiting for you to review.
+Manage Geography Lists - Specify country and states/provinces lists that will be displayed as dropdown choices for users to select on the site's registration, listing, and search pages.
+Manage Pages - Set up the text and fonts that are displayed on every page of your site. Every piece of text is editable. Create your own "extra pages" to display content to your visitors.
+Manage Languages - Translate the entire site to your own language. Offer as many languages as you wish. Your visitors can then choose which language they want to view your site in.
+Reset Template to Default - Need to reset a template to it's default state? No problem. All templates can be reverted to their original state.
+Site On/Off Switch - Allows you to temporarily remove public access from your site to perform maintenance as necessary. You will still be able to browse and log into the client side of your site even though your visitors will not be able to view it.
+Manage Page Modules - Virtually all features of the software are modular, in that each feature has a 'module tag' associated with it. Simply add, move, or delete the module 'tags' within your site's html templates depending upon how you want the feature to be displayed. Further control each module's display by editing it's switches and settings.
+Manage Templates - Virtually all features of the software are modular, in that each feature has a 'module tag' associated with it. Simply add, move, or delete the module 'tags' within your site's html templates depending upon how you want the feature to be displayed. Further control each module's display by editing it's switches and settings.
+Manage Templates - Create as many complex templates as you wish in order to set up the site exactly the way you want it to be displayed. You can assign unique templates to each category if you like. You also have complete design control over what the Listing Pages look like.
+Beta Switches and Settings - This page within your admin panel gives you a sneak-peek into some of the upcoming features of the software. You will even be able to implement these features on your site even though they are still considered to be 'beta' within the software.
+User Export - Export users from your database into an easy to manage .csv (comma separated) file that can be viewed/edited in a spreadsheet type program. Export by User Group if you like, or select the entire database of users. You can even choose which user information fields to export.
+Manage Feedback - Set up the feedback rating system so that sellers/bidders can submit comments and ratings for each auction transaction that takes place through the site. Specify the rating increments and icons to be applied to each user who has received feedback.
+
+
+
+Site Customization
+
+[ Back to Top ]
+
+Site Design - You have extensive control over your site's design. The software is HTML template based for extreme design flexibility and uses the popular Smarty Template Engine. The software's design menu includes "Standard" and "Advanced" design modes.
+
+Listing Table Settings - You have control over the number of listings, columns displayed, thumbnail size, etc over all results tables of your site. In other words, every listing table can be modified with respect to colors and display settings (i.e. Featured Listings, Newest Listings, Hottest Listings, etc).
+Category Display Settings - Control the number of columns, font color and type, category icons, etc.
+Table Display Settings - You have control over the number of listings, columns displayed, thumbnail size, etc over all results tables of your site. In other words, every listing table can be modified with respect to colors and display settings (i.e. Featured Listings, Newest Listings, Hottest Listings, etc).
+Custom Listing Display Page - Customize the layout of your Listing Display Page.
+Multiple Languages - We have 20+ translations available for FREE.
+RSS Feeds - You have the ability to have RSS Feeds produced from your site.
+My Account Page - The user's My Account home page is controlled by a template which allows you to format the links any way you wish to display them.
+Custom Search Page - You have the ability to deactivate the default Advanced Search Page and insert your own html driven search form instead.
+View Listing Restrictions - Setting that allows you to require visitors to be logged in (registered) prior to viewing a Listing Details Page. The visitor can still browse the site's categories (essentially previewing listings), but not view the actual listing's details until they log in.
+Contact Seller Restrictions - Setting that allows you to require visitors to be logged in (registered) prior to contacting the seller through the Listing Details Page. The visitor can still browse the site's categories and view listings, but not contact the seller until they log in.
+
+[ Back to Top ]
+
+Listing Display Page Customization
+Listing Display Page Template - The Listing Display Page is driven by a custom template which uses individual tags for virtually all of the fields on the page. This allows you to rearrange the default template that we give to you to suit your design needs.
+Category Specific Fields - You have the ability to create your own custom fields for each category of your site. These fields also serve as searchable criteria for visitors to use on the Search Page.
+Character Limits - You have the ability to specify the maximum number of characters that the user can use in their title and description fields.
+Photos Display - Control the number of photos allowed and the format in which they will be displayed on the Listing Display Page. Each photo is clickable and displayed in a popup window. Allows for browsing between photos within the popup window.
+YouTube Video Display - Sellers can upload YouTube Videos within their listings and have those videos embedded (displayed) directly on the Listing Details Page.
+Public Questions / Answers - Buyers can ask questions to the seller using the "Contact Seller Form" and request (by clicking a checkbox) to have their question be made public. If the seller answers their question and agrees (by clicking a checkbox in their "My Communications" section) then that Question/Answer will be displayed on the listing display page for others to view.
+Visitor Counter - Each listing has a "times viewed" counter which indicates the amount of visitor traffic for that listing.
+HTML Editor - This editor can be turned on for the seller to use when they are listing their item. It allows them to customize the colors/fonts/layout of their listing's description.
+Standard Links - The Listing Display Page offers several customizable links that will take your visitors to several software driven pages: Tell-a-Friend, Contact Seller, Add To Favorites, Seller's Other Listings, Mapping, Print Friendly, Storefront
+Photo Title - The user can give each photo they upload a distinct title. For example, in the Real Estate category the seller may want to label their photos: Master Bedroom, Entry Hallway, Brick Fireplace, etc.
+Map Display - Offers the ability to display mapping information using Google Maps API or MapQuest Map API on the listing details page.
+Lightbox Display - Ability to show your listing's photos in the popular Lightbox format.
+Filmstrip View - Ability to show your listing's thumbnails in a scrolling filmstrip format rather than a table of thumbnail images.
+Additional Fields - Additional fields that have the capability to be used not only on the Listing Display Page, but also as "sortable columns" within the category browsing pages. For example, if you were running a Real Estate specific site, you might use these fields for: Number of Bedrooms, Number of Baths, and Year Built. These fields would display on the listing display page, as well as, within the browsing categories tables of your site. So visitors would be able to sort listings by any one of those three fields.
+SOLD Sign - The seller can optionally display a SOLD sign image for each of their listings. This allows them to take advantage of the full duration of the listing they paid for, but not be contacted for potential buyers for that item. You can replace the software's default 'sold' image with your own, so that it displays your own custom image, such as "Under Contract", or "Check Back Soon!".
+Checkbox Question - This type of 'extra question' allows the seller to check off features of their item. Consequently, their 'checked' answers will display as 'checkboxes' on the Listing Display Page. This type of question is typically used when asking questions such as Real Estate property features or Automobile features.
+
+Lead Picture - Allows you to display the seller's first photo larger than their other photos and in a different location on the Listing Display Page.
+Splash Page During Listing Process - You can optionally display a Splash Page (displays html content) when user begins the listing process. The Splash Page can be used to advertise another product, review a price plan, etc. Each User Group can have their own Splash Page.
+Vote and Comment - You can give users the ability to vote on ad. They can leave a comment and vote.
+Popup Listing Display Page - You can set the site so that when a visitor selects a listing for viewing while browsing, a new popup window will open and display the Listing Display Page rather than a typical redirect to the Listing Display Page.
+Listing Preview - At the end of the listing process, the seller can click the 'preview' button to see what their listing will look like once it is 'active' on your site.
+
+
+
+Auction Specific Features
+
+[ Back to Top ]
+
+Standard Auctions - Feature allows sellers to place their individual items up for auction.
+Dutch Auctions (Multiple Item Auctions) - Feature allows sellers to post several identical items or "lots" of items up for auction. Bidders will then bid a certain amount per item on a selected number of those items. This type of auction has the potential of having several winning bidders on the same auction...each bidder winning a certain number of items.
+Reverse Auctions - This auction type is virtually the same as the standard auction except that bidding goes lower instead of higher or more specifically the roles of the buyer and seller are reversed. In this auction type sellers compete to obtain business.
+Minimum Bid - This feature allows the seller to set the minimum starting bid for the auction.
+Reserve Bid - This feature allows the seller to specify the minimum amount they are willing to accept for their auction from a bidder.
+"Buy Now" Auction - This feature allows willing bidders to purchase the auction item immediately at the seller's specified "Buy Now" price.
+Proxy Bidding - Sometimes called "auto-bidding" or "absentee bidding", this feature allows the bidder to enter the maximum amount that they are willing to pay for the item and then walk away. The software will then automatically bid on their behalf up to the amount they specified...absentee bidding!
+User/Seller Feedback Rating System - This feature allows the seller and winning bidder of each auction to rate each other and provide a comment on how well the transaction went. The system uses "icons" that represent a user's favorable or 'not so' favorable feedback ratings. For instance, by default the system uses colored stars to represent each user's feedback.
+You can easily replace the default star images with your own if you like.
+Final Fees - Upon successful completion of an auction, you can charge the 'seller' a percentage fee based upon the 'final' selling price of the item.
+Bid Status - Bidders can view the current status of their bids by logging in to their personal "My Account" pages.
+Seller Emails - The software will send an email to the seller when their listing has been successfully placed on your site. Additionally, the seller will receive emails when their auction is about to expire, when the auction has been "unsuccessful", and when the auction has received a winning bidder.
+Bidder Emails - The software will send emails to the bidder when they have submitted a successful bid, when they have been outbid, and when they are the winning bidder of an auction.
+Bid History - You can allow visitors to view the current bid history of an auction. Bid history displays the bidder's username and bid amount.
+Invited List of Buyers/Bidders - Each user can set up a list of buyers (based upon their usernames) that they are willing to accept bids from on their auctions. Only those users on the "Invited List" will be allowed to place bids on the user's auctions.
+Black List of Buyers/Bidders - Each user can set up a list of buyers (based upon their usernames) that they want to "black list" from bidding on their auctions. Only users on the "Black List" will not be allowed to place bids on the user's auctions. All other users on the site can place bids on the user's auctions.
+Auction Start / End Time - You can give the seller the ability to set a specific date and time for each auction to begin and end, rather than the auction simply going live immediately after placing the auction.
+Auction Preview Period - If allowing your sellers to specify the Auction Start / End Time, you can also set your site so that these auctions can be previewed on your site. All of the Listing details will be available to visitors of your site. However, they will not be able to place bids on the items until the seller's specified Start Time arrives.
+Subscription Based Bidding - You can set up your site so that each user must have a subscription to place a bid and/or even view an auction.
+Endless Auctions (Sniper bidding) - This feature automatically extends the length of an auction if a user bids just before the auction was to end. You can specify the number of minutes prior to expiration that the system should check for a
+successful bid. If a successful bid is detected within that time, the auction will be extended for the number of minutes you specify. This process will continue over and over until all bidding has stopped.
+Seller to Buyer Gateway (PayPal) - Sellers can accept payments from buyers (winning bidders) for successful auctions using their PayPal accounts. Seller can enter their PayPal id into their account which will indicate that the seller accepts this form of payment from buyers.
+
+[ Back to Top ]
+
+Email Notifications to Site Administrator
+Registration Complete Email - You have the option to be notified each time a user successfully registers on your site.
+Registration Pending / Awaiting Approval Email - You have the option to approve all registrations prior to users being allowed to log in. If using this feature, the software will send you an email when there is a registration awaiting your approval.
+Manual Payment Email - You have the option to be notified when a "manual payment" option has been selected by a user to pay you for a listing on the site. For example, if you allows "manual payments", such as cash, check, or money order, the listing will be placed on hold until you receive the payment and you manually approve the listing.
+Listing Success / Awaiting Approval Email - ou have the option to be notified when a listing has been successfully placed on your site. If you are approving all listings prior to them going live on your site, then this email also serves as a notification that there is a listing awaiting your approval.
+Listing Edited Email - You have the option to be notified when a user has edited their listing on your site. Other admin controls allow you to specify only certain fields that the user can edit within their listing.
+Contact Seller / Notify Friend Email - You have the option to be BCC'd (blind carbon copied) on all correspondence made between users of the "contact seller" and "notify a friend" features on the Listing Display Page.
+Listing Expiration Email - You have the option to be notified when the software has sent an email to a user warning them of a listing's pending expiration.
+Subscription Expiration Email - You have the option to be notified when the software has sent an email to a user warning them of a subscription's pending expiration.
+
+
+
+Fee-Based Features
+
+[ Back to Top ]
+
+Listing Fees - Charge users for posting listings on your site or set to 'free'.
+Photo/File Uploads - Charge users for posting photos/files on your site or set to 'free'.
+Photo/File Uploads - Charge users for posting photos/files on your site or set to 'free'.
+YouTube Video Uploads - Charge users for posting YouTube Videos on your site or set to 'free'
+Payment Methods - You can can accept payments from your users in the following ways
+Real-Time Credit Card Processing - Allow users to pay you for their listings by credit card. The listing can be set to automatically go 'live' when the payment is processed.
+PayPal Payments - Allow users to pay you for their listings through their PayPal account. The listing can be set to automatically go 'live' when the payment is processed.
+Cash Payments - Allow users to pay you for their listings by cash. The listing will be placed on hold until you receive their payment.
+Check Payments - Allow users to pay you for their listings by check. The listing will be placed on hold until you receive their payment.
+Money Order Payments - Allow users to pay you for their listings by money order. The listing will be placed on hold until you receive their payment.
+Recurring Billing - Automatic recurring billing for subscriptions. Requires the Subscriptions Add On.
+
+Listing Fees - can be charged based upon the following criteria:
+Flat Fee - for each listing.
+Price Field - of the item.
+Duration (in days) - of the listing.
+
+"Listing Extras" Fees - You can charge users specific fees for selecting extras to be added to their listings:
+Attention Getters Featured Listing Status Better Placement Status Bolding Status
+Fee Per Photo
+Fee Per YouTube Video
+
+Renewal Fees - Charge users for renewing their listings.
+Taxes - Charge your users a tax per listing based upon their location. The States/Provinces/Countries you have set up in the Geography Setup Menu allow you to specify a tax per region. Additionally, you may charge a 'flat tax' or a 'percentage tax' based upon the total of the purchase (listing cost).
+Cart System - Allows your sellers to walk through a 'shopping cart' style process for placing listings, etc. on your your site. They can place multiple listings at the same time and pay for them once. Items will remain in their cart for a period of time
+
+even if they leave the site and return at a later time.
+Multiple Listing Process - Allows your customers the ability to purchase multiple listings/upgrades/renewals/subscriptions in the same session with a "single checkout process". This feature saves your customers time from having to submit their payment details over and over each time they list an item on your site. It also saves you money because it reduces the number of merchant account transaction fees.
+User Group Specific Pricing - Charge different fees to different user groups. You can separate users into groups when they register so that you can charge them differently. Requires the Enterprise Pricing Add On.
+Unlimited Price Plans - You will have the ability to offer as many different price plans as you like... fee-based or subscription-based. Requires the Enterprise Pricing Add On.
+Category Specific Pricing - Charge certain fees for listings placed in certain categories.
+Price Plan Expiration - Price Plans can be set to expire so that you can offer promotional specials to users for a period of time before an expired plan is replaced by another plan. Requires the Enterprise Pricing Add On.
+Subscriptions - Charge users to have a subscription to your site. They can then place as many listings as you allow them to, but still be required to pay you for the listing "Extras" such as Attention Getters, Featured Status, etc. Requires the Subscriptions Add On
+Account Balance System - Allows your users to have a running 'account balance' with your site, from which they can place, renew, and upgrade listings. Users can add money to their balance any time they wish through a link within their "My Account" section of your site. You can also allow them to have a 'negative balance' and be billed for their transactions later. Requires the Account Balance Add On.
+Featured Listing Levels (5 levels) - Lets you charge based upon location (higher exposure) of the listing on your site. For example, if you were to place Featured Level 2 listings on the Front Page, you would charge users who select this option more than you would charge users for selecting Featured Level 3 listings that you place on a subcategory page. Charge more for better exposure. Requires the Featured Level Add On.
+Discount Codes - Ability to give users a special discount code that will give them a percentage discount off of the total listing cost during the listing process. You can create and issue as many discount codes as you like. Discount codes can also be applied towards 'recurring billing'.
+Subscription Required to View Listings Option - This setting allows users to browse your site's categories but requires them to pay for a subscription in order to view listing details pages. Requires the Subscriptions Add On.
+User Selected Price Plans - Based upon your permission settings, users can select their own pricing scheme when they go to place a listing on your site. Requires the Enterprise Pricing Add On
+Storefront Add On - Offers each seller who has a StoreFront subscription an interactive set of pages built directly into your site. This gives the seller the opportunity to highlight their listings.
+
+[ Back to Top ]
+
+User Registration & Login Controls
+Registration Page - Simple, one-page registration process.
+Disable Registration - Ability to turn off ability for users to register on the site.
+Anonymous Listing Process - Offers you the ability to allow for classified ad placements on your site without requiring the seller to first sign in, or even register at all for that matter.
+Just-In-Time (JIT) Registration Process - This is an alternative to the standard Registration Page. It allows your sellers to complete most of the listing process prior to asking them to register or log in. This is a very convenient way to get sellers to post listings on your site.
+Secure Login - Secure User Login through ability to set SSL when logging in.
+Email Verification Routine - You can implement an email address verification routine that forces the user to confirm their email address:
+Reduces fake registrations
+Ensures unique email addresses are required (no duplicates within the site)
+Assures that the user registering at least has current access to the email address used
+
+Lost Password Routine - Sends the user's password to their email address.
+Registration Fields - You can specify which fields are to be used and required. If the user fails to fill in a field, an error message displays.
+Suspend Users - Admin has the ability to suspend users.
+Maximum Listings - Admin can set the maximum number of listings a user can have active at any given time
+Forum Bridge Add On Available - Allows you to share user registrations across multiple installations of our software or a Bulletin Board.
+IP Banning - You have the ability to block registrations by users from specified IP Address.
+Post Login Page - You can specify that either the Front Page or My Account Page is displayed after a user logs in.
+Affiliate System - Software is compatible with your license of either of the following Affiliate Software programs, which
+allow affiliate sites (customers) to refer new customers to your site and earn percentage based commissions on the listing placements that those referred customers purchase through your site:
+iDevAffiliate
+
+Post Affiliate Pro
+
+Security Image - A Security Image will display at the bottom of each form for your visitors to verify each time they submit a form.
+Registration Code - You can create User Groups and assign each a unique Registration Code. When a user registers with that code, they will automatically be placed into that User Group and subject to that User Group's Price Plan fees. This allows you to advertise radio spots to some groups with one code, newspaper spots with another code, and etc.
+Tokens (free listings) - You can automatically issue tokens upon user registration, or after registration, on a user by user basis.
+Registration Splash Page - When a user enters a Registration Code during registration you can display a Splash Page to them which displays any html you wish. For example, you might use the splash page to review the advertised pricing scheme that they will enjoy while using your site.
+Custom Registration Fields - Add up to 10 custom registration fields and set them to 'required' or 'dependent' based upon the use of another Registration Field.
+Domain Blocking - You have the ability to block registrations by users from specified domains
+Domain Allowing - You have the ability to allow registrations only by users from specified domains.
+Starting Balance - You can automatically issue credit (money) into a user's account balance upon registration. Requires the Account Balance Add On.
+Registration Required to Contact Seller Option - This setting allows visitors to browse your site's categories and listings but requires them to be logged in to contact the seller.
+Hide Fields - This feature allows you to specify fields on the classified detail or auction detail display page that will be hidden from view if your visitor is not currently logged in. Your visitors will be enticed to register in order to view that information.
+Membership Feature - "Registration Required to View Listings" setting allows visitors to browse your site's categories but requires them to login/register in order to view individual listings. This allows you to charge them after the registration process for a 'subscription/membership' to your site. Requires the Subscriptions Add On.
+Admin Login as User - Admin has the ability to login to the customer side of the software as if they were the user, by using their admin password.
+
+
+
+My Account Pages
+
+[ Back to Top ]
+
+My Account Pages - Each registered user will have their own personal My Account section on our site in which they can edit their registration information and personal settings.
+Cart System - This system guides the seller through all of the processes regarding listings, renewals, subscriptions, StoreFront purchases, etc. It even remembers the last process that the seller was performing if the seller got distracted doing something else.
+Listing Process - Process guides the user through the Listing Process, which consists of choosing a category/subcategory for their listing, adding photo(s), entering the listing's details, and the payment processing for the listing.
+My Active Listings - This section displays all of the user's active listings on your site. Based upon your permission settings, the user can edit and renew their listings prior to its expiration.
+My Expired Listings - This section displays all of the user's expired listings on your site. Based upon your permission settings, the user can renew their listings within a set number of days you specify after expiration.
+My Favorites - Allows the user to add listings on your site to a 'favorites' or 'watch list'. These listings may be either removed by the user or automatically when the listing expires.
+My Listing Filters - Allows the user to set up 'filters' or 'email notifications' in which the software will monitor user specified categories and key words on the user's behalf, and automatically notify the user by email if a listing fits their criteria. This routine is run each time a listing is added to the site.
+My Account Information - Allows the user access to their personal (registration) information. They have the ability to view and edit their data, as well as, specify which of these fields they are willing to display publicly on their 'sellers other listings' page. A table of current fees is also displayed to them on this page.
+My Messages - Allows the user to communicate with other users of the site through a personal messaging system. They can view and reply to messages that were initiated through the 'contact seller' link on the Listing Display Page. Buyers can ask questions to the seller using the "Contact Seller Form" and request (by clicking a checkbox) to have their question be made public. If the seller answers their question and agrees (by clicking a checkbox in their "My Communications" section) then that Question/Answer will be displayed on the listing display page for others to view.
+Message Settings - Allows the user to specify either "Public" or "Private" communications when using the software's messaging system. The "Public" setting will reveal the user's email address. The "Private" setting will keep the user's email address private.
+Renew Listing - User can renew their listing prior to the listing's expiration, or within so many days of expiration, per your permission settings.
+Copy Listing - Sellers can create a new listing by copying one of their existing listings. This saves them time from having to type duplicate information.
+Upgrade Listing - User can upgrade their listing during the renewal process by adding new feature 'add ons', such as featured status, bolding, and better-placement.
+
+Account Balances - If you allow for 'account balances' to be used on your site during the listing process, the user will be able to view their account balance, add money to their account balance, and view past transactions on your site. Requires the Account Balance Add On.
+Signs & Flyers - Each user has the ability to print out a sign and flyer for each of their active listings on your site. Each sign and flyer is automatically populated with the listing information they have already entered during the listing process. You will predefine the look of the sign and flyer by implementing a template with the desired html and fields. When creating the template, the user can edit the fields prior to printing if they wish to.
+My Current Bids - Shows the bidder their current and past bids on the site, as well as, the status of those bids...i.e. 'outbid', 'high bidder', etc.
+Feedback Management - Ability for users to view and provide feedback for auctions that they have either placed or been the high bidder on. Feedback comments and the seller's rating are displayed on each of the seller's Listing Display Pages.
+Invited List of Buyers - Each user can set up a list of buyers (based upon their usernames) that they are willing to accept bids from on their auctions. Only those users on the "Invited List" will be allowed to place bids on the user's auctions.
+Black List of Buyers - Each user can set up a list of buyers (based upon their usernames) that they want to "black list" from bidding on their auctions. Only users on the "Black List" will not be allowed to place bids on the user's auctions. All other users on the site can place bids on the user's auctions.
+
+
+
+Listing Expiration
+
+[ Back to Top ]
+
+Listing Duration - Based upon your permissions settings, the user can choose the number of days before the listing will expire.
+User Initiated Expiration - Users can 'expire' the listing themselves and provide a reason for the expiration for you to view.
+Expired Listings Page - User can view the details of their recently expired listings.
+Listing Expiration Email - The software will send an email to the user warning them of a listing's pending expiration. You can specify the number of days that the email will be sent out prior to the listing's expiration. The email will prompt the user to renew their listing.
+Listing Renewal - Based upon your permissions settings, the user can renew their listing for a certain number of days after its expiration. Allows the user to renew their listing and pay you for "listing extras" that they select with their renewal.
+Email Alert - Email of listing's pending expiration is sent out at a time you specify prior to the expiration date.
+
+[ Back to Top ]
+
+Email Notifications to Users
+Registration Confirmation Email - The software will send an email to the user confirming their registration. You have the option to require the user to 'confirm their registration' by clicking on a link that will appear in the email. Using this feature confirms that the user supplied the correct email address when they entered their information during registration.
+Registration Success Email - The software will send an email to the user confirming that their registration has been approved. This can be set to an automatic approval process, or you can manually approve all registrations prior to letting the user log in to your site.
+Lost Password Email - The user can retrieve their password via email from the system by accessing the software's lost password routine.
+Listing Confirmation Email - The software will send an email to the user confirming their listing placement.
+Listing Expiration Email - The software will send an email to the user warning them of a listing's pending expiration. You can specify the number of days that the email will be sent out prior to the listing's expiration. The email will prompt the user to renew their listing.
+Listing Expiration Email Frequency - You can specify that the software send multiple "listing expiration emails" every few weeks, days, hours, etc. prior to the listing's expiration. In other words, you can choose the frequency at which the seller will receive expiration emails for each listing that is about to expire.
+Listing Success Email - The software will send an email to the user confirming that their listing has been approved. This can be set to an automatic approval process, or you can manually approve all listings prior to the listing going live on your site.
+Contact Seller Email - When a visitor of the site uses the 'contact seller' link on the Listing Display Page, the seller will be sent an email with the visitor's questions.
+Filter Match Email - When a user places a listing on the site that matches another user's 'listing filter' criteria, an email is sent to the user notifying them of the match.
+Subscription Expiration Email - The software will send an email to the user warning them of their subscription's pending expiration. You can specify the number of days that the email will be sent out prior to the subscription's expiration. The
+email will prompt the user to renew their subscription to your site.
+High Bidder Email - The software will send an email to the user when they have submitted a successful bid on the site.
+Outbid Email - The software will send an email to the user when they have been outbid by another user on the site.
+Admin Email - You have the ability to send out a mass email to all of your users.
+
+[ Back to Top ]
+
+Searching & Browsing Capabilities
+Advanced (Dynamic) Search Page - that allows for a variety of different search criteria. When the visitor selects a category to search, the search page refreshes and presents to the visitor additional "fields" that relate to the "category" they just chose. All category specific fields that the "seller" was given during the listing process are also "searchable fields" for the visitor to use on the Advanced Search Page.
+Category / Subcategory Browsing - Visitors will find your site easy to navigate as they click from one category to the next and through your site's subcategories.
+Zip / Postal Code Search Add On Compatible - Allows visitors to enter their U.S. Zip Code and a search radius from that Zip Code. The software will return a set of results that meet the specified "proximity" search radius. Requires the Zip /
+Postal Code Add On.
+Featured Listings - Displays a list of your site's featured (high profile) listings. Newest Listings - Displays a list of the listings most recently placed on your site. Hottest Listings - Displays a list of your site's most popular listings.
+Search Box - Displayed on front page and/or subpages of your site and allows for search by keyword and category.
+Sortable Listings - While browsing categories, visitors can 'sort' the listings by 'title', 'description', 'city', etc. Any "Extra Fields" that you are using for each category are also 'sortable' by the visitor.
+Recent Listings Links - Allows your visitors to view only those listings that were placed within the last 24 hrs, one week, two weeks, or three weeks.
+Custom Search Forms - You have the ability to create your own html search forms to be displayed on most pages of your site. Simply create the form using html and use the software's normal Search routine to produce results.
+Geographic Navigation - Offers you the ability to offer our visitors browsing by country, state/province, or other "geographic region" criteria that you set using unlimited region levels.
+Listing Tags (with auto-complete!) - Allows seller to specify "tags" to be set for each listing. A listing tag is basically a keyword that applies to the listing:
+Browsing - The user can browse the site by listing tag, similar to browsing by category.
+Auto-complete - Auto-complete feature for listing tag field in listing placement and listing edit process.
+SEO - Browse by tag uses SEO re-written URL once configured.
+Searching - Can search by tag, with auto-complete built into the search.
+
+Contact Us Form - Site visitors can contact you through this secure form embedded into your site. Set up multiple contact emails and departments.
+Custom Search Page - You have the ability to deactivate the default Advanced Search Page and insert your own html driven search form instead. Additionally, you can set up your html driven Search Page for each category of your site.
+State Filter - Allows visitors to filter out listings by selecting their state from a dropdown menu.
+Zip (Postal) Code Filter - Allows visitors to filter out listings by selecting a zip (postal) code from a dropdown menu. This filter uses a proximity search (radius search) routine. Requires the Zip / Postal Code Add On.
+Field Filter - Allows you to set up two or more levels of dynamic dropdowns for your visitors to select from. These dropdowns, when selected by the visitor, will automatically filter listings on the site based upon the value chosen by the visitor.
+
+
+
+Security
+
+[ Back to Top ]
+
+Email Notification - Sent to the administrator when a user registers.
+Badword Filter - Screen listings as they are entered onto your site for "badwords". Designate an automatic 'replacement word' for each 'badword' that the software detects.
+Email Validation - Checks the validity of e-mail addresses to.
+Form Field Validation - Checks to make sure that users entered all necessary contact information.
+Register Globals - Code written to allow for register globals "on" or "off" without sacrificing security.
+Secure Registration - Ability to set the registration process to secure mode by using your domain's security certificate.
+Secure Login - Secure User Login through ability to set SSL when logging in.
+Secure My Account Area - Secure My Account browsing through ability to set SSL when logging in.
+Secure Listing Process - Ability to set the listing process to secure mode by using your domain's security certificate.
+Duplicate Email Checking - System checks existing registrations to ensure that the email address entered is not already in use.
+Duplicate Username Checking - System checks existing registrations to ensure that the email address entered is not already in use.
+
+Username and Password Checking - System checks for to ensure that user has entered the minimum and maximum number of digits for their username and password.
+Validate Password Routine - System requires the user to enter their password twice to ensure accuracy of the entry.
+HTML Restriction - Declare specific HTML tags that will be allowed/disallowed on your site.
+IP Banning - Ban users from accessing your site who are connecting from a specific IP Address. Users from these IP Addresses will not even be able to view your site at all.
+Notices and Warnings - Section in admin which provides warnings to you of potential security issues.
+Security Image (CAPTCHA and reCAPTCHA) - User required to enter security code when filling out registration, login, contact seller, and notify-a-friend forms on your site. Code is produced by a random generator and presented to the user to enter for validation.
+Debug Logging and Messaging - Logs debug output for your site, which is helpful for third party development or if your site is experiencing problems.
+Domain Blocking - Admin has the ability to "block" registrations by users from specified domains. Domain Allowing - Admin has the ability to "allow" only registrations by users from specified domains. Listing Edit Email - Sent to the administrator when a seller edits their listing.
+
+[ Back to Top ]
+
+Software Support & Updates
+Free Updates - You will receive Free software updates for 6 Months from the date of purchase. You will also automatically receive alerts when an update is available so that you can have the latest and greatest. This service is renewable at either 6 month or yearly intervals. However, it is optional and will NOT affect your site or license if you choose not to renew.
+Free Support - You will receive 90 days of free Live Support Chat and Priority support tickets. Additionally, our email support for you will NEVER expire. Our ticket system gives you the opportunity to log in and open new tickets, as well as, check the status of your existing tickets. Our support structure is ideal giving you a true opportunity for success.
+Update Available Notice - You will be automatically notified through your software's admin panel that a new version of the software has been released.
+User Manual - We offer an Interactive and Searchable online and very complete User Manual (wiki).
+Tutorials - Our tutorials provide a detailed explanation as to how the default software templates are set up with respect to the pages, templates, and modules that are available. Additional tutorials are included within the User Manual.
+User Forum - You will have full access to our User Forum for troubleshooting and sharing tips and tricks with other users of GeoCore software.
+
+[ Back to Top ]
+
+
+Geodesic Solutions, LLC
+
+Software Information
+
+Latest News/Blog
+
+
+
+Bllog Polliiciies Conttactt Us Aboutt Us
+
+Latest Software Rellease: 7..3..6
+Versiion 7..3 ChangeLog
+Versiion 7..2 ChangeLog
+Versiion 7..1 ChangeLog Previious Changellogs
+
+Software Requiirements: PHP 5..2..3 (or hiigher) MySQL 4..1..0 (or hiigher)
+IIonCube or Zend Opttiimiizer [[Fullll Dettaiills iin User Manuall]]
+
+7..3..5 Maiinttenance Rellease wiitth Securiitty Updattes
+Duall Rellease - new 7..3..4 and a new
+7..4 Betta
+New Featture "Votte Driive" - castt your vottes ttoday
+7..3..0 Fiinall iis relleased,, new Mobiille- Friiendlly "Responsiive Web Desiign" iis now avaiillablle
+7..3 Rellease Candiidatte 1 iis avaiillablle
+
+
+Software Downlloads:
+More tthan 100,,000 Downlloads siince 2001
+
+Leaders in Classified Ad Software and Auction Software Development. All Rights Reserved. 
+
+
+
+

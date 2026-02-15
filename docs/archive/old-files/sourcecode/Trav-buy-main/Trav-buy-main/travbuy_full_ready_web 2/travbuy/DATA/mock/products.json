@@ -1,0 +1,23 @@
+[
+  {
+    "id": "p1",
+    "title": "ساعة مستوردة — طوكيو",
+    "price": 120,
+    "currency": "USD",
+    "category": "مزاد"
+  },
+  {
+    "id": "p2",
+    "title": "قهوة كولومبية — مطار بوغوتا",
+    "price": 18,
+    "currency": "USD",
+    "category": "شراء مباشر"
+  },
+  {
+    "id": "p3",
+    "title": "عطر فرنسي — باريس CDG",
+    "price": 95,
+    "currency": "EUR",
+    "category": "مزاد"
+  }
+]

@@ -17,6 +17,7 @@ import {
 import { validationSchema, CreateProductInput, UpdateProductInput } from '../validators/product.validator';
 import { moderationService } from './moderation.service';
 import { searchIndexingService } from './search-indexing.service';
+import { countryLayerClient } from './countryLayerClient';
 
 export interface ProductFilters {
     sellerId?: string;
@@ -27,7 +28,13 @@ export interface ProductFilters {
     minPrice?: number;
     maxPrice?: number;
     city?: string;
-    country?: string;
+    country?: string; // Legacy field
+    
+    // Country of Origin Layer (COOL) filters
+    originCountry?: string;
+    purchaseCountry?: string;
+    deliveryCountry?: string;
+    
     isAuction?: boolean;
     moderationStatus?: ModerationStatus;
 }
@@ -69,6 +76,55 @@ export class ProductService {
             throw new AppError('Product contains restricted keywords', 400);
         }
 
+        // Validate country data with Country Layer Service
+        if (validatedData.originCountry || validatedData.purchaseCountry || validatedData.deliveryCountry) {
+            try {
+                // Validate origin country
+                if (validatedData.originCountry) {
+                    const isOriginRestricted = await countryLayerClient.isCountryRestricted(validatedData.originCountry);
+                    if (isOriginRestricted) {
+                        throw new AppError(`Origin country ${validatedData.originCountry} is restricted for trade`, 400);
+                    }
+                }
+
+                // Validate delivery country
+                if (validatedData.deliveryCountry) {
+                    const isDeliveryRestricted = await countryLayerClient.isCountryRestricted(validatedData.deliveryCountry);
+                    if (isDeliveryRestricted) {
+                        throw new AppError(`Delivery country ${validatedData.deliveryCountry} is restricted for trade`, 400);
+                    }
+                }
+
+                // Validate route if both origin and delivery are provided
+                if (validatedData.originCountry && validatedData.deliveryCountry) {
+                    const routeValidation = await countryLayerClient.validateRoute({
+                        originCountry: validatedData.originCountry,
+                        destinationCountry: validatedData.deliveryCountry,
+                    });
+
+                    if (routeValidation.complianceStatus === 'prohibited') {
+                        throw new AppError('Trade route between origin and delivery countries is prohibited', 400);
+                    }
+
+                    if (routeValidation.riskLevel === 'critical' || routeValidation.riskLevel === 'high') {
+                        logger.warn('High-risk trade route detected', {
+                            origin: validatedData.originCountry,
+                            destination: validatedData.deliveryCountry,
+                            riskLevel: routeValidation.riskLevel,
+                            sellerId,
+                        });
+                    }
+                }
+            } catch (error) {
+                if (error instanceof AppError) {
+                    throw error; // Re-throw our validation errors
+                }
+                logger.error('Country validation service error:', error);
+                // Continue with product creation if country service is unavailable
+                // This ensures the product service remains functional even if country layer is down
+            }
+        }
+
         // Create product
         const product = await prisma.product.create({
             data: {
@@ -94,6 +150,10 @@ export class ProductService {
                 auctionEndsAt: validatedData.auctionEndsAt,
                 city: validatedData.city,
                 country: validatedData.country,
+                // Country of Origin Layer (COOL) - new fields
+                originCountry: validatedData.originCountry,
+                purchaseCountry: validatedData.purchaseCountry,
+                deliveryCountry: validatedData.deliveryCountry,
                 moderationStatus: moderationCheck.flagged ? ModerationStatus.FLAGGED : ModerationStatus.PENDING,
                 status: moderationCheck.flagged ? ProductStatus.PENDING_REVIEW : ProductStatus.DRAFT,
             },
@@ -221,6 +281,11 @@ export class ProductService {
 
         if (filters.city) where.city = filters.city;
         if (filters.country) where.country = filters.country;
+        
+        // Country of Origin Layer (COOL) filters
+        if (filters.originCountry) where.originCountry = filters.originCountry;
+        if (filters.purchaseCountry) where.purchaseCountry = filters.purchaseCountry;
+        if (filters.deliveryCountry) where.deliveryCountry = filters.deliveryCountry;
 
         const [products, total] = await Promise.all([
             prisma.product.findMany({
@@ -279,6 +344,58 @@ export class ProductService {
             }
         }
 
+        // Validate country data with Country Layer Service for updates
+        if (validatedData.originCountry || validatedData.purchaseCountry || validatedData.deliveryCountry) {
+            try {
+                const originCountry = validatedData.originCountry || existing.originCountry;
+                const deliveryCountry = validatedData.deliveryCountry || existing.deliveryCountry;
+
+                // Validate origin country
+                if (validatedData.originCountry) {
+                    const isOriginRestricted = await countryLayerClient.isCountryRestricted(validatedData.originCountry);
+                    if (isOriginRestricted) {
+                        throw new AppError(`Origin country ${validatedData.originCountry} is restricted for trade`, 400);
+                    }
+                }
+
+                // Validate delivery country
+                if (validatedData.deliveryCountry) {
+                    const isDeliveryRestricted = await countryLayerClient.isCountryRestricted(validatedData.deliveryCountry);
+                    if (isDeliveryRestricted) {
+                        throw new AppError(`Delivery country ${validatedData.deliveryCountry} is restricted for trade`, 400);
+                    }
+                }
+
+                // Validate route if both origin and delivery are provided or updated
+                if (originCountry && deliveryCountry) {
+                    const routeValidation = await countryLayerClient.validateRoute({
+                        originCountry,
+                        destinationCountry: deliveryCountry,
+                    });
+
+                    if (routeValidation.complianceStatus === 'prohibited') {
+                        throw new AppError('Trade route between origin and delivery countries is prohibited', 400);
+                    }
+
+                    if (routeValidation.riskLevel === 'critical' || routeValidation.riskLevel === 'high') {
+                        logger.warn('High-risk trade route detected on update', {
+                            origin: originCountry,
+                            destination: deliveryCountry,
+                            riskLevel: routeValidation.riskLevel,
+                            sellerId,
+                            productId: id,
+                        });
+                    }
+                }
+            } catch (error) {
+                if (error instanceof AppError) {
+                    throw error; // Re-throw our validation errors
+                }
+                logger.error('Country validation service error during update:', error);
+                // Continue with product update if country service is unavailable
+            }
+        }
+
         // Update product
         const product = await prisma.product.update({
             where: { id },
@@ -303,6 +420,10 @@ export class ProductService {
                 ...(validatedData.auctionEndsAt && { auctionEndsAt: validatedData.auctionEndsAt }),
                 ...(validatedData.city && { city: validatedData.city }),
                 ...(validatedData.country && { country: validatedData.country }),
+                // Country of Origin Layer (COOL) - new fields
+                ...(validatedData.originCountry && { originCountry: validatedData.originCountry }),
+                ...(validatedData.purchaseCountry && { purchaseCountry: validatedData.purchaseCountry }),
+                ...(validatedData.deliveryCountry && { deliveryCountry: validatedData.deliveryCountry }),
             },
             include: {
                 images: true,

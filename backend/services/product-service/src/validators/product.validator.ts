@@ -53,10 +53,20 @@ export const ImageSchema = z.object({
     mimeType: z.string().optional(),
 });
 
+// Country of Origin Layer (COOL) Schema
+export const CountryLayerSchema = z.object({
+    originCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional()
+        .describe('ISO 3166-1 alpha-2 country code for product origin'),
+    purchaseCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional()
+        .describe('ISO 3166-1 alpha-2 country code for purchase location'),
+    deliveryCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional()
+        .describe('ISO 3166-1 alpha-2 country code for delivery destination'),
+});
+
 // Location Schema
 export const LocationSchema = z.object({
-    city: z.string().min(1).max(100),
-    country: z.string().min(1).max(100),
+    city: z.string().min(1).max(100).optional(),
+    country: z.string().min(1).max(100).optional(), // Legacy field - keeping for backward compatibility
     latitude: z.number().min(-90).max(90).optional(),
     longitude: z.number().min(-180).max(180).optional(),
 });
@@ -88,7 +98,12 @@ export const CreateProductSchema = z.object({
     
     // Location
     city: z.string().optional(),
-    country: z.string().optional(),
+    country: z.string().optional(), // Legacy field
+    
+    // Country of Origin Layer (COOL)
+    originCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    purchaseCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    deliveryCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
 });
 
 // Update Product Schema
@@ -119,7 +134,12 @@ export const UpdateProductSchema = z.object({
     
     // Location
     city: z.string().optional(),
-    country: z.string().optional(),
+    country: z.string().optional(), // Legacy field
+    
+    // Country of Origin Layer (COOL)
+    originCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    purchaseCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    deliveryCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
 });
 
 // Product Filters Schema
@@ -132,7 +152,13 @@ export const ProductFiltersSchema = z.object({
     minPrice: z.number().positive().optional(),
     maxPrice: z.number().positive().optional(),
     city: z.string().optional(),
-    country: z.string().optional(),
+    country: z.string().optional(), // Legacy field
+    
+    // Country of Origin Layer (COOL) filters
+    originCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    purchaseCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    deliveryCountry: z.string().length(2).regex(/^[A-Z]{2}$/).optional(),
+    
     isAuction: z.boolean().optional(),
     moderationStatus: ModerationStatusEnum.optional(),
 });
@@ -150,6 +176,7 @@ export type CreateProductInput = z.infer<typeof CreateProductSchema>;
 export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;
 export type ProductFilters = z.infer<typeof ProductFiltersSchema>;
 export type PaginationOptions = z.infer<typeof PaginationSchema>;
+export type CountryLayerInput = z.infer<typeof CountryLayerSchema>;
 
 // Validation Schema Object
 export const validationSchema = {
@@ -157,4 +184,5 @@ export const validationSchema = {
     updateProduct: UpdateProductSchema,
     filters: ProductFiltersSchema,
     pagination: PaginationSchema,
+    countryLayer: CountryLayerSchema,
 };
