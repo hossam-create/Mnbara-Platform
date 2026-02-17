@@ -1,32 +1,35 @@
-import passport from 'passport';
-import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { oauthConfig } from '../config/jwt.config';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, Profile } from 'passport-facebook';
+import { ConfigService } from '@nestjs/config';
 import { OAuthProfile } from '../types/auth.types';
 
-export const configureFacebookStrategy = () => {
-  passport.use(
-    new FacebookStrategy(
-      {
-        clientID: oauthConfig.facebook.clientID,
-        clientSecret: oauthConfig.facebook.clientSecret,
-        callbackURL: oauthConfig.facebook.callbackURL,
-        profileFields: ['id', 'emails', 'name', 'picture'],
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          const oauthProfile: OAuthProfile = {
-            id: profile.id,
-            email: profile.emails?.[0]?.value || '',
-            name: profile.displayName,
-            avatar: profile.photos?.[0]?.value,
-            provider: 'FACEBOOK',
-          };
-          
-          done(null, oauthProfile);
-        } catch (error) {
-          done(error as Error);
-        }
-      }
-    )
-  );
-};
+@Injectable()
+export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
+  constructor(private readonly configService: ConfigService) {
+    super({
+      clientID: configService.get<string>('FACEBOOK_CLIENT_ID') || '',
+      clientSecret: configService.get<string>('FACEBOOK_CLIENT_SECRET') || '',
+      callbackURL: configService.get<string>('FACEBOOK_CALLBACK_URL') || 'http://localhost:3001/auth/facebook/callback',
+      profileFields: ['id', 'emails', 'name', 'picture'],
+    });
+  }
+
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: Profile,
+    done: (error: any, user?: any, info?: any) => void,
+  ): Promise<any> {
+    const oauthProfile: OAuthProfile = {
+      id: profile.id,
+      email: profile.emails?.[0]?.value || '',
+      name: profile.displayName,
+      avatar: profile.photos?.[0]?.value,
+      provider: 'FACEBOOK',
+    };
+
+    done(null, oauthProfile);
+  }
+}
+

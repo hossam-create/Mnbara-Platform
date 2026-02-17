@@ -12,8 +12,8 @@ export const oauthConfig = {
     callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3014/auth/google/callback',
   },
   facebook: {
-    clientID: process.env.FACEBOOK_CLIENT_ID || '',
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
+    clientID: process.env.FACEBOOK_APP_ID || '',
+    clientSecret: process.env.FACEBOOK_APP_SECRET || '',
     callbackURL: process.env.FACEBOOK_CALLBACK_URL || 'http://localhost:3014/auth/facebook/callback',
   },
   apple: {

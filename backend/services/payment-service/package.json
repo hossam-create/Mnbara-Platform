@@ -2,11 +2,11 @@
   "name": "payment-service",
   "version": "1.0.0",
   "description": "Payment Service with Stripe Test Mode and Wallet Integration",
-  "main": "dist/app.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/app.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest",
     "clean": "rimraf dist",
     "prebuild": "npm run clean"
@@ -21,6 +21,7 @@
   "author": "Mnbara Engineering Team",
   "license": "MIT",
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
@@ -35,7 +36,8 @@
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "prisma": "^5.22.0"
   },
   "engines": {
     "node": ">=18.0.0",

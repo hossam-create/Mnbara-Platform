@@ -32,12 +32,12 @@ export const servicesConfig: ServiceConfig[] = [
   // MVP: Listing Service - Port 3001
   {
     name: 'listing-service',
-    url: getServiceUrl('LISTING_SERVICE_URL', 'http://listing-service:3001'),
+    url: getServiceUrl('PRODUCT_SERVICE_URL', 'http://product-service:3006'),
     healthPath: '/health',
     routes: [
       {
         path: '/api/products',
-        target: getServiceUrl('LISTING_SERVICE_URL', 'http://listing-service:3001'),
+        target: getServiceUrl('PRODUCT_SERVICE_URL', 'http://product-service:3006'),
         pathRewrite: { '^/api/products': '/api/products' },
         requiresAuth: false,
         rateLimit: { windowMs: 60000, maxRequests: 100 },
@@ -48,12 +48,12 @@ export const servicesConfig: ServiceConfig[] = [
   // MVP: Cart Service - Port 3002
   {
     name: 'cart-service',
-    url: getServiceUrl('CART_SERVICE_URL', 'http://cart-service:3002'),
+    url: getServiceUrl('CART_SERVICE_URL', 'http://cart-service:3014'),
     healthPath: '/health',
     routes: [
       {
         path: '/api/cart',
-        target: getServiceUrl('CART_SERVICE_URL', 'http://cart-service:3002'),
+        target: getServiceUrl('CART_SERVICE_URL', 'http://cart-service:3014'),
         pathRewrite: { '^/api/cart': '/api/cart' },
         requiresAuth: true,
         rateLimit: { windowMs: 60000, maxRequests: 100 },
@@ -214,13 +214,13 @@ export const servicesConfig: ServiceConfig[] = [
   // Plugin System Service - Port 3015
   {
     name: 'plugin-system',
-    url: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+    url: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://feature-management-service:3015'),
     healthPath: '/health',
     routes: [
       // Plugin management (requires authentication)
       {
         path: '/api/plugins',
-        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://plugin-system-service:3015'),
+        target: getServiceUrl('PLUGIN_SYSTEM_SERVICE_URL', 'http://feature-management-service:3015'),
         pathRewrite: { '^/api/plugins': '/api/plugins' },
         requiresAuth: true,
         rateLimit: { windowMs: 60000, maxRequests: 100 },
@@ -447,12 +447,12 @@ export const servicesConfig: ServiceConfig[] = [
   // Orders Service - Port 3009 (includes from-live-auction callback for eBay Live)
   {
     name: 'orders-service',
-    url: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+    url: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3004'),
     healthPath: '/health',
     routes: [
       {
         path: '/api/v1/orders',
-        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3004'),
         pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
         requiresAuth: true,
         rateLimit: { windowMs: 60000, maxRequests: 100 },
@@ -460,7 +460,7 @@ export const servicesConfig: ServiceConfig[] = [
       },
       {
         path: '/api/v1/orders/from-live-auction',
-        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3004'),
         pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
         requiresAuth: false,
         rateLimit: { windowMs: 60000, maxRequests: 50 },
@@ -468,11 +468,32 @@ export const servicesConfig: ServiceConfig[] = [
       },
       {
         path: '/api/v1/orders/guest',
-        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3009'),
+        target: getServiceUrl('ORDERS_SERVICE_URL', 'http://orders-service:3004'),
         pathRewrite: { '^/api/v1/orders': '/api/v1/orders' },
         requiresAuth: false,
         rateLimit: { windowMs: 60000, maxRequests: 30 },
         methods: ['POST'],
+      },
+    ],
+  },
+  {
+    name: 'notification-service',
+    url: getServiceUrl('NOTIFICATION_SERVICE_URL', 'http://notification-service:3008'),
+    healthPath: '/health',
+    routes: [
+      {
+        path: '/api/notifications',
+        target: getServiceUrl('NOTIFICATION_SERVICE_URL', 'http://notification-service:3008'),
+        pathRewrite: { '^/api/notifications': '/notifications' },
+        requiresAuth: true,
+        rateLimit: { windowMs: 60000, maxRequests: 200 },
+      },
+      {
+        path: '/api/webhooks',
+        target: getServiceUrl('NOTIFICATION_SERVICE_URL', 'http://notification-service:3008'),
+        pathRewrite: { '^/api/webhooks': '/webhooks' },
+        requiresAuth: false,
+        rateLimit: { windowMs: 60000, maxRequests: 50 },
       },
     ],
   },

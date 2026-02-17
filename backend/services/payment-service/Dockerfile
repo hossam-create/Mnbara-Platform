@@ -11,4 +11,5 @@ RUN npx prisma generate
 
 EXPOSE 3003
 
-CMD ["npm", "run", "dev"]
+RUN npm run build
+CMD ["node", "dist/index.js"]

@@ -8,11 +8,14 @@ import { SubscriptionGate } from './SubscriptionGate';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3016;
+const PORT = process.env.PORT || 3012;
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(compression());
 app.use(express.json());
 

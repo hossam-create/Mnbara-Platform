@@ -1,18 +1,4 @@
-import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-
-// In-memory storage for MVP
-interface Subscription {
-  id: string;
-  userId: string;
-  plan: string;
-  isActive: boolean;
-  expiresAt: Date;
-  features: string[];
-  createdAt: Date;
-}
-
-const subscriptions: Subscription[] = [];
+import prisma from './prisma';
 
 export interface SubscriptionFeature {
   featureName: string;
@@ -20,14 +6,6 @@ export interface SubscriptionFeature {
   requiredPlan: string;
   description: string;
   price?: number;
-}
-
-export interface UserSubscription {
-  userId: string;
-  plan: string;
-  isActive: boolean;
-  expiresAt: Date;
-  features: string[];
 }
 
 export class SubscriptionGate {
@@ -98,12 +76,16 @@ export class SubscriptionGate {
       };
     }
 
-    // Get user's active subscription
-    const subscription = subscriptions.find(sub => 
-      sub.userId === userId && 
-      sub.isActive && 
-      sub.expiresAt > new Date()
-    );
+    // Get user's active subscription from DB
+    const subscription = await prisma.subscription.findFirst({
+      where: {
+        userId: userId,
+        isActive: true,
+        expiresAt: {
+          gt: new Date()
+        }
+      }
+    });
 
     if (!subscription) {
       return {
@@ -139,7 +121,7 @@ export class SubscriptionGate {
    */
   private static hasPlanAccess(userPlan: string, requiredPlan: string): boolean {
     // Plan hierarchy: premium > seller-pro > seller-basic > basic > free
-    const planHierarchy = {
+    const planHierarchy: Record<string, number> = {
       'premium': 5,
       'seller-pro': 4,
       'seller-basic': 3,
@@ -163,26 +145,23 @@ export class SubscriptionGate {
   }> {
     try {
       // Deactivate existing subscriptions
-      subscriptions.forEach(sub => {
-        if (sub.userId === userId) {
-          sub.isActive = false;
-        }
+      await prisma.subscription.updateMany({
+        where: { userId: userId, isActive: true },
+        data: { isActive: false }
       });
 
       const expiresAt = new Date();
       expiresAt.setMonth(expiresAt.getMonth() + durationMonths);
 
-      const subscription: Subscription = {
-        id: 'sub-' + Math.random().toString(36).substr(2, 9),
-        userId,
-        plan,
-        isActive: true,
-        expiresAt,
-        features: this.getFeaturesForPlan(plan),
-        createdAt: new Date()
-      };
-
-      subscriptions.push(subscription);
+      const subscription = await prisma.subscription.create({
+        data: {
+          userId,
+          plan,
+          isActive: true,
+          expiresAt,
+          features: this.getFeaturesForPlan(plan)
+        }
+      });
 
       return {
         success: true,
@@ -190,6 +169,7 @@ export class SubscriptionGate {
         message: 'Subscription created successfully'
       };
     } catch (error) {
+      console.error('Create Subscription Error:', error);
       return {
         success: false,
         message: 'Failed to create subscription'
@@ -207,27 +187,24 @@ export class SubscriptionGate {
     try {
       if (action === 'activate') {
         // Deactivate existing subscriptions
-        subscriptions.forEach(sub => {
-          if (sub.userId === userId) {
-            sub.isActive = false;
-          }
+        await prisma.subscription.updateMany({
+          where: { userId: userId, isActive: true },
+          data: { isActive: false }
         });
 
         // Create new subscription
         const expiresAt = new Date();
         expiresAt.setMonth(expiresAt.getMonth() + 1); // 1 month by default
 
-        const subscription: Subscription = {
-          id: 'sub-' + Math.random().toString(36).substr(2, 9),
-          userId,
-          plan: plan || 'seller-basic',
-          isActive: true,
-          expiresAt,
-          features: this.getFeaturesForPlan(plan || 'seller-basic'),
-          createdAt: new Date()
-        };
-
-        subscriptions.push(subscription);
+        await prisma.subscription.create({
+          data: {
+            userId,
+            plan: plan || 'seller-basic',
+            isActive: true,
+            expiresAt,
+            features: this.getFeaturesForPlan(plan || 'seller-basic')
+          }
+        });
 
         return {
           success: true,
@@ -235,10 +212,9 @@ export class SubscriptionGate {
         };
       } else {
         // Deactivate subscription
-        subscriptions.forEach(sub => {
-          if (sub.userId === userId) {
-            sub.isActive = false;
-          }
+        await prisma.subscription.updateMany({
+           where: { userId: userId },
+           data: { isActive: false }
         });
 
         return {
@@ -247,6 +223,7 @@ export class SubscriptionGate {
         };
       }
     } catch (error) {
+      console.error('Admin Override Error:', error);
       return {
         success: false,
         message: 'Failed to override subscription'
@@ -280,12 +257,14 @@ export class SubscriptionGate {
   /**
    * Get user's current subscription
    */
-  static getUserSubscription(userId: string): Subscription | undefined {
-    return subscriptions.find(sub => 
-      sub.userId === userId && 
-      sub.isActive && 
-      sub.expiresAt > new Date()
-    );
+  static async getUserSubscription(userId: string): Promise<any | null> {
+    return prisma.subscription.findFirst({
+      where: {
+        userId: userId,
+        isActive: true,
+        expiresAt: { gt: new Date() }
+      }
+    });
   }
 }
 

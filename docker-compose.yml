@@ -85,134 +85,52 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-api-gateway
     ports:
-      - "8080:8080"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
-      - PORT=8080
+      - PORT=3000
       - REDIS_URL=redis://redis:6379
+      - FRONTEND_URL=http://localhost:5173
     depends_on:
       - redis
     networks:
       - mnbarh-network
 
-  # Auth Service (Java/Spring Boot) - eBay-Level Security
-  auth-service-java:
-    build:
-      context: ./backend/services/auth-service-java
-      dockerfile: Dockerfile
-    container_name: mnbarh-auth-service-java
-    ports:
-      - "3001:3001"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=3001
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=auth_db
-      - DB_USER=mnbarh
-      - DB_PASSWORD=mnbarh_dev_password
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
-      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-in-production-256-bit-key-for-security
-      - GOOGLE_CLIENT_ID=your-google-client-id
-      - GOOGLE_CLIENT_SECRET=your-google-client-secret
-      - FACEBOOK_CLIENT_ID=your-facebook-client-id
-      - FACEBOOK_CLIENT_SECRET=your-facebook-client-secret
-      - APPLE_CLIENT_ID=your-apple-client-id
-      - APPLE_CLIENT_SECRET=your-apple-client-secret
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - mnbarh-network
-    volumes:
-      - ./backend/services/auth-service-java:/app
-      - /app/target
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/auth/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  # Listing Service (Node.js + Elasticsearch) - eBay-Level Product Catalog
-  listing-service-node:
-    build:
-      context: ./backend/services/listing-service-node
-      dockerfile: Dockerfile
-    container_name: mnbarh-listing-service-node
-    ports:
-      - "3002:3002"
-    environment:
-      - NODE_ENV=docker
-      - PORT=3002
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
-      - AUTH_SERVICE_URL=http://auth-service-java:3001
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
-      - IMAGE_UPLOAD_PATH=/app/uploads
-      - MAX_FILE_SIZE=10485760
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=changeme
-    depends_on:
-      - postgres
-      - elasticsearch
-      - redis
-      - rabbitmq
-    networks:
-      - mnbarh-network
-    volumes:
-      - ./backend/services/listing-service-node:/app
-      - /app/node_modules
-      - /app/dist
-      - listing_uploads:/app/uploads
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  # Auth Service (Legacy Node.js)
   auth-service:
     build:
       context: ./backend/services/auth-service
       dockerfile: Dockerfile
     container_name: mnbarh-auth-service
+    ports:
+      - "3001:3001"
     environment:
       - NODE_ENV=development
       - PORT=3001
       - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/auth_db
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=your-super-secret-jwt-key
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
     networks:
       - mnbarh-network
 
-  # Listing Service (Legacy Node.js)
-  listing-service:
+  user-service:
     build:
-      context: ./backend/services/listing-service
+      context: ./backend/services/user-service
       dockerfile: Dockerfile
-    container_name: mnbarh-listing-service
+    container_name: mnbarh-user-service
+    ports:
+      - "3002:3002"
     environment:
       - NODE_ENV=development
       - PORT=3002
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/user_db
       - REDIS_URL=redis://redis:6379
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
-      - elasticsearch
     networks:
       - mnbarh-network
 
@@ -222,23 +140,58 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-payment-service
     ports:
-      - "3008:3008"
+      - "3003:3003"
     environment:
       - NODE_ENV=development
-      - PORT=3008
-      - CORS_ORIGIN=http://localhost:3000
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key}
-      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret}
+      - PORT=3003
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/payment_db
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
     networks:
       - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  product-service:
+    build:
+      context: ./backend/services/product-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-product-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  wallet-service:
+    build:
+      context: ./backend/services/wallet-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-wallet-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/wallet_db
+      - REDIS_URL=redis://redis:6379
+      - OPENEXCHANGERATES_API_KEY=${OPENEXCHANGERATES_API_KEY:-your-api-key}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
 
   orders-service:
     build:
@@ -246,57 +199,52 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-orders-service
     ports:
-      - "3003:3003"
+      - "3006:3006"
     environment:
       - NODE_ENV=development
-      - PORT=3003
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/orders_db?schema=public
-      - CORS_ORIGIN=http://localhost:3000
-      - AUTH_SERVICE_URL=http://auth-service-java:3001
-      - PAYMENT_SERVICE_URL=http://payment-service:3002
-      - LISTING_SERVICE_URL=http://listing-service-node:3002
+      - PORT=3006
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/orders_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
-      - auth-service-java
-      - payment-service
-      - listing-service-node
     networks:
       - mnbarh-network
 
-  card-service:
+  escrow-service:
     build:
-      context: ./backend/services/card-service
+      context: ./backend/services/escrow-service
       dockerfile: Dockerfile
-    container_name: mnbarh-card-service
+    container_name: mnbarh-escrow-service
     ports:
-      - "3020:3020"
+      - "3007:3007"
     environment:
       - NODE_ENV=development
-      - PORT=3020
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/card_db?schema=public
-    networks:
-      - mnbarh-network
+      - PORT=3007
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/escrow_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
-      - wallet-service
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - redis
+    networks:
+      - mnbarh-network
 
-  auction-service:
+  settlement-service:
     build:
-      context: ./backend/services/auction-service
+      context: ./backend/services/settlement-service
       dockerfile: Dockerfile
-    container_name: mnbarh-auction-service
+    container_name: mnbarh-settlement-service
+    ports:
+      - "3008:3008"
     environment:
       - NODE_ENV=development
-      - PORT=3005
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/auction_db
+      - PORT=3008
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/settlement_db
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
@@ -304,17 +252,41 @@ services:
     networks:
       - mnbarh-network
 
-  crowdship-service:
+  trips-service:
     build:
-      context: ./backend/services/crowdship-service
+      context: ./backend/services/trips-service
       dockerfile: Dockerfile
-    container_name: mnbarh-crowdship-service
+    container_name: mnbarh-trips-service
+    ports:
+      - "3009:3009"
     environment:
       - NODE_ENV=development
-      - PORT=3006
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/crowdship_db
+      - PORT=3009
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/trips_db
       - REDIS_URL=redis://redis:6379
       - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    networks:
+      - mnbarh-network
+
+  matching-service:
+    build:
+      context: ./backend/services/matching-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-matching-service
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/matching_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
@@ -328,26 +300,115 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-notification-service
     ports:
-      - "3004:3004"
-      - "8080:8080"
+      - "3011:3011"
     environment:
       - NODE_ENV=development
-      - PORT=3004
-      - CORS_ORIGIN=http://localhost:3000
-      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
-      - SMTP_PORT=${SMTP_PORT:-587}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - PORT=3011
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/notification_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
     depends_on:
       - postgres
       - redis
     networks:
       - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  subscription-service:
+    build:
+      context: ./backend/services/subscription-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-subscription-service
+    ports:
+      - "3012:3012"
+    environment:
+      - NODE_ENV=development
+      - PORT=3012
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh?schema=subscription
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  cart-service:
+    build:
+      context: ./backend/services/cart-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-cart-service
+    ports:
+      - "3013:3013"
+    environment:
+      - NODE_ENV=development
+      - PORT=3013
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh?schema=cart
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  feature-management-service:
+    build:
+      context: ./backend/services/feature-management-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-feature-management-service
+    ports:
+      - "3014:3014"
+    environment:
+      - NODE_ENV=development
+      - PORT=3014
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh?schema=features
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  admin-service:
+    build:
+      context: ./backend/services/admin-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-admin-service
+    ports:
+      - "3015:3015"
+    environment:
+      - NODE_ENV=development
+      - PORT=3015
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh?schema=admin
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  country-layer-service:
+    build:
+      context: ./backend/services/country-layer-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-country-layer-service
+    ports:
+      - "3016:3016"
+    environment:
+      - NODE_ENV=development
+      - PORT=3016
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh?schema=country
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - mnbarh-network
+
+  # card-service removed (missing code)
 
   # ===================
   # SPECIALIZED SERVICES
@@ -360,10 +421,10 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-p2p-exchange-service
     ports:
-      - "3005:3005"
+      - "3028:3028"
     environment:
       - NODE_ENV=development
-      - PORT=3005
+      - PORT=3028
       - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/p2p_exchange_db
       - REDIS_URL=redis://redis:6379
       - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
@@ -388,47 +449,14 @@ services:
     volumes:
       - p2p_uploads:/app/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3028/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
-  matching-service:
-    build:
-      context: ./backend/services/matching-service
-      dockerfile: Dockerfile
-    container_name: mnbarh-matching-service
-    environment:
-      - NODE_ENV=development
-      - PORT=3010
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/matching_db
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    networks:
-      - mnbarh-network
-
-  trips-service:
-    build:
-      context: ./backend/services/trips-service
-      dockerfile: Dockerfile
-    container_name: mnbarh-trips-service
-    environment:
-      - NODE_ENV=development
-      - PORT=3011
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/trips_db
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    networks:
-      - mnbarh-network
+  # matching-service moved to Core Services
+  # trips-service moved to Core Services
 
   recommendation-service:
     build:
@@ -487,7 +515,7 @@ services:
     container_name: mnbarh-ai-core
     environment:
       - ENVIRONMENT=development
-      - PORT=3007
+      - PORT=3027
       - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/ai_db
       - REDIS_URL=redis://redis:6379
     depends_on:
@@ -503,10 +531,10 @@ services:
       dockerfile: Dockerfile
     container_name: mnbarh-compliance-service
     ports:
-      - "3015:3015"
+      - "3026:3026"
     environment:
       - NODE_ENV=development
-      - PORT=3015
+      - PORT=3026
       - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/compliance_db
       - REDIS_URL=redis://redis:6379
     depends_on:
@@ -515,36 +543,13 @@ services:
     networks:
       - mnbarh-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3015/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3026/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   # Settlement Service - P2P Transfers & Local Settlement Matching
-  settlement-service:
-    build:
-      context: ./backend/services/settlement-service
-      dockerfile: Dockerfile
-    container_name: mnbarh-settlement-service
-    ports:
-      - "3016:3016"
-    environment:
-      - NODE_ENV=development
-      - PORT=3016
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/settlement_db
-      - REDIS_URL=redis://redis:6379
-      - RABBITMQ_URL=amqp://mnbarh:mnbarh_dev_password@rabbitmq:5672
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    networks:
-      - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3016/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # settlement-service moved to Core Services
 
   # UI Config Service - Dynamic UI Management
   ui-config-service:
@@ -643,55 +648,10 @@ services:
       retries: 3
 
   # Multi-Currency Wallet Service
-  wallet-service:
-    build:
-      context: ./backend/services/wallet-service
-      dockerfile: Dockerfile
-    container_name: mnbarh-wallet-service
-    ports:
-      - "3019:3019"
-    environment:
-      - NODE_ENV=development
-      - PORT=3019
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/wallet_db
-      - REDIS_URL=redis://redis:6379
-      - OPENEXCHANGERATES_API_KEY=${OPENEXCHANGERATES_API_KEY:-your-api-key}
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3019/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # wallet-service moved to Core Services
 
   # Escrow Service - Secure Payment Protection
-  escrow-service:
-    build:
-      context: ./backend/services/escrow-service
-      dockerfile: Dockerfile
-    container_name: mnbarh-escrow-service
-    ports:
-      - "3022:3022"
-    environment:
-      - NODE_ENV=development
-      - PORT=3022
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/escrow_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3022/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # escrow-service moved to Core Services
 
   # Decision Authority Service - External Decision Authority Integration
   decision-authority-service:

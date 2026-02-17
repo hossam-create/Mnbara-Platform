@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import * as speakeasy from 'speakeasy';
 import * as QRCode from 'qrcode';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();

@@ -1,91 +1,53 @@
-// ============================================================
-// PHASE 4.1 — Transfer DTOs
-// ============================================================
+import { IsString, IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Currency } from '@prisma/client';
 
-import { LedgerReason, ReferenceType } from '../types';
+export class CreateTransferDto {
+  @ApiProperty({
+    example: 'user-123',
+    description: 'Sender user ID',
+  })
+  @IsString()
+  fromUserId: string;
 
-/**
- * Internal transfer request
- */
-export interface TransferFundsDto {
-  fromWalletId: string;
-  toWalletId: string;
-  amount: number;            // Major units (e.g., 10.50)
-  reason: LedgerReason;
-  referenceType: ReferenceType;
-  referenceId?: string;
-  description?: string;
-  requestId?: string;        // Idempotency key
+  @ApiProperty({
+    example: 'user-456',
+    description: 'Receiver user ID',
+  })
+  @IsString()
+  toUserId: string;
+
+  @ApiProperty({
+    example: 'USD',
+    description: 'Source currency',
+    enum: ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'CNY', 'INR', 'TRY'],
+  })
+  @IsEnum(['USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'CNY', 'INR', 'TRY'])
+  fromCurrency: Currency;
+
+  @ApiProperty({
+    example: 'EGP',
+    description: 'Target currency',
+    enum: ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'CNY', 'INR', 'TRY'],
+  })
+  @IsEnum(['USD', 'EUR', 'GBP', 'SAR', 'AED', 'EGP', 'JPY', 'CNY', 'INR', 'TRY'])
+  toCurrency: Currency;
+
+  @ApiProperty({
+    example: 100.50,
+    description: 'Amount to transfer',
+    minimum: 0.01,
+  })
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @ApiProperty({
+    example: 'Payment for services',
+    description: 'Optional note for the transfer',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  note?: string;
 }
-
-/**
- * Transfer response
- */
-export interface TransferResponseDto {
-  success: boolean;
-  data: {
-    transferId: string;
-    fromEntry: {
-      entryId: string;
-      walletId: string;
-      balanceBefore: string;
-      balanceBeforeFormatted: string;
-      balanceAfter: string;
-      balanceAfterFormatted: string;
-    };
-    toEntry: {
-      entryId: string;
-      walletId: string;
-      balanceBefore: string;
-      balanceBeforeFormatted: string;
-      balanceAfter: string;
-      balanceAfterFormatted: string;
-    };
-    amount: string;
-    amountFormatted: string;
-    currency: string;
-    reason: LedgerReason;
-    referenceType: ReferenceType;
-    referenceId: string | null;
-    idempotencyKey: string;
-    createdAt: string;
-    isIdempotent: boolean;
-  };
-  message: string;
-  messageAr: string;
-}
-
-/**
- * Validation for transfer DTOs
- */
-export const TransferValidation = {
-  validateTransferRequest(dto: TransferFundsDto): string[] {
-    const errors: string[] = [];
-
-    if (!dto.fromWalletId || dto.fromWalletId.trim().length === 0) {
-      errors.push('fromWalletId is required');
-    }
-
-    if (!dto.toWalletId || dto.toWalletId.trim().length === 0) {
-      errors.push('toWalletId is required');
-    }
-
-    if (dto.fromWalletId && dto.toWalletId && dto.fromWalletId === dto.toWalletId) {
-      errors.push('Cannot transfer to the same wallet');
-    }
-
-    if (typeof dto.amount !== 'number' || dto.amount <= 0) {
-      errors.push('amount must be a positive number');
-    }
-
-    if (!dto.reason || !Object.values(LedgerReason).includes(dto.reason)) {
-      errors.push(`reason must be one of: ${Object.values(LedgerReason).join(', ')}`);
-    }
-
-    if (!dto.referenceType || !Object.values(ReferenceType).includes(dto.referenceType)) {
-      errors.push(`referenceType must be one of: ${Object.values(ReferenceType).join(', ')}`);
-    }
-
-    return errors;
-  },
-};

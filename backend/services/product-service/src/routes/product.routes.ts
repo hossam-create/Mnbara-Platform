@@ -5,6 +5,7 @@
 import { Router, Request, Response } from 'express';
 import { productService } from '../services/product.service';
 import { asyncHandler, AppError } from '../middleware/errorHandler';
+import { authenticate } from '../middleware/auth';
 import { z } from 'zod';
 
 const router = Router();
@@ -138,15 +139,19 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // POST /products - Create product
-router.post('/', asyncHandler(async (req: Request, res: Response) => {
+router.post('/', authenticate, asyncHandler(async (req: Request, res: Response) => {
     const validationResult = createProductSchema.safeParse(req);
     
     if (!validationResult.success) {
         throw new AppError('Invalid input: ' + validationResult.error.message, 400);
     }
 
-    // Get seller ID from auth header (in production, use proper auth)
-    const sellerId = req.headers['x-seller-id'] as string || 'test-seller-id';
+    // Get seller ID from authenticated user
+    const sellerId = (req as any).user?.userId || req.headers['x-seller-id'] as string;
+    
+    if (!sellerId) {
+        throw new AppError('Authentication required', 401);
+    }
 
     const data = validationResult.data.body;
     
@@ -164,7 +169,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // PUT /products/:id - Update product
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.put('/:id', authenticate, asyncHandler(async (req: Request, res: Response) => {
     const validationResult = updateProductSchema.safeParse(req);
     
     if (!validationResult.success) {
@@ -172,7 +177,11 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
-    const sellerId = req.headers['x-seller-id'] as string || 'test-seller-id';
+    const sellerId = (req as any).user?.userId || req.headers['x-seller-id'] as string;
+    
+    if (!sellerId) {
+        throw new AppError('Authentication required', 401);
+    }
     const data = validationResult.data.body;
 
     if (data.auctionEndsAt) {
@@ -188,9 +197,13 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // DELETE /products/:id - Delete product (soft delete)
-router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.delete('/:id', authenticate, asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const sellerId = req.headers['x-seller-id'] as string || 'test-seller-id';
+    const sellerId = (req as any).user?.userId || req.headers['x-seller-id'] as string;
+
+    if (!sellerId) {
+        throw new AppError('Authentication required', 401);
+    }
 
     await productService.deleteProduct(id, sellerId);
 
@@ -201,9 +214,13 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 // POST /products/:id/publish - Publish product
-router.post('/:id/publish', asyncHandler(async (req: Request, res: Response) => {
+router.post('/:id/publish', authenticate, asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const sellerId = req.headers['x-seller-id'] as string || 'test-seller-id';
+    const sellerId = (req as any).user?.userId || req.headers['x-seller-id'] as string;
+
+    if (!sellerId) {
+        throw new AppError('Authentication required', 401);
+    }
 
     const product = await productService.publishProduct(id, sellerId);
 

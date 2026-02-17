@@ -1,7 +1,7 @@
 import { PhoneVerificationService } from './phone-verification.service';
 import { PrismaClient } from '@prisma/client';
 import { SmsService } from './sms.service';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 // Mock Prisma
 jest.mock('@prisma/client', () => {

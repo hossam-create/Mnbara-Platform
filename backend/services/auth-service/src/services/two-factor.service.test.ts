@@ -1,7 +1,7 @@
 import { TwoFactorService } from './two-factor.service';
 import { PrismaClient } from '@prisma/client';
 import * as speakeasy from 'speakeasy';
-import * as bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
 // Mock Prisma
 jest.mock('@prisma/client', () => {

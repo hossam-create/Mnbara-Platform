@@ -12,12 +12,18 @@ pnpm-lock.yaml
 # ========================================
 # Environment Variables (CRITICAL)
 # ========================================
+# Catch ALL .env files at any depth
 .env
-.env.local
-.env.*.local
-.env.production
-.env.development
-.env.test
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.production
+**/.env.development
+**/.env.staging
+**/.env.test
+
+# But KEEP .env.example files (safe templates)
+!**/.env.example
 
 # ========================================
 # Build Outputs
@@ -199,9 +205,6 @@ authorized_keys
 kubeconfig
 .docker/config.json
 docker-compose.override.yml
-.env.*.local
-.env.*.production
-.env.*.staging
 
 # ========================================
 # Extracted Resources (VERY IMPORTANT!)

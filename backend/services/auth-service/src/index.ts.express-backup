@@ -16,14 +16,14 @@ import { sessionService } from './services/session.service';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3014;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:5173', 'http://localhost:3000'],
   credentials: true,
 }));
 

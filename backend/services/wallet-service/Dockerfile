@@ -20,14 +20,14 @@ RUN npm run build
 
 # Environment
 ENV NODE_ENV=production
-ENV PORT=3019
+ENV PORT=3005
 
 # Expose port
-EXPOSE 3019
+EXPOSE 3005
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3019/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3005/health || exit 1
 
 # Start service
 CMD ["node", "dist/index.js"]

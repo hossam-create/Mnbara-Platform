@@ -25,7 +25,7 @@ import { servicesConfig, getAllRoutes, defaultRateLimit } from './config/routes.
 import { getGatewayHealth, startHealthChecks } from './services/health-check.service';
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
 // Trust proxy (for correct IP detection behind load balancer)
 app.set('trust proxy', true);

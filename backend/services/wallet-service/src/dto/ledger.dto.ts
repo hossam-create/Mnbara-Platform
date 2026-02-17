@@ -1,131 +1,152 @@
-// ============================================================
-// PHASE 4.1 — Ledger DTOs
-// ============================================================
+import { IsString, IsNumber, IsEnum, IsOptional, Min } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-import { LedgerReason, ReferenceType, EntryType } from '../types';
-
-/**
- * Credit wallet request
- */
-export interface CreditWalletDto {
+export class CreditWalletDto {
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Wallet ID (UUID)',
+  })
+  @IsString()
   walletId: string;
-  amount: number;            // Major units (e.g., 10.50)
-  reason: LedgerReason;
-  referenceType: ReferenceType;
+
+  @ApiProperty({
+    example: 100.50,
+    description: 'Amount to credit (in major units, e.g., dollars, not cents)',
+    minimum: 0.01,
+  })
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @ApiProperty({
+    example: 'PAYMENT_RECEIVED',
+    description: 'Reason for credit',
+    enum: [
+      'PAYMENT_RECEIVED',
+      'REFUND',
+      'ESCROW_RELEASE',
+      'ADMIN_ADJUSTMENT',
+      'BONUS',
+      'OTHER',
+    ],
+  })
+  @IsEnum([
+    'PAYMENT_RECEIVED',
+    'REFUND',
+    'ESCROW_RELEASE',
+    'ADMIN_ADJUSTMENT',
+    'BONUS',
+    'OTHER',
+  ])
+  reason: string;
+
+  @ApiProperty({
+    example: 'payment',
+    description: 'Reference type',
+    enum: ['payment', 'order', 'escrow', 'transfer', 'adjustment', 'other'],
+  })
+  @IsEnum(['payment', 'order', 'escrow', 'transfer', 'adjustment', 'other'])
+  referenceType: string;
+
+  @ApiProperty({
+    example: 'payment-123',
+    description: 'Reference ID (e.g., payment ID, order ID)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
   referenceId?: string;
+
+  @ApiProperty({
+    example: 'Payment received for order #123',
+    description: 'Human-readable description',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
   description?: string;
-  requestId?: string;        // Idempotency key (optional, auto-generated if missing)
+
+  @ApiProperty({
+    example: 'req-123-456',
+    description: 'Idempotency key (optional, auto-generated if not provided)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  requestId?: string;
 }
 
-/**
- * Debit wallet request
- */
-export interface DebitWalletDto {
+export class DebitWalletDto {
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Wallet ID (UUID)',
+  })
+  @IsString()
   walletId: string;
-  amount: number;            // Major units (e.g., 10.50)
-  reason: LedgerReason;
-  referenceType: ReferenceType;
+
+  @ApiProperty({
+    example: 50.25,
+    description: 'Amount to debit (in major units, e.g., dollars, not cents)',
+    minimum: 0.01,
+  })
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @ApiProperty({
+    example: 'PURCHASE',
+    description: 'Reason for debit',
+    enum: [
+      'PURCHASE',
+      'WITHDRAWAL',
+      'ESCROW_LOCK',
+      'FEE',
+      'ADMIN_ADJUSTMENT',
+      'OTHER',
+    ],
+  })
+  @IsEnum([
+    'PURCHASE',
+    'WITHDRAWAL',
+    'ESCROW_LOCK',
+    'FEE',
+    'ADMIN_ADJUSTMENT',
+    'OTHER',
+  ])
+  reason: string;
+
+  @ApiProperty({
+    example: 'order',
+    description: 'Reference type',
+    enum: ['payment', 'order', 'escrow', 'transfer', 'adjustment', 'other'],
+  })
+  @IsEnum(['payment', 'order', 'escrow', 'transfer', 'adjustment', 'other'])
+  referenceType: string;
+
+  @ApiProperty({
+    example: 'order-456',
+    description: 'Reference ID (e.g., order ID, withdrawal ID)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
   referenceId?: string;
+
+  @ApiProperty({
+    example: 'Payment for order #456',
+    description: 'Human-readable description',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
   description?: string;
-  requestId?: string;        // Idempotency key (optional, auto-generated if missing)
+
+  @ApiProperty({
+    example: 'req-789-012',
+    description: 'Idempotency key (optional, auto-generated if not provided)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  requestId?: string;
 }
-
-/**
- * Ledger write response
- */
-export interface LedgerWriteResponseDto {
-  success: boolean;
-  data: {
-    entryId: string;
-    walletId: string;
-    entryType: EntryType;
-    amount: string;
-    amountFormatted: string;
-    reason: LedgerReason;
-    balanceBefore: string;
-    balanceBeforeFormatted: string;
-    balanceAfter: string;
-    balanceAfterFormatted: string;
-    idempotencyKey: string;
-    createdAt: string;
-    isIdempotent: boolean;
-  };
-  message: string;
-  messageAr: string;
-}
-
-/**
- * Validation for ledger DTOs
- */
-export const LedgerValidation = {
-  validateCreditRequest(dto: CreditWalletDto): string[] {
-    const errors: string[] = [];
-
-    if (!dto.walletId || dto.walletId.trim().length === 0) {
-      errors.push('walletId is required');
-    }
-
-    if (typeof dto.amount !== 'number' || dto.amount <= 0) {
-      errors.push('amount must be a positive number');
-    }
-
-    if (!dto.reason || !Object.values(LedgerReason).includes(dto.reason)) {
-      errors.push(`reason must be one of: ${Object.values(LedgerReason).join(', ')}`);
-    }
-
-    if (!dto.referenceType || !Object.values(ReferenceType).includes(dto.referenceType)) {
-      errors.push(`referenceType must be one of: ${Object.values(ReferenceType).join(', ')}`);
-    }
-
-    // Validate reason matches credit operation
-    const validCreditReasons: LedgerReason[] = [
-      LedgerReason.DEPOSIT,
-      LedgerReason.REFUND,
-      LedgerReason.PAYOUT,
-      LedgerReason.TRANSFER_IN,
-      LedgerReason.PURCHASE_RELEASE,
-      LedgerReason.ADJUSTMENT,
-    ];
-
-    if (dto.reason && !validCreditReasons.includes(dto.reason)) {
-      errors.push(`reason '${dto.reason}' is not valid for credit operation`);
-    }
-
-    return errors;
-  },
-
-  validateDebitRequest(dto: DebitWalletDto): string[] {
-    const errors: string[] = [];
-
-    if (!dto.walletId || dto.walletId.trim().length === 0) {
-      errors.push('walletId is required');
-    }
-
-    if (typeof dto.amount !== 'number' || dto.amount <= 0) {
-      errors.push('amount must be a positive number');
-    }
-
-    if (!dto.reason || !Object.values(LedgerReason).includes(dto.reason)) {
-      errors.push(`reason must be one of: ${Object.values(LedgerReason).join(', ')}`);
-    }
-
-    if (!dto.referenceType || !Object.values(ReferenceType).includes(dto.referenceType)) {
-      errors.push(`referenceType must be one of: ${Object.values(ReferenceType).join(', ')}`);
-    }
-
-    // Validate reason matches debit operation
-    const validDebitReasons: LedgerReason[] = [
-      LedgerReason.WITHDRAWAL,
-      LedgerReason.PURCHASE_HOLD,
-      LedgerReason.FEE,
-      LedgerReason.TRANSFER_OUT,
-      LedgerReason.ADJUSTMENT,
-    ];
-
-    if (dto.reason && !validDebitReasons.includes(dto.reason)) {
-      errors.push(`reason '${dto.reason}' is not valid for debit operation`);
-    }
-
-    return errors;
-  },
-};

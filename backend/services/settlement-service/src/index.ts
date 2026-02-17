@@ -10,7 +10,7 @@ import { MatchingEngine } from './services/matching-engine.service';
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3016;
+const PORT = process.env.PORT || 3008;
 
 // Initialize matching engine
 const matchingEngine = new MatchingEngine();

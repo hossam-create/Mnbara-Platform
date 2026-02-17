@@ -20,7 +20,7 @@ dotenv.config();
 
 const app: Application = express();
 const httpServer = createServer(app);
-const PORT = process.env.PORT || 3013;
+const PORT = process.env.PORT || 3008;
 const prisma = new PrismaClient();
 
 // Middleware

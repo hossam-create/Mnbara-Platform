@@ -1,35 +1,35 @@
-import passport from 'passport';
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { jwtConfig } from '../config/jwt.config';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy, ExtractJwt } from 'passport-jwt';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
 import { JWTPayload } from '../types/auth.types';
 
-export const configureJwtStrategy = () => {
-  const authService = new AuthService();
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'your-super-secret-jwt-key-change-in-production',
+    });
+  }
 
-  passport.use(
-    new JwtStrategy(
-      {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: jwtConfig.accessTokenSecret,
-      },
-      async (payload: JWTPayload, done) => {
-        try {
-          const user = await authService.getUserById(payload.userId);
-          
-          if (!user) {
-            return done(null, false);
-          }
-          
-          if (user.status !== 'ACTIVE') {
-            return done(null, false);
-          }
-          
-          done(null, user);
-        } catch (error) {
-          done(error, false);
-        }
-      }
-    )
-  );
-};
+  async validate(payload: JWTPayload) {
+    const user = await this.authService.getUserById(payload.userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('User account is not active');
+    }
+
+    return user;
+  }
+}
+
