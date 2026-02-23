@@ -89,7 +89,7 @@ model Product {
   @@index([condition])
   @@index([auctionEndsAt])
   @@index([moderationStatus])
-  @@index([city, country])
+  @@index([city, deliveryCountry])
 }
 
 model ProductImage {

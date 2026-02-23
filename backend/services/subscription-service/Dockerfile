@@ -4,8 +4,8 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-# Use npm ci if package-lock exists, otherwise install
-RUN if [ -f package-lock.json ]; then npm ci --only=production; else npm install --only=production; fi
+# Use npm install if package-lock exists, otherwise install
+RUN if [ -f package-lock.json ]; then npm install --only=production; else npm install --only=production; fi
 
 # Copy source code
 COPY . .
@@ -25,4 +25,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -q --spider http://localhost:3012/health || exit 1
 
 # Start application
-CMD ["node", "dist/app.js"]
+CMD ["node", "dist/main.js"]

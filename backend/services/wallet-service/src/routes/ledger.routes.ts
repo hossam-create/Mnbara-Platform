@@ -14,11 +14,23 @@ const router = Router();
 // ============================================================
 
 const authGuard = (req: any, res: any, next: any) => {
-  // TODO: Implement actual authentication
+  // Extract user from headers (set by API gateway after JWT verification)
+  const userId = req.headers['x-user-id'];
+  const userRole = req.headers['x-user-role'];
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      error: 'Authentication required',
+      message: 'Missing user authentication headers'
+    });
+  }
+
   req.user = {
-    id: req.headers['x-user-id'] || 'system',
-    role: req.headers['x-user-role'] || 'user',
+    id: userId,
+    role: userRole || 'user',
   };
+
   next();
 };
 

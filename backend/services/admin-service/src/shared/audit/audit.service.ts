@@ -1,4 +1,8 @@
-import { PrismaClient, AuditAction, AuditSeverity, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+
+type AuditAction = string;
+type AuditSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' | string;
+type UserRole = string;
 
 export interface AuditLogData {
   action: AuditAction;
@@ -24,6 +28,10 @@ export interface AuditLogData {
 export class AuditService {
   private static prisma: PrismaClient;
 
+  private static get auditLog(): any {
+    return (this.prisma as any).auditLog;
+  }
+
   static initialize(prisma: PrismaClient) {
     this.prisma = prisma;
   }
@@ -34,7 +42,7 @@ export class AuditService {
     }
 
     try {
-      await this.prisma.auditLog.create({
+      await this.auditLog.create({
         data: {
           action: data.action,
           description: data.description,
@@ -45,7 +53,7 @@ export class AuditService {
           targetId: data.targetId,
           targetType: data.targetType,
           targetEmail: data.targetEmail,
-          severity: data.severity || AuditSeverity.INFO,
+          severity: data.severity || 'INFO',
           metadata: data.metadata || {},
           userAgent: data.userAgent,
           requestId: data.requestId,
@@ -108,7 +116,7 @@ export class AuditService {
     const skip = (page - 1) * limit;
     
     const [events, total] = await Promise.all([
-      this.prisma.auditLog.findMany({
+      this.auditLog.findMany({
         where,
         orderBy: { timestamp: 'desc' },
         skip,
@@ -119,7 +127,7 @@ export class AuditService {
           }
         }
       }),
-      this.prisma.auditLog.count({ where })
+      this.auditLog.count({ where })
     ]);
 
     return {
@@ -134,11 +142,11 @@ export class AuditService {
   // Helper methods for common audit actions
   static async logUserLogin(userId: number, userEmail: string, success: boolean, errorMessage?: string, ip?: string, userAgent?: string) {
     await this.log({
-      action: AuditAction.USER_LOGIN,
+      action: 'USER_LOGIN',
       description: success ? 'User logged in successfully' : 'User login failed',
       actorId: userId,
       actorEmail: userEmail,
-      severity: success ? AuditSeverity.INFO : AuditSeverity.WARNING,
+      severity: success ? 'INFO' : 'WARNING',
       actorIp: ip,
       userAgent,
       success,
@@ -148,13 +156,13 @@ export class AuditService {
 
   static async logKycSubmission(userId: number, userEmail: string, status: string, ip?: string) {
     await this.log({
-      action: AuditAction.KYC_SUBMISSION,
+      action: 'KYC_SUBMISSION',
       description: `KYC submission ${status.toLowerCase()}`,
       actorId: userId,
       actorEmail: userEmail,
       targetId: userId,
       targetType: 'user',
-      severity: status === 'APPROVED' ? AuditSeverity.INFO : AuditSeverity.WARNING,
+      severity: status === 'APPROVED' ? 'INFO' : 'WARNING',
       actorIp: ip,
       metadata: { status },
       success: status === 'APPROVED',
@@ -163,13 +171,13 @@ export class AuditService {
 
   static async logTripCreation(tripId: number, userId: number, userEmail: string, ip?: string) {
     await this.log({
-      action: AuditAction.TRIP_CREATED,
+      action: 'TRIP_CREATED',
       description: 'User created a new trip',
       actorId: userId,
       actorEmail: userEmail,
       targetId: tripId,
       targetType: 'trip',
-      severity: AuditSeverity.INFO,
+      severity: 'INFO',
       actorIp: ip,
       success: true,
     });

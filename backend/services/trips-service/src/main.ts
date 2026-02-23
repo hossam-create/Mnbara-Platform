@@ -14,7 +14,12 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',') 
+      : ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Mnbara Trips API')

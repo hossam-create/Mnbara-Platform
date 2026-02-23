@@ -74,6 +74,57 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - mnbarh-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: mnbarh-kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: BROKER://kafka:9092,HOST://localhost:9092
+      KAFKA_LISTENERS: BROKER://0.0.0.0:9092,HOST://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: BROKER:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: BROKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - mnbarh-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: mnbarh-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - mnbarh-network
+    healthcheck:
+      test: ["CMD-SHELL", "echo stat | nc localhost 2181 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # ===================
   # CORE SERVICES
@@ -416,8 +467,9 @@ services:
 
   # P2P Exchange Service - Currency Exchange Marketplace
   p2p-exchange-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/p2p-exchange-service
+      context: ./archive/legacy-services/p2p-exchange-service
       dockerfile: Dockerfile
     container_name: mnbarh-p2p-exchange-service
     ports:
@@ -459,8 +511,9 @@ services:
   # trips-service moved to Core Services
 
   recommendation-service:
+    profiles: ["phase-3"]
     build:
-      context: ./backend/services/recommendation-service
+      context: ./archive/legacy-services/recommendation-service
       dockerfile: Dockerfile
     container_name: mnbarh-recommendation-service
     environment:
@@ -493,8 +546,9 @@ services:
       - mnbarh-network
 
   signal-aggregation-service:
+    profiles: ["phase-3"]
     build:
-      context: ./backend/services/signal-aggregation-service
+      context: ./archive/legacy-services/signal-aggregation-service
       dockerfile: Dockerfile
     container_name: mnbarh-signal-aggregation-service
     environment:
@@ -509,8 +563,9 @@ services:
       - mnbarh-network
 
   ai-core:
+    profiles: ["phase-3"]
     build:
-      context: ./backend/services/ai-core
+      context: ./archive/legacy-services/ai-core
       dockerfile: Dockerfile
     container_name: mnbarh-ai-core
     environment:
@@ -526,15 +581,16 @@ services:
 
   # Compliance Service - Customs Warnings & Prohibited Items
   compliance-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/compliance-service
+      context: ./archive/legacy-services/compliance-service
       dockerfile: Dockerfile
     container_name: mnbarh-compliance-service
     ports:
-      - "3026:3026"
+      - "3027:3027"
     environment:
       - NODE_ENV=development
-      - PORT=3026
+      - PORT=3027
       - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/compliance_db
       - REDIS_URL=redis://redis:6379
     depends_on:
@@ -543,7 +599,7 @@ services:
     networks:
       - mnbarh-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3026/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3027/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -553,8 +609,9 @@ services:
 
   # UI Config Service - Dynamic UI Management
   ui-config-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/ui-config-service
+      context: ./archive/legacy-services/ui-config-service
       dockerfile: Dockerfile
     container_name: mnbarh-ui-config-service
     ports:
@@ -577,6 +634,7 @@ services:
 
   # UI Config Dashboard - Vue.js Admin Panel
   ui-config-dashboard:
+    profiles: ["phase-2"]
     build:
       context: ./frontend/ui-config-dashboard
       dockerfile: Dockerfile
@@ -596,8 +654,9 @@ services:
 
   # BNPL Service - Buy Now Pay Later
   bnpl-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/bnpl-service
+      context: ./archive/legacy-services/bnpl-service
       dockerfile: Dockerfile
     container_name: mnbarh-bnpl-service
     ports:
@@ -622,8 +681,9 @@ services:
 
   # Crypto Service - Bitcoin, Ethereum, USDC, USDT
   crypto-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/crypto-service
+      context: ./archive/legacy-services/crypto-service
       dockerfile: Dockerfile
     container_name: mnbarh-crypto-service
     ports:
@@ -655,12 +715,13 @@ services:
 
   # Decision Authority Service - External Decision Authority Integration
   decision-authority-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/decision-authority-service
+      context: ./archive/legacy-services/decision-authority-service
       dockerfile: Dockerfile
     container_name: mnbarh-decision-authority-service
     ports:
-      - "3010:3010"
+      - "3030:3010"
     environment:
       - NODE_ENV=development
       - PORT=3010
@@ -688,8 +749,9 @@ services:
 
   # PayPal Service - PayPal Payment Integration
   paypal-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/paypal-service
+      context: ./archive/legacy-services/paypal-service
       dockerfile: Dockerfile
     container_name: mnbarh-paypal-service
     ports:
@@ -716,8 +778,9 @@ services:
 
   # AI Assistant Service - Gen 10 AI (Chat, Recommendations, Fraud Detection, Forecasting, Price Optimization)
   ai-assistant-service:
+    profiles: ["phase-3"]
     build:
-      context: ./backend/services/ai-assistant-service
+      context: ./archive/legacy-services/ai-assistant-service
       dockerfile: Dockerfile
     container_name: mnbarh-ai-assistant-service
     ports:
@@ -743,8 +806,9 @@ services:
 
   # mnbarh AI Engine - Custom AI like Siri (Open Source Models)
   mnbarh-ai-engine:
+    profiles: ["phase-3"]
     build:
-      context: ./backend/services/mnbarh-ai-engine
+      context: ./archive/legacy-services/mnbarh-ai-engine
       dockerfile: Dockerfile
     container_name: mnbarh-ai-engine
     ports:
@@ -771,8 +835,9 @@ services:
 
   # Wholesale Service - B2B Marketplace (Q2 2026)
   wholesale-service:
+    profiles: ["phase-4"]
     build:
-      context: ./backend/services/wholesale-service
+      context: ./archive/legacy-services/wholesale-service
       dockerfile: Dockerfile
     container_name: wholesale-service
     ports:
@@ -798,12 +863,13 @@ services:
 
   # Smart Delivery Service - AI Route Optimization (Q2 2026)
   smart-delivery-service:
+    profiles: ["phase-4"]
     build:
-      context: ./backend/services/smart-delivery-service
+      context: ./archive/legacy-services/smart-delivery-service
       dockerfile: Dockerfile
     container_name: smart-delivery-service
     ports:
-      - "3027:3027"
+      - "3037:3027"
     environment:
       - NODE_ENV=development
       - PORT=3027
@@ -824,8 +890,9 @@ services:
 
   # Ad Service - Advertising & Promoted Listings (Q1 2026)
   ad-service:
+    profiles: ["phase-4"]
     build:
-      context: ./backend/services/ad-service
+      context: ./archive/legacy-services/ad-service
       dockerfile: Dockerfile
     container_name: mnbarh-ad-service
     ports:
@@ -849,8 +916,9 @@ services:
 
   # SEO Service - Sitemap & Meta Data (Q1 2026)
   seo-service:
+    profiles: ["phase-4"]
     build:
-      context: ./backend/services/seo-service
+      context: ./archive/legacy-services/seo-service
       dockerfile: Dockerfile
     container_name: mnbarh-seo-service
     ports:
@@ -866,36 +934,11 @@ services:
       timeout: 10s
       retries: 3
 
-  # Feature Management Service - Feature Flags & Release Management (Q2 2026)
-  feature-management-service:
-    build:
-      context: ./backend/services/feature-management-service
-      dockerfile: Dockerfile
-    container_name: feature-management-service
-    ports:
-      - "3028:3028"
-    environment:
-      - NODE_ENV=development
-      - PORT=3028
-      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/feature_db
-      - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production-256-bit-key-for-security
-      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3021,http://localhost:8080
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - mnbarh-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3028/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # Social Commerce Service - Team Purchase, Live Shopping (NEW)
   social-commerce-service:
+    profiles: ["phase-2"]
     build:
-      context: ./backend/services/social-commerce-service
+      context: ./archive/legacy-services/social-commerce-service
       dockerfile: Dockerfile
     container_name: mnbarh-social-commerce-service
     ports:
@@ -920,8 +963,9 @@ services:
 
   # Sustainability Service - Second Life, Carbon Footprint (NEW)
   sustainability-service:
+    profiles: ["phase-4"]
     build:
-      context: ./backend/services/sustainability-service
+      context: ./archive/legacy-services/sustainability-service
       dockerfile: Dockerfile
     container_name: mnbarh-sustainability-service
     ports:
@@ -949,6 +993,7 @@ services:
   # ===================
 
   web-app:
+    profiles: ["frontend"]
     build:
       context: ./frontend/web
       dockerfile: Dockerfile
@@ -963,6 +1008,7 @@ services:
       - mnbarh-network
 
   admin-dashboard:
+    profiles: ["frontend"]
     build:
       context: ./frontend/admin-dashboard
       dockerfile: Dockerfile
@@ -981,6 +1027,7 @@ services:
   # ===================
 
   prometheus:
+    profiles: ["monitoring"]
     image: prom/prometheus:latest
     container_name: mnbarh-prometheus
     ports:
@@ -992,6 +1039,7 @@ services:
       - mnbarh-network
 
   grafana:
+    profiles: ["monitoring"]
     image: grafana/grafana:latest
     container_name: mnbarh-grafana
     ports:
@@ -1010,6 +1058,7 @@ services:
   # See docs/external-projects/xyops/ and docs/EXTERNAL_PROJECTS_INTEGRATION.md §3.7
   # ===================
   xyops:
+    profiles: ["ops"]
     image: ghcr.io/pixlcore/xyops:latest
     container_name: mnbarh-xyops
     init: true
@@ -1025,8 +1074,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - mnbarh-network
-    profiles:
-      - ops
 
 networks:
   mnbarh-network:
@@ -1037,6 +1084,7 @@ volumes:
   redis_data:
   rabbitmq_data:
   elasticsearch_data:
+  zookeeper_data:
   prometheus_data:
   grafana_data:
   xyops_data:

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CountryLayerClient } from './countryLayerClient';
+import { RabbitMQService } from '../common/rabbitmq/rabbitmq.service';
 
 interface LocationUpdate {
   lat: number;
@@ -14,7 +15,8 @@ interface LocationUpdate {
 export class TravelersService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly countryLayerClient: CountryLayerClient
+    private readonly countryLayerClient: CountryLayerClient,
+    private readonly rabbitmqService: RabbitMQService
   ) {}
 
   async updateLocation(travelerId: number, location: LocationUpdate) {
@@ -103,13 +105,32 @@ export class TravelersService {
    * Publish location update event to RabbitMQ
    */
   private async publishLocationEvent(location: any) {
-    // TODO: Implement actual RabbitMQ publish
-    console.log('[RabbitMQ] Location updated:', location);
-    
-    // This will trigger:
-    // 1. Recommendation service to check nearby requests
-    // 2. Matching service to find suitable orders
-    // 3. Notification service to alert about opportunities
+    try {
+      // Publish to RabbitMQ
+      const published = await this.rabbitmqService.publishLocationUpdate({
+        travelerId: location.travelerId,
+        lat: location.lat,
+        lon: location.lon,
+        country: location.country,
+        city: location.city,
+        airportCode: location.airportCode,
+        timestamp: new Date().toISOString(),
+      });
+
+      if (published) {
+        console.log('[RabbitMQ] Location event published successfully:', location.travelerId);
+      } else {
+        console.warn('[RabbitMQ] Failed to publish location event (will retry)');
+      }
+
+      // This will trigger:
+      // 1. Recommendation service to check nearby requests
+      // 2. Matching service to find suitable orders
+      // 3. Notification service to alert about opportunities
+    } catch (error) {
+      console.error('[RabbitMQ] Error publishing location event:', error);
+      // Don't throw - location update should succeed even if event fails
+    }
   }
 
   /**

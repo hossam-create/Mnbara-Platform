@@ -12,6 +12,9 @@ interface GatewayConfig {
   orderServiceUrl: string;
   paymentServiceUrl: string;
   deliveryServiceUrl: string;
+  walletServiceUrl: string;
+  travelerServiceUrl: string;
+  marketplaceServiceUrl: string;
   
   // Rate limiting
   rateLimitWindowMs: number;
@@ -41,6 +44,9 @@ export const config: GatewayConfig = {
   orderServiceUrl: process.env.ORDER_SERVICE_URL || 'http://localhost:3003',
   paymentServiceUrl: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3004',
   deliveryServiceUrl: process.env.DELIVERY_SERVICE_URL || 'http://localhost:3005',
+  walletServiceUrl: process.env.WALLET_SERVICE_URL || 'http://localhost:3006',
+  travelerServiceUrl: process.env.TRAVELER_SERVICE_URL || 'http://localhost:3007',
+  marketplaceServiceUrl: process.env.MARKETPLACE_SERVICE_URL || 'http://localhost:3008',
   
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
   rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
@@ -62,6 +68,9 @@ export const serviceUrls = {
   order: config.orderServiceUrl,
   payment: config.paymentServiceUrl,
   delivery: config.deliveryServiceUrl,
+  wallet: config.walletServiceUrl,
+  traveler: config.travelerServiceUrl,
+  marketplace: config.marketplaceServiceUrl,
 };
 
 export default config;

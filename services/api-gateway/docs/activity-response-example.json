@@ -1,0 +1,102 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "wallet-1",
+      "domain": "wallet",
+      "title": "Deposit",
+      "description": "Card deposit completed",
+      "date": "2026-02-21T10:30:00.000Z",
+      "amount": 250.00,
+      "currency": "USD",
+      "status": "completed",
+      "metadata": {
+        "rawType": "deposit",
+        "paymentMethod": "credit_card",
+        "last4": "4242"
+      }
+    },
+    {
+      "id": "marketplace-1",
+      "domain": "marketplace",
+      "title": "Order Placed",
+      "description": "Order created for Apple iPhone 15 Pro Max",
+      "date": "2026-02-21T08:15:00.000Z",
+      "amount": 1099.99,
+      "currency": "USD",
+      "status": "pending",
+      "metadata": {
+        "orderId": "ORD-395012",
+        "productId": "PROD-12345",
+        "sellerId": "SELLER-789"
+      }
+    },
+    {
+      "id": "traveler-1",
+      "domain": "traveler",
+      "title": "Route Created",
+      "description": "Dubai → London route created",
+      "date": "2026-02-20T22:00:00.000Z",
+      "status": "completed",
+      "metadata": {
+        "origin": "Dubai, UAE",
+        "destination": "London, UK",
+        "departureDate": "2026-03-01T08:00:00.000Z",
+        "arrivalDate": "2026-03-01T20:00:00.000Z",
+        "capacity": 50
+      }
+    },
+    {
+      "id": "wallet-2",
+      "domain": "wallet",
+      "title": "Escrow Hold",
+      "description": "Funds held in escrow for order #395012",
+      "date": "2026-02-20T20:45:00.000Z",
+      "amount": 1099.99,
+      "currency": "USD",
+      "status": "pending",
+      "metadata": {
+        "rawType": "escrow_hold",
+        "orderId": "ORD-395012",
+        "escrowId": "ESC-987654"
+      }
+    },
+    {
+      "id": "traveler-2",
+      "domain": "traveler",
+      "title": "Offer Accepted",
+      "description": "You accepted a delivery offer (PROD-123)",
+      "date": "2026-02-19T14:30:00.000Z",
+      "status": "completed",
+      "metadata": {
+        "offerId": "OFFER-456",
+        "productId": "PROD-123",
+        "buyerId": "BUYER-789"
+      }
+    },
+    {
+      "id": "marketplace-2",
+      "domain": "marketplace",
+      "title": "Review Submitted",
+      "description": "You left feedback for seller techsuperstore",
+      "date": "2026-02-18T09:20:00.000Z",
+      "status": "completed",
+      "metadata": {
+        "reviewId": "REV-321",
+        "sellerId": "SELLER-456",
+        "rating": 5,
+        "productId": "PROD-999"
+      }
+    }
+  ],
+  "meta": {
+    "total": 6,
+    "page": 1,
+    "limit": 20,
+    "hasMore": false,
+    "partial": false,
+    "failedDomains": [],
+    "cached": true,
+    "cachedAt": "2026-02-21T12:00:00.000Z"
+  }
+}

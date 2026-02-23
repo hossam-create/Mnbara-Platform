@@ -1,0 +1,167 @@
+# ====================================
+# Mnbara Platform - Project Analyzer
+# شغّله في فولدر المشروع
+# ====================================
+
+$projectPath = Get-Location
+$outputFile = "project-analysis.txt"
+$report = @()
+
+$report += "=" * 60
+$report += "MNBARA PLATFORM - PROJECT ANALYSIS REPORT"
+$report += "Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+$report += "Path: $projectPath"
+$report += "=" * 60
+
+# ---- 1. حجم المشروع الكلي ----
+$report += ""
+$report += "[ 1 ] PROJECT SIZE"
+$report += "-" * 40
+$totalSize = (Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | 
+    Where-Object { $_.FullName -notmatch 'node_modules|\.git|\.next' } | 
+    Measure-Object -Property Length -Sum).Sum
+$report += "Total Size (excluding node_modules/.next): $([math]::Round($totalSize/1MB, 2)) MB"
+$totalFiles = (Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | 
+    Where-Object { $_.FullName -notmatch 'node_modules|\.git|\.next' }).Count
+$report += "Total Files: $totalFiles"
+
+# ---- 2. هيكل الفولدرات (بدون node_modules) ----
+$report += ""
+$report += "[ 2 ] FOLDER STRUCTURE (max depth 4)"
+$report += "-" * 40
+
+function Get-TreeStructure {
+    param($Path, $Indent = "", $MaxDepth = 4, $CurrentDepth = 0)
+    
+    if ($CurrentDepth -ge $MaxDepth) { return @() }
+    
+    $items = @()
+    $children = Get-ChildItem -Path $Path -ErrorAction SilentlyContinue | 
+        Where-Object { $_.Name -notmatch '^(node_modules|\.git|\.next|\.turbo)$' } |
+        Sort-Object { $_.PSIsContainer } -Descending
+    
+    foreach ($child in $children) {
+        if ($child.PSIsContainer) {
+            $subCount = (Get-ChildItem -Path $child.FullName -Recurse -File -ErrorAction SilentlyContinue | 
+                Where-Object { $_.FullName -notmatch 'node_modules|\.next' }).Count
+            $items += "$Indent📁 $($child.Name)/ ($subCount files)"
+            $items += Get-TreeStructure -Path $child.FullName -Indent "$Indent  " -MaxDepth $MaxDepth -CurrentDepth ($CurrentDepth + 1)
+        } else {
+            $size = [math]::Round($child.Length/1KB, 1)
+            $items += "$Indent📄 $($child.Name) (${size}KB)"
+        }
+    }
+    return $items
+}
+
+$report += Get-TreeStructure -Path $projectPath
+
+# ---- 3. فولدرات بنفس الاسم ----
+$report += ""
+$report += "[ 3 ] DUPLICATE FOLDER NAMES"
+$report += "-" * 40
+
+$allFolders = Get-ChildItem -Recurse -Directory -ErrorAction SilentlyContinue | 
+    Where-Object { $_.FullName -notmatch 'node_modules|\.git|\.next' }
+
+$duplicateFolders = $allFolders | Group-Object Name | Where-Object { $_.Count -gt 1 }
+
+if ($duplicateFolders) {
+    foreach ($dup in $duplicateFolders) {
+        $report += ""
+        $report += "⚠️  FOLDER NAME: '$($dup.Name)' found $($dup.Count) times:"
+        foreach ($folder in $dup.Group) {
+            $relativePath = $folder.FullName.Replace($projectPath.Path, ".")
+            $fileCount = (Get-ChildItem -Path $folder.FullName -Recurse -File -ErrorAction SilentlyContinue).Count
+            $report += "   → $relativePath ($fileCount files inside)"
+        }
+    }
+} else {
+    $report += "✅ No duplicate folder names found"
+}
+
+# ---- 4. ملفات مكررة (بنفس الاسم وبنفس الحجم) ----
+$report += ""
+$report += "[ 4 ] DUPLICATE FILES (same name + same size)"
+$report += "-" * 40
+
+$allFiles = Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | 
+    Where-Object { $_.FullName -notmatch 'node_modules|\.git|\.next' }
+
+$duplicateFiles = $allFiles | Group-Object { "$($_.Name)_$($_.Length)" } | Where-Object { $_.Count -gt 1 }
+
+if ($duplicateFiles) {
+    $report += "Found $($duplicateFiles.Count) duplicate file groups:"
+    foreach ($dup in $duplicateFiles) {
+        $report += ""
+        $report += "⚠️  FILE: '$($dup.Group[0].Name)' ($([math]::Round($dup.Group[0].Length/1KB,1))KB)"
+        foreach ($f in $dup.Group) {
+            $relativePath = $f.FullName.Replace($projectPath.Path, ".")
+            $report += "   → $relativePath"
+        }
+    }
+} else {
+    $report += "✅ No duplicate files found"
+}
+
+# ---- 5. ملفات MD ----
+$report += ""
+$report += "[ 5 ] MARKDOWN FILES (.md)"
+$report += "-" * 40
+
+$mdFiles = Get-ChildItem -Recurse -File -Filter "*.md" -ErrorAction SilentlyContinue | 
+    Where-Object { $_.FullName -notmatch 'node_modules|\.git|\.next' }
+
+$report += "Found $($mdFiles.Count) .md files:"
+foreach ($md in $mdFiles) {
+    $relativePath = $md.FullName.Replace($projectPath.Path, ".")
+    $report += "   📝 $relativePath"
+}
+
+# ---- 6. ملفات config متعددة ----
+$report += ""
+$report += "[ 6 ] CONFIG FILES"
+$report += "-" * 40
+
+$configPatterns = @("*.config.*", "*.json", "*.env*", "*.yaml", "*.yml", "*.toml")
+$configFiles = @()
+foreach ($pattern in $configPatterns) {
+    $found = Get-ChildItem -File -Filter $pattern -ErrorAction SilentlyContinue
+    $configFiles += $found
+}
+
+foreach ($cf in $configFiles) {
+    $report += "   ⚙️  $($cf.Name)"
+}
+
+# ---- 7. أنواع الملفات الموجودة ----
+$report += ""
+$report += "[ 7 ] FILE TYPES BREAKDOWN"
+$report += "-" * 40
+
+$fileTypes = $allFiles | Group-Object Extension | Sort-Object Count -Descending | Select-Object -First 20
+foreach ($ft in $fileTypes) {
+    $ext = if ($ft.Name) { $ft.Name } else { "(no extension)" }
+    $report += "   $($ft.Count.ToString().PadLeft(5)) files  →  $ext"
+}
+
+# ---- 8. أكبر الملفات ----
+$report += ""
+$report += "[ 8 ] LARGEST FILES (top 15)"
+$report += "-" * 40
+
+$largestFiles = $allFiles | Sort-Object Length -Descending | Select-Object -First 15
+foreach ($lf in $largestFiles) {
+    $relativePath = $lf.FullName.Replace($projectPath.Path, ".")
+    $sizeMB = [math]::Round($lf.Length/1MB, 2)
+    $report += "   $($sizeMB.ToString().PadLeft(8)) MB  →  $relativePath"
+}
+
+# ---- حفظ التقرير ----
+$report | Out-File -FilePath $outputFile -Encoding UTF8
+
+Write-Host ""
+Write-Host "✅ Analysis complete!" -ForegroundColor Green
+Write-Host "📄 Report saved to: $outputFile" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "➡️  ابعت الملف ده: $((Get-Item $outputFile).FullName)" -ForegroundColor Yellow

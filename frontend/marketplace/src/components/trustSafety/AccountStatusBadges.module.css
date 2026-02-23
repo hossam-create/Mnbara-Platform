@@ -1,0 +1,475 @@
+/* Account Status Badges Styles */
+.badges {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Compact View */
+.compact {
+  gap: 8px;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noBadges {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Status Badges */
+.statusBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.compact .statusBadges {
+  gap: 8px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+  cursor: help;
+  position: relative;
+}
+
+.compact .badge {
+  padding: 4px 8px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+}
+
+.badgeIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.compact .badgeIcon {
+  font-size: 12px;
+}
+
+.badgeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.badgeLabel {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.compact .badgeLabel {
+  font-size: 12px;
+}
+
+.badgeDescription {
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+.compact .badgeDescription {
+  display: none;
+}
+
+.badgeExpiry {
+  font-size: 10px;
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.compact .badgeExpiry {
+  display: none;
+}
+
+/* Warnings */
+.warnings {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.warnings h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #dc2626;
+  margin: 0 0 12px 0;
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  margin-bottom: 8px;
+}
+
+.warningIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.warningContent {
+  flex: 1;
+}
+
+.warningType {
+  font-size: 14px;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.warningMessage {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.warningMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.warningMeta span {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Status Summary */
+.statusSummary {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.statusSummary h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.statusInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #374151;
+}
+
+.statusIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* UI Only Notice */
+.uiOnlyNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+}
+
+.compact .uiOnlyNotice {
+  margin-top: 8px;
+  padding: 4px 8px;
+}
+
+.noticeIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.compact .noticeIcon {
+  font-size: 12px;
+}
+
+.noticeContent {
+  font-size: 12px;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.compact .noticeContent {
+  font-size: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .badges {
+    gap: 12px;
+  }
+  
+  .compact {
+    gap: 6px;
+  }
+  
+  .statusBadges {
+    gap: 8px;
+  }
+  
+  .compact .statusBadges {
+    gap: 6px;
+  }
+  
+  .badge {
+    padding: 6px 10px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .compact .badge {
+    padding: 4px 6px;
+    font-size: 11px;
+    gap: 4px;
+  }
+  
+  .badgeIcon {
+    font-size: 14px;
+  }
+  
+  .compact .badgeIcon {
+    font-size: 10px;
+  }
+  
+  .badgeLabel {
+    font-size: 13px;
+  }
+  
+  .compact .badgeLabel {
+    font-size: 11px;
+  }
+  
+  .warnings {
+    padding: 12px;
+  }
+  
+  .warning {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .warningIcon {
+    font-size: 18px;
+  }
+  
+  .warningType {
+    font-size: 13px;
+  }
+  
+  .warningMessage {
+    font-size: 13px;
+  }
+  
+  .warningMeta {
+    gap: 12px;
+    font-size: 11px;
+  }
+  
+  .statusSummary {
+    padding: 12px;
+  }
+  
+  .statusItem {
+    padding: 6px 10px;
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .statusIcon {
+    font-size: 14px;
+  }
+  
+  .uiOnlyNotice {
+    flex-direction: column;
+    text-align: center;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+  
+  .compact .uiOnlyNotice {
+    margin-top: 6px;
+    padding: 4px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .badges {
+    gap: 8px;
+  }
+  
+  .compact {
+    gap: 4px;
+  }
+  
+  .statusBadges {
+    gap: 6px;
+  }
+  
+  .compact .statusBadges {
+    gap: 4px;
+  }
+  
+  .badge {
+    padding: 4px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  .compact .badge {
+    padding: 3px 6px;
+    font-size: 10px;
+    gap: 3px;
+  }
+  
+  .badgeIcon {
+    font-size: 12px;
+  }
+  
+  .compact .badgeIcon {
+    font-size: 9px;
+  }
+  
+  .badgeLabel {
+    font-size: 12px;
+  }
+  
+  .compact .badgeLabel {
+    font-size: 10px;
+  }
+  
+  .warnings {
+    padding: 10px;
+  }
+  
+  .warning {
+    padding: 8px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .warningIcon {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  
+  .warningType {
+    font-size: 12px;
+  }
+  
+  .warningMessage {
+    font-size: 12px;
+  }
+  
+  .warningMeta {
+    gap: 8px;
+    font-size: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .warningMeta span {
+    padding: 1px 4px;
+  }
+  
+  .statusSummary {
+    padding: 10px;
+  }
+  
+  .statusItem {
+    padding: 4px 8px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  .statusIcon {
+    font-size: 12px;
+  }
+  
+  .uiOnlyNotice {
+    padding: 4px 8px;
+  }
+  
+  .compact .uiOnlyNotice {
+    margin-top: 4px;
+    padding: 3px 6px;
+  }
+  
+  .noticeContent {
+    font-size: 11px;
+  }
+  
+  .compact .noticeContent {
+    font-size: 9px;
+  }
+}

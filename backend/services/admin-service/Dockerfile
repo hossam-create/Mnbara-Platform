@@ -1,7 +1,7 @@
 # Stage 1: Build
 FROM node:18 AS builder
 WORKDIR /app
-COPY package*.json ./
+COPY package.json ./
 RUN npm install --production=false
 COPY . .
 RUN npm run build
@@ -10,7 +10,7 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 ENV NODE_ENV=production
-COPY package*.json ./
+COPY package.json ./
 RUN npm install --only=production
 COPY --from=builder /app/dist ./dist
 

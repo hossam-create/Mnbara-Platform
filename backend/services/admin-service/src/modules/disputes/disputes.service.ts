@@ -25,7 +25,7 @@ const AuditSeverity = {
   WARNING: 'WARNING',
 } as const;
 
-const prisma = new PrismaClient();
+const prisma: any = new PrismaClient();
 
 export interface DisputeResolutionResult {
   dispute: any;

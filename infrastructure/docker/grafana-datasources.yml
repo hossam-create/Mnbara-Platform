@@ -1,0 +1,123 @@
+apiVersion: 1
+
+datasources:
+  # ============================================
+  # JAEGER - Primary Tracing Backend
+  # ============================================
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    isDefault: true
+    editable: true
+    basicAuth: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['userId', 'service', 'traceId']
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: true
+      tracesToMetrics:
+        datasourceUid: prometheus
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      spanBar:
+        type: 'None'
+
+  # ============================================
+  # TEMPO - Alternative Tracing Backend
+  # ============================================
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true
+    basicAuth: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['userId', 'service', 'traceId']
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: true
+      tracesToMetrics:
+        datasourceUid: prometheus
+        tags: [{ key: 'service.name', value: 'service' }, { key: 'job' }]
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      lokiSearch:
+        datasourceUid: loki
+
+  # ============================================
+  # ZIPKIN - Legacy Tracing Backend (optional)
+  # ============================================
+  - name: Zipkin
+    type: zipkin
+    access: proxy
+    url: http://zipkin:9411
+    editable: true
+    basicAuth: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['userId', 'service']
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+
+  # ============================================
+  # PROMETHEUS - For Metrics from Traces
+  # ============================================
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    editable: true
+    jsonData:
+      httpMethod: POST
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: '2.40.0'
+      cacheLevel: 'High'
+      incrementalQuerying: true
+      incrementalQueryOverlapWindow: 10m
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: jaeger
+          url: 'http://localhost:16686/trace/${__value.raw}'
+        - name: trace_id
+          datasourceUid: tempo
+          url: 'http://localhost:3200/trace/${__value.raw}'
+
+  # ============================================
+  # LOKI - For Log Correlation
+  # ============================================
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
+    jsonData:
+      derivedFields:
+        - name: 'TraceID'
+          matcherRegex: '"traceId":"([a-f0-9]+)"'
+          url: '$${__value.raw}'
+          datasourceUid: jaeger
+        - name: 'SpanID'
+          matcherRegex: '"spanId":"([a-f0-9]+)"'
+          url: '$${__value.raw}'
+          datasourceUid: jaeger
+        - name: 'UserID'
+          matcherRegex: '"userId":"([^"]+)"'
+          url: ''
+      maxLines: 1000

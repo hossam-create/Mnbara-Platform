@@ -5,7 +5,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { LedgerModule } from './ledger/ledger.module';
 import { TransferModule } from './transfer/transfer.module';
 import { EscrowModule } from './escrow/escrow.module';
-import { ConversionModule } from './conversion/conversion.module';
+// import { ConversionModule } from './conversion/conversion.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { ConversionModule } from './conversion/conversion.module';
     LedgerModule,
     TransferModule,
     EscrowModule,
-    ConversionModule,
+    // ConversionModule,
   ],
 })
 export class AppModule {}

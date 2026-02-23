@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
-import * as AuctionEscrowABI from '../../../../../artifacts/contracts/MNBAuctionEscrow.sol/MNBAuctionEscrow.json';
+
+const AUCTION_ESCROW_ABI: unknown[] = [];
 
 @Injectable()
 export class AuctionBlockchainService {
@@ -29,7 +30,7 @@ export class AuctionBlockchainService {
     if (contractAddress && this.wallet) {
       this.contract = new ethers.Contract(
         contractAddress,
-        AuctionEscrowABI.abi,
+        AUCTION_ESCROW_ABI,
         this.wallet
       );
     }

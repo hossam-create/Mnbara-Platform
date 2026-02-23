@@ -15,8 +15,29 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
-  app.enableCors();
+  // CORS - Secure configuration
+  app.enableCors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+        process.env.ADMIN_URL || 'http://localhost:3001',
+        'http://localhost:3000',
+        'https://mnbara.com',
+        'https://admin.mnbara.com',
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['X-Total-Count'],
+    maxAge: 3600,
+  });
 
   // Swagger documentation
   const config = new DocumentBuilder()

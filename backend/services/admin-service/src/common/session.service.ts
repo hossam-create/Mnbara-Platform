@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientType } from 'redis';
-import * as UAParser from 'ua-parser-js';
+import UAParser from 'ua-parser-js';
 import * as geoip from 'geoip-lite';
 import { DatabaseService } from '../database/database.service';
 

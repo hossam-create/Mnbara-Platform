@@ -100,7 +100,7 @@ export class DisputesController {
     // This endpoint allows manual escrow release if needed
     // The main resolution flow handles this automatically
     const adminId = req.user?.id || 'system';
-    const dispute = await this.disputesService.getDispute(disputeId);
+    const dispute: any = await this.disputesService.getDispute(disputeId);
     
     if (!dispute.order.escrowId) {
       return { success: false, message: 'No escrow associated with this order' };
@@ -133,7 +133,7 @@ export class DisputesController {
     @Request() req: any
   ) {
     const adminId = req.user?.id || 'system';
-    const dispute = await this.disputesService.getDispute(disputeId);
+    const dispute: any = await this.disputesService.getDispute(disputeId);
     
     if (!dispute.order.escrowId) {
       return { success: false, message: 'No escrow associated with this order' };

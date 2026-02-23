@@ -1,32 +1,38 @@
-# Notification Service Dockerfile
-FROM node:18-alpine
+# Notification Service (NestJS)
+FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
 # Install dependencies
-RUN npm ci --production
+COPY package*.json ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
+RUN npm install
+
+# Copy Prisma schema and generate client
+COPY prisma ./prisma/
+RUN npx prisma generate
 
 # Copy source code
-COPY . .
+COPY src ./src
+
+# Build the application
+RUN npm run build
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S notifications -u 1001
-
-# Change ownership of the app directory
-RUN chown -R notifications:nodejs /app
+RUN addgroup -g 1001 -S notifications && adduser -S notifications -u 1001
 USER notifications
 
-# Expose ports (HTTP and WebSocket)
-EXPOSE 3008 8080
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3011
+
+# Expose port
+EXPOSE 3011
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3008/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+  CMD wget -q --spider http://localhost:3011/health || exit 1
 
-# Start the application
-CMD ["node", "dist/index.js"]
+# Start service
+CMD ["node", "dist/main.js"]

@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import * as rateLimit from 'express-rate-limit';
-import * as helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import { LoggerService } from '../services/logger.service';
 
 @Injectable()

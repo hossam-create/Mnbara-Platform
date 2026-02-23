@@ -1,7 +1,10 @@
 import { Controller, Post, Body, UseGuards, Get, Query } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { AuditService } from '../../../shared/audit/audit.service';
-import { PrismaClient, AuditAction, AuditSeverity } from '@prisma/client';
+import { AuditService } from '../../shared/audit/audit.service';
+import { PrismaClient } from '@prisma/client';
+
+type AuditAction = string;
+type AuditSeverity = string;
 
 interface AuditEventRequest {
   action: AuditAction;
@@ -110,7 +113,7 @@ export class AuditController {
       const skip = (page - 1) * limit;
       
       const [events, total] = await Promise.all([
-        AuditService['prisma'].auditLog.findMany({
+        (AuditService as any)['prisma'].auditLog.findMany({
           where,
           orderBy: { timestamp: 'desc' },
           skip,
@@ -121,7 +124,7 @@ export class AuditController {
             }
           }
         }),
-        AuditService['prisma'].auditLog.count({ where })
+        (AuditService as any)['prisma'].auditLog.count({ where })
       ]);
 
       return {

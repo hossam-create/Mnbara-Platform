@@ -1,30 +1,38 @@
-FROM node:18-alpine
+# User Service (NestJS)
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
+RUN npm install
 
-# Copy source code
-COPY . .
-
-# Generate Prisma client
+# Copy Prisma schema and generate client
+COPY prisma ./prisma/
 RUN npx prisma generate
 
-# Build TypeScript
+# Copy source code
+COPY src ./src
+
+# Build the application
 RUN npm run build
 
 # Create non-root user
-RUN addgroup -g 1001 -S user && adduser -S user -u 1001
-USER user
+RUN addgroup -g 1001 -S userapp && adduser -S userapp -u 1001
+USER userapp
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3002
 
 # Expose port
 EXPOSE 3002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3002/health || exit 1
+  CMD wget -q --spider http://localhost:3002/health || exit 1
 
-# Start application
-CMD ["node", "dist/index.js"]
+# Start service
+CMD ["node", "dist/main.js"]

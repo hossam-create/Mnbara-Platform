@@ -1,0 +1,665 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-02-22",
+  "phases": {
+    "phase-1": {
+      "description": "Core MVP / Launch services (default compose up)",
+      "composeProfile": null
+    },
+    "phase-2": {
+      "description": "Ready next features (fintech + config + compliance + exchange)",
+      "composeProfile": "phase-2"
+    },
+    "phase-3": {
+      "description": "AI / intelligence / aggregation",
+      "composeProfile": "phase-3"
+    },
+    "phase-4": {
+      "description": "Premium / future ops (selected examples)",
+      "composeProfile": "phase-4"
+    },
+    "frontend": {
+      "description": "Frontend containers (optional)",
+      "composeProfile": "frontend"
+    },
+    "monitoring": {
+      "description": "Prometheus + Grafana (optional)",
+      "composeProfile": "monitoring"
+    },
+    "ops": {
+      "description": "Operational tools (optional)",
+      "composeProfile": "ops"
+    }
+  },
+  "legacyCatalog": {
+    "basePath": "archive/legacy-services",
+    "notes": [
+      "Entries here are discovered from archive/legacy-services and are not necessarily wired into docker-compose.yml yet.",
+      "Recommended phase is a planning label; actual runtime activation is controlled by docker compose profiles.",
+      "Before adding any legacy service to docker-compose.yml, verify it has a Dockerfile and confirm port mapping to avoid collisions."
+    ],
+    "byPhase": {
+      "phase-2": {
+        "label": "Near-term / Social + Growth + selected fintech",
+        "services": [
+          "category-service",
+          "listing-service",
+          "compliance-service",
+          "decision-authority-service",
+          "bnpl-service",
+          "crypto-service",
+          "p2p-exchange-service",
+          "paypal-service",
+          "stripe-connect-service",
+          "ui-config-service",
+          "customer-id-service",
+          "seller-service",
+          "push-notification-service",
+          "review-service",
+          "chat-service"
+        ]
+      },
+      "phase-3": {
+        "label": "AI / Intelligence",
+        "services": [
+          "ai-agent-service",
+          "ai-assistant-service",
+          "ai-business-service",
+          "ai-buyer-service",
+          "ai-chatbot-service",
+          "ai-core",
+          "ai-pricing-service",
+          "ai-recommendations",
+          "demand-forecasting-service",
+          "fraud-detection-service",
+          "image-processing-service",
+          "image-recognition-service",
+          "mnbarh-ai-engine",
+          "recommendation-engine-service",
+          "recommendation-service",
+          "signal-aggregation-service",
+          "search-service"
+        ]
+      },
+      "phase-4": {
+        "label": "Logistics / Operations / Premium (future)",
+        "services": [
+          "analytics-service",
+          "auth-service-java",
+          "blockchain-service",
+          "craftercms",
+          "ar-preview-service",
+          "vr-showroom-service",
+          "location-service",
+          "ebay-live-service",
+          "medusa-adapter",
+          "crowdship-service",
+          "smart-delivery-service",
+          "auction",
+          "auction-service",
+          "wholesale-service",
+          "novu-service",
+          "monitoring",
+          "event-bus",
+          "file-storage-service",
+          "i18n-service",
+          "job-queue-service",
+          "mnbara-backend",
+          "plugin-system",
+          "request-engine",
+          "rules-engine",
+          "task-scheduler",
+          "geolock-service",
+          "security-service",
+          "shared",
+          "social-commerce-service",
+          "voice-commerce-service",
+          "ad-service",
+          "rewards-service",
+          "seo-service",
+          "subscription-service",
+          "sustainability-service",
+          "card-service",
+          "internal-ledger-service",
+          "unified-wallet-service"
+        ]
+      },
+      "ops": {
+        "label": "Non-service projects / testing / audit",
+        "services": [
+          "integration-testing",
+          "performance-testing",
+          "security-audit"
+        ]
+      }
+    },
+    "uncategorized": [],
+    "serviceMeta": {
+      "ad-service": { "phase": "phase-4", "domain": "growth", "kind": "service" },
+      "ai-agent-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-assistant-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-business-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-buyer-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-chatbot-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-core": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-pricing-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ai-recommendations": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "analytics-service": { "phase": "phase-4", "domain": "analytics", "kind": "service" },
+      "ar-preview-service": { "phase": "phase-4", "domain": "frontend", "kind": "service" },
+      "auction": { "phase": "phase-4", "domain": "marketplace", "kind": "service" },
+      "auction-service": { "phase": "phase-4", "domain": "marketplace", "kind": "service" },
+      "auth-service-java": { "phase": "phase-4", "domain": "auth", "kind": "service" },
+      "blockchain-service": { "phase": "phase-4", "domain": "blockchain", "kind": "service" },
+      "bnpl-service": { "phase": "phase-2", "domain": "fintech", "kind": "service" },
+      "card-service": { "phase": "phase-4", "domain": "fintech", "kind": "service" },
+      "category-service": { "phase": "phase-2", "domain": "catalog", "kind": "service" },
+      "chat-service": { "phase": "phase-2", "domain": "social", "kind": "service" },
+      "compliance-service": { "phase": "phase-2", "domain": "compliance", "kind": "service" },
+      "craftercms": { "phase": "phase-4", "domain": "cms", "kind": "service" },
+      "crowdship-service": { "phase": "phase-4", "domain": "logistics", "kind": "service" },
+      "crypto-service": { "phase": "phase-2", "domain": "fintech", "kind": "service" },
+      "customer-id-service": { "phase": "phase-2", "domain": "identity", "kind": "service" },
+      "decision-authority-service": { "phase": "phase-2", "domain": "compliance", "kind": "service" },
+      "demand-forecasting-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "ebay-live-service": { "phase": "phase-4", "domain": "integrations", "kind": "service" },
+      "event-bus": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "file-storage-service": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "fraud-detection-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "geolock-service": { "phase": "phase-4", "domain": "security", "kind": "service" },
+      "i18n-service": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "image-processing-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "image-recognition-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "integration-testing": { "phase": "ops", "domain": "testing", "kind": "project" },
+      "internal-ledger-service": { "phase": "phase-4", "domain": "fintech", "kind": "service" },
+      "job-queue-service": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "kyc-service": { "phase": "phase-4", "domain": "identity", "kind": "service" },
+      "listing-service": { "phase": "phase-2", "domain": "catalog", "kind": "service" },
+      "location-service": { "phase": "phase-4", "domain": "geo", "kind": "service" },
+      "medusa-adapter": { "phase": "phase-4", "domain": "integrations", "kind": "service" },
+      "mnbara-backend": { "phase": "phase-4", "domain": "platform", "kind": "project" },
+      "mnbarh-ai-engine": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "monitoring": { "phase": "phase-4", "domain": "observability", "kind": "project" },
+      "novu-service": { "phase": "phase-4", "domain": "notifications", "kind": "service" },
+      "p2p-exchange-service": { "phase": "phase-2", "domain": "fintech", "kind": "service" },
+      "paypal-service": { "phase": "phase-2", "domain": "fintech", "kind": "service" },
+      "performance-testing": { "phase": "ops", "domain": "testing", "kind": "project" },
+      "plugin-system": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "push-notification-service": { "phase": "phase-2", "domain": "notifications", "kind": "service" },
+      "recommendation-engine-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "recommendation-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "request-engine": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "review-service": { "phase": "phase-2", "domain": "social", "kind": "service" },
+      "rewards-service": { "phase": "phase-4", "domain": "growth", "kind": "service" },
+      "rules-engine": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "search-service": { "phase": "phase-3", "domain": "search", "kind": "service" },
+      "security-audit": { "phase": "ops", "domain": "security", "kind": "project" },
+      "security-service": { "phase": "phase-4", "domain": "security", "kind": "service" },
+      "seller-service": { "phase": "phase-2", "domain": "marketplace", "kind": "service" },
+      "seo-service": { "phase": "phase-4", "domain": "growth", "kind": "service" },
+      "shared": { "phase": "phase-4", "domain": "shared", "kind": "shared" },
+      "signal-aggregation-service": { "phase": "phase-3", "domain": "ai", "kind": "service" },
+      "smart-delivery-service": { "phase": "phase-4", "domain": "logistics", "kind": "service" },
+      "social-commerce-service": { "phase": "phase-4", "domain": "social", "kind": "service" },
+      "stripe-connect-service": { "phase": "phase-2", "domain": "fintech", "kind": "service" },
+      "subscription-service": { "phase": "phase-4", "domain": "billing", "kind": "service" },
+      "sustainability-service": { "phase": "phase-4", "domain": "compliance", "kind": "service" },
+      "task-scheduler": { "phase": "phase-4", "domain": "platform", "kind": "service" },
+      "ui-config-service": { "phase": "phase-2", "domain": "frontend", "kind": "service" },
+      "unified-wallet-service": { "phase": "phase-4", "domain": "fintech", "kind": "service" },
+      "voice-commerce-service": { "phase": "phase-4", "domain": "social", "kind": "service" },
+      "vr-showroom-service": { "phase": "phase-4", "domain": "frontend", "kind": "service" },
+      "wholesale-service": { "phase": "phase-4", "domain": "marketplace", "kind": "service" }
+    },
+    "readiness": {
+      "notes": [
+        "dockerfilePresent is derived from checking for Dockerfile/dockerfile under each legacy folder.",
+        "defaultPort is the container port (what the service listens on).",
+        "hostPort is the docker-compose host mapping when available.",
+        "composeReady is strict: dockerfilePresent=true AND defaultPort known AND healthcheckPath known."
+      ],
+      "dockerfilePresent": {
+        "ad-service": false,
+        "ai-agent-service": false,
+        "ai-assistant-service": true,
+        "ai-business-service": false,
+        "ai-buyer-service": false,
+        "ai-chatbot-service": false,
+        "ai-core": false,
+        "ai-pricing-service": false,
+        "ai-recommendations": false,
+        "analytics-service": false,
+        "ar-preview-service": false,
+        "auction": false,
+        "auction-service": true,
+        "auth-service-java": true,
+        "blockchain-service": false,
+        "bnpl-service": true,
+        "card-service": true,
+        "category-service": false,
+        "chat-service": false,
+        "compliance-service": true,
+        "craftercms": false,
+        "crowdship-service": true,
+        "crypto-service": true,
+        "customer-id-service": false,
+        "decision-authority-service": true,
+        "demand-forecasting-service": false,
+        "ebay-live-service": true,
+        "event-bus": true,
+        "file-storage-service": false,
+        "fraud-detection-service": false,
+        "geolock-service": false,
+        "i18n-service": false,
+        "image-processing-service": false,
+        "image-recognition-service": false,
+        "integration-testing": false,
+        "internal-ledger-service": false,
+        "job-queue-service": false,
+        "kyc-service": false,
+        "listing-service": true,
+        "location-service": false,
+        "medusa-adapter": false,
+        "mnbara-backend": true,
+        "mnbarh-ai-engine": true,
+        "monitoring": false,
+        "novu-service": false,
+        "p2p-exchange-service": true,
+        "paypal-service": true,
+        "performance-testing": false,
+        "plugin-system": true,
+        "push-notification-service": false,
+        "recommendation-engine-service": false,
+        "recommendation-service": true,
+        "request-engine": false,
+        "review-service": false,
+        "rewards-service": true,
+        "rules-engine": false,
+        "search-service": false,
+        "security-audit": false,
+        "security-service": false,
+        "seller-service": false,
+        "seo-service": false,
+        "shared": false,
+        "signal-aggregation-service": false,
+        "smart-delivery-service": true,
+        "social-commerce-service": true,
+        "stripe-connect-service": false,
+        "subscription-service": false,
+        "sustainability-service": true,
+        "task-scheduler": false,
+        "ui-config-service": true,
+        "unified-wallet-service": true,
+        "voice-commerce-service": false,
+        "vr-showroom-service": false,
+        "wholesale-service": true
+      },
+      "defaultPort": {
+        "ai-assistant-service": 3024,
+        "bnpl-service": 3017,
+        "compliance-service": 3027,
+        "crypto-service": 3018,
+        "decision-authority-service": 3010,
+        "mnbarh-ai-engine": 3025,
+        "p2p-exchange-service": 3028,
+        "paypal-service": 3023,
+        "smart-delivery-service": 3027,
+        "social-commerce-service": 3028,
+        "sustainability-service": 3029,
+        "ui-config-service": 3020,
+        "wholesale-service": 3026
+      },
+      "hostPort": {
+        "ai-assistant-service": 3024,
+        "bnpl-service": 3017,
+        "compliance-service": 3027,
+        "crypto-service": 3018,
+        "decision-authority-service": 3030,
+        "mnbarh-ai-engine": 3025,
+        "p2p-exchange-service": 3028,
+        "paypal-service": 3023,
+        "smart-delivery-service": 3037,
+        "social-commerce-service": 3035,
+        "sustainability-service": 3036,
+        "ui-config-service": 3020,
+        "wholesale-service": 3026
+      },
+      "healthcheckPath": {
+        "ai-assistant-service": "/health",
+        "bnpl-service": "/health",
+        "compliance-service": "/health",
+        "crypto-service": "/health",
+        "decision-authority-service": "/health",
+        "mnbarh-ai-engine": "/health",
+        "p2p-exchange-service": "/health",
+        "paypal-service": "/health",
+        "smart-delivery-service": "/health",
+        "social-commerce-service": "/health",
+        "sustainability-service": "/health",
+        "ui-config-service": "/health",
+        "wholesale-service": "/health"
+      },
+      "composeReady": {
+        "ai-assistant-service": true,
+        "bnpl-service": true,
+        "compliance-service": true,
+        "crypto-service": true,
+        "decision-authority-service": true,
+        "mnbarh-ai-engine": true,
+        "p2p-exchange-service": true,
+        "paypal-service": true,
+        "smart-delivery-service": true,
+        "social-commerce-service": true,
+        "sustainability-service": true,
+        "ui-config-service": true,
+        "wholesale-service": true
+      },
+      "blockers": {
+        "definition": "A service is composeReady only if dockerfilePresent=true AND defaultPort known AND healthcheckPath known.",
+        "missingDockerfile": [
+          "category-service",
+          "chat-service",
+          "customer-id-service",
+          "push-notification-service",
+          "review-service",
+          "seller-service",
+          "stripe-connect-service"
+        ],
+        "notWiredInCompose": [
+          "category-service",
+          "chat-service",
+          "customer-id-service",
+          "push-notification-service",
+          "review-service",
+          "seller-service",
+          "stripe-connect-service"
+        ],
+        "phase2Summary": {
+          "readyNow": [
+            "bnpl-service",
+            "compliance-service",
+            "crypto-service",
+            "decision-authority-service",
+            "p2p-exchange-service",
+            "paypal-service",
+            "ui-config-service"
+          ],
+          "blockedNow": [
+            "category-service",
+            "chat-service",
+            "customer-id-service",
+            "push-notification-service",
+            "review-service",
+            "seller-service",
+            "stripe-connect-service"
+          ]
+        }
+      }
+    }
+  },
+  "services": {
+    "api-gateway": {
+      "phase": "phase-1",
+      "path": "backend/services/api-gateway",
+      "compose": { "serviceName": "api-gateway" },
+      "ports": [{ "container": 3000, "host": 3000 }]
+    },
+    "auth-service": {
+      "phase": "phase-1",
+      "path": "backend/services/auth-service",
+      "compose": { "serviceName": "auth-service" },
+      "ports": [{ "container": 3001, "host": 3001 }]
+    },
+    "user-service": {
+      "phase": "phase-1",
+      "path": "backend/services/user-service",
+      "compose": { "serviceName": "user-service" },
+      "ports": [{ "container": 3002, "host": 3002 }]
+    },
+    "payment-service": {
+      "phase": "phase-1",
+      "path": "backend/services/payment-service",
+      "compose": { "serviceName": "payment-service" },
+      "ports": [{ "container": 3003, "host": 3003 }]
+    },
+    "product-service": {
+      "phase": "phase-1",
+      "path": "backend/services/product-service",
+      "compose": { "serviceName": "product-service" },
+      "ports": [{ "container": 3004, "host": 3004 }]
+    },
+    "wallet-service": {
+      "phase": "phase-1",
+      "path": "backend/services/wallet-service",
+      "compose": { "serviceName": "wallet-service" },
+      "ports": [{ "container": 3005, "host": 3005 }]
+    },
+    "orders-service": {
+      "phase": "phase-1",
+      "path": "backend/services/orders-service",
+      "compose": { "serviceName": "orders-service" },
+      "ports": [{ "container": 3006, "host": 3006 }]
+    },
+    "escrow-service": {
+      "phase": "phase-1",
+      "path": "backend/services/escrow-service",
+      "compose": { "serviceName": "escrow-service" },
+      "ports": [{ "container": 3007, "host": 3007 }]
+    },
+    "settlement-service": {
+      "phase": "phase-1",
+      "path": "backend/services/settlement-service",
+      "compose": { "serviceName": "settlement-service" },
+      "ports": [{ "container": 3008, "host": 3008 }]
+    },
+    "trips-service": {
+      "phase": "phase-1",
+      "path": "backend/services/trips-service",
+      "compose": { "serviceName": "trips-service" },
+      "ports": [{ "container": 3009, "host": 3009 }]
+    },
+    "matching-service": {
+      "phase": "phase-1",
+      "path": "backend/services/matching-service",
+      "compose": { "serviceName": "matching-service" },
+      "ports": [{ "container": 3010, "host": 3010 }]
+    },
+    "notification-service": {
+      "phase": "phase-1",
+      "path": "backend/services/notification-service",
+      "compose": { "serviceName": "notification-service" },
+      "ports": [{ "container": 3011, "host": 3011 }]
+    },
+    "subscription-service": {
+      "phase": "phase-1",
+      "path": "backend/services/subscription-service",
+      "compose": { "serviceName": "subscription-service" },
+      "ports": [{ "container": 3012, "host": 3012 }]
+    },
+    "cart-service": {
+      "phase": "phase-1",
+      "path": "backend/services/cart-service",
+      "compose": { "serviceName": "cart-service" },
+      "ports": [{ "container": 3013, "host": 3013 }]
+    },
+    "feature-management-service": {
+      "phase": "phase-1",
+      "path": "backend/services/feature-management-service",
+      "compose": { "serviceName": "feature-management-service" },
+      "ports": [{ "container": 3014, "host": 3014 }]
+    },
+    "admin-service": {
+      "phase": "phase-1",
+      "path": "backend/services/admin-service",
+      "compose": { "serviceName": "admin-service" },
+      "ports": [{ "container": 3015, "host": 3015 }]
+    },
+    "country-layer-service": {
+      "phase": "phase-1",
+      "path": "backend/services/country-layer-service",
+      "compose": { "serviceName": "country-layer-service" },
+      "ports": [{ "container": 3016, "host": 3016 }]
+    },
+    "rewards-service": {
+      "phase": "phase-1",
+      "path": "backend/services/rewards-service",
+      "compose": { "serviceName": "rewards-service" },
+      "ports": []
+    },
+    "auth-service-go": {
+      "phase": "phase-1",
+      "path": "backend/services/auth-service-go",
+      "compose": { "serviceName": null },
+      "ports": []
+    },
+
+    "p2p-exchange-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/p2p-exchange-service",
+      "compose": { "serviceName": "p2p-exchange-service", "profile": "phase-2" },
+      "ports": [{ "container": 3028, "host": 3028 }]
+    },
+    "compliance-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/compliance-service",
+      "compose": { "serviceName": "compliance-service", "profile": "phase-2" },
+      "ports": [{ "container": 3027, "host": 3027 }]
+    },
+    "ui-config-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/ui-config-service",
+      "compose": { "serviceName": "ui-config-service", "profile": "phase-2" },
+      "ports": [{ "container": 3020, "host": 3020 }]
+    },
+    "bnpl-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/bnpl-service",
+      "compose": { "serviceName": "bnpl-service", "profile": "phase-2" },
+      "ports": [{ "container": 3017, "host": 3017 }]
+    },
+    "crypto-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/crypto-service",
+      "compose": { "serviceName": "crypto-service", "profile": "phase-2" },
+      "ports": [{ "container": 3018, "host": 3018 }]
+    },
+    "decision-authority-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/decision-authority-service",
+      "compose": { "serviceName": "decision-authority-service", "profile": "phase-2" },
+      "ports": [{ "container": 3010, "host": 3030 }]
+    },
+    "paypal-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/paypal-service",
+      "compose": { "serviceName": "paypal-service", "profile": "phase-2" },
+      "ports": [{ "container": 3023, "host": 3023 }]
+    },
+    "social-commerce-service": {
+      "phase": "phase-2",
+      "path": "archive/legacy-services/social-commerce-service",
+      "compose": { "serviceName": "social-commerce-service", "profile": "phase-2" },
+      "ports": [{ "container": 3028, "host": 3035 }]
+    },
+
+    "recommendation-service": {
+      "phase": "phase-3",
+      "path": "archive/legacy-services/recommendation-service",
+      "compose": { "serviceName": "recommendation-service", "profile": "phase-3" },
+      "ports": []
+    },
+    "signal-aggregation-service": {
+      "phase": "phase-3",
+      "path": "archive/legacy-services/signal-aggregation-service",
+      "compose": { "serviceName": "signal-aggregation-service", "profile": "phase-3" },
+      "ports": []
+    },
+    "ai-core": {
+      "phase": "phase-3",
+      "path": "archive/legacy-services/ai-core",
+      "compose": { "serviceName": "ai-core", "profile": "phase-3" },
+      "ports": []
+    },
+    "ai-assistant-service": {
+      "phase": "phase-3",
+      "path": "archive/legacy-services/ai-assistant-service",
+      "compose": { "serviceName": "ai-assistant-service", "profile": "phase-3" },
+      "ports": [{ "container": 3024, "host": 3024 }]
+    },
+    "mnbarh-ai-engine": {
+      "phase": "phase-3",
+      "path": "archive/legacy-services/mnbarh-ai-engine",
+      "compose": { "serviceName": "mnbarh-ai-engine", "profile": "phase-3" },
+      "ports": [{ "container": 3025, "host": 3025 }]
+    },
+
+    "wholesale-service": {
+      "phase": "phase-4",
+      "path": "archive/legacy-services/wholesale-service",
+      "compose": { "serviceName": "wholesale-service", "profile": "phase-4" },
+      "ports": [{ "container": 3026, "host": 3026 }]
+    },
+    "smart-delivery-service": {
+      "phase": "phase-4",
+      "path": "archive/legacy-services/smart-delivery-service",
+      "compose": { "serviceName": "smart-delivery-service", "profile": "phase-4" },
+      "ports": [{ "container": 3027, "host": 3037 }]
+    },
+    "ad-service": {
+      "phase": "phase-4",
+      "path": "archive/legacy-services/ad-service",
+      "compose": { "serviceName": "ad-service", "profile": "phase-4" },
+      "ports": [{ "container": 3033, "host": 3033 }]
+    },
+    "seo-service": {
+      "phase": "phase-4",
+      "path": "archive/legacy-services/seo-service",
+      "compose": { "serviceName": "seo-service", "profile": "phase-4" },
+      "ports": [{ "container": 3034, "host": 3034 }]
+    },
+    "sustainability-service": {
+      "phase": "phase-4",
+      "path": "archive/legacy-services/sustainability-service",
+      "compose": { "serviceName": "sustainability-service", "profile": "phase-4" },
+      "ports": [{ "container": 3029, "host": 3036 }]
+    },
+
+    "ui-config-dashboard": {
+      "phase": "frontend",
+      "path": "frontend/ui-config-dashboard",
+      "compose": { "serviceName": "ui-config-dashboard", "profile": "frontend" },
+      "ports": [{ "container": 80, "host": 3021 }]
+    },
+    "web-app": {
+      "phase": "frontend",
+      "path": "frontend/web",
+      "compose": { "serviceName": "web-app", "profile": "frontend" },
+      "ports": [{ "container": 3000, "host": 3000 }]
+    },
+    "admin-dashboard": {
+      "phase": "frontend",
+      "path": "frontend/admin-dashboard",
+      "compose": { "serviceName": "admin-dashboard", "profile": "frontend" },
+      "ports": [{ "container": 3000, "host": 3001 }]
+    },
+
+    "prometheus": {
+      "phase": "monitoring",
+      "path": "monitoring",
+      "compose": { "serviceName": "prometheus", "profile": "monitoring" },
+      "ports": [{ "container": 9090, "host": 9090 }]
+    },
+    "grafana": {
+      "phase": "monitoring",
+      "path": "monitoring",
+      "compose": { "serviceName": "grafana", "profile": "monitoring" },
+      "ports": [{ "container": 3000, "host": 3002 }]
+    },
+
+    "xyops": {
+      "phase": "ops",
+      "path": null,
+      "compose": { "serviceName": "xyops", "profile": "ops" },
+      "ports": [{ "container": 5522, "host": 5522 }, { "container": 5523, "host": 5523 }]
+    }
+  }
+}

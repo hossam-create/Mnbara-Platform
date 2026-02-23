@@ -4,6 +4,7 @@ import { Pool, QueryResult } from 'pg';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
+  [key: string]: any;
   private pool: Pool;
 
   constructor(private configService: ConfigService) {}
@@ -131,6 +132,24 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     return result.rows[0];
   }
 
+  async upsert<T = any>(
+    table: string,
+    uniqueKeys: Record<string, any>,
+    data: Record<string, any>
+  ): Promise<T> {
+    const existing = await this.findOne<T>(table, uniqueKeys);
+
+    if (existing) {
+      const updated = await this.update<T>(table, uniqueKeys, data);
+      return updated[0];
+    }
+
+    return this.insert<T>(table, {
+      ...uniqueKeys,
+      ...data,
+    });
+  }
+
   async update<T = any>(
     table: string,
     conditions: Record<string, any>,
@@ -168,3 +187,5 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     return result.rowCount || 0;
   }
 }
+
+export { DatabaseService as PrismaService };

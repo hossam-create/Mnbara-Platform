@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { LoggerService } from './services/logger.service';
 import { ErrorTrackingService } from './services/error-tracking.service';
-import * as compression from 'compression';
+import compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -30,7 +30,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Start listening
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3015;
   await app.listen(port);
 
   logger.log(`🚀 Mnbara Backend started on port ${port}`, 'Bootstrap');

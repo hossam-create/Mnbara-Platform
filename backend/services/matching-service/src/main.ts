@@ -14,7 +14,12 @@ async function bootstrap() {
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+    origin: process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',') 
+      : ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Mnbara Matching API')
@@ -25,7 +30,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT || 3011;
+  const port = process.env.PORT || 3010;
   await app.listen(port);
   console.log(`🚀 Matching Service running on port ${port}`);
   console.log(`📚 Swagger docs available at http://localhost:${port}/api`);

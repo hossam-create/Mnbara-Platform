@@ -14,15 +14,20 @@ const router = Router();
 // ============================================================
 
 const adminGuard = (req: any, res: any, next: any) => {
+  // Extract user from headers (set by API gateway after JWT verification)
   req.user = {
     id: req.headers['x-user-id'] || 'admin',
-    role: req.headers['x-user-role'] || 'admin',
+    role: req.headers['x-user-role'] || 'user',
   };
 
-  // TODO: Verify admin role
-  // if (req.user.role !== 'admin') {
-  //   return res.status(403).json({ success: false, error: 'Admin access required' });
-  // }
+  // Verify admin role
+  if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+    return res.status(403).json({ 
+      success: false, 
+      error: 'Admin access required',
+      message: 'You do not have permission to access this resource'
+    });
+  }
 
   next();
 };

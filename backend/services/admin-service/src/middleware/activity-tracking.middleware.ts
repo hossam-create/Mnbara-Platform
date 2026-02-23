@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { DatabaseService } from '../database/database.service';
-import * as UAParser from 'ua-parser-js';
+import UAParser from 'ua-parser-js';
 import * as geoip from 'geoip-lite';
 
 @Injectable()

@@ -1,3 +1,12 @@
+/**
+ * @deprecated This Express entry point is deprecated.
+ * Use main.ts (NestJS) for all production deployments.
+ * This file is kept for backward compatibility and development flexibility only.
+ * 
+ * See: ENTRY_POINT_STRATEGY.md for details
+ * Production entry point: src/main.ts
+ */
+
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

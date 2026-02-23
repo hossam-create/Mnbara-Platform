@@ -1,66 +1,22 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { 
+  Injectable, 
+  Logger, 
+  NotFoundException, 
+  BadRequestException, 
+  ConflictException 
+} from '@nestjs/common';
+import { Escrow, EscrowStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { TransferService } from '../transfer/transfer.service';
-import { generateIdempotencyKey } from '../utils/money';
-import { LedgerReason, ReferenceType } from '../types';
-import crypto from 'crypto';
-import {
-  CreateEscrowRequestDto,
-  CreateAndFundEscrowRequestDto,
-  FundEscrowRequestDto,
-  ReleaseEscrowRequestDto,
-  RefundEscrowRequestDto,
-  DisputeEscrowRequestDto,
-  EscrowResponseDto,
-  EscrowTransferResponseDto,
-  EscrowStatus,
-  EscrowReferenceType,
+import { 
+  CreateEscrowRequestDto, 
+  CreateAndFundEscrowRequestDto, 
+  FundEscrowRequestDto, 
+  ReleaseEscrowRequestDto, 
+  RefundEscrowRequestDto, 
+  DisputeEscrowRequestDto 
 } from '../dto/escrow.dto';
-
-export interface CreateEscrowRequest {
-  buyerWalletId: string;
-  sellerWalletId: string;
-  amount: bigint;
-  currency: string;
-  referenceType: EscrowReferenceType;
-  referenceId: string;
-  description?: string;
-  systemWalletId: string;
-}
-
-export interface CreateAndFundEscrowRequest extends CreateEscrowRequest {
-  reason?: LedgerReason;
-  createdBy: string;
-}
-
-export interface FundEscrowRequest {
-  escrowId: string;
-  userId: string;
-  reason?: LedgerReason;
-  description?: string;
-}
-
-export interface ReleaseEscrowRequest {
-  escrowId: string;
-  userId: string;
-  reason?: LedgerReason;
-  description?: string;
-}
-
-export interface RefundEscrowRequest {
-  escrowId: string;
-  userId: string;
-  reason?: LedgerReason;
-  description?: string;
-}
-
-export interface DisputeEscrowRequest {
-  escrowId: string;
-  userId: string;
-  disputeReason: string;
-  description?: string;
-}
+import { LedgerReason, ReferenceType } from '../types';
 
 @Injectable()
 export class EscrowService {
@@ -73,426 +29,320 @@ export class EscrowService {
 
   // ============================================================
   // CREATE ESCROW
+  // State: -> CREATED
   // ============================================================
+  async createEscrow(data: CreateEscrowRequestDto, createdBy: string): Promise<Escrow> {
+    const { buyerWalletId, sellerWalletId, amount, currency, referenceType, referenceId, description } = data;
 
-  async createEscrow(request: CreateEscrowRequestDto): Promise<EscrowResponseDto> {
-    this.logger.log(`Creating escrow for buyer ${request.buyerWalletId} and seller ${request.sellerWalletId}`);
-
-    // Validate wallets exist and are not the same
-    if (request.buyerWalletId === request.sellerWalletId) {
-      throw new BadRequestException('Buyer and seller wallets cannot be the same');
+    // 1. Validate amount
+    if (amount <= 0) {
+      throw new BadRequestException('Amount must be greater than 0');
     }
 
-    const escrowId = crypto.randomUUID();
-    const now = new Date();
+    // 2. Validate wallets exist
+    const [buyer, seller] = await Promise.all([
+      this.prisma.wallet.findUnique({ where: { id: buyerWalletId } }),
+      this.prisma.wallet.findUnique({ where: { id: sellerWalletId } }),
+    ]);
 
-    try {
-      const escrow = await this.prisma.escrow.create({
-        data: {
-          id: escrowId,
-          buyerWalletId: request.buyerWalletId,
-          sellerWalletId: request.sellerWalletId,
-          systemWalletId: request.systemWalletId,
-          amount: request.amount.toString(),
-          currency: request.currency,
-          status: EscrowStatus.CREATED,
-          referenceType: request.referenceType as any,
-          referenceId: request.referenceId,
-          description: request.description,
-          createdAt: now,
-          updatedAt: now,
-        },
-      });
+    if (!buyer) throw new NotFoundException(`Buyer wallet ${buyerWalletId} not found`);
+    if (!seller) throw new NotFoundException(`Seller wallet ${sellerWalletId} not found`);
 
-      this.logger.log(`Escrow created: ${escrowId}`);
-      return this.mapToEscrowResponse(escrow);
-    } catch (error: any) {
-      if (error.code === 'P2002') {
-        throw new ConflictException('Escrow with this reference already exists');
-      }
-      throw error;
+    // 3. Validate currency match
+    if (buyer.primaryCurrency !== currency || seller.primaryCurrency !== currency) {
+      throw new BadRequestException('Wallets must match escrow currency');
     }
+
+    // 4. Create Escrow Record (CREATED state)
+    // Note: No money moves yet
+    // Convert amount to BigInt for Prisma
+    const amountBigInt = BigInt(amount); // Assuming amount is technically "minor units" or consistent with BigInt storage
+
+    return await this.prisma.escrow.create({
+      data: {
+        buyerWalletId,
+        sellerWalletId,
+        amount: amountBigInt,
+        currency,
+        referenceType,
+        referenceId,
+        description,
+        status: EscrowStatus.CREATED,
+        createdBy, // Assuming createdBy is a User UUID
+      },
+    });
   }
 
   // ============================================================
-  // CREATE AND FUND ESCROW (Atomic)
+  // CREATE & FUND ESCROW (Atomic "Buy Now")
+  // State: -> FUNDED
   // ============================================================
+  async createAndFundEscrow(data: CreateAndFundEscrowRequestDto): Promise<Escrow> {
+    const { 
+      buyerWalletId, sellerWalletId, systemWalletId, 
+      amount, currency, referenceType, referenceId, 
+      description, createdBy, reason, requestId 
+    } = data;
 
-  async createAndFundEscrow(request: CreateAndFundEscrowRequestDto): Promise<EscrowTransferResponseDto> {
-    this.logger.log(`Creating and funding escrow for buyer ${request.buyerWalletId}`);
+    // 1. Validate amount
+    if (amount <= 0) {
+      throw new BadRequestException('Amount must be greater than 0');
+    }
+
+    // 2. Validate currency & wallets
+    const [buyer, seller, system] = await Promise.all([
+      this.prisma.wallet.findUnique({ where: { id: buyerWalletId } }),
+      this.prisma.wallet.findUnique({ where: { id: sellerWalletId } }),
+      this.prisma.wallet.findUnique({ where: { id: systemWalletId } }),
+    ]);
+
+    if (!buyer) throw new NotFoundException(`Buyer wallet ${buyerWalletId} not found`);
+    if (!seller) throw new NotFoundException(`Seller wallet ${sellerWalletId} not found`);
+    if (!system) throw new NotFoundException(`System wallet ${systemWalletId} not found`);
+
+    if (buyer.primaryCurrency !== currency || seller.primaryCurrency !== currency || system.primaryCurrency !== currency) {
+      throw new BadRequestException('Wallets must match escrow currency');
+    }
+
+    const amountBigInt = BigInt(amount);
 
     return await this.prisma.$transaction(async (tx) => {
-      // Step 1: Create escrow
+      // 3. Create Escrow Record (Initially FUNDED because we are about to fund it)
       const escrow = await tx.escrow.create({
         data: {
-          id: crypto.randomUUID(),
-          buyerWalletId: request.buyerWalletId,
-          sellerWalletId: request.sellerWalletId,
-          systemWalletId: request.systemWalletId,
-          amount: request.amount.toString(),
-          currency: request.currency,
-          status: EscrowStatus.CREATED,
-          referenceType: request.referenceType as any,
-          referenceId: request.referenceId,
-          description: request.description,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          buyerWalletId,
+          sellerWalletId,
+          amount: amountBigInt,
+          currency,
+          referenceType,
+          referenceId,
+          description,
+          status: EscrowStatus.FUNDED, // Direct to FUNDED
+          fundedAt: new Date(),
+          createdBy: createdBy, // User ID
         },
       });
 
-      // Step 2: Fund the escrow (buyer -> system)
-      const idempotencyKey = generateIdempotencyKey(
-        'escrow_fund',
-        escrow.id,
-        BigInt(request.amount)
-      );
+      // Determine Ledger Reason
+      const ledgerReason = reason || LedgerReason.PURCHASE_HOLD;
 
-      const transferResult = await this.transferService.executeAtomicTransfer({
-        fromWalletId: request.buyerWalletId,
-        toWalletId: request.systemWalletId,
-        amount: BigInt(request.amount),
-        reason: request.reason || LedgerReason.ESCROW_FUND,
+      // 4. Execute Atomic Transfer (Buyer -> System)
+      const transfer = await this.transferService.executeAtomicTransfer({
+        fromWalletId: buyerWalletId,
+        toWalletId: systemWalletId,
+        amount: amountBigInt,
+        reason: ledgerReason,
         referenceType: ReferenceType.ESCROW,
-        referenceId: escrow.id,
-        description: `Funding escrow ${escrow.id}`,
-        idempotencyKey,
-        createdBy: request.createdBy,
+        referenceId: escrow.id, // Link to this escrow
+        description: `Escrow Hold for ${referenceType} #${referenceId}`,
         transferId: crypto.randomUUID(),
-      }, tx);
+        idempotencyKey: requestId || `fund_${escrow.id}`,
+        createdBy: createdBy, // Triggered by creator
+      }, tx); // Pass the transaction client!
 
-      // Step 3: Update escrow status to FUNDED
-      await tx.escrow.update({
+      // 5. Update Escrow with Ledger Entry ID
+      // This links the specific credit entry on the system wallet as the "hold" proof
+      const updatedEscrow = await tx.escrow.update({
         where: { id: escrow.id },
-        data: { 
-          status: EscrowStatus.FUNDED,
-          updatedAt: new Date(),
+        data: {
+          holdEntryId: transfer.toEntry.entryId,
         },
       });
 
-      this.logger.log(`Escrow created and funded: ${escrow.id}`);
-      
-      return {
-        transferId: transferResult.transferId,
-        fromEntry: transferResult.fromEntry,
-        toEntry: transferResult.toEntry,
-        amount: transferResult.amount,
-        currency: transferResult.currency,
-        reason: transferResult.reason,
-        referenceType: transferResult.referenceType,
-        referenceId: transferResult.referenceId,
-        idempotencyKey: transferResult.idempotencyKey,
-        createdAt: transferResult.createdAt,
-        isIdempotent: transferResult.isIdempotent,
-      };
+      return updatedEscrow;
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-      timeout: 15000,
+      timeout: 10000,
     });
   }
 
   // ============================================================
-  // FUND ESCROW
+  // FUND ESCROW (Buyer -> System)
+  // State: CREATED -> FUNDED
   // ============================================================
+  async fundEscrow(data: FundEscrowRequestDto): Promise<Escrow> {
+    const { escrowId, buyerWalletId, systemWalletId, userId, reason } = data;
 
-  async fundEscrow(request: FundEscrowRequestDto): Promise<EscrowTransferResponseDto> {
-    this.logger.log(`Funding escrow: ${request.escrowId}`);
+    // 1. Fetch Escrow
+    const escrow = await this.prisma.escrow.findUnique({ where: { id: escrowId } });
+    if (!escrow) throw new NotFoundException('Escrow not found');
+
+    // 2. Validate State
+    if (escrow.status === EscrowStatus.FUNDED) {
+      // Idempotency check: If already funded, just return.
+      return escrow;
+    }
+    if (escrow.status !== EscrowStatus.CREATED) {
+      throw new BadRequestException(`Invalid transition: Cannot fund from ${escrow.status}`);
+    }
+
+    // 3. Validate Parties
+    if (escrow.buyerWalletId !== buyerWalletId) {
+      throw new BadRequestException('Buyer wallet mismatch');
+    }
 
     return await this.prisma.$transaction(async (tx) => {
-      // Step 1: Get escrow and validate
-      const escrow = await tx.escrow.findUnique({
-        where: { id: request.escrowId },
-      });
-
-      if (!escrow) {
-        throw new NotFoundException(`Escrow ${request.escrowId} not found`);
-      }
-
-      if (escrow.status !== EscrowStatus.CREATED) {
-        throw new BadRequestException(`Escrow ${request.escrowId} is not in CREATED status`);
-      }
-
-      // Step 2: Execute transfer (buyer -> system)
-      const idempotencyKey = generateIdempotencyKey(
-        'escrow_fund',
-        escrow.id,
-        BigInt(escrow.amount)
-      );
-
-      const transferResult = await this.transferService.executeAtomicTransfer({
-        fromWalletId: escrow.buyerWalletId,
-        toWalletId: escrow.systemWalletId,
-        amount: BigInt(escrow.amount),
-        reason: request.reason || LedgerReason.ESCROW_FUND,
+      // 4. Execute Atomic Transfer (Buyer -> System)
+      const transfer = await this.transferService.executeAtomicTransfer({
+        fromWalletId: buyerWalletId,
+        toWalletId: systemWalletId,
+        amount: escrow.amount,
+        reason: reason || LedgerReason.PURCHASE_HOLD,
         referenceType: ReferenceType.ESCROW,
         referenceId: escrow.id,
-        description: request.description || `Funding escrow ${escrow.id}`,
-        idempotencyKey,
-        createdBy: request.userId,
-        transferId: crypto.randomUUID(),
+        description: `Escrow Hold for ${escrow.referenceType} #${escrow.referenceId}`,
+        idempotencyKey: `fund_${escrow.id}`, // Idempotency
+        createdBy: userId,
       }, tx);
 
-      // Step 3: Update escrow status
-      await tx.escrow.update({
-        where: { id: escrow.id },
-        data: { 
+      // 5. Update Escrow State
+      const updatedEscrow = await tx.escrow.update({
+        where: { id: escrowId },
+        data: {
           status: EscrowStatus.FUNDED,
-          updatedAt: new Date(),
+          fundedAt: new Date(),
+          holdEntryId: transfer.toEntry.entryId, // Link to the credit on system wallet
         },
       });
 
-      this.logger.log(`Escrow funded: ${escrow.id}`);
-      return {
-        transferId: transferResult.transferId,
-        fromEntry: transferResult.fromEntry,
-        toEntry: transferResult.toEntry,
-        amount: transferResult.amount,
-        currency: transferResult.currency,
-        reason: transferResult.reason,
-        referenceType: transferResult.referenceType,
-        referenceId: transferResult.referenceId,
-        idempotencyKey: transferResult.idempotencyKey,
-        createdAt: transferResult.createdAt,
-        isIdempotent: transferResult.isIdempotent,
-      };
+      return updatedEscrow;
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-      timeout: 15000,
     });
   }
 
   // ============================================================
-  // RELEASE ESCROW
+  // RELEASE ESCROW (System -> Seller)
+  // State: FUNDED/DISPUTED -> RELEASED
   // ============================================================
+  async releaseEscrow(data: ReleaseEscrowRequestDto): Promise<Escrow> {
+    const { escrowId, systemWalletId, userId, reason } = data;
 
-  async releaseEscrow(request: ReleaseEscrowRequestDto): Promise<EscrowTransferResponseDto> {
-    this.logger.log(`Releasing escrow: ${request.escrowId}`);
+    const escrow = await this.prisma.escrow.findUnique({ where: { id: escrowId } });
+    if (!escrow) throw new NotFoundException('Escrow not found');
+
+    // Idempotency check
+    if (escrow.status === EscrowStatus.RELEASED) return escrow;
+    
+    // Status Guard
+    if (escrow.status !== EscrowStatus.FUNDED && escrow.status !== EscrowStatus.DISPUTED) {
+      throw new BadRequestException(`Invalid transition: Cannot release from ${escrow.status}`);
+    }
 
     return await this.prisma.$transaction(async (tx) => {
-      // Step 1: Get escrow and validate
-      const escrow = await tx.escrow.findUnique({
-        where: { id: request.escrowId },
-      });
-
-      if (!escrow) {
-        throw new NotFoundException(`Escrow ${request.escrowId} not found`);
-      }
-
-      if (escrow.status !== EscrowStatus.FUNDED) {
-        throw new BadRequestException(`Escrow ${request.escrowId} is not in FUNDED status`);
-      }
-
-      // Step 2: Execute transfer (system -> seller)
-      const idempotencyKey = generateIdempotencyKey(
-        'escrow_release',
-        escrow.id,
-        BigInt(escrow.amount)
-      );
-
-      const transferResult = await this.transferService.executeAtomicTransfer({
-        fromWalletId: escrow.systemWalletId,
+      // 1. Execute Atomic Transfer (System -> Seller)
+      const transfer = await this.transferService.executeAtomicTransfer({
+        fromWalletId: systemWalletId, // Funds sit here
         toWalletId: escrow.sellerWalletId,
-        amount: BigInt(escrow.amount),
-        reason: request.reason || LedgerReason.ESCROW_RELEASE,
+        amount: escrow.amount,
+        reason: reason || LedgerReason.PURCHASE_RELEASE,
         referenceType: ReferenceType.ESCROW,
         referenceId: escrow.id,
-        description: request.description || `Releasing escrow ${escrow.id}`,
-        idempotencyKey,
-        createdBy: request.userId,
+        description: `Escrow Release for ${escrow.referenceType} #${escrow.referenceId}`,
         transferId: crypto.randomUUID(),
+        idempotencyKey: `release_${escrow.id}`,
+        createdBy: userId,
       }, tx);
 
-      // Step 3: Update escrow status
-      await tx.escrow.update({
-        where: { id: escrow.id },
-        data: { 
+      // 2. Update Escrow State
+      const updatedEscrow = await tx.escrow.update({
+        where: { id: escrowId },
+        data: {
           status: EscrowStatus.RELEASED,
-          updatedAt: new Date(),
+          releasedAt: new Date(),
+          releasedBy: userId,
+          releaseEntryId: transfer.fromEntry.entryId, // Debit from System
         },
       });
 
-      this.logger.log(`Escrow released: ${escrow.id}`);
-      return {
-        transferId: transferResult.transferId,
-        fromEntry: transferResult.fromEntry,
-        toEntry: transferResult.toEntry,
-        amount: transferResult.amount,
-        currency: transferResult.currency,
-        reason: transferResult.reason,
-        referenceType: transferResult.referenceType,
-        referenceId: transferResult.referenceId,
-        idempotencyKey: transferResult.idempotencyKey,
-        createdAt: transferResult.createdAt,
-        isIdempotent: transferResult.isIdempotent,
-      };
+      return updatedEscrow;
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-      timeout: 15000,
     });
   }
 
   // ============================================================
-  // REFUND ESCROW
+  // REFUND ESCROW (System -> Buyer)
+  // State: FUNDED/DISPUTED -> REFUNDED
   // ============================================================
+  async refundEscrow(data: RefundEscrowRequestDto): Promise<Escrow> {
+    const { escrowId, systemWalletId,  userId, reason } = data;
 
-  async refundEscrow(request: RefundEscrowRequestDto): Promise<EscrowTransferResponseDto> {
-    this.logger.log(`Refunding escrow: ${request.escrowId}`);
+    const escrow = await this.prisma.escrow.findUnique({ where: { id: escrowId } });
+    if (!escrow) throw new NotFoundException('Escrow not found');
+
+    // Idempotency check
+    if (escrow.status === EscrowStatus.REFUNDED) return escrow;
+
+    // Status Guard
+    if (escrow.status !== EscrowStatus.FUNDED && escrow.status !== EscrowStatus.DISPUTED) {
+      throw new BadRequestException(`Invalid transition: Cannot refund from ${escrow.status}`);
+    }
 
     return await this.prisma.$transaction(async (tx) => {
-      // Step 1: Get escrow and validate
-      const escrow = await tx.escrow.findUnique({
-        where: { id: request.escrowId },
-      });
-
-      if (!escrow) {
-        throw new NotFoundException(`Escrow ${request.escrowId} not found`);
-      }
-
-      if (escrow.status !== EscrowStatus.FUNDED) {
-        throw new BadRequestException(`Escrow ${request.escrowId} is not in FUNDED status`);
-      }
-
-      // Step 2: Execute transfer (system -> buyer)
-      const idempotencyKey = generateIdempotencyKey(
-        'escrow_refund',
-        escrow.id,
-        BigInt(escrow.amount)
-      );
-
-      const transferResult = await this.transferService.executeAtomicTransfer({
-        fromWalletId: escrow.systemWalletId,
+      // 1. Execute Atomic Transfer (System -> Buyer)
+      const transfer = await this.transferService.executeAtomicTransfer({
+        fromWalletId: systemWalletId, // Funds returned from System
         toWalletId: escrow.buyerWalletId,
-        amount: BigInt(escrow.amount),
-        reason: request.reason || LedgerReason.ESCROW_REFUND,
+        amount: escrow.amount,
+        reason: reason || LedgerReason.REFUND,
         referenceType: ReferenceType.ESCROW,
         referenceId: escrow.id,
-        description: request.description || `Refunding escrow ${escrow.id}`,
-        idempotencyKey,
-        createdBy: request.userId,
+        description: `Refund: ${reason}`,
         transferId: crypto.randomUUID(),
+        idempotencyKey: `refund_${escrow.id}`,
+        createdBy: userId,
       }, tx);
 
-      // Step 3: Update escrow status
-      await tx.escrow.update({
-        where: { id: escrow.id },
-        data: { 
+      // 2. Update Escrow State
+      const updatedEscrow = await tx.escrow.update({
+        where: { id: escrowId },
+        data: {
           status: EscrowStatus.REFUNDED,
-          updatedAt: new Date(),
+          refundedAt: new Date(),
+          refundedBy: userId,
+          refundEntryId: transfer.fromEntry.entryId, // Debit from System
+          resolutionNote: reason ? String(reason) : undefined,
         },
       });
 
-      this.logger.log(`Escrow refunded: ${escrow.id}`);
-      return {
-        transferId: transferResult.transferId,
-        fromEntry: transferResult.fromEntry,
-        toEntry: transferResult.toEntry,
-        amount: transferResult.amount,
-        currency: transferResult.currency,
-        reason: transferResult.reason,
-        referenceType: transferResult.referenceType,
-        referenceId: transferResult.referenceId,
-        idempotencyKey: transferResult.idempotencyKey,
-        createdAt: transferResult.createdAt,
-        isIdempotent: transferResult.isIdempotent,
-      };
+      return updatedEscrow;
     }, {
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-      timeout: 15000,
     });
   }
 
   // ============================================================
   // DISPUTE ESCROW
+  // State: FUNDED -> DISPUTED
   // ============================================================
+  async disputeEscrow(data: DisputeEscrowRequestDto): Promise<Escrow> {
+    const { escrowId, disputeReason, userId } = data;
 
-  async disputeEscrow(request: DisputeEscrowRequestDto): Promise<EscrowResponseDto> {
-    this.logger.log(`Disputing escrow: ${request.escrowId}`);
-
-    // Get escrow and validate
-    const escrow = await this.prisma.escrow.findUnique({
-      where: { id: request.escrowId },
-    });
-
-    if (!escrow) {
-      throw new NotFoundException(`Escrow ${request.escrowId} not found`);
-    }
+    const escrow = await this.prisma.escrow.findUnique({ where: { id: escrowId } });
+    if (!escrow) throw new NotFoundException('Escrow not found');
 
     if (escrow.status !== EscrowStatus.FUNDED) {
-      throw new BadRequestException(`Escrow ${request.escrowId} must be FUNDED to dispute`);
+      throw new BadRequestException(`Invalid transition: Cannot dispute from ${escrow.status}`);
     }
 
-    // Update escrow with dispute information
-    const updatedEscrow = await this.prisma.escrow.update({
-      where: { id: escrow.id },
+    // No money moves, just state update
+    return await this.prisma.escrow.update({
+      where: { id: escrowId },
       data: {
         status: EscrowStatus.DISPUTED,
-        disputeReason: request.disputeReason,
-        disputeDetails: request.description,
-        updatedAt: new Date(),
+        disputedAt: new Date(),
+        disputeReason: disputeReason,
       },
     });
-
-    this.logger.log(`Escrow disputed: ${escrow.id}`);
-    return this.mapToEscrowResponse(updatedEscrow);
   }
 
   // ============================================================
-  // HELPER METHODS
+  // READ OPERATIONS
   // ============================================================
-
-  private mapToEscrowResponse(escrow: any): EscrowResponseDto {
-    return {
-      escrowId: escrow.id,
-      buyerWalletId: escrow.buyerWalletId,
-      sellerWalletId: escrow.sellerWalletId,
-      systemWalletId: escrow.systemWalletId,
-      amount: escrow.amount,
-      currency: escrow.currency,
-      status: escrow.status as EscrowStatus,
-      referenceType: escrow.referenceType as EscrowReferenceType,
-      referenceId: escrow.referenceId,
-      description: escrow.description || undefined,
-      createdAt: escrow.createdAt,
-      updatedAt: escrow.updatedAt,
-      disputeReason: escrow.disputeReason || undefined,
-      disputeDetails: escrow.disputeDetails || undefined,
-    };
-  }
-
-  // ============================================================
-  // QUERY METHODS
-  // ============================================================
-
-  async getEscrow(escrowId: string): Promise<EscrowResponseDto | null> {
-    const escrow = await this.prisma.escrow.findUnique({
-      where: { id: escrowId },
-    });
-
-    return escrow ? this.mapToEscrowResponse(escrow) : null;
-  }
-
-  async getEscrowsByUser(walletId: string): Promise<EscrowResponseDto[]> {
-    const escrows = await this.prisma.escrow.findMany({
-      where: {
-        OR: [
-          { buyerWalletId: walletId },
-          { sellerWalletId: walletId },
-        ],
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return escrows.map(this.mapToEscrowResponse);
-  }
-
-  async getEscrowsByReference(referenceType: EscrowReferenceType, referenceId: string): Promise<EscrowResponseDto[]> {
-    const escrows = await this.prisma.escrow.findMany({
-      where: {
-        referenceType: referenceType as any,
-        referenceId,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return escrows.map(this.mapToEscrowResponse);
+  async getEscrow(id: string): Promise<Escrow> {
+    const escrow = await this.prisma.escrow.findUnique({ where: { id } });
+    if (!escrow) throw new NotFoundException('Escrow not found');
+    return escrow;
   }
 }

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
-import { ContractsService } from '../../../services/contracts.service';
+import { ContractsService } from '../../services/contracts.service';
 import { ethers } from 'ethers';
 
 @Controller('api/blockchain/staking')

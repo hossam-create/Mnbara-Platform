@@ -30,8 +30,10 @@ These ports should be used in `docker-compose.yml`, local development, and confi
 | **ai-assistant-service** | 3024 | GenAI Assistant |
 | **mnbarh-ai-engine** | 3025 | Core AI Engine |
 | **wholesale-service** | 3026 | B2B Marketplace |
-| **compliance-service** | 3026 | *Collision! Should use 3027* (Note: Compliance is using 3026 in docker-compose, check conflict) |
+| **compliance-service** | 3027 | Customs Warnings & Prohibited Items |
 | **p2p-exchange-service** | 3028 | Currency Exchange |
+| **decision-authority-service** | 3030 | Custodii / Decision Authority Integration |
+| **smart-delivery-service** | 3037 | AI Route Optimization |
 
 **Note on Conflicts:**
-- `compliance-service` is assigned 3026 in `docker-compose`. `wholesale-service` is ALSO assigned 3026 in `docker-compose`. This is a collision.
+- No known port collisions in the canonical assignments above.

@@ -1,30 +1,38 @@
-FROM node:18-alpine
+# Country Layer Service (NestJS)
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json ./
+COPY tsconfig.json ./
+COPY nest-cli.json ./
+RUN npm install
 
-# Copy source code
-COPY . .
-
-# Generate Prisma client
+# Copy Prisma schema and generate client
+COPY prisma ./prisma/
 RUN npx prisma generate
 
-# Build TypeScript
+# Copy source code
+COPY src ./src
+
+# Build the application
 RUN npm run build
 
 # Create non-root user
 RUN addgroup -g 1001 -S country && adduser -S country -u 1001
 USER country
 
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3016
+
 # Expose port
-EXPOSE 3015
+EXPOSE 3016
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3015/health || exit 1
+  CMD wget -q --spider http://localhost:3016/health || exit 1
 
-# Start application
-CMD ["node", "dist/server.js"]
+# Start service
+CMD ["node", "dist/main.js"]

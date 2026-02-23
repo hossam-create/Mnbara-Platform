@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -22,10 +23,11 @@ model Country {
 
   // Relations
   rules             CountryRule[]
-  productCountries  ProductCountry[]
+  originProducts    ProductCountry[] @relation("OriginCountry")
+  purchaseProducts  ProductCountry[] @relation("PurchaseCountry")
+  deliveryProducts  ProductCountry[] @relation("DeliveryCountry")
   travelerRoutesFrom TravelerRoute[] @relation("FromCountry")
   travelerRoutesTo   TravelerRoute[] @relation("ToCountry")
-  complianceLogs    ComplianceLog[]
 
   @@map("countries")
 }

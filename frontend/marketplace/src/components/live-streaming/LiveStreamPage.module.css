@@ -1,0 +1,244 @@
+/* LiveStreamPage Styles */
+
+.container {
+  padding: 24px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 0;
+}
+
+.title {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.username {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.streamerBadge {
+  background: linear-gradient(45deg, #ff6b6b, #ffa726);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabs {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  padding: 0 24px;
+}
+
+.tabs :global(.ant-tabs-tab) {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tabs :global(.ant-tabs-tab:hover) {
+  color: white !important;
+}
+
+.tabs :global(.ant-tabs-tab-active) {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.tabs :global(.ant-tabs-tab-btn) {
+  padding: 8px 16px;
+}
+
+.tabs :global(.ant-tabs-ink-bar) {
+  background: white !important;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.tabs :global(.ant-tabs-content) {
+  padding: 24px;
+}
+
+.playerCard {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: none;
+  overflow: hidden;
+}
+
+.playerCard :global(.ant-card-body) {
+  padding: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .tabs :global(.ant-tabs-nav) {
+    padding: 0 16px;
+  }
+  
+  .tabs :global(.ant-tabs-tab) {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+  
+  .tabs :global(.ant-tabs-content) {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem;
+  }
+  
+  .tabs :global(.ant-tabs-nav) {
+    padding: 0 8px;
+  }
+  
+  .tabs :global(.ant-tabs-tab) {
+    padding: 8px 4px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .tabs {
+    background: #2d3748;
+    color: white;
+  }
+  
+  .playerCard {
+    background: #2d3748;
+    color: white;
+  }
+}
+
+/* Animation for tab transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabs :global(.ant-tabs-tabpane) {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Loading states */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #667eea;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error states */
+.error {
+  background: #ff6b6b;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Success states */
+.success {
+  background: #4caf50;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Info states */
+.info {
+  background: #2196f3;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Warning states */
+.warning {
+  background: #ff9800;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}

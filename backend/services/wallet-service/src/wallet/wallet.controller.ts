@@ -10,7 +10,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { WalletService } from '../services/wallet.service';
+import { WalletService } from './wallet.service';
 import { CreateWalletDto } from '../dto/create-wallet.dto';
 import { DepositDto } from '../dto/deposit.dto';
 import { WithdrawDto } from '../dto/withdraw.dto';
