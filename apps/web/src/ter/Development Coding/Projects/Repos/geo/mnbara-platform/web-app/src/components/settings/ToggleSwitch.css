@@ -1,0 +1,59 @@
+/**
+ * ToggleSwitch Styles
+ */
+
+.mnbara-toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.mnbara-toggle-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.mnbara-toggle-switch__slider {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 26px;
+  flex-shrink: 0;
+}
+
+.mnbara-toggle-switch__slider:before {
+  content: '';
+  position: absolute;
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.mnbara-toggle-switch__input:checked + .mnbara-toggle-switch__slider {
+  background-color: #0d6efd;
+}
+
+.mnbara-toggle-switch__input:checked + .mnbara-toggle-switch__slider:before {
+  transform: translateX(22px);
+}
+
+.mnbara-toggle-switch__input:disabled + .mnbara-toggle-switch__slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mnbara-toggle-switch__label {
+  font-size: 14px;
+  color: #495057;
+}

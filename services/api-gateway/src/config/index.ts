@@ -30,6 +30,13 @@ interface GatewayConfig {
   
   // CORS
   corsOrigin: string;
+  corsCredentials: boolean;
+  corsMaxAge: number;
+  
+  // Security Headers
+  enableSecurityHeaders: boolean;
+  hstsMaxAge: number;
+  enableCSP: boolean;
   
   // Logging
   logLevel: string;
@@ -58,6 +65,12 @@ export const config: GatewayConfig = {
   redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
   
   corsOrigin: process.env.CORS_ORIGIN || '*',
+  corsCredentials: process.env.CORS_CREDENTIALS === 'true',
+  corsMaxAge: parseInt(process.env.CORS_MAX_AGE || '86400', 10),
+  
+  enableSecurityHeaders: process.env.ENABLE_SECURITY_HEADERS !== 'false',
+  hstsMaxAge: parseInt(process.env.HSTS_MAX_AGE || '31536000', 10),
+  enableCSP: process.env.ENABLE_CSP === 'true',
   
   logLevel: process.env.LOG_LEVEL || 'info',
 };

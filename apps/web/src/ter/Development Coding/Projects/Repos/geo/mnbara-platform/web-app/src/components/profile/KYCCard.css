@@ -1,0 +1,168 @@
+/**
+ * KYCCard Styles
+ */
+
+.mnbara-kyc-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mnbara-kyc-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.mnbara-kyc-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0;
+}
+
+.mnbara-kyc-card__status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mnbara-kyc-card__progress {
+  margin-bottom: 20px;
+}
+
+.mnbara-kyc-card__progress-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.mnbara-kyc-card__progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.mnbara-kyc-card__progress-text {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mnbara-kyc-card__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.mnbara-kyc-card__step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mnbara-kyc-card__step-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mnbara-kyc-card__step-icon.completed {
+  background-color: #d1e7dd;
+  color: #0a5132;
+}
+
+.mnbara-kyc-card__step-icon.in_progress {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.mnbara-kyc-card__step-icon.pending {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.mnbara-kyc-card__step-label {
+  font-size: 13px;
+  color: #495057;
+}
+
+.mnbara-kyc-card__step-label.completed {
+  color: #212529;
+  font-weight: 500;
+}
+
+.mnbara-kyc-card__benefits {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.mnbara-kyc-card__benefits-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+.mnbara-kyc-card__benefits-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mnbara-kyc-card__benefits-list li {
+  font-size: 13px;
+  color: #495057;
+}
+
+.mnbara-kyc-card__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.mnbara-kyc-card__btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-kyc-card__btn--primary {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.mnbara-kyc-card__btn--primary:hover {
+  background-color: #0b5ed7;
+}
+
+.mnbara-kyc-card__btn--secondary {
+  background-color: #f1f3f5;
+  color: #495057;
+}
+
+.mnbara-kyc-card__btn--secondary:hover {
+  background-color: #e9ecef;
+}

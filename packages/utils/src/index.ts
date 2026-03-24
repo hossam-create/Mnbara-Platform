@@ -9,7 +9,7 @@ export {
   getCurrencySymbol,
   getCurrencyLocale,
   type CurrencyCode,
-} from './currency';
+} from './currency.js';
 
 // Date utilities
 export {
@@ -24,8 +24,20 @@ export {
   isToday,
   isPast,
   isFuture,
+  addDays,
+  addMonths,
+  addYears,
+  diffInDays,
+  diffInHours,
+  diffInMinutes,
+  isWeekend,
+  isWeekday,
+  getWeekNumber,
+  parseDate,
+  isValidDate,
   type DateFormat,
-} from './date';
+  type RelativeTimeUnit,
+} from './date.js';
 
 // Validation utilities
 export {
@@ -53,7 +65,7 @@ export {
   throttle,
   deepClone,
   isEmpty,
-} from './validation';
+} from './validation.js';
 
 // General helpers
 export {
@@ -96,4 +108,4 @@ export {
   sleep,
   retry,
   generateId,
-} from './helpers';
+} from './helpers.js';

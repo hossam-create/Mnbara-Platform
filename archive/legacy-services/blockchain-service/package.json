@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@mnbarh/blockchain-service",
   "version": "1.0.0",
   "description": "mnbarh Blockchain Service - Smart Contract Integration",
@@ -19,7 +19,7 @@
     "morgan": "^1.10.0",
     "amqplib": "^0.10.3",
     "express-validator": "^7.0.1",
-    "jsonwebtoken": "^9.1.0",
+    "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {

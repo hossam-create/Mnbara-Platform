@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Notification {
+  id            String         @id @default(uuid())
+  userId        String
+  
+  type          NotificationType
+  title         String
+  message       String         @db.Text
+  data          Json?
+  
+  // Status
+  read          Boolean        @default(false)
+  readAt        DateTime?
+  
+  // Delivery channels
+  channels      NotificationChannel[]
+  
+  // Delivery status
+  sent          Boolean        @default(false)
+  sentAt        DateTime?
+  failureReason String?
+  
+  // Retry tracking
+  retryCount    Int            @default(0)
+  maxRetries    Int            @default(3)
+  nextRetryAt   DateTime?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([userId])
+  @@index([type])
+  @@index([read])
+  @@index([sent])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationTemplate {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  type          NotificationType
+  
+  // Template content
+  subject       String?
+  bodyTemplate  String         @db.Text
+  
+  // Variables that can be used in template
+  variables     String[]       @default([])
+  
+  // Channels this template supports
+  channels      NotificationChannel[]
+  
+  isActive      Boolean        @default(true)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([type])
+  @@index([isActive])
+  @@map("notification_templates")
+}
+
+model NotificationLog {
+  id            String         @id @default(uuid())
+  notificationId String
+  
+  channel       NotificationChannel
+  status        DeliveryStatus
+  
+  // Provider information
+  provider      String?
+  providerId    String?
+  
+  // Response from provider
+  response      Json?
+  errorMessage  String?
+  
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  
+  createdAt     DateTime       @default(now())
+  
+  @@index([notificationId])
+  @@index([channel])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notification_logs")
+}
+
+model NotificationPreference {
+  id            String         @id @default(uuid())
+  userId        String         @unique
+  
+  // Channel preferences
+  emailEnabled  Boolean        @default(true)
+  smsEnabled    Boolean        @default(false)
+  pushEnabled   Boolean        @default(true)
+  inAppEnabled  Boolean        @default(true)
+  
+  // Notification type preferences
+  orderUpdates  Boolean        @default(true)
+  promotions    Boolean        @default(true)
+  systemAlerts  Boolean        @default(true)
+  reviews       Boolean        @default(true)
+  messages      Boolean        @default(true)
+  
+  // Quiet hours
+  quietHoursEnabled Boolean     @default(false)
+  quietHoursStart   String?     // HH:mm format
+  quietHoursEnd     String?     // HH:mm format
+  quietHoursTimezone String?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@map("notification_preferences")
+}
+
+enum NotificationType {
+  // Order notifications
+  ORDER_CONFIRMATION
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  ORDER_REFUNDED
+  
+  // Auction notifications
+  BID_PLACED
+  BID_OUTBID
+  AUCTION_WON
+  AUCTION_ENDED
+  
+  // Review notifications
+  REVIEW_RECEIVED
+  REVIEW_RESPONSE
+  
+  // Payment notifications
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  PAYMENT_REFUNDED
+  
+  // Account notifications
+  ACCOUNT_VERIFIED
+  ACCOUNT_SUSPENDED
+  PASSWORD_CHANGED
+  LOGIN_ATTEMPT
+  
+  // System notifications
+  SYSTEM_ALERT
+  MAINTENANCE_NOTICE
+  SECURITY_ALERT
+  
+  // Marketing
+  PROMOTION
+  NEW_PRODUCT
+  FLASH_SALE
+  
+  // Messages
+  NEW_MESSAGE
+  MESSAGE_REPLY
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+  UNSUBSCRIBED
+}
+
+model AuditLog {
+  id            Int            @id @default(autoincrement())
+  action        String
+  entityType    String
+  entityId      String?
+  changes       Json?
+  oldValues     Json?
+  newValues     Json?
+  userId        String?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime       @default(now())
+  
+  @@index([action])
+  @@index([entityType])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

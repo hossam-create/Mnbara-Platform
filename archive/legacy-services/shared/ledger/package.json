@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@mnbarh/ledger",
   "version": "1.0.0",
   "description": "Immutable ledger service for mnbarh platform",

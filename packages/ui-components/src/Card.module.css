@@ -1,0 +1,83 @@
+/* Card Base */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Variants */
+.elevated {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.outlined {
+  box-shadow: none;
+  border: 1px solid #e5e7eb;
+}
+
+.flat {
+  box-shadow: none;
+}
+
+/* Hover Effect */
+.hoverable:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+/* Padding Variants */
+.paddingNone {
+  padding: 0;
+}
+
+.paddingSm {
+  padding: 0.75rem;
+}
+
+.paddingMd {
+  padding: 1rem;
+}
+
+.paddingLg {
+  padding: 1.5rem;
+}
+
+/* Card Sections */
+.header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.body {
+  padding: 1.5rem;
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* Card Title */
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+/* Card Description */
+.description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Full Width */
+.fullWidth {
+  width: 100%;
+}

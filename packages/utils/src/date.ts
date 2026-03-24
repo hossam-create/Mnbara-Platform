@@ -130,3 +130,73 @@ export function isPast(date: Date | string | number): boolean {
 export function isFuture(date: Date | string | number): boolean {
   return new Date(date) > new Date();
 }
+
+export function addDays(date: Date | string | number, days: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+export function addMonths(date: Date | string | number, months: number): Date {
+  const d = new Date(date);
+  d.setMonth(d.getMonth() + months);
+  return d;
+}
+
+export function addYears(date: Date | string | number, years: number): Date {
+  const d = new Date(date);
+  d.setFullYear(d.getFullYear() + years);
+  return d;
+}
+
+export function diffInDays(date1: Date | string | number, date2: Date | string | number): number {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const diffMs = d2.getTime() - d1.getTime();
+  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+export function diffInHours(date1: Date | string | number, date2: Date | string | number): number {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const diffMs = d2.getTime() - d1.getTime();
+  return Math.floor(diffMs / (1000 * 60 * 60));
+}
+
+export function diffInMinutes(date1: Date | string | number, date2: Date | string | number): number {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  const diffMs = d2.getTime() - d1.getTime();
+  return Math.floor(diffMs / (1000 * 60));
+}
+
+export function isWeekend(date: Date | string | number): boolean {
+  const d = new Date(date);
+  const day = d.getDay();
+  return day === 0 || day === 6;
+}
+
+export function isWeekday(date: Date | string | number): boolean {
+  return !isWeekend(date);
+}
+
+export function getWeekNumber(date: Date | string | number): number {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+export function parseDate(dateString: string): Date | null {
+  try {
+    const d = new Date(dateString);
+    return isNaN(d.getTime()) ? null : d;
+  } catch {
+    return null;
+  }
+}
+
+export function isValidDate(date: any): boolean {
+  return date instanceof Date && !isNaN(date.getTime());
+}

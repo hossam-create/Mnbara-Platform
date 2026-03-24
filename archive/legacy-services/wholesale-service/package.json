@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "wholesale-service",
   "version": "1.0.0",
-  "description": "mnbarh B2B Wholesale Marketplace - ط³ظˆظ‚ ط§ظ„ط¨ظٹط¹ ط¨ط§ظ„ط¬ظ…ظ„ط©",
+  "description": "mnbarh B2B Wholesale Marketplace - سوق البيع بالجملة",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -25,7 +25,7 @@
     "winston": "^3.10.0",
     "multer": "^1.4.5-lts.1",
     "sharp": "^0.32.0",
-    "jsonwebtoken": "^9.1.0",
+    "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {

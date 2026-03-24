@@ -24,7 +24,7 @@
     "maxmind": "^4.3.11",
     "geolib": "^3.3.4",
     "axios": "^1.6.0",
-    "jsonwebtoken": "^9.1.0",
+    "jsonwebtoken": "^9.0.2",
     "winston": "^3.11.0"
   },
   "devDependencies": {

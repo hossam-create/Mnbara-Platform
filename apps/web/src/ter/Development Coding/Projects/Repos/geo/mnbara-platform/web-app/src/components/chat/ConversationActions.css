@@ -1,0 +1,78 @@
+/* ConversationActions Component Styles */
+@import '../../styles/theme.css';
+
+.conversation-actions {
+  position: absolute;
+  top: 100%;
+  right: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  padding: var(--spacing-xs);
+  z-index: 100;
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Menu Items */
+.conversation-actions__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  background: none;
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease;
+  text-align: left;
+}
+
+.conversation-actions__item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.conversation-actions__item--danger {
+  color: var(--color-error);
+}
+
+.conversation-actions__item--danger:hover {
+  background-color: var(--color-error-light);
+}
+
+.conversation-actions__icon {
+  font-size: var(--font-size-base);
+  width: 20px;
+  text-align: center;
+}
+
+/* Divider */
+.conversation-actions__divider {
+  height: 1px;
+  background-color: var(--border-primary);
+  margin: var(--spacing-xs) 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .conversation-actions {
+    right: var(--spacing-md);
+    min-width: 160px;
+  }
+}

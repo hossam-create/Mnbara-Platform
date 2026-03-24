@@ -1,0 +1,66 @@
+{
+  "name": "@mnbara/types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript types for Mnbara Platform",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./user": {
+      "types": "./dist/user.types.d.ts",
+      "import": "./dist/user.types.mjs",
+      "require": "./dist/user.types.js"
+    },
+    "./order": {
+      "types": "./dist/order.types.d.ts",
+      "import": "./dist/order.types.mjs",
+      "require": "./dist/order.types.js"
+    },
+    "./payment": {
+      "types": "./dist/payment.types.d.ts",
+      "import": "./dist/payment.types.mjs",
+      "require": "./dist/payment.types.js"
+    },
+    "./delivery": {
+      "types": "./dist/delivery.types.d.ts",
+      "import": "./dist/delivery.types.mjs",
+      "require": "./dist/delivery.types.js"
+    },
+    "./common": {
+      "types": "./dist/common.types.d.ts",
+      "import": "./dist/common.types.mjs",
+      "require": "./dist/common.types.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mnbara",
+    "typescript",
+    "types",
+    "shared"
+  ],
+  "author": "Mnbara Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

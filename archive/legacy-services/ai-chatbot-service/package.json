@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "ai-chatbot-service",
   "version": "1.0.0",
-  "description": "mnbarh AI Chatbot Service - ط®ط¯ظ…ط© ط§ظ„ط¯ط±ط¯ط´ط© ط§ظ„ط°ظƒظٹط©",
+  "description": "mnbarh AI Chatbot Service - خدمة الدردشة الذكية",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

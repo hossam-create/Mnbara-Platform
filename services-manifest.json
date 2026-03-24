@@ -417,7 +417,7 @@
     },
     "payment-service": {
       "phase": "phase-1",
-      "path": "backend/services/payment-service",
+      "path": "services/financial/payment-service",
       "compose": { "serviceName": "payment-service" },
       "ports": [{ "container": 3003, "host": 3003 }]
     },
@@ -441,7 +441,7 @@
     },
     "escrow-service": {
       "phase": "phase-1",
-      "path": "backend/services/escrow-service",
+      "path": "services/financial/escrow-service",
       "compose": { "serviceName": "escrow-service" },
       "ports": [{ "container": 3007, "host": 3007 }]
     },

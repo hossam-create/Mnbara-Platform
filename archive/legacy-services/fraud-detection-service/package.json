@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "fraud-detection-service",
   "version": "1.0.0",
-  "description": "mnbarh Fraud Detection System - ظ†ط¸ط§ظ… ظƒط´ظپ ط§ظ„ط§ط­طھظٹط§ظ„",
+  "description": "mnbarh Fraud Detection System - نظام كشف الاحتيال",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -22,7 +22,7 @@
     "geoip-lite": "^1.4.7",
     "device-detector-js": "^3.0.3",
     "maxmind": "^4.3.11",
-    "jsonwebtoken": "^9.1.0",
+    "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {

@@ -1,0 +1,143 @@
+/* Evidence Upload Box Styles */
+
+.uploadBox {
+  border: 2px dashed #d1d5db;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.uploadBox:not(.disabled):hover {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+}
+
+.uploadBox.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dropArea {
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.uploadBox.disabled .dropArea {
+  cursor: not-allowed;
+}
+
+.uploadIcon {
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.uploadBox:not(.disabled):hover .uploadIcon {
+  color: #3b82f6;
+}
+
+.content {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.disabledText {
+  font-size: 0.875rem;
+  color: #d1d5db;
+  margin: 0;
+  font-style: italic;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.uploadButton:hover {
+  background: #2563eb;
+}
+
+.uploadBox.disabled .uploadButton {
+  background: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.fileInfo {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0 0 0.5rem 0;
+}
+
+.reassurance {
+  font-size: 0.75rem;
+  color: #059669;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dropArea {
+    padding: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1rem;
+  }
+  
+  .description {
+    font-size: 0.8125rem;
+  }
+  
+  .hint {
+    font-size: 0.8125rem;
+  }
+  
+  .uploadButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .footer {
+    padding: 0.75rem 1rem;
+  }
+}

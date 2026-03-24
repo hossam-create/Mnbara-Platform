@@ -3,7 +3,6 @@ import { initTracing, shutdownTracing, tracer, tracingConfig } from './tracing';
 initTracing();
 
 import express, { Express, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import dotenv from 'dotenv';
@@ -14,6 +13,8 @@ import { router } from './routes';
 import { globalRateLimiter, authRateLimiter } from './middleware/rate-limit.middleware';
 import { loggingMiddleware } from './middleware/logging.middleware';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import { corsMiddleware, corsErrorHandler } from './middleware/cors.middleware';
+import { securityHeadersMiddleware } from './middleware/security-headers.middleware';
 import { activityWebSocketServer } from './websocket/activity.socket';
 import { activityKafkaConsumer } from './kafka/activity.consumer';
 import { redisPresenceManager } from './websocket/redis-presence.manager';
@@ -61,14 +62,16 @@ app.set('trust proxy', true);
 // Security middleware
 app.use(helmet());
 
+// Security headers middleware
+if (config.enableSecurityHeaders) {
+  app.use(securityHeadersMiddleware);
+}
+
 // CORS configuration
-app.use(cors({
-  origin: config.corsOrigin,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
-  credentials: true,
-  maxAge: 86400,
-}));
+app.use(corsMiddleware());
+
+// CORS error handler
+app.use(corsErrorHandler);
 
 // Compression
 app.use(compression());

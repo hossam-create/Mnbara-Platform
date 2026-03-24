@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@mnbarh/social-commerce-service",
   "version": "1.0.0",
   "description": "Social Commerce Service - Team Purchase, Live Shopping, Influencer Campaigns",
@@ -19,7 +19,7 @@
     "ioredis": "^5.3.2",
     "socket.io": "^4.7.0",
     "winston": "^3.11.0",
-    "jsonwebtoken": "^9.1.0",
+    "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0",
     "axios": "^1.6.0"
   },

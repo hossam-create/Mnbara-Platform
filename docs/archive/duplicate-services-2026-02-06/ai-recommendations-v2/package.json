@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "ai-recommendations-v2",
   "version": "2.0.0",
-  "description": "mnbarh AI Recommendations Engine v2 - ظ…ط­ط±ظƒ ط§ظ„طھظˆطµظٹط§طھ ط§ظ„ط°ظƒظٹ ط§ظ„ط¬ظٹظ„ ط§ظ„ط«ط§ظ†ظٹ",
+  "description": "mnbarh AI Recommendations Engine v2 - محرك التوصيات الذكي الجيل الثاني",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

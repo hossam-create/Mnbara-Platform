@@ -19,10 +19,6 @@
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@mnbara/plugin-manager": "workspace:*",
-    "@mnbara/hook-system": "workspace:*",
-    "@mnbara/plugin-registry": "workspace:*",
-    "@mnbara/plugin-marketplace": "workspace:*",
     "@prisma/client": "^5.0.0",
     "commander": "^11.0.0",
     "chalk": "^4.1.2",

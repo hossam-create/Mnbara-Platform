@@ -1,7 +1,7 @@
-﻿{
+{
   "name": "vr-showroom-service",
   "version": "1.0.0",
-  "description": "mnbarh VR Showroom Service - ط®ط¯ظ…ط© طµط§ظ„ط© ط§ظ„ط¹ط±ط¶ ط§ظ„ط§ظپطھط±ط§ط¶ظٹط©",
+  "description": "mnbarh VR Showroom Service - خدمة صالة العرض الافتراضية",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",

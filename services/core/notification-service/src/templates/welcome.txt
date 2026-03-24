@@ -1,0 +1,23 @@
+Welcome to Mnbara!
+
+Hi {{name}},
+
+Welcome to Mnbara - your trusted marketplace for buying and selling with confidence!
+
+We're excited to have you join our community. Here's what you can do:
+
+- Browse thousands of products
+- Participate in auctions
+- Sell your items
+- Connect with travelers for delivery
+
+Visit https://mnbara.com/explore to start exploring!
+
+If you have any questions, feel free to reach out to our support team.
+
+Best regards,
+The Mnbara Team
+
+---
+This email was sent to you because you signed up for Mnbara.
+© 2026 Mnbara. All rights reserved.

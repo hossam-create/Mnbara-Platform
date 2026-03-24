@@ -23,9 +23,11 @@ out/
 # Nx
 .nx/cache
 .nx/workspace-data
+.nx/installation
 dist/apps
 dist/services
 dist/packages
+nx-cloud.env
 
 # IDE
 .vscode/
@@ -50,6 +52,9 @@ dist/packages
 .env.local
 .env.*.local
 .env.production.local
+.env.development.local
+.env.test.local
+.env.staging.local
 
 # Logs
 logs/
@@ -149,6 +154,12 @@ mobile-app/.m2/
 
 # Storybook
 storybook-static/
+.storybook-out/
+
+# TypeScript
+*.tsbuildinfo
+.tsbuildinfo
+tsconfig.tsbuildinfo
 
 # Turbo
 .turbo/
@@ -180,6 +191,12 @@ dist-ssr/
 *.local
 *.tsbuildinfo
 
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
 # Yarn
 .yarn/install-state.gz
 
@@ -205,3 +222,19 @@ archive/**/*.tmp
 
 # Phase 2 backup
 backup_phase2_/
+
+# Shared packages build artifacts
+packages/@mnbara/*/dist/
+packages/@mnbara/*/build/
+packages/@mnbara/*/.turbo/
+packages/@mnbara/*/.nx/
+
+# Service-specific patterns
+services/core/*/dist/
+services/core/*/build/
+services/marketplace/*/dist/
+services/marketplace/*/build/
+services/crowdshipping/*/dist/
+services/crowdshipping/*/build/
+services/financial/*/dist/
+services/financial/*/build/

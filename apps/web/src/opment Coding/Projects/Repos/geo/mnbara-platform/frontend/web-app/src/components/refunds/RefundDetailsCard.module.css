@@ -1,0 +1,298 @@
+/* Refund Details Card Styles */
+.refundDetailsCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.titleSection h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.refundId {
+  font-size: 14px;
+  color: #6b7280;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusIcon {
+  font-size: 14px;
+}
+
+.statusText {
+  font-size: 11px;
+}
+
+/* Status Colors */
+.statusPending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.statusApproved {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+.statusProcessed {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.statusCancelled {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.statusDefault {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+/* Content */
+.content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.amountSection,
+.reasonSection,
+.disputeSection,
+.guaranteeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amountLabel,
+.reasonLabel,
+.disputeLabel,
+.guaranteeLabel {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.amountValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.reasonValue {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.4;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.disputeValue {
+  font-size: 14px;
+}
+
+.disputeLink {
+  color: #3b82f6;
+  text-decoration: none;
+  border-bottom: 1px dotted #3b82f6;
+  transition: color 0.2s ease;
+}
+
+.disputeLink:hover {
+  color: #1e40af;
+  border-bottom-color: #1e40af;
+}
+
+.guaranteeValue {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.coverageBar {
+  width: 100px;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.coverageFill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+  transition: width 0.3s ease;
+}
+
+.coverageText {
+  font-size: 13px;
+  font-weight: 500;
+  color: #059669;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.processingInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.processedDate {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.processedLabel {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.processedValue {
+  font-size: 14px;
+  color: #374151;
+}
+
+.systemNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
+}
+
+.systemIcon {
+  font-size: 16px;
+}
+
+.systemText {
+  font-size: 13px;
+  color: #166534;
+  line-height: 1.4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .refundDetailsCard {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .content {
+    gap: 16px;
+  }
+
+  .amountValue {
+    font-size: 20px;
+  }
+
+  .guaranteeValue {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .coverageBar {
+    width: 80px;
+    height: 6px;
+  }
+
+  .processingInfo {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .systemNote {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .systemIcon {
+    font-size: 14px;
+  }
+
+  .systemText {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .refundDetailsCard {
+    padding: 12px;
+  }
+
+  .titleSection h3 {
+    font-size: 16px;
+  }
+
+  .amountValue {
+    font-size: 18px;
+  }
+
+  .reasonValue {
+    font-size: 13px;
+  }
+}

@@ -80,7 +80,7 @@ export function isValidFileSize(sizeInBytes: number, maxSizeInBytes: number): bo
 }
 
 export function sanitizeHtml(text: string): string {
-  return text.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"').replace(/'/g, '&#039;');
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
 export function truncateString(str: string, maxLength: number, suffix: string = '...'): string {

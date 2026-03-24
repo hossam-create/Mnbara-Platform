@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ export interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
+  portalTarget?: HTMLElement;
 }
 
 export interface ModalHeaderProps {
@@ -27,36 +29,93 @@ export interface ModalFooterProps {
 }
 
 export const Modal: React.FC<ModalProps> & { Header: React.FC<ModalHeaderProps>; Body: React.FC<ModalBodyProps>; Footer: React.FC<ModalFooterProps> } = ({
-  isOpen, onClose, children, size = 'md', closeOnOverlayClick = true, closeOnEscape = true,
+  isOpen, onClose, children, size = 'md', closeOnOverlayClick = true, closeOnEscape = true, portalTarget,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+  const [portalContainer] = useState(() => {
+    if (typeof document !== 'undefined') {
+      const container = document.createElement('div');
+      container.setAttribute('data-modal-container', 'true');
+      return container;
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    if (!portalContainer) return;
+
+    const target = portalTarget || document.body;
+    target.appendChild(portalContainer);
+
+    return () => {
+      if (target.contains(portalContainer)) {
+        target.removeChild(portalContainer);
+      }
+    };
+  }, [portalContainer, portalTarget]);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && closeOnEscape) {
         onClose();
       }
     };
+
     if (isOpen) {
+      // Store the currently focused element
+      previousActiveElement.current = document.activeElement as HTMLElement;
+      
+      // Add event listener for escape key
       document.addEventListener('keydown', handleEscape);
+      
+      // Prevent body scroll
       document.body.style.overflow = 'hidden';
+      
+      // Focus the modal for accessibility
+      setTimeout(() => {
+        modalRef.current?.focus();
+      }, 0);
     }
+
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = 'unset';
+      
+      // Restore focus to the previously focused element
+      if (previousActiveElement.current && document.body.contains(previousActiveElement.current)) {
+        previousActiveElement.current.focus();
+      }
     };
   }, [isOpen, closeOnEscape, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !portalContainer) return null;
 
   const sizeStyles = { sm: 'max-w-sm', md: 'max-w-md', lg: 'max-w-lg', xl: 'max-w-xl' };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+  const modalContent = (
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto" 
+      role="dialog" 
+      aria-modal="true"
+      ref={modalRef}
+      tabIndex={-1}
+    >
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={closeOnOverlayClick ? onClose : undefined} />
-        <div className={`relative bg-white rounded-xl shadow-xl ${sizeStyles[size]} w-full transform transition-all`}>{children}</div>
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+          onClick={closeOnOverlayClick ? onClose : undefined}
+          aria-hidden="true"
+        />
+        <div className={`relative bg-white rounded-xl shadow-xl ${sizeStyles[size]} w-full transform transition-all`}>
+          {children}
+        </div>
       </div>
     </div>
   );
+
+  // Use portal to render modal outside the DOM hierarchy
+  return createPortal(modalContent, portalContainer);
 };
 
 export const ModalHeader: React.FC<ModalHeaderProps> = ({ children, onClose }) => {

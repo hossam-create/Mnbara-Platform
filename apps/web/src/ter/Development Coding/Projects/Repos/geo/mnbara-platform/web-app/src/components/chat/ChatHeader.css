@@ -1,0 +1,174 @@
+/* ChatHeader Component Styles */
+@import '../../styles/theme.css';
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  position: relative;
+}
+
+/* Back Button */
+.chat-header__back {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: background-color 0.2s ease;
+}
+
+.chat-header__back:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Info Section */
+.chat-header__info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  margin: calc(var(--spacing-xs) * -1);
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease;
+}
+
+.chat-header__info:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Avatar */
+.chat-header__avatar-wrapper {
+  position: relative;
+}
+
+.chat-header__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.chat-header__avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.chat-header__status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+}
+
+.chat-header__status--online {
+  background-color: var(--color-success);
+}
+
+.chat-header__status--offline {
+  background-color: var(--color-gray-400);
+}
+
+.chat-header__status--away {
+  background-color: var(--color-warning);
+}
+
+.chat-header__status--busy {
+  background-color: var(--color-error);
+}
+
+/* Details */
+.chat-header__details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-header__name {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.chat-header__status-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+/* Actions */
+.chat-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.chat-header__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+}
+
+.chat-header__action-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.chat-header__action-btn--menu {
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chat-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .chat-header__back {
+    display: flex;
+  }
+
+  .chat-header__avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chat-header__name {
+    font-size: var(--font-size-sm);
+  }
+
+  .chat-header__status-text {
+    font-size: 10px;
+  }
+
+  .chat-header__action-btn {
+    width: 36px;
+    height: 36px;
+  }
+}

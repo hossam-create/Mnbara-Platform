@@ -1,0 +1,4 @@
+{
+  "prismaConfigPath": "./prisma",
+  "prismaSchemaPath": "./prisma/schema.prisma"
+}
