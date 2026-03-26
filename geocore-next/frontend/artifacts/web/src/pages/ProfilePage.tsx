@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useAuthStore } from "@/store/auth";
 import { formatPrice } from "@/lib/utils";
 import { User, Package, Heart, Gavel, Star, Store, Wallet, Settings, ChevronRight } from "lucide-react";
+import { KYCSection } from "@/components/kyc/KYCSection";
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -55,6 +56,8 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <KYCSection />
 
       <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
         <ul className="divide-y divide-gray-50">

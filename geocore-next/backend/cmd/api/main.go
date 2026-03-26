@@ -18,6 +18,7 @@ package main
         "github.com/geocore-next/backend/internal/listings"
         "github.com/geocore-next/backend/internal/notifications"
         "github.com/geocore-next/backend/internal/payments"
+        "github.com/geocore-next/backend/internal/reviews"
         "github.com/geocore-next/backend/internal/users"
         "github.com/geocore-next/backend/pkg/database"
         "github.com/geocore-next/backend/pkg/middleware"
@@ -126,6 +127,13 @@ package main
         notifHub, _ := notifications.RegisterRoutes(v1, db, rdb)
         admin.RegisterRoutes(v1, db, rdb)
         kyc.RegisterRoutes(v1, db)
+        reviews.RegisterRoutes(v1, db)
+
+        // Presigned upload URL — used by KYC and listing image uploads from the browser.
+        // Auth required to prevent abuse; returns mock URL in dev when R2 is not configured.
+        v1.POST("/media/upload-url", middleware.Auth(), func(c *gin.Context) {
+                images.NewHandler(db).GetUploadURL(c)
+        })
 
         // AI bid suggestion endpoint — proxies to Python microservice
         v1.POST("/auctions/ai-predict", middleware.Auth(), func(c *gin.Context) {

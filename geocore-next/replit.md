@@ -116,6 +116,13 @@ React + Vite web frontend for GCC marketplace. Pre-installed: TanStack Query, Ra
 - All pages with auth requirements redirect to `/login?next=<page>` when unauthenticated
 - Preview path: `/web/` · Port: 22333
 
+### Phase 4: Trust, Safety & Admin
+
+- **Seller Reviews** (`frontend/artifacts/web/src/components/reviews/SellerReviews.tsx`) — Review display + submission on SellerPage. Star rating picker, real API data only (no mock fallback), POST `/users/:id/reviews`. Eligibility gated: reviewer must have a completed purchase from the seller.
+- **KYC Verification** (`frontend/artifacts/web/src/components/kyc/KYCSection.tsx`) — KYC status banner + file upload form embedded in ProfilePage. Document images uploaded via `POST /api/v1/media/upload-url` (presigned URL), then submitted to `POST /kyc/submit`. Shows pending/approved/rejected state.
+- **Buyer-Seller Chat** (`frontend/artifacts/web/src/components/chat/ChatPanel.tsx`) — Floating chat panel with real-time WebSocket (`/api/v1/chat/conversations/:id/ws?token=<jwt>`). Auth via JWT query param; membership enforced before WS upgrade. Messages sent via REST (`POST /chat/conversations/:id/messages`) which persists and broadcasts to WS subscribers. WS is server-push only (client frames are discarded to prevent spoofing). Vite proxy has `ws: true` for WS forwarding.
+- **Admin Dashboard** (`frontend/artifacts/admin/`) — Full admin UI with ban/unban users, approve/reject listings, KYC approval/rejection, reports queue. All wired to Go backend endpoints.
+
 ### `artifacts/admin` (`@workspace/admin`)
 
 React + Vite + shadcn admin dashboard. Pages: Dashboard, Listings, Auctions, Users, KYC Verification, Reports, Payments, Pricing, Categories, Storefronts, Settings.

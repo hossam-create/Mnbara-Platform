@@ -10,6 +10,7 @@ import { Heart, Star, MessageCircle, Share2, ChevronLeft, TrendingDown, Layers, 
 import { getAuctionType, AUCTION_TYPE_BADGE } from "@/lib/auctionTypes";
 import { SimilarListings } from "@/components/listings/SimilarListings";
 import { ALL_LISTINGS } from "@/lib/recommendations";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 
 const MOCK_DUTCH_EXTRA = {
   auction_type: "dutch",
@@ -211,6 +212,7 @@ export default function ListingDetailPage() {
   const [activeImage, setActiveImage] = useState(0);
   const [bidAmount, setBidAmount] = useState("");
   const [bidMessage, setBidMessage] = useState("");
+  const [chatOpen, setChatOpen] = useState(false);
 
   const { data: apiListing, isLoading, error } = useQuery({
     queryKey: ["listing", id],
@@ -473,7 +475,7 @@ export default function ListingDetailPage() {
                   </div>
                 </Link>
                 <button
-                  onClick={() => { if (!isAuthenticated) navigate("/login"); }}
+                  onClick={() => { if (!isAuthenticated) { navigate("/login"); return; } setChatOpen(true); }}
                   className="flex items-center gap-1.5 text-sm text-[#0071CE] font-semibold hover:underline"
                 >
                   <MessageCircle size={15} /> Message
@@ -552,7 +554,10 @@ export default function ListingDetailPage() {
               </button>
             )}
 
-            <button className="w-full border-2 border-[#0071CE] text-[#0071CE] font-bold py-3.5 rounded-xl hover:bg-blue-50 transition-colors text-sm flex items-center justify-center gap-2">
+            <button
+              onClick={() => { if (!isAuthenticated) { navigate("/login"); return; } setChatOpen(true); }}
+              className="w-full border-2 border-[#0071CE] text-[#0071CE] font-bold py-3.5 rounded-xl hover:bg-blue-50 transition-colors text-sm flex items-center justify-center gap-2"
+            >
               <MessageCircle size={16} /> Message {sellerLabel}
             </button>
           </div>
@@ -586,6 +591,15 @@ export default function ListingDetailPage() {
         };
         return <SimilarListings listing={forRec} />;
       })()}
+
+      {chatOpen && listing.seller && (
+        <ChatPanel
+          sellerId={listing.seller.id}
+          sellerName={listing.seller.name || "Seller"}
+          listingId={id}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
     </div>
   );
 }

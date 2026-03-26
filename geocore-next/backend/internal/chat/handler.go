@@ -1,21 +1,28 @@
 package chat
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/geocore-next/backend/pkg/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Handler struct {
 	db  *gorm.DB
 	rdb *redis.Client
+	hub *Hub
 }
 
 func NewHandler(db *gorm.DB, rdb *redis.Client) *Handler {
-	return &Handler{db, rdb}
+	return &Handler{db: db, rdb: rdb}
+}
+
+func (h *Handler) SetHub(hub *Hub) {
+	h.hub = hub
 }
 
 func (h *Handler) GetConversations(c *gin.Context) {
@@ -25,7 +32,6 @@ func (h *Handler) GetConversations(c *gin.Context) {
 		Preload("Conversation").
 		Order("joined_at DESC").
 		Find(&members)
-	// Extract conversation IDs
 	convIDs := make([]uuid.UUID, len(members))
 	for i, m := range members {
 		convIDs[i] = m.ConversationID
@@ -50,7 +56,6 @@ func (h *Handler) CreateOrGetConversation(c *gin.Context) {
 	}
 	otherID, _ := uuid.Parse(req.OtherUserID)
 
-	// Check if conversation already exists
 	var existingMember ConversationMember
 	subQuery := h.db.Model(&ConversationMember{}).
 		Select("conversation_id").
@@ -64,7 +69,6 @@ func (h *Handler) CreateOrGetConversation(c *gin.Context) {
 		return
 	}
 
-	// Create new conversation
 	convo := Conversation{ID: uuid.New()}
 	if req.ListingID != nil {
 		lid, _ := uuid.Parse(*req.ListingID)
@@ -82,7 +86,6 @@ func (h *Handler) GetMessages(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 	convID, _ := uuid.Parse(c.Param("id"))
 
-	// Verify user is a member
 	var member ConversationMember
 	if err := h.db.Where("conversation_id = ? AND user_id = ?", convID, userID).
 		First(&member).Error; err != nil {
@@ -96,7 +99,6 @@ func (h *Handler) GetMessages(c *gin.Context) {
 		Limit(100).
 		Find(&messages)
 
-	// Mark as read
 	go h.db.Model(&ConversationMember{}).
 		Where("conversation_id = ? AND user_id = ?", convID, userID).
 		Updates(map[string]interface{}{"unread_count": 0, "last_read_at": time.Now()})
@@ -136,16 +138,24 @@ func (h *Handler) SendMessage(c *gin.Context) {
 	h.db.Create(&msg)
 
 	now := time.Now()
-	h.db.Model(&Conversation{}).Where("id = ?", convID).
-		Update("last_msg_at", now)
+	h.db.Model(&Conversation{}).Where("id = ?", convID).Update("last_msg_at", now)
 	h.db.Model(&ConversationMember{}).
 		Where("conversation_id = ? AND user_id != ?", convID, userID).
 		UpdateColumn("unread_count", gorm.Expr("unread_count + 1"))
+
+	// Broadcast to WebSocket subscribers so recipients receive the message in real-time
+	if h.hub != nil {
+		if data, err := json.Marshal(msg); err == nil {
+			h.hub.broadcast <- &WSBroadcast{ConversationID: convID.String(), Data: data}
+		}
+	}
 
 	response.Created(c, msg)
 }
 
 func defaultStr(s, d string) string {
-	if s == "" { return d }
+	if s == "" {
+		return d
+	}
 	return s
 }

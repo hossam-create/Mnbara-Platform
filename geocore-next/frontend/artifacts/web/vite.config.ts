@@ -102,6 +102,7 @@ export default defineConfig({
       "/api": {
         target: `http://localhost:${backendPort}`,
         changeOrigin: true,
+        ws: true,
       },
       [`${basePath === "/" ? "" : basePath}/__api`]: {
         target: `http://localhost:${backendPort}`,

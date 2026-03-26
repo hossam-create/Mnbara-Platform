@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { LoadingGrid } from "@/components/ui/LoadingGrid";
 import { useAuthStore } from "@/store/auth";
+import { SellerReviews } from "@/components/reviews/SellerReviews";
+import { ChatPanel } from "@/components/chat/ChatPanel";
 import {
   Star,
   MessageCircle,
@@ -27,6 +30,7 @@ export default function SellerPage() {
   const sellerId = params.id;
   const [, navigate] = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const [chatOpen, setChatOpen] = useState(false);
 
   const {
     data: seller,
@@ -62,7 +66,9 @@ export default function SellerPage() {
   const handleMessage = () => {
     if (!isAuthenticated) {
       navigate("/login");
+      return;
     }
+    setChatOpen(true);
   };
 
   if (sellerLoading) {
@@ -118,15 +124,17 @@ export default function SellerPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-bold text-gray-900">{seller.name as string}</h1>
-              {seller.verified && (
+              {(seller.verified || seller.is_verified) && (
                 <span className="flex items-center gap-1 bg-green-50 text-green-700 text-xs font-semibold px-2 py-1 rounded-full">
                   <ShieldCheck size={12} /> Verified
                 </span>
               )}
             </div>
 
-            {seller.city && (
-              <p className="text-sm text-gray-500 mt-0.5">📍 {seller.city as string}</p>
+            {(seller.city || seller.location) && (
+              <p className="text-sm text-gray-500 mt-0.5">
+                📍 {(seller.city ?? seller.location) as string}
+              </p>
             )}
 
             {seller.bio && (
@@ -165,6 +173,8 @@ export default function SellerPage() {
             <p className="text-2xl font-bold text-gray-900">
               {typeof seller.listings_sold === "number"
                 ? seller.listings_sold.toLocaleString()
+                : typeof seller.sold_count === "number"
+                ? seller.sold_count.toLocaleString()
                 : "0"}
             </p>
             <p className="text-xs text-gray-500 flex items-center justify-center gap-1 mt-0.5">
@@ -175,6 +185,8 @@ export default function SellerPage() {
             <p className="text-sm font-semibold text-gray-900 mt-1">
               {seller.member_since
                 ? formatMemberSince(seller.member_since as string)
+                : seller.created_at
+                ? formatMemberSince(seller.created_at as string)
                 : "—"}
             </p>
             <p className="text-xs text-gray-500 flex items-center justify-center gap-1 mt-0.5">
@@ -205,6 +217,21 @@ export default function SellerPage() {
             <ListingCard key={listing.id as string} listing={listing} />
           ))}
         </div>
+      )}
+
+      <SellerReviews
+        sellerId={sellerId}
+        sellerName={seller.name as string}
+        rating={typeof seller.rating === "number" ? seller.rating : undefined}
+        reviewCount={typeof seller.review_count === "number" ? seller.review_count : undefined}
+      />
+
+      {chatOpen && (
+        <ChatPanel
+          sellerId={sellerId}
+          sellerName={seller.name as string}
+          onClose={() => setChatOpen(false)}
+        />
       )}
     </div>
   );
