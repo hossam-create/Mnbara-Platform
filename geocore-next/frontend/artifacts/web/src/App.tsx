@@ -21,6 +21,8 @@ import ProfilePage from "@/pages/ProfilePage";
 import DashboardPage from "@/pages/DashboardPage";
 import SearchPage from "@/pages/SearchPage";
 import AdvancedSearchPage from "@/pages/AdvancedSearchPage";
+import AuctionDetailPage from "@/pages/AuctionDetailPage";
+import CheckoutPage from "@/pages/CheckoutPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +63,8 @@ function AppRoutes() {
           <Route path="/listings" component={ListingsPage} />
           <Route path="/listings/:id" component={ListingDetailPage} />
           <Route path="/auctions" component={AuctionsPage} />
+          <Route path="/auctions/:id" component={AuctionDetailPage} />
+          <Route path="/checkout" component={CheckoutPage} />
           <Route path="/sell" component={SellPage} />
           <Route path="/login" component={LoginPage} />
           <Route path="/register" component={RegisterPage} />

@@ -546,7 +546,19 @@ export default function ListingDetailPage() {
             ) : (
               <button
                 onClick={() => {
-                  if (!isAuthenticated) navigate("/login");
+                  if (!isAuthenticated) {
+                    navigate("/login");
+                    return;
+                  }
+                  const sellerID = listing.seller?.id || "";
+                  const params = new URLSearchParams({
+                    listing_id: id || "",
+                    seller_id: sellerID,
+                    amount: String(price),
+                    currency: listing.currency || "AED",
+                    description: listing.title || "Purchase",
+                  });
+                  navigate(`/checkout?${params.toString()}`);
                 }}
                 className="w-full bg-[#0071CE] hover:bg-[#005BA1] text-white font-bold py-3.5 rounded-xl transition-colors text-sm"
               >

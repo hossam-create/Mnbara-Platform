@@ -115,6 +115,7 @@ package main
         go chatHub.Run()
         auctionHub := auctions.NewHub(rdb)
         go auctionHub.Run()
+        go auctionHub.SubscribeRedis(context.Background())
 
         v1 := r.Group("/api/v1")
         auth.RegisterRoutes(v1, db, rdb)

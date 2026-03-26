@@ -104,6 +104,15 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
       },
+      "/ws": {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+        ws: true,
+      },
+      "/webhooks": {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+      },
       [`${basePath === "/" ? "" : basePath}/__api`]: {
         target: `http://localhost:${backendPort}`,
         rewrite: (p) => p.replace(new RegExp(`^${basePath === "/" ? "" : basePath}/__api`), "/api/v1"),

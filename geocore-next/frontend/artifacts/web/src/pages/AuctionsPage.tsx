@@ -1,23 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "@/lib/api";
 import { AuctionCard } from "@/components/listings/AuctionCard";
 import { LoadingGrid } from "@/components/ui/LoadingGrid";
 import { getAuctionType } from "@/lib/auctionTypes";
 import type { AuctionType } from "@/lib/auctionTypes";
+import type { Auction } from "@/lib/types";
 
-const MOCK_AUCTIONS = [
-  { id: "a1", title: "2022 BMW 3 Series", auction_type: "standard", current_bid: 95000, currency: "AED", bid_count: 12, ends_at: new Date(Date.now() + 7200000).toISOString(), listing_id: "1" },
-  { id: "a2", title: "iPhone 15 Pro Max Sealed", auction_type: "standard", current_bid: 3800, currency: "AED", bid_count: 28, ends_at: new Date(Date.now() + 1800000).toISOString(), listing_id: "2" },
-  { id: "a3", title: "Rolex Submariner 2023", auction_type: "standard", current_bid: 42000, currency: "AED", bid_count: 45, ends_at: new Date(Date.now() + 3600000).toISOString(), listing_id: "3" },
-  { id: "a4", title: "DJI Mavic 3 Pro — Bulk Lot (10 units)", auction_type: "dutch", clearing_price: 5800, total_slots: 10, slots_won: 3, currency: "AED", bid_count: 18, ends_at: new Date(Date.now() + 86400000).toISOString(), listing_id: "4" },
-  { id: "a5", title: "Louis Vuitton Trunk Vintage", auction_type: "standard", current_bid: 28000, currency: "AED", bid_count: 32, ends_at: new Date(Date.now() + 5400000).toISOString(), listing_id: "5" },
-  { id: "a6", title: "Office Renovation Services (Vendor Bid)", auction_type: "reverse", lowest_offer: 38000, current_bid: 38000, currency: "AED", bid_count: 6, ends_at: new Date(Date.now() + 172800000).toISOString(), listing_id: "6" },
-  { id: "a7", title: "Patek Philippe Nautilus 5711", auction_type: "standard", current_bid: 380000, currency: "AED", bid_count: 60, ends_at: new Date(Date.now() + 900000).toISOString(), listing_id: "7" },
-  { id: "a8", title: "Dubai Marina 3BR Penthouse", auction_type: "standard", current_bid: 8500000, currency: "AED", bid_count: 7, ends_at: new Date(Date.now() + 259200000).toISOString(), listing_id: "8" },
-  { id: "a9", title: "Laptop Fleet (50 units) — Dutch Auction", auction_type: "dutch", clearing_price: 2900, total_slots: 50, slots_won: 12, currency: "AED", bid_count: 31, ends_at: new Date(Date.now() + 43200000).toISOString(), listing_id: "9" },
-  { id: "a10", title: "IT Support Contract — Vendor Selection", auction_type: "reverse", lowest_offer: 12000, current_bid: 12000, currency: "AED", bid_count: 9, ends_at: new Date(Date.now() + 64800000).toISOString(), listing_id: "10" },
-];
 
 const STATUS_TABS = [
   { label: "🔴 Live", value: "active" },
@@ -46,21 +35,98 @@ const TYPE_BADGE_ACTIVE: Record<string, string> = {
   reverse: "bg-orange-500 text-white border-orange-500",
 };
 
+interface LiveBidEvent {
+  auctionId: string;
+  bid: number;
+  user: string;
+  ts: number;
+}
+
 export default function AuctionsPage() {
   const [activeStatus, setActiveStatus] = useState("active");
   const [activeType, setActiveType] = useState<AuctionType | "all">("all");
+  const [liveTicker, setLiveTicker] = useState<LiveBidEvent[]>([]);
+  const [liveAuctionBids, setLiveAuctionBids] = useState<Record<string, number>>({});
+  const wsMap = useRef<Map<string, WebSocket>>(new Map());
 
-  const { data: auctions, isLoading } = useQuery({
+  const { data: auctions, isLoading } = useQuery<Auction[]>({
     queryKey: ["auctions", activeStatus],
-    queryFn: () => api.get(`/auctions?status=${activeStatus}&per_page=20`).then((r) => r.data.data),
+    queryFn: () => api.get(`/auctions?status=${activeStatus}&per_page=20`).then((r) => r.data.data as Auction[]),
     retry: false,
   });
 
-  const rawAuctions = auctions?.length ? auctions : MOCK_AUCTIONS;
+  const rawAuctions: Auction[] = auctions ?? [];
 
-  const displayAuctions = activeType === "all"
+  const displayAuctions: Auction[] = activeType === "all"
     ? rawAuctions
-    : rawAuctions.filter((a: any) => getAuctionType(a) === activeType);
+    : rawAuctions.filter((a: Auction) => getAuctionType(a) === activeType);
+
+  useEffect(() => {
+    const activeAuctions = displayAuctions.slice(0, 20);
+    const backoffMap = new Map<string, number>();
+    const timerMap = new Map<string, ReturnType<typeof setTimeout>>();
+    let destroyed = false;
+
+    const connectAuction = (auctionId: string) => {
+      if (destroyed) return;
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const ws = new WebSocket(`${proto}//${window.location.host}/ws/auctions/${auctionId}`);
+      wsMap.current.set(auctionId, ws);
+
+      ws.onopen = () => {
+        backoffMap.set(auctionId, 1000);
+      };
+
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data) as { bid: number; user: string };
+          setLiveAuctionBids((prev) => ({ ...prev, [auctionId]: msg.bid }));
+          setLiveTicker((prev) => [
+            { auctionId, bid: msg.bid, user: msg.user, ts: Date.now() },
+            ...prev.slice(0, 4),
+          ]);
+        } catch (err) {
+          console.error("[WS] Failed to parse auction bid event:", err);
+        }
+      };
+
+      ws.onclose = () => {
+        wsMap.current.delete(auctionId);
+        if (!destroyed) {
+          const delay = backoffMap.get(auctionId) ?? 1000;
+          const timer = setTimeout(() => {
+            backoffMap.set(auctionId, Math.min(delay * 2, 30_000));
+            connectAuction(auctionId);
+          }, delay);
+          timerMap.set(auctionId, timer);
+        }
+      };
+
+      ws.onerror = () => ws.close();
+    };
+
+    for (const a of activeAuctions) {
+      if (!wsMap.current.has(a.id)) {
+        backoffMap.set(a.id, 1000);
+        connectAuction(a.id);
+      }
+    }
+
+    return () => {
+      destroyed = true;
+      timerMap.forEach((t) => clearTimeout(t));
+      wsMap.current.forEach((ws) => ws.close());
+      wsMap.current.clear();
+    };
+  }, [displayAuctions.map((a) => a.id).join(",")]);
+
+  const enrichedAuctions: Auction[] = displayAuctions.map((a: Auction) => ({
+    ...a,
+    current_bid: liveAuctionBids[a.id] ?? a.current_bid,
+  }));
+
+  const liveCount = rawAuctions.length;
+  const totalBids = rawAuctions.reduce((s: number, a: Auction) => s + (a.bid_count || 0), 0);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -72,11 +138,18 @@ export default function AuctionsPage() {
         <p className="text-blue-100 mt-2 text-sm">
           Bid in real-time on thousands of items across the GCC. Transparent. Secure. Instant.
         </p>
+        {liveTicker.length > 0 && (
+          <div className="mt-4 bg-white/10 rounded-xl px-4 py-2.5 text-sm flex items-center gap-2 overflow-hidden">
+            <span className="text-yellow-300 font-bold shrink-0">⚡ LIVE:</span>
+            <span className="text-white truncate">
+              New bid of {liveTicker[0].bid.toLocaleString()} AED just placed
+            </span>
+          </div>
+        )}
         <div className="flex gap-6 mt-6">
           {[
-            { label: "Active Auctions", value: "18,432" },
-            { label: "Bids Today", value: "284K" },
-            { label: "Items Sold", value: "2.1M" },
+            { label: "Active Auctions", value: liveCount > 0 ? liveCount.toLocaleString() : "—" },
+            { label: "Total Bids", value: totalBids > 0 ? totalBids.toLocaleString() : "—" },
           ].map((s) => (
             <div key={s.label}>
               <p className="text-2xl font-extrabold text-[#FFC220]">{s.value}</p>
@@ -120,14 +193,14 @@ export default function AuctionsPage() {
 
       {isLoading ? (
         <LoadingGrid count={8} />
-      ) : displayAuctions.length === 0 ? (
+      ) : enrichedAuctions.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="text-4xl mb-3">🔨</p>
           <p className="font-semibold text-lg">No auctions available</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {displayAuctions.map((auction: any) => (
+          {enrichedAuctions.map((auction: Auction) => (
             <AuctionCard key={auction.id} auction={auction} />
           ))}
         </div>

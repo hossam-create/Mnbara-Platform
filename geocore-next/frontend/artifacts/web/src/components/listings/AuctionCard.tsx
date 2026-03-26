@@ -23,7 +23,7 @@ export function AuctionCard({ auction }: { auction: any }) {
   const clearingPrice = auction.clearing_price ?? auction.clearingPrice ?? currentBid;
 
   return (
-    <Link href={`/listings/${auction.listing_id || auction.id}`}>
+    <Link href={`/auctions/${auction.id}`}>
       <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 cursor-pointer group">
         <div className="relative">
           <img
