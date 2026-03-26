@@ -87,7 +87,17 @@ function AppRoutes() {
 }
 
 function App() {
-  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  // Detect the actual base path from the runtime URL so routing works
+  // regardless of whether BASE_PATH env var is "/" or "/web/" at startup.
+  const envBase = import.meta.env.BASE_URL ?? "/";
+  let base: string;
+  if (envBase && envBase !== "/") {
+    base = envBase.replace(/\/$/, "");
+  } else {
+    // Fallback: detect from window.location.pathname at runtime
+    const pathname = window.location.pathname;
+    base = pathname.startsWith("/web") ? "/web" : "";
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <WouterRouter base={base}>
