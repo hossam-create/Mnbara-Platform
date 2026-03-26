@@ -1,42 +1,34 @@
-# MNBARH / MNBARA - Cross-Border E-commerce Platform
+# Multi-Project Replit: Mnbara Platform + GeoCore Next
 
-## Overview
-MNBARH is a cross-border e-commerce marketplace platform that connects travelers with buyers. The platform allows users to request products from anywhere in the world and have travelers deliver them, saving on shipping costs.
+## Projects
 
-## Project Structure
-- `frontend/web/` - Main React/Vite frontend application (runs on port 5000)
-- `frontend/web-app/` - Alternative web app frontend
-- `frontend/admin-dashboard/` - Admin dashboard
-- `frontend/mobile/` - Mobile app components
-- `backend/services/` - Multiple microservices (auth, payment, wallet, etc.)
-- `infrastructure/` - Kubernetes, Docker, and cloud deployment configs
-- `docs/` - Documentation
+### 1. Mnbara Platform (Port 5000 — Main Preview)
+Cross-border e-commerce marketplace connecting travelers with buyers.
+- **Directory:** `frontend/web/`
+- **Stack:** React 19, Vite 7, TailwindCSS 4, TypeScript, Ethers.js
+- **Workflow:** `Frontend` → runs `cd frontend/web && npm run dev` on port 5000
 
-## Tech Stack
-- **Frontend**: React 19, Vite 7, TailwindCSS 4, TypeScript
-- **State Management**: React Context
-- **Blockchain**: Ethers.js for wallet/crypto integration
-- **Testing**: Vitest
-- **Styling**: TailwindCSS with PostCSS
+### 2. GeoCore Next (Port 3000)
+Modern global classifieds and real-time auctions platform.
+- **Frontend Directory:** `geocore-next/frontend/`
+- **Backend Directory:** `geocore-next/backend/`
+- **Stack:** Next.js 15, React 19, TailwindCSS 3, TypeScript + Go 1.25, Gin, GORM, PostgreSQL, Redis
+- **Workflows:**
+  - `GeoCore Frontend` → runs `cd geocore-next/frontend && npm run dev -- -p 3000` (console, port 3000)
+  - `GeoCore Backend` → runs `cd geocore-next/backend && go run ./cmd/api/` (console, port 8080) — requires PostgreSQL
 
-## Running the Project
-The frontend runs on port 5000 with:
-```bash
-cd frontend/web && npm run dev
-```
+## Setup Notes
+- Both frontends serve on different ports; only port 5000 is the main webview (Mnbara)
+- GeoCore Next frontend is accessible at port 3000
+- GeoCore Go backend requires a PostgreSQL database on port 5432 and Redis on port 6379
+- Go backend env config: `geocore-next/backend/.env` (copy of `.env.example`)
 
-## Key Features
-- Cross-border shopping marketplace
-- Traveler/buyer matching system
-- Wallet and crypto payment support
-- Auction functionality
-- KYC verification
-- Multi-language support (Arabic/English)
-
-## Configuration Notes
-- Vite is configured to allow all hosts for Replit proxy compatibility
-- Server binds to 0.0.0.0:5000
-- Uses static deployment target for production
+## Go Backend Bug Fixes Applied
+- Added `Language`, `Currency` fields and `ToPublic()` method to `users/model.go`
+- Fixed pointer comparison issues in `listings/search_validation.go`
+- Fixed GORM Order() single-argument call in `listings/search.go`
+- Added missing `strings` import in `admin/handler.go`
 
 ## Recent Changes
-- 2025-12-30: Initial Replit setup - configured Vite for port 5000 with host allowlist, fixed HTML noscript placement, added ethers dependency
+- 2025-12-30: Mnbara Platform initial setup — Vite config for port 5000, fixed HTML/CSS issues, added ethers
+- 2026-03-26: Imported GeoCore Next — Go 1.25 installed, backend compiled, Next.js frontend configured with missing globals.css, QueryProvider, tailwind config, postcss config

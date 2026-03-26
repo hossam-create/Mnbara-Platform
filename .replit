@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12"]
+modules = ["nodejs-20", "python-3.12", "go-1.25"]
 [agent]
 expertMode = true
 
@@ -17,6 +17,14 @@ author = "agent"
 task = "workflow.run"
 args = "Frontend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "GeoCore Frontend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "GeoCore Backend"
+
 [[workflows.workflow]]
 name = "Frontend"
 author = "agent"
@@ -29,6 +37,34 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "GeoCore Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd geocore-next/frontend && npm run dev -- -p 3000"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "GeoCore Backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd geocore-next/backend && go run ./cmd/api/"
+waitForPort = 8080
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
 [[ports]]
 localPort = 5000
 externalPort = 80
@@ -36,6 +72,10 @@ externalPort = 80
 [[ports]]
 localPort = 5001
 externalPort = 3000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
 
 [deployment]
 deploymentTarget = "static"
