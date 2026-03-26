@@ -4,20 +4,30 @@ Modern global classifieds and real-time auctions platform.
 
 ## Project Structure
 
-- **Frontend Directory:** `geocore-next/frontend/`
-- **Backend Directory:** `geocore-next/backend/`
-- **Stack:** Next.js 15, React 19, TailwindCSS 3, TypeScript + Go 1.25, Gin, GORM, PostgreSQL, Redis
+- **Frontend Directory:** `geocore-next/frontend/` (pnpm monorepo — Vite + React)
+- **Backend Directory:** `geocore-next/backend/` (Go 1.25, Gin, GORM)
+- **Stack:** Vite, React, TailwindCSS, TypeScript + Go 1.25, Gin, GORM, PostgreSQL, Redis
 
 ## Workflows
 
-- `GeoCore Frontend` → runs `cd geocore-next/frontend && npm run dev -- -p 5000` (webview, port 5000)
+- `GeoCore Frontend` → runs `cd geocore-next/frontend && PORT=5000 BASE_PATH=/ pnpm --filter @workspace/web run dev` (webview, port 5000)
 - `GeoCore Backend` → runs `cd geocore-next/backend && go run ./cmd/api/` (console, port 8080) — requires PostgreSQL
 
-## Setup Notes
+## Frontend Details (geocore-next/frontend)
 
-- GeoCore Next frontend is the main webview on port 5000
-- GeoCore Go backend requires a PostgreSQL database on port 5432 and Redis on port 6379
-- Go backend env config: `geocore-next/backend/.env` (copy of `.env.example`)
+Sourced from: https://github.com/hossam-create/geocore-marketplace
+
+- pnpm workspace monorepo with:
+  - `artifacts/web` — main Vite/React web app
+  - `artifacts/api-server` — API server
+  - `lib/api-client-react` — shared React API client
+  - `lib/api-spec`, `lib/api-zod`, `lib/db` — shared libraries
+- Requires `PORT=5000` and `BASE_PATH=/` env vars to run
+
+## Backend (geocore-next/backend)
+
+- Go backend requires PostgreSQL (port 5432) and Redis (port 6379)
+- Config: `geocore-next/backend/.env`
 
 ## Go Backend Bug Fixes Applied
 
@@ -25,8 +35,3 @@ Modern global classifieds and real-time auctions platform.
 - Fixed pointer comparison issues in `listings/search_validation.go`
 - Fixed GORM Order() single-argument call in `listings/search.go`
 - Added missing `strings` import in `admin/handler.go`
-
-## Recent Changes
-
-- 2026-03-26: Imported GeoCore Next — Go 1.25 installed, backend compiled, Next.js frontend configured with missing globals.css, QueryProvider, tailwind config, postcss config
-- 2026-03-26: Removed Mnbara Platform — deleted `frontend/` directory, removed `Frontend` workflow, reconfigured GeoCore Frontend to port 5000 as main webview

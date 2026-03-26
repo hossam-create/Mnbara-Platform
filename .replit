@@ -30,7 +30,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd geocore-marketplace && PORT=5000 BASE_PATH=/ pnpm --filter @workspace/web run dev"
+args = "cd geocore-next/frontend && PORT=5000 BASE_PATH=/ pnpm --filter @workspace/web run dev"
 waitForPort = 5000
 
 [[workflows.workflow]]
