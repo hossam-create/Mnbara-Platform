@@ -67,3 +67,7 @@ REDIS_PASSWORD = ""
 FRONTEND_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
 APP_BASE_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
 BACKEND_PORT = "9000"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 180000
