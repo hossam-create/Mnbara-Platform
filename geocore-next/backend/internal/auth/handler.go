@@ -5,6 +5,7 @@ package auth
         "time"
 
         "github.com/geocore-next/backend/internal/users"
+        "github.com/geocore-next/backend/pkg/email"
         "github.com/geocore-next/backend/pkg/middleware"
         "github.com/geocore-next/backend/pkg/response"
         "github.com/gin-gonic/gin"
@@ -74,6 +75,9 @@ package auth
 
         // Send email verification asynchronously (non-blocking)
         h.sendInitialVerificationEmail(&user)
+
+        // Send welcome email
+        go email.SendWelcomeEmail(user.Email, user.Name)
 
         token, err := generateToken(user.ID.String(), user.Email)
         if err != nil {

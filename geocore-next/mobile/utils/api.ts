@@ -81,3 +81,37 @@ export const messagesAPI = {
   sendMessage: (conversationId: string, text: string) =>
     api.post(`/chat/conversations/${conversationId}/messages`, { text }),
 };
+
+export const notificationsAPI = {
+  list: (page = 1) => api.get("/notifications", { params: { page } }),
+  unreadCount: () => api.get("/notifications/unread-count"),
+  markRead: (id: string) => api.put(`/notifications/${id}/read`),
+  markAllRead: () => api.put("/notifications/mark-all-read"),
+  deleteOne: (id: string) => api.delete(`/notifications/${id}`),
+  registerPushToken: (token: string, platform: string) =>
+    api.post("/notifications/register-push-token", { token, platform }),
+  deletePushToken: (id: string) => api.delete(`/notifications/push-tokens/${id}`),
+  getPreferences: () => api.get("/notifications/preferences"),
+  updatePreferences: (prefs: Record<string, boolean>) =>
+    api.put("/notifications/preferences", prefs),
+};
+
+export const storesAPI = {
+  list: () => api.get("/stores"),
+  getBySlug: (slug: string) => api.get(`/stores/${slug}`),
+  getMyStore: () => api.get("/stores/me"),
+  create: (data: {
+    name: string;
+    description?: string;
+    welcome_msg?: string;
+    logo_url?: string;
+    banner_url?: string;
+  }) => api.post("/stores", data),
+  update: (data: Partial<{
+    name: string;
+    description: string;
+    welcome_msg: string;
+    logo_url: string;
+    banner_url: string;
+  }>) => api.put("/stores/me", data),
+};

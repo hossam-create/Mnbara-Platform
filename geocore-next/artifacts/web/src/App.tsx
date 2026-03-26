@@ -13,6 +13,7 @@ import RegisterPage from "@/pages/RegisterPage";
 import SellerPage from "@/pages/SellerPage";
 import SellPage from "@/pages/SellPage";
 import WalletPage from "@/pages/WalletPage";
+import BrandOutletPage from "@/pages/BrandOutletPage";
 import MyStorefrontPage from "@/pages/MyStorefrontPage";
 import StoreListPage from "@/pages/StoreListPage";
 import StorefrontPage from "@/pages/StorefrontPage";
@@ -65,6 +66,7 @@ function AppRoutes() {
           <Route path="/profile" component={ProfilePage} />
           <Route path="/wallet" component={WalletPage} />
           <Route path="/my-store" component={MyStorefrontPage} />
+          <Route path="/brand-outlet" component={BrandOutletPage} />
           <Route path="/stores" component={StoreListPage} />
           <Route path="/stores/:slug" component={StorefrontPage} />
           <Route path="/sellers/:id" component={SellerPage} />

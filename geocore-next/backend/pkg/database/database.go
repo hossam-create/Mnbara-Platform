@@ -13,6 +13,7 @@ import (
         "github.com/geocore-next/backend/internal/notifications"
         "github.com/geocore-next/backend/internal/payments"
         "github.com/geocore-next/backend/internal/reviews"
+        "github.com/geocore-next/backend/internal/stores"
         "github.com/geocore-next/backend/internal/users"
         "gorm.io/driver/postgres"
         "gorm.io/gorm"
@@ -78,6 +79,7 @@ func AutoMigrate(db *gorm.DB) error {
                 &kyc.KYCDocument{},
                 &kyc.KYCAuditLog{},
                 &reviews.Review{},
+                &stores.Storefront{},
         )
         if err != nil {
                 return err

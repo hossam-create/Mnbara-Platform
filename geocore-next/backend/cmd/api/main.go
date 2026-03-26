@@ -19,6 +19,7 @@ package main
         "github.com/geocore-next/backend/internal/notifications"
         "github.com/geocore-next/backend/internal/payments"
         "github.com/geocore-next/backend/internal/reviews"
+        "github.com/geocore-next/backend/internal/stores"
         "github.com/geocore-next/backend/internal/users"
         "github.com/geocore-next/backend/pkg/database"
         "github.com/geocore-next/backend/pkg/middleware"
@@ -125,10 +126,15 @@ package main
         chat.RegisterRoutes(v1, db, rdb)
         payments.RegisterRoutes(v1, db, rdb)
         images.RegisterRoutes(v1, db, rdb)
-        notifHub, _ := notifications.RegisterRoutes(v1, db, rdb)
+        notifHub, notifSvc := notifications.RegisterRoutes(v1, db, rdb)
         admin.RegisterRoutes(v1, db, rdb)
         kyc.RegisterRoutes(v1, db)
         reviews.RegisterRoutes(v1, db)
+        stores.RegisterRoutes(v1, db)
+
+        // Wire notification service into dependent packages
+        auctions.SetNotificationService(notifSvc)
+        chat.SetNotificationService(notifSvc)
 
         // Presigned upload URL — used by KYC and listing image uploads from the browser.
         // Auth required to prevent abuse; returns mock URL in dev when R2 is not configured.

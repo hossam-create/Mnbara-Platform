@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 
 import { authAPI } from "@/utils/api";
+import { setupPushNotifications } from "@/utils/pushNotifications";
 
 export interface AuthUser {
   id: string;
@@ -62,6 +63,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       await SecureStore.setItemAsync("access_token", access_token);
       await SecureStore.setItemAsync("refresh_token", refresh_token);
       set({ user, isAuthenticated: true, isLoading: false });
+      // Register device for push notifications after login
+      setupPushNotifications().catch(() => {});
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??
@@ -80,6 +83,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       await SecureStore.setItemAsync("access_token", access_token);
       await SecureStore.setItemAsync("refresh_token", refresh_token);
       set({ user, isAuthenticated: true, isLoading: false });
+      // Register device for push notifications after registration
+      setupPushNotifications().catch(() => {});
     } catch (err: any) {
       const msg =
         err?.response?.data?.message ??

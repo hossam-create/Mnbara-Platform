@@ -116,6 +116,14 @@ React + Vite web frontend for GCC marketplace. Pre-installed: TanStack Query, Ra
 - All pages with auth requirements redirect to `/login?next=<page>` when unauthenticated
 - Preview path: `/web/` · Port: 22333
 
+### Phase 5: Mobile App, Storefronts & Notifications
+
+- **Go backend Storefronts** (`backend/internal/stores/`) — Full Storefront CRUD: `GET /api/v1/stores`, `GET /api/v1/stores/:slug` (with view count), `GET/POST/PUT /api/v1/stores/me`. Auto-generates slug from name with timestamp collision protection. AutoMigrated `storefronts` table with unique slug + user_id indexes.
+- **Push notifications pipeline** — FCM client reads `FIREBASE_SERVICE_ACCOUNT_JSON` env var; gracefully degrades if not set. `POST /api/v1/notifications/register-push-token` and `DELETE /api/v1/notifications/push-tokens/:id` routes wired. Auction `PlaceBid` triggers `new_bid` + `outbid` notifications; chat `SendMessage` triggers `new_message` to all other conversation members.
+- **Email notifications** (`backend/pkg/email/transactional.go`) — SMTP-based: `SendWelcomeEmail`, `SendAuctionWonEmail`, `SendAuctionEndedSellerEmail`, `SendPurchaseConfirmationEmail`, `SendOutbidEmail`. Falls back to stdout logging when `SMTP_HOST`/`SMTP_FROM` not set. Welcome email fires on registration; outbid emails fire via notification service.
+- **Mobile API integration** (`mobile/utils/api.ts`, `mobile/app/notifications.tsx`) — `notificationsAPI` and `storesAPI` added; notifications screen uses real API with react-query. Push notification setup in `mobile/utils/pushNotifications.ts` — registers FCM token via `POST /notifications/register-push-token` after login.
+- **Frontend storefronts** — `BrandOutletPage.tsx` added to both artifact directories, loads real `/api/v1/stores` API alongside curated brands. `MyStorefrontPage.tsx` enhanced with listings display and store stats. Routes `/brand-outlet`, `/stores`, `/stores/:slug`, `/my-store` all wired.
+
 ### Phase 4: Trust, Safety & Admin
 
 - **Seller Reviews** (`frontend/artifacts/web/src/components/reviews/SellerReviews.tsx`) — Review display + submission on SellerPage. Star rating picker, real API data only (no mock fallback), POST `/users/:id/reviews`. Eligibility gated: reviewer must have a completed purchase from the seller.

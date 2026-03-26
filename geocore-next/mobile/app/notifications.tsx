@@ -1,7 +1,9 @@
 import { Feather } from "@expo/vector-icons";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   Platform,
   Pressable,
   ScrollView,
@@ -13,63 +15,49 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Colors from "@/constants/colors";
+import { notificationsAPI } from "@/utils/api";
 
-const NOTIFICATIONS = [
-  {
-    id: "n1",
-    type: "bid",
-    title: "You've been outbid!",
-    body: "Someone placed a higher bid on Vintage Rolex Submariner 1968",
-    time: "2 min ago",
-    read: false,
-  },
-  {
-    id: "n2",
-    type: "message",
-    title: "New message from TechDeals EG",
-    body: "Sure, the iPhone is still available. Let me know when works for you.",
-    time: "1h ago",
-    read: false,
-  },
-  {
-    id: "n3",
-    type: "sale",
-    title: "Your listing was viewed 50 times",
-    body: "iPhone 15 Pro Max is getting traction. Consider featuring it!",
-    time: "3h ago",
-    read: true,
-  },
-  {
-    id: "n4",
-    type: "bid",
-    title: "Auction ending soon",
-    body: "DJI Mavic 3 Pro auction ends in less than 24 hours",
-    time: "5h ago",
-    read: true,
-  },
-  {
-    id: "n5",
-    type: "system",
-    title: "Welcome to GeoCore!",
-    body: "Your account is verified. Start selling or find great deals.",
-    time: "Yesterday",
-    read: true,
-  },
-];
-
-const ICONS: Record<string, string> = {
-  bid: "zap",
-  message: "message-circle",
-  sale: "trending-up",
-  system: "bell",
+const ICON_MAP: Record<string, string> = {
+  new_bid: "zap",
+  outbid: "alert-triangle",
+  auction_won: "award",
+  auction_ended: "clock",
+  new_message: "message-circle",
+  listing_approved: "check-circle",
+  listing_rejected: "x-circle",
+  payment_success: "credit-card",
+  payment_failed: "alert-circle",
+  escrow_released: "unlock",
+  new_review: "star",
 };
 
-const ICON_COLORS: Record<string, string> = {
-  bid: "#0071CE",
-  message: "#3B82F6",
-  sale: "#10B981",
-  system: "#6B7280",
+const COLOR_MAP: Record<string, string> = {
+  new_bid: "#0071CE",
+  outbid: "#EF4444",
+  auction_won: "#10B981",
+  auction_ended: "#6B7280",
+  new_message: "#3B82F6",
+  listing_approved: "#10B981",
+  listing_rejected: "#EF4444",
+  payment_success: "#10B981",
+  payment_failed: "#EF4444",
+  escrow_released: "#8B5CF6",
+  new_review: "#F59E0B",
 };
+
+function formatTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHrs = Math.floor(diffMins / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays === 1) return "Yesterday";
+  return `${diffDays}d ago`;
+}
 
 export default function NotificationsScreen() {
   const colorScheme = useColorScheme();
@@ -77,6 +65,29 @@ export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
   const topPad = isWeb ? 67 : insets.top;
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["notifications"],
+    queryFn: () => notificationsAPI.list().then((r) => r.data.data ?? []),
+    retry: false,
+  });
+
+  const markAllRead = useMutation({
+    mutationFn: () => notificationsAPI.markAllRead(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const markOneRead = useMutation({
+    mutationFn: (id: string) => notificationsAPI.markRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
+  const notifications: any[] = data ?? [];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -99,71 +110,90 @@ export default function NotificationsScreen() {
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           Notifications
         </Text>
-        <Pressable style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}>
+        <Pressable
+          onPress={() => markAllRead.mutate()}
+          style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
+        >
           <Text style={[styles.markAll, { color: colors.tint }]}>Mark all read</Text>
         </Pressable>
       </View>
 
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-      >
-        {NOTIFICATIONS.map((n, index) => (
-          <Pressable
-            key={n.id}
-            style={({ pressed }) => [
-              styles.notifRow,
-              {
-                backgroundColor: n.read
-                  ? colors.backgroundSecondary
-                  : colorScheme === "dark"
-                  ? "#1A2A3A"
-                  : "#EEF6FF",
-                borderBottomColor: colors.border,
-                opacity: pressed ? 0.85 : 1,
-              },
-            ]}
-          >
-            <View
-              style={[
-                styles.notifIcon,
-                { backgroundColor: ICON_COLORS[n.type] + "20" },
-              ]}
-            >
-              <Feather
-                name={ICONS[n.type] as any}
-                size={18}
-                color={ICON_COLORS[n.type]}
-              />
-            </View>
-            <View style={styles.notifContent}>
-              <View style={styles.notifHeader}>
-                <Text
+      {isLoading ? (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={colors.tint} />
+        </View>
+      ) : notifications.length === 0 ? (
+        <View style={styles.empty}>
+          <Feather name="bell-off" size={48} color={colors.textTertiary} />
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            No notifications yet
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          showsVerticalScrollIndicator={false}
+        >
+          {notifications.map((n: any) => {
+            const iconName = ICON_MAP[n.type] ?? "bell";
+            const iconColor = COLOR_MAP[n.type] ?? "#6B7280";
+            return (
+              <Pressable
+                key={n.id}
+                onPress={() => {
+                  if (!n.read) markOneRead.mutate(n.id);
+                }}
+                style={({ pressed }) => [
+                  styles.notifRow,
+                  {
+                    backgroundColor: n.read
+                      ? colors.backgroundSecondary
+                      : colorScheme === "dark"
+                      ? "#1A2A3A"
+                      : "#EEF6FF",
+                    borderBottomColor: colors.border,
+                    opacity: pressed ? 0.85 : 1,
+                  },
+                ]}
+              >
+                <View
                   style={[
-                    styles.notifTitle,
-                    {
-                      color: colors.text,
-                      fontFamily: n.read ? "Inter_500Medium" : "Inter_700Bold",
-                    },
+                    styles.notifIcon,
+                    { backgroundColor: iconColor + "20" },
                   ]}
                 >
-                  {n.title}
-                </Text>
-                {!n.read && (
-                  <View style={[styles.unreadDot, { backgroundColor: colors.tint }]} />
-                )}
-              </View>
-              <Text style={[styles.notifBody, { color: colors.textSecondary }]}>
-                {n.body}
-              </Text>
-              <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
-                {n.time}
-              </Text>
-            </View>
-          </Pressable>
-        ))}
-        <View style={{ height: isWeb ? 34 : 100 }} />
-      </ScrollView>
+                  <Feather name={iconName as any} size={18} color={iconColor} />
+                </View>
+                <View style={styles.notifContent}>
+                  <View style={styles.notifHeader}>
+                    <Text
+                      style={[
+                        styles.notifTitle,
+                        {
+                          color: colors.text,
+                          fontFamily: n.read ? "Inter_500Medium" : "Inter_700Bold",
+                        },
+                      ]}
+                    >
+                      {n.title}
+                    </Text>
+                    {!n.read && (
+                      <View style={[styles.unreadDot, { backgroundColor: colors.tint }]} />
+                    )}
+                  </View>
+                  <Text style={[styles.notifBody, { color: colors.textSecondary }]}>
+                    {n.body}
+                  </Text>
+                  <Text style={[styles.notifTime, { color: colors.textTertiary }]}>
+                    {formatTime(n.created_at)}
+                  </Text>
+                </View>
+              </Pressable>
+            );
+          })}
+          <View style={{ height: isWeb ? 34 : 100 }} />
+        </ScrollView>
+      )}
     </View>
   );
 }
@@ -191,6 +221,21 @@ const styles = StyleSheet.create({
   },
   markAll: {
     fontSize: 13,
+    fontFamily: "Inter_500Medium",
+  },
+  loading: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  empty: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 16,
+  },
+  emptyText: {
+    fontSize: 16,
     fontFamily: "Inter_500Medium",
   },
   notifRow: {
