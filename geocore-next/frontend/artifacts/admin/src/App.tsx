@@ -78,7 +78,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <WouterRouter base={(() => { const e = import.meta.env.BASE_URL ?? "/"; if (e && e !== "/") return e.replace(/\/$/, ""); const p = window.location.pathname; return p.startsWith("/admin") ? "/admin" : ""; })()}>
           <Router />
         </WouterRouter>
         <Toaster />
