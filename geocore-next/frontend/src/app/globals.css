@@ -26,7 +26,6 @@
     --radius: 0.5rem;
     --app-font-sans: 'Inter', sans-serif;
   }
-
   .dark {
     --background: 222 25% 10%;
     --foreground: 210 20% 92%;
@@ -48,12 +47,6 @@
     --input: 220 13% 28%;
     --ring: 209 100% 55%;
   }
-
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
 }
