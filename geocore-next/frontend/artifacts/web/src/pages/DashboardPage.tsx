@@ -41,10 +41,25 @@ interface Listing {
   currency: string;
   status: "active" | "sold" | "inactive" | "pending";
   type: string;
-  category: string;
-  views: number;
+  // Backend returns category as an object; mock uses a plain string
+  category?: string | { slug?: string; name_en?: string; name?: string } | null;
+  // Backend uses view_count; mock uses views
+  views?: number;
+  view_count?: number;
   created_at: string;
   images?: { url: string }[];
+}
+
+/** Resolve view count from either backend (view_count) or mock (views) shape */
+function getViews(l: Listing): number {
+  return l.view_count ?? l.views ?? 0;
+}
+
+/** Resolve category display label from either backend (object) or mock (string) shape */
+function getCategoryLabel(l: Listing): string {
+  if (!l.category) return "";
+  if (typeof l.category === "string") return l.category;
+  return l.category.name_en ?? l.category.name ?? l.category.slug ?? "";
 }
 
 interface Order {
@@ -324,7 +339,7 @@ function ListingsTab({ listings }: { listings: Listing[] }) {
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{label}</span>
                       <span className="text-xs text-gray-400 capitalize">{listing.type.replace(/_/g, " ")}</span>
-                      <span className="text-xs text-gray-400 flex items-center gap-0.5"><Eye className="w-3 h-3" />{listing.views.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400 flex items-center gap-0.5"><Eye className="w-3 h-3" />{getViews(listing).toLocaleString()}</span>
                       <span className="text-xs text-gray-400">{timeAgo(listing.created_at)}</span>
                     </div>
                   </div>
@@ -332,7 +347,7 @@ function ListingsTab({ listings }: { listings: Listing[] }) {
                   {/* Price */}
                   <div className="text-right shrink-0">
                     <p className="text-sm font-bold text-[#0071CE]">{formatPrice(listing.price, listing.currency)}</p>
-                    <p className="text-xs text-gray-400 capitalize">{listing.category}</p>
+                    <p className="text-xs text-gray-400 capitalize">{getCategoryLabel(listing)}</p>
                   </div>
 
                   {/* Actions */}
@@ -439,7 +454,7 @@ function OrdersTab({ orders }: { orders: Order[] }) {
 // ── Analytics Tab ──────────────────────────────────────────────────────────────
 
 function AnalyticsTab({ stats, listings }: { stats: typeof MOCK_STATS; listings: Listing[] }) {
-  const topListings = [...listings].sort((a, b) => b.views - a.views).slice(0, 5);
+  const topListings = [...listings].sort((a, b) => getViews(b) - getViews(a)).slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -484,10 +499,10 @@ function AnalyticsTab({ stats, listings }: { stats: typeof MOCK_STATS; listings:
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{l.title}</p>
-                <p className="text-xs text-gray-400 capitalize">{l.category}</p>
+                <p className="text-xs text-gray-400 capitalize">{getCategoryLabel(l)}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-semibold text-gray-900">{l.views.toLocaleString()} views</p>
+                <p className="text-sm font-semibold text-gray-900">{getViews(l).toLocaleString()} views</p>
                 <p className="text-xs text-[#0071CE] font-medium">{formatPrice(l.price, l.currency)}</p>
               </div>
             </div>
@@ -500,7 +515,7 @@ function AnalyticsTab({ stats, listings }: { stats: typeof MOCK_STATS; listings:
         <h3 className="text-sm font-semibold text-gray-700 mb-4">Listings by Category</h3>
         <div className="space-y-3">
           {Object.entries(
-            listings.reduce((acc, l) => ({ ...acc, [l.category]: (acc[l.category] || 0) + 1 }), {} as Record<string, number>)
+            listings.reduce((acc, l) => { const cat = getCategoryLabel(l) || "Other"; return { ...acc, [cat]: (acc[cat] || 0) + 1 }; }, {} as Record<string, number>)
           ).map(([cat, count]) => (
             <div key={cat} className="flex items-center gap-3">
               <p className="text-sm text-gray-600 capitalize w-28 shrink-0">{cat}</p>
@@ -521,10 +536,9 @@ function AnalyticsTab({ stats, listings }: { stats: typeof MOCK_STATS; listings:
 function useSimpleToast() {
   const [msg, setMsg] = useState<string | null>(null);
   useEffect(() => {
-    if (msg) {
-      const t = setTimeout(() => setMsg(null), 2500);
-      return () => clearTimeout(t);
-    }
+    if (!msg) return;
+    const t = setTimeout(() => setMsg(null), 2500);
+    return () => clearTimeout(t);
   }, [msg]);
   return { toast: setMsg, msg };
 }
@@ -567,9 +581,9 @@ export default function DashboardPage() {
     queryKey: ["my-listings"],
     queryFn: async () => {
       try {
-        const res = await api.get("/listings?seller_id=me&per_page=50");
+        const res = await api.get("/listings/me");
         const data = res.data?.data ?? [];
-        return Array.isArray(data) && data.length > 0 ? data : MOCK_LISTINGS;
+        return Array.isArray(data) ? data : MOCK_LISTINGS;
       } catch {
         return MOCK_LISTINGS;
       }

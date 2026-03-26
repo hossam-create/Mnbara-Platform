@@ -34,7 +34,20 @@ export default function SellerPage() {
     error: sellerError,
   } = useQuery({
     queryKey: ["seller", sellerId],
-    queryFn: () => api.get(`/users/${sellerId}`).then((r) => r.data.data),
+    queryFn: () =>
+      api.get(`/users/${sellerId}/profile`).then((r) => {
+        const d = r.data.data;
+        if (!d) return d;
+        // Normalize backend field names to UI expectations
+        return {
+          ...d,
+          avatar: d.avatar ?? d.avatar_url ?? null,
+          verified: d.verified ?? d.is_verified ?? false,
+          city: d.city ?? (typeof d.location === "string" ? d.location : null),
+          listings_sold: d.listings_sold ?? d.sold_count ?? 0,
+          member_since: d.member_since ?? d.created_at ?? null,
+        };
+      }),
     retry: 1,
   });
 

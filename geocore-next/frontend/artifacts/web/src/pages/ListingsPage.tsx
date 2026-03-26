@@ -15,21 +15,6 @@ const SORT_OPTIONS = [
   { label: "Price: High to Low", value: "price_desc" },
 ];
 
-const MOCK_LISTINGS = [
-  { id: "1", title: "iPhone 15 Pro Max 256GB", price: 4200, currency: "AED", type: "fixed", city: "Dubai", condition: "new", category: { slug: "electronics" }, attributes: { brand: "Apple", storage: "256GB", ram: "8GB" } },
-  { id: "2", title: "Toyota Camry 2023", price: 89000, current_bid: 75000, currency: "AED", type: "auction", city: "Abu Dhabi", auctionEndsAt: new Date(Date.now() + 7200000).toISOString(), category: { slug: "vehicles" }, attributes: { make: "Toyota", model: "Camry", year: 2023, mileage: 12000, color: "White" } },
-  { id: "3", title: "MacBook Pro M3 Max", price: 9500, currency: "AED", type: "fixed", city: "Riyadh", condition: "new", category: { slug: "electronics" }, attributes: { brand: "Apple", storage: "1TB", ram: "36GB" } },
-  { id: "4", title: "Chanel Classic Flap", price: 18000, current_bid: 14500, currency: "AED", type: "auction", city: "Kuwait City", auctionEndsAt: new Date(Date.now() + 3600000).toISOString(), category: { slug: "jewelry" }, attributes: { material: "Leather", brand: "Chanel" } },
-  { id: "5", title: "Samsung 85\" QLED 8K TV", price: 12000, currency: "AED", type: "fixed", city: "Doha", condition: "new", category: { slug: "electronics" }, attributes: { brand: "Samsung", storage: "N/A" } },
-  { id: "6", title: "Dubai JBR 2BR Apartment", price: 4200000, currency: "AED", type: "fixed", city: "Dubai", condition: "new", category: { slug: "real-estate" }, attributes: { bedrooms: 2, bathrooms: 2, area: 120, furnished: "yes", floor: 8 } },
-  { id: "7", title: "Rolex Datejust 41mm", price: 38000, currency: "AED", type: "auction", city: "Manama", auctionEndsAt: new Date(Date.now() + 86400000).toISOString(), category: { slug: "jewelry" }, attributes: { material: "Stainless Steel", brand: "Rolex" } },
-  { id: "8", title: "PlayStation 5 Slim Bundle", price: 2100, currency: "AED", type: "fixed", city: "Muscat", condition: "new", category: { slug: "gaming" }, attributes: { platform: "PlayStation 5", brand: "Sony", storage: "1TB" } },
-  { id: "9", title: "DJI Mavic 3 Pro", price: 7200, currency: "AED", type: "fixed", city: "Dubai", condition: "new", category: { slug: "electronics" }, attributes: { brand: "DJI", storage: "N/A" } },
-  { id: "10", title: "BMW 3 Series 2022", price: 180000, currency: "AED", type: "auction", city: "Dubai", auctionEndsAt: new Date(Date.now() + 172800000).toISOString(), category: { slug: "vehicles" }, attributes: { make: "BMW", model: "3 Series", year: 2022, mileage: 35000, color: "Black" } },
-  { id: "11", title: "Louis Vuitton Neverfull MM", price: 5500, currency: "AED", type: "fixed", city: "Dubai", condition: "like-new", category: { slug: "clothing" }, attributes: { brand: "Louis Vuitton", size: "MM", color: "Brown" } },
-  { id: "12", title: "Nintendo Switch OLED", price: 1200, currency: "AED", type: "fixed", city: "Dubai", condition: "new", category: { slug: "gaming" }, attributes: { platform: "Nintendo Switch", brand: "Nintendo", storage: "64GB" } },
-];
-
 interface Filters {
   q: string;
   category: string;
@@ -176,7 +161,7 @@ export default function ListingsPage() {
     queryKey,
     queryFn: () => {
       const p = new URLSearchParams();
-      if (filters.q) p.set("search", filters.q);
+      if (filters.q) p.set("q", filters.q);
       if (filters.category) p.set("category", filters.category);
       if (filters.condition) p.set("condition", filters.condition);
       if (filters.min_price) p.set("min_price", filters.min_price);
@@ -272,12 +257,7 @@ export default function ListingsPage() {
     }
   };
 
-  const displayListings = (listings?.length ? listings : MOCK_LISTINGS).filter((l: any) => {
-    if (filters.q && !l.title.toLowerCase().includes(filters.q.toLowerCase())) return false;
-    if (filters.category && l.category?.slug !== filters.category) return false;
-    if (filters.city && l.city && !l.city.toLowerCase().includes(filters.city.toLowerCase())) return false;
-    return true;
-  });
+  const displayListings = (listings ?? []) as any[];
 
   const pageTitle = filters.category
     ? `${filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Listings`

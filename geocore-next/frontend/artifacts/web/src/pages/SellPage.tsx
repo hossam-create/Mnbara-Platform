@@ -297,10 +297,11 @@ export default function SellPage() {
           description: form.description,
           category: form.category,
           price: Number(form.price),
-          condition: form.condition,
-          location: `${form.city}, ${form.country}`,
+          condition: form.condition.toLowerCase().replace(/\s+/g, "-"),
+          city: form.city,
+          country: form.country,
           images,
-          featured: form.featured,
+          price_type: "fixed",
           attributes: form.attributes,
         };
         const { data } = await api.post("/listings", payload);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Search, Sparkles, TrendingUp, X, Filter, MapPin, Tag, Star, ChevronDown } from "lucide-react";
+import api from "@/lib/api";
 
 // ── Mock data for AI search (used when backend is unavailable) ────────────────
 const MOCK_LISTINGS = [
@@ -51,6 +52,22 @@ function mockSearch(q: string, filters: Record<string, unknown>) {
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
+
+/** Shape of a listing returned by the Go backend (/listings or /listings/search) */
+interface BackendListing {
+  id: string;
+  title: string;
+  price: number | null;
+  currency: string;
+  condition: string;
+  city: string;
+  country: string;
+  created_at: string;
+  images?: { url: string }[];
+  category?: { name_en?: string; slug?: string } | null;
+  seller?: { name?: string; rating?: number } | null;
+}
+
 interface SearchResult {
   id: string;
   title: string;
@@ -65,6 +82,24 @@ interface SearchResult {
   created_at: string;
   relevance_score: number;
   ai_reason: string;
+}
+
+function backendListingToResult(l: BackendListing): SearchResult {
+  return {
+    id: l.id,
+    title: l.title,
+    price: l.price ?? 0,
+    currency: l.currency ?? "AED",
+    category: l.category?.name_en ?? l.category?.slug ?? "",
+    location: [l.city, l.country].filter(Boolean).join(", "),
+    condition: l.condition ?? "",
+    image: l.images?.[0]?.url ?? `https://picsum.photos/seed/${l.id}/400/300`,
+    seller: l.seller?.name ?? "",
+    rating: l.seller?.rating ?? 0,
+    created_at: l.created_at,
+    relevance_score: 80,
+    ai_reason: "Matched your search",
+  };
 }
 
 interface SearchIntent {
@@ -165,15 +200,27 @@ export default function SearchPage() {
     setTrending(TRENDING_SEARCHES);
   }, []);
 
-  // Auto-suggest as user types
+  // Auto-suggest as user types — try backend /listings/suggestions, fall back to local hints
   useEffect(() => {
     if (debouncedQuery.length < 2) { setSuggestions([]); return; }
-    const q = debouncedQuery.toLowerCase();
-    const matches = MOCK_LISTINGS
-      .filter(l => l.title.toLowerCase().includes(q) || l.category.toLowerCase().includes(q))
-      .map(l => l.title)
-      .slice(0, 5);
-    setSuggestions(matches.length > 0 ? matches : [`${debouncedQuery} for sale`, `${debouncedQuery} Dubai`, `Buy ${debouncedQuery}`]);
+    let cancelled = false;
+    api
+      .get<{ data: { suggestions: string[] } }>(`/listings/suggestions?q=${encodeURIComponent(debouncedQuery)}&limit=5`)
+      .then((res) => {
+        if (cancelled) return;
+        const items = Array.isArray(res.data?.data?.suggestions) ? res.data.data.suggestions : [];
+        setSuggestions(
+          items.length > 0
+            ? items
+            : [`${debouncedQuery} for sale`, `${debouncedQuery} Dubai`, `Buy ${debouncedQuery}`]
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSuggestions([`${debouncedQuery} for sale`, `${debouncedQuery} Dubai`, `Buy ${debouncedQuery}`]);
+        }
+      });
+    return () => { cancelled = true; };
   }, [debouncedQuery]);
 
   // Main search
@@ -182,13 +229,48 @@ export default function SearchPage() {
     setShowSuggestions(false);
     setState((s) => ({ ...s, loading: true, error: null }));
 
+    // Category filter: convert display name to slug (e.g. "Real Estate" → "real-estate")
+    const categorySlug = filters.category
+      ? filters.category.toLowerCase().replace(/\s+/g, "-")
+      : "";
+
+    // ── Primary: backend /listings/search ──────────────────────────────────
+    // This is always attempted first; results are authoritative (including empty).
+    try {
+      const params = new URLSearchParams({ q, per_page: "20" });
+      if (categorySlug) params.set("category", categorySlug);
+      if (filters.price_max) params.set("max_price", filters.price_max);
+      if (filters.location) params.set("city", filters.location);
+      const { data } = await api.get(`/listings/search?${params.toString()}`);
+      const sr = data?.data as { results?: BackendListing[]; total?: number } | undefined;
+      if (sr) {
+        const results = (sr.results ?? []).map(backendListingToResult);
+
+        // ── Optional: try AI for intent/suggestions only ──────────────────
+        let intent: SearchIntent | null = null;
+        try {
+          const aiRes = await api.post("/ai/search", {
+            query: q,
+            filters: { category: filters.category, price_max: filters.price_max ? Number(filters.price_max) : undefined, location: filters.location },
+          });
+          const aiData = aiRes.data?.data as { intent?: SearchIntent } | undefined;
+          if (aiData?.intent) intent = aiData.intent;
+        } catch {
+          // AI is optional — ignore errors
+        }
+
+        setState({ results, intent, total: sr.total ?? results.length, ai_powered: intent !== null, loading: false, error: null });
+        return;
+      }
+    } catch {
+      // Backend search failed — fall through to mock
+    }
+
+    // ── Final fallback: mock data (only when backend throws an error) ──────
     const activeFilters: Record<string, unknown> = {};
     if (filters.category) activeFilters.category = filters.category;
     if (filters.price_max) activeFilters.price_max = Number(filters.price_max);
     if (filters.location) activeFilters.location = filters.location;
-
-    // Small delay to simulate AI processing
-    await new Promise((r) => setTimeout(r, 600));
     const { results, intent, total, ai_powered } = mockSearch(q, activeFilters);
     setState({ results, intent, total, ai_powered, loading: false, error: null });
   }, [filters]);
@@ -400,7 +482,7 @@ export default function SearchPage() {
                 )}
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-xs text-gray-400">{state.returned || state.results.length} of {state.total} results</p>
+                <p className="text-xs text-gray-400">{state.results.length} of {state.total} results</p>
                 {state.ai_powered && (
                   <span className="inline-flex items-center gap-1 text-xs text-[#0071CE] font-medium mt-1">
                     <Sparkles className="w-3 h-3" /> AI Powered
