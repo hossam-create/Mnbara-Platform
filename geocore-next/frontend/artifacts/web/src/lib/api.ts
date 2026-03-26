@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://geo-core-next.replit.app/api/v1";
+const BASE_URL = "/api/v1";
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -20,18 +20,8 @@ api.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refresh = localStorage.getItem("refresh_token");
-      if (refresh) {
-        try {
-          const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refresh_token: refresh });
-          localStorage.setItem("access_token", data.data.access_token);
-          original.headers.Authorization = `Bearer ${data.data.access_token}`;
-          return api(original);
-        } catch {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-        }
-      }
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
     }
     return Promise.reject(error);
   }

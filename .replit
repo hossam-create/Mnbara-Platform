@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12", "go-1.25"]
+modules = ["nodejs-20", "python-3.12", "go-1.25", "postgresql-16"]
 [agent]
 expertMode = true
 
@@ -6,44 +6,6 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "GeoCore Frontend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "GeoCore Backend"
-
-[[workflows.workflow]]
-name = "GeoCore Frontend"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd geocore-next/frontend && PORT=5000 BASE_PATH=/ pnpm --filter @workspace/web run dev"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "GeoCore Backend"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd geocore-next/backend && go run ./cmd/api/"
-waitForPort = 8080
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[ports]]
 localPort = 3000
@@ -55,18 +17,53 @@ externalPort = 80
 
 [[ports]]
 localPort = 5001
-externalPort = 3002
+externalPort = 5173
 
 [[ports]]
 localPort = 5174
 externalPort = 3001
 
 [[ports]]
+localPort = 6379
+externalPort = 3002
+
+[[ports]]
 localPort = 8080
 externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 9000
+externalPort = 9000
+
+[[ports]]
+localPort = 18115
+externalPort = 5000
+
+[[ports]]
+localPort = 22333
+externalPort = 4200
+
+[[ports]]
+localPort = 23744
+externalPort = 3003
 
 [deployment]
 deploymentTarget = "autoscale"
 build = ["bash", "-c", "cd geocore-next/frontend && npm run build"]
 publicDir = "frontend/web/dist"
 run = ["bash", "-c", "cd geocore-next/frontend && npm start -- -p 5000"]
+
+[userenv]
+
+[userenv.shared]
+APP_ENV = "development"
+REDIS_HOST = "localhost"
+REDIS_PORT = "6379"
+REDIS_PASSWORD = ""
+FRONTEND_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
+APP_BASE_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
+BACKEND_PORT = "9000"

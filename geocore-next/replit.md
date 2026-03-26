@@ -105,7 +105,7 @@ Expo React Native app for GCC marketplace. 18+ screens with Zustand auth, TanSta
 React + Vite web frontend for GCC marketplace. Pre-installed: TanStack Query, Radix UI, Wouter, Lucide, Framer Motion, Tailwind CSS 4, Zod, Axios, Zustand.
 
 - Entry: `src/App.tsx` — Wouter router, TanStack Query provider, auth session restore
-- API client: `src/lib/api.ts` — Axios with JWT auth + refresh token interceptors, pointing at `https://geo-core-next.replit.app/api/v1`
+- API client: `src/lib/api.ts` — Axios with JWT auth interceptor, using Vite proxy `/api` → Go backend on port 9000
 - Auth store: `src/store/auth.ts` — Zustand store with localStorage persistence
 - Pages: `HomePage`, `ListingsPage`, `AuctionsPage`, `ListingDetailPage`, `LoginPage`, `RegisterPage`, `SellPage`, `SellerPage`, `ProfilePage`, `WalletPage`, `MyStorefrontPage`, `StoreListPage`, `StorefrontPage`
 - Components: `layout/Header`, `layout/Footer`, `home/HeroBanner`, `home/CategorySection`, `home/LiveAuctions`, `home/FeaturedListings`, `listings/ListingCard`, `listings/AuctionCard`, `listings/FiltersPanel`, `ui/CountdownTimer`, `ui/LoadingGrid`
@@ -153,7 +153,7 @@ Additional local development routes:
   - Route: `artifacts/api-server/src/routes/ai-search.ts`
 - **Go backend**: `backend/internal/search/handler.go` — pgvector cosine similarity + OpenAI embeddings + text fallback
   - Migration: `backend/migrations/20260324_001_pgvector_search.sql`
-- **Vite proxy**: `/${basePath}/__api` → `http://localhost:8080/api/v1` (dev only)
+- **Vite proxy**: `/api` → Go backend on port 9000 (dev only)
 - **Features**: Autocomplete suggestions, AI intent card with category/location tags, "Best Match" badge, filters panel (Category/Price/Location), trending searches, Arabic + English support
 - **Route**: `/search?q=<query>` (accessible from Header search bar with Sparkles AI badge)
 

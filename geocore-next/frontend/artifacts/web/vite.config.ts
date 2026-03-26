@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { spawn, type ChildProcess } from "child_process";
 
 const rawPort = process.env.PORT;
 
@@ -26,12 +27,43 @@ if (!basePath) {
   );
 }
 
+const backendPort = process.env.BACKEND_PORT || "9000";
+
+function goBackendPlugin() {
+  let backendProc: ChildProcess | null = null;
+
+  return {
+    name: "go-backend",
+    configureServer() {
+      const startBackend = () => {
+        const env = { ...process.env, PORT: backendPort, BACKEND_PORT: backendPort };
+        backendProc = spawn(
+          "bash",
+          ["-c", `redis-server --daemonize yes --logfile /tmp/redis.log; cd /home/runner/workspace/geocore-next/backend && go run ./cmd/api/`],
+          { env, stdio: "inherit", detached: false }
+        );
+        backendProc.on("exit", (code) => {
+          if (code !== 0) {
+            console.log(`[go-backend] exited with code ${code}, restarting in 3s...`);
+            setTimeout(startBackend, 3000);
+          }
+        });
+        console.log(`[go-backend] Started on port ${backendPort}`);
+      };
+      startBackend();
+
+      process.on("exit", () => backendProc?.kill());
+    },
+  };
+}
+
 export default defineConfig({
   base: basePath,
   plugins: [
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
+    goBackendPlugin(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
@@ -67,11 +99,13 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     proxy: {
-      // Proxy AI search routes to the local api-server
-      // basePath e.g. "/web" → full path "/web/__api" forwarded to :8080/api/v1
-      [`${basePath}/__api`]: {
-        target: "http://localhost:8080",
-        rewrite: (p) => p.replace(new RegExp(`^${basePath}/__api`), "/api/v1"),
+      "/api": {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+      },
+      [`${basePath === "/" ? "" : basePath}/__api`]: {
+        target: `http://localhost:${backendPort}`,
+        rewrite: (p) => p.replace(new RegExp(`^${basePath === "/" ? "" : basePath}/__api`), "/api/v1"),
         changeOrigin: true,
       },
     },

@@ -193,7 +193,7 @@ package search
           Condition   string `gorm:"column:condition"`
       }
       if err := h.db.Table("listings").Where("id = ?", listingID).First(&listing).Error; err != nil {
-          response.NotFound(c)
+          response.NotFound(c, "listing")
           return
       }
 

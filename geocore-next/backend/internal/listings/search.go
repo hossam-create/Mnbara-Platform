@@ -165,7 +165,11 @@ package listings
   		q = q.Order("listings.price DESC NULLS LAST")
   	case "relevance":
   		if req.Query != "" {
-  			q = q.Order("ts_rank(to_tsvector('english', listings.title || ' ' || COALESCE(listings.description, '')), plainto_tsquery('english', ?)) DESC", req.Query)
+  			rankExpr := fmt.Sprintf(
+  				"ts_rank(to_tsvector('english', listings.title || ' ' || COALESCE(listings.description, '')), plainto_tsquery('english', '%s')) DESC",
+  				strings.ReplaceAll(req.Query, "'", "''"),
+  			)
+  			q = q.Order(rankExpr)
   		} else {
   			q = q.Order("listings.is_featured DESC, listings.created_at DESC")
   		}
