@@ -39,13 +39,13 @@ function goBackendPlugin() {
         const env = { ...process.env, PORT: backendPort, BACKEND_PORT: backendPort };
         backendProc = spawn(
           "bash",
-          ["-c", `redis-server --daemonize yes --logfile /tmp/redis.log; cd /home/runner/workspace/geocore-next/backend && go run ./cmd/api/`],
+          ["-c", `fuser -k ${backendPort}/tcp 2>/dev/null || true; sleep 1; redis-server --daemonize yes --logfile /tmp/redis.log 2>/dev/null || true; cd /home/runner/workspace/geocore-next/backend && go run ./cmd/api/`],
           { env, stdio: "inherit", detached: false }
         );
         backendProc.on("exit", (code) => {
           if (code !== 0) {
-            console.log(`[go-backend] exited with code ${code}, restarting in 3s...`);
-            setTimeout(startBackend, 3000);
+            console.log(`[go-backend] exited with code ${code}, restarting in 5s...`);
+            setTimeout(startBackend, 5000);
           }
         });
         console.log(`[go-backend] Started on port ${backendPort}`);
