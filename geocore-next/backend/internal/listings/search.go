@@ -6,6 +6,7 @@ import (
         "encoding/json"
         "fmt"
         "log/slog"
+        "math"
         "strings"
         "time"
 
@@ -164,19 +165,32 @@ func (h *Handler) Search(c *gin.Context) {
                 q = q.Where("LOWER(listings.country) = LOWER(?)", req.Country)
         }
 
-        // Geo filter — Haversine distance (no PostGIS required)
+        // Geo filter — bounding-box pre-filter (uses lat/lng index) followed by exact Haversine.
+        // The bounding box eliminates the vast majority of rows before the Haversine is computed.
         if req.Lat != nil && req.Lng != nil {
+                radius := float64(req.Radius)
+                // 1 degree latitude ≈ 111 km; longitude degrees shrink with cos(lat)
+                latDelta := radius / 111.0
+                lngDelta := radius / (111.0 * math.Cos(*req.Lat * math.Pi / 180.0))
+
+                // Bounding box — fast index scan
+                q = q.Where(
+                        "listings.latitude IS NOT NULL AND listings.longitude IS NOT NULL AND "+
+                                "listings.latitude  BETWEEN ? AND ? AND "+
+                                "listings.longitude BETWEEN ? AND ?",
+                        *req.Lat-latDelta, *req.Lat+latDelta,
+                        *req.Lng-lngDelta, *req.Lng+lngDelta,
+                )
+
+                // Exact Haversine on the already-reduced row set
                 haversineWhere := `(
                         6371 * acos(
-                                cos(radians(?)) * cos(radians(listings.latitude)) *
+                                LEAST(1.0, cos(radians(?)) * cos(radians(listings.latitude)) *
                                 cos(radians(listings.longitude) - radians(?)) +
-                                sin(radians(?)) * sin(radians(listings.latitude))
+                                sin(radians(?)) * sin(radians(listings.latitude)))
                         )
                 ) <= ?`
-                q = q.Where(
-                        "listings.latitude IS NOT NULL AND listings.longitude IS NOT NULL AND "+haversineWhere,
-                        *req.Lat, *req.Lng, *req.Lat, float64(req.Radius),
-                )
+                q = q.Where(haversineWhere, *req.Lat, *req.Lng, *req.Lat, radius)
         }
 
         // ── Count total ───────────────────────────────────────────────────────────

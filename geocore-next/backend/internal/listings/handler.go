@@ -1,6 +1,8 @@
 package listings
 
 import (
+        "context"
+        "encoding/json"
         "math"
         "strconv"
         "time"
@@ -360,11 +362,33 @@ func (h *Handler) Delete(c *gin.Context) {
 }
 
 func (h *Handler) GetCategories(c *gin.Context) {
+        const cacheKey = "categories:tree"
+        const cacheTTL = time.Hour
+
+        // Try Redis cache first
+        if h.rdb != nil {
+                if cached, err := h.rdb.Get(context.Background(), cacheKey).Bytes(); err == nil {
+                        var cats []Category
+                        if json.Unmarshal(cached, &cats) == nil {
+                                response.OK(c, cats)
+                                return
+                        }
+                }
+        }
+
         var cats []Category
         h.db.Where("parent_id IS NULL AND is_active = true").
                 Preload("Children").
                 Order("sort_order").
                 Find(&cats)
+
+        // Store in Redis
+        if h.rdb != nil {
+                if data, err := json.Marshal(cats); err == nil {
+                        h.rdb.Set(context.Background(), cacheKey, data, cacheTTL)
+                }
+        }
+
         response.OK(c, cats)
 }
 
@@ -392,9 +416,31 @@ func (h *Handler) ToggleFavorite(c *gin.Context) {
 
 func (h *Handler) GetMyListings(c *gin.Context) {
         userID := c.MustGet("user_id").(string)
+
+        page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+        perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "25"))
+        if page < 1 {
+                page = 1
+        }
+        if perPage < 1 || perPage > 100 {
+                perPage = 25
+        }
+
+        q := h.db.Preload("Images").Preload("Category").
+                Where("user_id = ?", userID).
+                Order("created_at DESC")
+
+        var total int64
+        q.Model(&Listing{}).Count(&total)
+
         var listings []Listing
-        h.db.Preload("Images").Preload("Category").Where("user_id = ?", userID).
-                Order("created_at DESC").Find(&listings)
-        response.OK(c, listings)
+        q.Offset((page - 1) * perPage).Limit(perPage).Find(&listings)
+
+        response.OKMeta(c, listings, response.Meta{
+                Total:   total,
+                Page:    page,
+                PerPage: perPage,
+                Pages:   (total + int64(perPage) - 1) / int64(perPage),
+        })
 }
 

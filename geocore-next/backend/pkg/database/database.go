@@ -76,6 +76,8 @@ func Connect() (*gorm.DB, error) {
         sql, _ := db.DB()
         sql.SetMaxIdleConns(10)
         sql.SetMaxOpenConns(100)
+        sql.SetConnMaxLifetime(5 * time.Minute)
+        sql.SetConnMaxIdleTime(2 * time.Minute)
         return db, nil
 }
 

@@ -329,10 +329,10 @@ package admin
                 q = q.Where("status = ?", status)
         }
 
-        // CSV export
+        // CSV export (capped at 10,000 rows to prevent OOM)
         if c.Query("export") == "csv" {
                 var all []payments.Payment
-                q.Order("created_at DESC").Find(&all)
+                q.Order("created_at DESC").Limit(10000).Find(&all)
 
                 var buf bytes.Buffer
                 w := csv.NewWriter(&buf)

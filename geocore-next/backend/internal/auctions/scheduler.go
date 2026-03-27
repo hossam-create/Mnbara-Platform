@@ -40,8 +40,11 @@ func ProcessEndedAuctions(db *gorm.DB, hub *Hub) {
 }
 
 func processEndedAuctions(db *gorm.DB, hub *Hub) {
+        // Process in batches of 100 to avoid loading unbounded rows into memory.
+        // Each tick handles at most 100 ended auctions; remaining are caught on the next tick.
         var ended []Auction
-        if err := db.Where("status = ? AND ends_at <= ?", "active", time.Now()).Find(&ended).Error; err != nil {
+        if err := db.Where("status = ? AND ends_at <= ?", "active", time.Now()).
+                Limit(100).Find(&ended).Error; err != nil {
                 log.Printf("[auction-scheduler] error querying ended auctions: %v", err)
                 return
         }

@@ -167,7 +167,7 @@ func main() {
         admin.RegisterRoutes(v1, db, rdb)
         kyc.RegisterRoutes(v1, db)
         reviews.RegisterRoutes(v1, db)
-        stores.RegisterRoutes(v1, db)
+        stores.RegisterRoutes(v1, db, rdb)
 
         // Wire notification service into dependent packages
         auctions.SetNotificationService(notifSvc)
