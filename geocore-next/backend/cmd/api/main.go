@@ -108,21 +108,42 @@ func main() {
         }
         // CORS origin policy:
         //   ALLOWED_ORIGINS env var (comma-separated): restricts to that allowlist.
-        //   Unset in development: allow all origins (wildcard).
-        //   Production without ALLOWED_ORIGINS: warn and default to localhost.
-        if allowedOrigins := os.Getenv("ALLOWED_ORIGINS"); allowedOrigins != "" {
-                origins := strings.Split(allowedOrigins, ",")
-                for i, o := range origins {
-                        origins[i] = strings.TrimSpace(o)
+        //     In production, wildcards ("*") are stripped from the list.
+        //   Unset/empty in development: allow all origins for local iteration.
+        //   Unset/empty in production: fail-safe to same-origin only (no wildcard).
+        isProd := os.Getenv("APP_ENV") == "production"
+        if rawOrigins := os.Getenv("ALLOWED_ORIGINS"); rawOrigins != "" {
+                parts := strings.Split(rawOrigins, ",")
+                var origins []string
+                for _, o := range parts {
+                        o = strings.TrimSpace(o)
+                        if o == "" {
+                                continue
+                        }
+                        // Reject wildcard in production — it would bypass all origin checks.
+                        if isProd && o == "*" {
+                                logger.Warn("CORS: wildcard '*' is not allowed in production and will be ignored")
+                                continue
+                        }
+                        origins = append(origins, o)
                 }
-                corsConfig.AllowOrigins = origins
-                corsConfig.AllowCredentials = true
-                logger.Info("CORS allowlist active", zap.Strings("origins", origins))
-        } else if os.Getenv("APP_ENV") == "production" {
-                // Production without ALLOWED_ORIGINS: warn and lock down to localhost
-                // so a misconfigured deploy doesn't accidentally allow *.
-                logger.Warn("ALLOWED_ORIGINS not set in production — defaulting to localhost only")
-                corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://localhost:5173"}
+                if len(origins) > 0 {
+                        corsConfig.AllowOrigins = origins
+                        corsConfig.AllowCredentials = true
+                        logger.Info("CORS allowlist active", zap.Strings("origins", origins))
+                } else if isProd {
+                        // All entries were wildcards or blank — fail safe.
+                        logger.Warn("CORS: ALLOWED_ORIGINS resolved to empty list in production — same-origin only")
+                        corsConfig.AllowOrigins = []string{}
+                        corsConfig.AllowCredentials = true
+                } else {
+                        corsConfig.AllowAllOrigins = true
+                }
+        } else if isProd {
+                // No ALLOWED_ORIGINS in production: warn and refuse wildcard.
+                // Operators must explicitly set ALLOWED_ORIGINS before launch.
+                logger.Warn("ALLOWED_ORIGINS not set in production — CORS will reject all cross-origin requests")
+                corsConfig.AllowOrigins = []string{}
                 corsConfig.AllowCredentials = true
         } else {
                 // Development: allow all (wildcard) for easier local iteration.

@@ -108,7 +108,7 @@ func setupRouter(t *testing.T, db *gorm.DB, rdb *redis.Client) *gin.Engine {
         gin.SetMode(gin.TestMode)
         r := gin.New()
         v1 := r.Group("/api/v1")
-        auctions.RegisterRoutes(v1, db, rdb)
+        auctions.RegisterRoutes(v1, db, rdb, middleware.NewRateLimiter(rdb))
         return r
 }
 
@@ -696,7 +696,7 @@ func setupServerWithHub(t *testing.T, db *gorm.DB, rdb *redis.Client) (*httptest
         gin.SetMode(gin.TestMode)
         r := gin.New()
         v1 := r.Group("/api/v1")
-        auctions.RegisterRoutes(v1, db, rdb)
+        auctions.RegisterRoutes(v1, db, rdb, middleware.NewRateLimiter(rdb))
 
         hub := auctions.NewHub(rdb)
         go hub.Run()
