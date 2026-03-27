@@ -21,56 +21,6 @@ interface AuthStore {
   restoreSession: () => void;
 }
 
-// ── Demo/mock users for offline / development use ────────────────────────────
-const MOCK_USERS: Array<{ email: string; password: string; user: AuthUser }> = [
-  {
-    email: "demo@geocore.com",
-    password: "demo1234",
-    user: {
-      id: "usr_demo_001",
-      name: "Ahmed Al-Rashid",
-      email: "demo@geocore.com",
-      phone: "+971501234567",
-      location: "Dubai, UAE",
-      rating: 4.8,
-      balance: 5000,
-      isVerified: true,
-    },
-  },
-  {
-    email: "seller@geocore.com",
-    password: "seller123",
-    user: {
-      id: "usr_demo_002",
-      name: "Sara Mohammed",
-      email: "seller@geocore.com",
-      phone: "+966501234567",
-      location: "Riyadh, KSA",
-      rating: 4.6,
-      balance: 12500,
-      isVerified: true,
-    },
-  },
-  {
-    email: "test@test.com",
-    password: "test123",
-    user: {
-      id: "usr_demo_003",
-      name: "Test User",
-      email: "test@test.com",
-      phone: "+97150000000",
-      location: "Abu Dhabi, UAE",
-      rating: 4.0,
-      balance: 1000,
-      isVerified: false,
-    },
-  },
-];
-
-function mockToken() {
-  const chars = "abcdef0123456789";
-  return "mock_" + Array.from({ length: 32 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-}
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
@@ -89,58 +39,27 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 
   login: async (email, password) => {
-    try {
-      const { data } = await api.post("/auth/login", { email, password });
-      const { user, access_token, refresh_token } = data.data;
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
-      localStorage.setItem("auth_user", JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-    } catch {
-      // Fallback: check mock users (dev / demo mode)
-      const match = MOCK_USERS.find(
-        (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-      );
-      if (match) {
-        const access_token = mockToken();
-        const refresh_token = mockToken();
-        localStorage.setItem("access_token", access_token);
-        localStorage.setItem("refresh_token", refresh_token);
-        localStorage.setItem("auth_user", JSON.stringify(match.user));
-        set({ user: match.user, isAuthenticated: true });
-        return;
-      }
-      throw new Error("Invalid credentials");
-    }
+    const { data } = await api.post("/auth/login", { email, password });
+    const payload = data.data;
+    const user: AuthUser = payload.user;
+    const access_token: string = payload.access_token ?? payload.token ?? "";
+    const refresh_token: string = payload.refresh_token ?? "";
+    localStorage.setItem("access_token", access_token);
+    if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
+    localStorage.setItem("auth_user", JSON.stringify(user));
+    set({ user, isAuthenticated: true });
   },
 
   register: async (name, email, phone, password) => {
-    try {
-      const { data } = await api.post("/auth/register", { name, email, phone, password });
-      const { user, access_token, refresh_token } = data.data;
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
-      localStorage.setItem("auth_user", JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-    } catch {
-      // Fallback: create a local demo user
-      const user: AuthUser = {
-        id: `usr_${Date.now()}`,
-        name,
-        email,
-        phone,
-        location: "GCC",
-        rating: 0,
-        balance: 0,
-        isVerified: false,
-      };
-      const access_token = mockToken();
-      const refresh_token = mockToken();
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("refresh_token", refresh_token);
-      localStorage.setItem("auth_user", JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-    }
+    const { data } = await api.post("/auth/register", { name, email, phone, password });
+    const payload = data.data;
+    const user: AuthUser = payload.user;
+    const access_token: string = payload.access_token ?? payload.token ?? "";
+    const refresh_token: string = payload.refresh_token ?? "";
+    localStorage.setItem("access_token", access_token);
+    if (refresh_token) localStorage.setItem("refresh_token", refresh_token);
+    localStorage.setItem("auth_user", JSON.stringify(user));
+    set({ user, isAuthenticated: true });
   },
 
   logout: () => {

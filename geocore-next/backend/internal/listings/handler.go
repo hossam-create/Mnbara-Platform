@@ -6,6 +6,7 @@ import (
         "time"
 
         "github.com/geocore-next/backend/pkg/response"
+        "github.com/geocore-next/backend/pkg/util"
         "github.com/gin-gonic/gin"
         "github.com/google/uuid"
         "github.com/redis/go-redis/v9"
@@ -218,10 +219,10 @@ func (h *Handler) Create(c *gin.Context) {
                 Title:       req.Title,
                 Description: req.Description,
                 Price:       req.Price,
-                Currency:    defaultStr(req.Currency, "USD"),
-                PriceType:   defaultStr(req.PriceType, "fixed"),
+                Currency:    util.DefaultStr(req.Currency, "USD"),
+                PriceType:   util.DefaultStr(req.PriceType, "fixed"),
                 Condition:   req.Condition,
-                Type:        defaultStr(req.Type, "sell"),
+                Type:        util.DefaultStr(req.Type, "sell"),
                 Country:     req.Country,
                 City:        req.City,
                 Address:     req.Address,
@@ -333,9 +334,3 @@ func (h *Handler) GetMyListings(c *gin.Context) {
         response.OK(c, listings)
 }
 
-func defaultStr(s, def string) string {
-        if s == "" {
-                return def
-        }
-        return s
-}

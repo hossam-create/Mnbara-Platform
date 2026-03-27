@@ -6,6 +6,7 @@ import (
 
         "github.com/geocore-next/backend/internal/users"
         "github.com/geocore-next/backend/pkg/response"
+        "github.com/geocore-next/backend/pkg/util"
         "github.com/gin-gonic/gin"
         "github.com/google/uuid"
         "github.com/redis/go-redis/v9"
@@ -133,7 +134,7 @@ func (h *Handler) SendMessage(c *gin.Context) {
                 ConversationID: convID,
                 SenderID:       userID,
                 Content:        req.Content,
-                Type:           defaultStr(req.Type, "text"),
+                Type:           util.DefaultStr(req.Type, "text"),
                 CreatedAt:      time.Now(),
         }
         h.db.Create(&msg)
@@ -170,9 +171,3 @@ func (h *Handler) SendMessage(c *gin.Context) {
         response.Created(c, msg)
 }
 
-func defaultStr(s, d string) string {
-        if s == "" {
-                return d
-        }
-        return s
-}

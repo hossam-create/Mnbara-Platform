@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/geocore-next/backend/pkg/response"
+	"github.com/geocore-next/backend/pkg/util"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -95,7 +96,7 @@ func (h *Handler) Create(c *gin.Context) {
 		ReservePrice: req.ReservePrice,
 		BuyNowPrice:  req.BuyNowPrice,
 		CurrentBid:   0,
-		Currency:     defaultStr(req.Currency, "USD"),
+		Currency:     util.DefaultStr(req.Currency, "USD"),
 		Status:       "active",
 		StartsAt:     now,
 		EndsAt:       now.Add(time.Duration(req.DurationHrs) * time.Hour),
@@ -314,11 +315,4 @@ func (h *Handler) GetBids(c *gin.Context) {
 	var bids []Bid
 	h.db.Where("auction_id = ?", id).Order("amount DESC").Limit(50).Find(&bids)
 	response.OK(c, bids)
-}
-
-func defaultStr(s, d string) string {
-	if s == "" {
-		return d
-	}
-	return s
 }

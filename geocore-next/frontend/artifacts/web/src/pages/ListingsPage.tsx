@@ -336,6 +336,12 @@ export default function ListingsPage() {
         <div className="flex-1 min-w-0">
           {isLoading ? (
             <LoadingGrid count={12} />
+          ) : error ? (
+            <div className="bg-red-50 border border-red-100 rounded-2xl px-6 py-8 text-center">
+              <p className="text-2xl mb-2">⚠️</p>
+              <p className="text-sm font-semibold text-red-600">Something went wrong</p>
+              <p className="text-xs text-red-400 mt-1">Could not load listings. Please try again later.</p>
+            </div>
           ) : displayListings.length === 0 ? (
             <div className="text-center py-20 text-gray-400">
               <p className="text-4xl mb-3">🔍</p>

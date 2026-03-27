@@ -23,6 +23,7 @@ import (
 	"github.com/geocore-next/backend/internal/users"
 	"github.com/geocore-next/backend/pkg/database"
 	"github.com/geocore-next/backend/pkg/middleware"
+	"github.com/geocore-next/backend/pkg/util"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -35,13 +36,6 @@ const (
 	redisMaxRetries = 5
 	redisRetryDelay = 2 * time.Second
 )
-
-func getenv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
 
 func main() {
 	_ = godotenv.Load()
@@ -58,7 +52,7 @@ func main() {
 	logger.Info("Database ready")
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", getenv("REDIS_HOST", "localhost"), getenv("REDIS_PORT", "6379")),
+		Addr:     fmt.Sprintf("%s:%s", util.Getenv("REDIS_HOST", "localhost"), util.Getenv("REDIS_PORT", "6379")),
 		Password: os.Getenv("REDIS_PASSWORD"),
 	})
 
@@ -110,7 +104,7 @@ func main() {
 		MaxAge:       12 * time.Hour,
 	}
 	if os.Getenv("APP_ENV") == "production" {
-		corsConfig.AllowOrigins = []string{getenv("FRONTEND_URL", "http://localhost:3000")}
+		corsConfig.AllowOrigins = []string{util.Getenv("FRONTEND_URL", "http://localhost:3000")}
 		corsConfig.AllowCredentials = true
 	} else {
 		corsConfig.AllowAllOrigins = true
@@ -148,7 +142,17 @@ func main() {
 	go auctions.StartAuctionEndWorker(schedulerCtx, db, auctionHub)
 	go listings.StartListingExpiryWorker(schedulerCtx, db)
 
+	rl := middleware.NewRateLimiter(rdb)
+
 	v1 := r.Group("/api/v1")
+	// Global rate limit: 100 requests per minute per IP (skip OPTIONS preflight)
+	v1.Use(func(c *gin.Context) {
+		if c.Request.Method == http.MethodOptions {
+			c.Next()
+			return
+		}
+		rl.Limit(100, time.Minute, "global")(c)
+	})
 	auth.RegisterRoutes(v1, db, rdb)
 	users.RegisterRoutes(v1, db, rdb)
 	listings.RegisterRoutes(v1, db, rdb)
@@ -191,7 +195,7 @@ func main() {
 	r.GET("/ws/auctions/:id", func(c *gin.Context) { auctions.ServeWS(auctionHub, c, db) })
 	r.POST("/webhooks/stripe", payments.WebhookHandler(db))
 
-	port := getenv("BACKEND_PORT", getenv("PORT", "8080"))
+	port := util.Getenv("BACKEND_PORT", util.Getenv("PORT", "8080"))
 	srv := &http.Server{
 		Addr:         ":" + port,
 		Handler:      r,

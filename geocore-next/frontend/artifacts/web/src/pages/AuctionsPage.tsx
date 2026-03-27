@@ -49,10 +49,10 @@ export default function AuctionsPage() {
   const [liveAuctionBids, setLiveAuctionBids] = useState<Record<string, number>>({});
   const wsMap = useRef<Map<string, WebSocket>>(new Map());
 
-  const { data: auctions, isLoading } = useQuery<Auction[]>({
+  const { data: auctions, isLoading, isError } = useQuery<Auction[]>({
     queryKey: ["auctions", activeStatus],
     queryFn: () => api.get(`/auctions?status=${activeStatus}&per_page=20`).then((r) => r.data.data as Auction[]),
-    retry: false,
+    retry: 1,
   });
 
   const rawAuctions: Auction[] = auctions ?? [];
@@ -193,6 +193,12 @@ export default function AuctionsPage() {
 
       {isLoading ? (
         <LoadingGrid count={8} />
+      ) : isError ? (
+        <div className="bg-red-50 border border-red-100 rounded-2xl px-6 py-8 text-center">
+          <p className="text-2xl mb-2">⚠️</p>
+          <p className="text-sm font-semibold text-red-600">Something went wrong</p>
+          <p className="text-xs text-red-400 mt-1">Could not load auctions. Please try again later.</p>
+        </div>
       ) : enrichedAuctions.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <p className="text-4xl mb-3">🔨</p>
