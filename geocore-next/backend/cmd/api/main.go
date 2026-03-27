@@ -107,22 +107,25 @@ func main() {
                 MaxAge:       12 * time.Hour,
         }
         // CORS origin policy:
-        //   ALLOWED_ORIGINS env var (comma-separated): restricts to that allowlist.
-        //     In production, wildcards ("*") are stripped from the list.
-        //   Unset/empty in development: allow all origins for local iteration.
-        //   Unset/empty in production: fail-safe to same-origin only (no wildcard).
+        //   ALLOWED_ORIGINS (comma-separated): explicit allowlist; wildcard '*' blocked in prod.
+        //   No ALLOWED_ORIGINS in prod → fall back to FRONTEND_URL.
+        //   No FRONTEND_URL either → fatal startup error (operator must configure before launch).
+        //   Development (APP_ENV != "production"): allow all origins for local iteration.
+        //
+        // We never set AllowOrigins to an empty slice — gin-contrib/cors panics on startup
+        // if AllowAllOrigins=false and AllowOrigins=[].  Instead we either have a non-empty
+        // allowlist or we fail fast so the misconfiguration is immediately visible.
         isProd := os.Getenv("APP_ENV") == "production"
         if rawOrigins := os.Getenv("ALLOWED_ORIGINS"); rawOrigins != "" {
-                parts := strings.Split(rawOrigins, ",")
                 var origins []string
-                for _, o := range parts {
+                for _, o := range strings.Split(rawOrigins, ",") {
                         o = strings.TrimSpace(o)
                         if o == "" {
                                 continue
                         }
-                        // Reject wildcard in production — it would bypass all origin checks.
+                        // In production, wildcard '*' is forbidden — it nullifies all origin checks.
                         if isProd && o == "*" {
-                                logger.Warn("CORS: wildcard '*' is not allowed in production and will be ignored")
+                                logger.Warn("CORS: wildcard '*' in ALLOWED_ORIGINS is forbidden in production and will be ignored")
                                 continue
                         }
                         origins = append(origins, o)
@@ -130,30 +133,27 @@ func main() {
                 if len(origins) > 0 {
                         corsConfig.AllowOrigins = origins
                         corsConfig.AllowCredentials = true
-                        logger.Info("CORS allowlist active", zap.Strings("origins", origins))
+                        logger.Info("CORS allowlist configured", zap.Strings("origins", origins))
                 } else if isProd {
-                        // All entries were wildcards or blank — fail safe.
-                        logger.Warn("CORS: ALLOWED_ORIGINS resolved to empty list in production — same-origin only")
-                        corsConfig.AllowOrigins = []string{}
-                        corsConfig.AllowCredentials = true
+                        // All entries stripped (e.g. only "*") — refuse to start.
+                        logger.Fatal("CORS: ALLOWED_ORIGINS resolved to empty in production (wildcards stripped). " +
+                                "Set at least one explicit origin (e.g. https://example.com).")
                 } else {
                         corsConfig.AllowAllOrigins = true
                 }
         } else if isProd {
-                // No ALLOWED_ORIGINS in production: fall back to FRONTEND_URL if set,
-                // otherwise fail-safe (reject all cross-origin). Wildcard is never used.
+                // No ALLOWED_ORIGINS: fall back to FRONTEND_URL, or abort startup.
                 if frontendURL := os.Getenv("FRONTEND_URL"); frontendURL != "" {
-                        logger.Warn("ALLOWED_ORIGINS not set — using FRONTEND_URL as default production origin",
+                        logger.Warn("CORS: ALLOWED_ORIGINS not set — using FRONTEND_URL as production origin",
                                 zap.String("origin", frontendURL))
                         corsConfig.AllowOrigins = []string{frontendURL}
                         corsConfig.AllowCredentials = true
                 } else {
-                        logger.Warn("ALLOWED_ORIGINS and FRONTEND_URL not set in production — rejecting all cross-origin requests")
-                        corsConfig.AllowOrigins = []string{}
-                        corsConfig.AllowCredentials = true
+                        logger.Fatal("CORS: neither ALLOWED_ORIGINS nor FRONTEND_URL is set in production. " +
+                                "Set ALLOWED_ORIGINS=https://your-domain.com before deploying.")
                 }
         } else {
-                // Development: allow all (wildcard) for easier local iteration.
+                // Development: allow all origins so local tools work without extra config.
                 corsConfig.AllowAllOrigins = true
         }
         r.Use(cors.New(corsConfig))
