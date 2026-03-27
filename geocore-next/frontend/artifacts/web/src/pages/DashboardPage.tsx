@@ -365,7 +365,7 @@ function ListingsTab({ listings }: { listings: Listing[] }) {
 
 // ── Orders Tab ─────────────────────────────────────────────────────────────────
 
-function OrdersTab({ orders }: { orders: Order[] }) {
+function OrdersTab({ orders, error }: { orders: Order[]; error?: Error | null }) {
   const [role, setRole] = useState<"all" | "seller" | "buyer">("all");
   const filtered = role === "all" ? orders : orders.filter((o) => o.role === role);
 
@@ -381,14 +381,21 @@ function OrdersTab({ orders }: { orders: Order[] }) {
         ))}
       </div>
 
+      {/* Error state */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          Failed to load orders. Please try again later.
+        </div>
+      )}
+
       {/* Orders list */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        {filtered.length === 0 ? (
+        {!error && filtered.length === 0 ? (
           <div className="py-16 text-center text-gray-400">
             <ShoppingBag className="w-10 h-10 mx-auto mb-3 text-gray-200" />
             <p className="text-sm">No orders found</p>
           </div>
-        ) : (
+        ) : !error && (
           <div className="divide-y divide-gray-50">
             {filtered.map((order) => {
               const { label, cls, icon: SIcon } = orderStatusConfig(order.status);
@@ -563,17 +570,12 @@ export default function DashboardPage() {
     },
   });
 
-  // Fetch my orders — backend endpoint pending; shows empty state until available
-  const { data: orders } = useQuery<Order[]>({
+  const { data: orders, error: ordersError } = useQuery<Order[]>({
     queryKey: ["my-orders"],
     queryFn: async () => {
-      try {
-        const res = await api.get("/orders/me");
-        const data = res.data?.data ?? [];
-        return Array.isArray(data) ? data : [];
-      } catch {
-        return [];
-      }
+      const res = await api.get("/orders/me");
+      const data = res.data?.data ?? [];
+      return Array.isArray(data) ? data : [];
     },
   });
 
@@ -656,7 +658,7 @@ export default function DashboardPage() {
         <OverviewTab stats={displayStats} listings={displayListings} orders={displayOrders} />
       )}
       {activeTab === "listings" && <ListingsTab listings={displayListings} />}
-      {activeTab === "orders" && <OrdersTab orders={displayOrders} />}
+      {activeTab === "orders" && <OrdersTab orders={displayOrders} error={ordersError as Error | null} />}
       {activeTab === "analytics" && <AnalyticsTab stats={displayStats} listings={displayListings} />}
     </div>
   );
