@@ -4,10 +4,12 @@ package payments
         "fmt"
         "log/slog"
         "os"
+        "sort"
         "strings"
         "time"
 
         "github.com/geocore-next/backend/internal/users"
+        pkgemail "github.com/geocore-next/backend/pkg/email"
         "github.com/geocore-next/backend/pkg/response"
         "github.com/gin-gonic/gin"
         "github.com/google/uuid"
@@ -393,8 +395,22 @@ package payments
                 "amount",    escrow.Amount,
         )
 
-        // Notify seller of fund release (non-blocking)
-        go notifyEscrowReleased(escrow.SellerID, escrow.Amount, escrow.Currency)
+        // Notify seller of fund release (non-blocking) — in-app + email
+        go func() {
+                notifyEscrowReleased(escrow.SellerID, escrow.Amount, escrow.Currency)
+
+                var sellerContact struct {
+                        Email string
+                        Name  string
+                }
+                h.db.Table("users").Select("email, name").Where("id = ? AND deleted_at IS NULL", escrow.SellerID).Scan(&sellerContact)
+                sellerEmail, sellerName := sellerContact.Email, sellerContact.Name
+                if sellerEmail != "" {
+                        if err := pkgemail.SendEscrowReleasedEmail(sellerEmail, sellerName, escrow.Amount, escrow.Currency); err != nil {
+                                slog.Warn("escrow release email failed", "err", err, "seller_email", sellerEmail)
+                        }
+                }
+        }()
 
         response.OK(c, gin.H{
                 "escrow_id":   escrow.ID,
@@ -672,27 +688,28 @@ package payments
         role := c.Query("role") // "buyer", "seller", or "" (all)
         page, perPage := paginationParams(c)
 
-        var orders []orderRow
+        // Safety cap: fetch at most 500 rows from each side before combining.
+        // Pagination is applied after merging so combined ordering is consistent.
+        const fetchCap = 500
+        var allOrders []orderRow
 
         // ── Buyer orders: payments I made ─────────────────────────────────────────
         if role == "" || role == "buyer" {
                 type rawBuyerRow struct {
-                        ID             uuid.UUID
-                        ListingTitle   string
-                        AuctionListing string
-                        SellerName     string
-                        Amount         float64
-                        Currency       string
-                        PaymentStatus  string
-                        EscrowStatus   string
-                        CreatedAt      time.Time
+                        ID            uuid.UUID
+                        ListingTitle  string
+                        SellerName    string
+                        Amount        float64
+                        Currency      string
+                        PaymentStatus string
+                        EscrowStatus  string
+                        CreatedAt     time.Time
                 }
                 var rows []rawBuyerRow
                 h.db.Raw(`
                         SELECT
                                 p.id,
                                 COALESCE(l.title, al.title, 'Unlisted item') AS listing_title,
-                                '' AS auction_listing,
                                 COALESCE(seller.name, '') AS seller_name,
                                 p.amount,
                                 p.currency,
@@ -709,11 +726,11 @@ package payments
                           AND p.kind IN ('purchase', 'auction_payment')
                           AND p.deleted_at IS NULL
                         ORDER BY p.created_at DESC
-                        LIMIT ? OFFSET ?
-                `, userUUID, perPage, (page-1)*perPage).Scan(&rows)
+                        LIMIT ?
+                `, userUUID, fetchCap).Scan(&rows)
 
                 for _, r := range rows {
-                        orders = append(orders, orderRow{
+                        allOrders = append(allOrders, orderRow{
                                 ID:         r.ID,
                                 ItemTitle:  r.ListingTitle,
                                 SellerName: r.SellerName,
@@ -757,11 +774,11 @@ package payments
                         LEFT JOIN users buyer ON buyer.id = ea.buyer_id AND buyer.deleted_at IS NULL
                         WHERE ea.seller_id = ?
                         ORDER BY ea.created_at DESC
-                        LIMIT ? OFFSET ?
-                `, userUUID, perPage, (page-1)*perPage).Scan(&rows)
+                        LIMIT ?
+                `, userUUID, fetchCap).Scan(&rows)
 
                 for _, r := range rows {
-                        orders = append(orders, orderRow{
+                        allOrders = append(allOrders, orderRow{
                                 ID:        r.ID,
                                 ItemTitle: r.ListingTitle,
                                 BuyerName: r.BuyerName,
@@ -774,22 +791,31 @@ package payments
                 }
         }
 
-        // Sort combined results newest-first
-        if len(orders) > 1 {
-                for i := 0; i < len(orders)-1; i++ {
-                        for j := i + 1; j < len(orders); j++ {
-                                if orders[j].CreatedAt.After(orders[i].CreatedAt) {
-                                        orders[i], orders[j] = orders[j], orders[i]
-                                }
-                        }
-                }
-        }
+        // Sort combined results newest-first, then paginate
+        sort.Slice(allOrders, func(i, j int) bool {
+                return allOrders[i].CreatedAt.After(allOrders[j].CreatedAt)
+        })
 
+        total := int64(len(allOrders))
+        start := (page - 1) * perPage
+        end := start + perPage
+        if start >= len(allOrders) {
+                start = len(allOrders)
+        }
+        if end > len(allOrders) {
+                end = len(allOrders)
+        }
+        orders := allOrders[start:end]
         if orders == nil {
                 orders = []orderRow{}
         }
 
-        response.OK(c, orders)
+        response.OKMeta(c, orders, response.Meta{
+                Total:   total,
+                Page:    page,
+                PerPage: perPage,
+                Pages:   (total + int64(perPage) - 1) / int64(perPage),
+        })
   }
 
   // ════════════════════════════════════════════════════════════════════════════
@@ -908,7 +934,7 @@ package payments
                 "currency",   payment.Currency,
         )
 
-        // Send notifications (non-blocking; best-effort)
+        // Send notifications and emails (non-blocking; best-effort)
         go func() {
                 itemTitle := payment.Description
                 if payment.ListingID != nil {
@@ -926,7 +952,33 @@ package payments
                                 itemTitle = t.Title
                         }
                 }
+
+                // In-app notifications (FCM + DB)
                 notifyPaymentConfirmed(payment.UserID, sellerUUID, payment.Amount, payment.Currency, itemTitle)
+
+                // Transactional emails — look up buyer and seller contact details
+                type userContact struct {
+                        Email string
+                        Name  string
+                }
+                var buyer, seller userContact
+                h.db.Table("users").Select("email, name").Where("id = ? AND deleted_at IS NULL", payment.UserID).Scan(&buyer)
+                h.db.Table("users").Select("email, name").Where("id = ? AND deleted_at IS NULL", sellerUUID).Scan(&seller)
+
+                if buyer.Email != "" {
+                        if err := pkgemail.SendPurchaseConfirmationEmail(
+                                buyer.Email, buyer.Name, itemTitle, payment.Amount, payment.Currency,
+                        ); err != nil {
+                                slog.Warn("buyer confirmation email failed", "err", err, "buyer_email", buyer.Email)
+                        }
+                }
+                if seller.Email != "" {
+                        if err := pkgemail.SendOrderReceivedSellerEmail(
+                                seller.Email, seller.Name, itemTitle, payment.Amount, payment.Currency,
+                        ); err != nil {
+                                slog.Warn("seller new-order email failed", "err", err, "seller_email", seller.Email)
+                        }
+                }
         }()
 
         return nil
