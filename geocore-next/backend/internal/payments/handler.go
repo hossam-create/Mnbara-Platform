@@ -3,6 +3,8 @@ package payments
   import (
         "fmt"
         "log/slog"
+        "math"
+        "net/http"
         "os"
         "sort"
         "strings"
@@ -379,16 +381,8 @@ package payments
         }
 
         now := time.Now()
-        if err := h.db.Model(&escrow).Updates(map[string]any{
-                "status":      EscrowStatusReleased,
-                "released_at": now,
-                "notes":       req.Notes,
-        }).Error; err != nil {
-                response.InternalError(c, err)
-                return
-        }
 
-        // ── Commission deduction (synchronous) ───────────────────────────────────
+        // ── Commission deduction (atomic with escrow release) ────────────────────
         // Compute platform commission from settings (default 5%). The net payout
         // is authoritative for the seller; commission is credited to platform wallet.
         var commRate float64 = 0.05
@@ -396,32 +390,50 @@ package payments
         if err := h.db.Table("platform_settings").Select("commission_rate").First(&commSettings).Error; err == nil && commSettings.CommissionRate > 0 {
                 commRate = commSettings.CommissionRate
         }
-        commAmt := escrow.Amount * commRate
-        netAmt  := escrow.Amount - commAmt
+        commAmt := math.Round(escrow.Amount*commRate*100) / 100
+        netAmt  := math.Round((escrow.Amount-commAmt)*100) / 100
 
-        commRecord := map[string]interface{}{
-                "id":                uuid.New(),
-                "escrow_id":         escrow.ID,
-                "seller_id":         escrow.SellerID,
-                "buyer_id":          escrow.BuyerID,
-                "gross_amount":      escrow.Amount,
-                "commission_rate":   commRate,
-                "commission_amount": commAmt,
-                "net_amount":        netAmt,
-                "currency":          escrow.Currency,
-                "created_at":        now,
-        }
-        if err := h.db.Table("platform_commissions").Create(commRecord).Error; err != nil {
-                slog.Warn("commission record failed", "escrow_id", escrow.ID.String(), "error", err.Error())
-        } else {
-                // Credit platform wallet atomically
-                if walletErr := h.db.Table("platform_settings").
-                        Where("id IS NOT NULL").
-                        UpdateColumn("platform_balance", gorm.Expr("platform_balance + ?", commAmt)).Error; walletErr != nil {
-                        slog.Warn("platform wallet credit failed", "escrow_id", escrow.ID.String(), "error", walletErr.Error())
+        // Run escrow release + commission insert + wallet credit in a single transaction
+        // so that revenue records are always consistent with escrow status.
+        txErr := h.db.Transaction(func(tx *gorm.DB) error {
+                if err := tx.Model(&escrow).Updates(map[string]any{
+                        "status":      EscrowStatusReleased,
+                        "released_at": now,
+                        "notes":       req.Notes,
+                }).Error; err != nil {
+                        return err
                 }
+                commRecord := map[string]interface{}{
+                        "id":                uuid.New(),
+                        "escrow_id":         escrow.ID,
+                        "seller_id":         escrow.SellerID,
+                        "buyer_id":          escrow.BuyerID,
+                        "gross_amount":      escrow.Amount,
+                        "commission_rate":   commRate,
+                        "commission_amount": commAmt,
+                        "net_amount":        netAmt,
+                        "currency":          escrow.Currency,
+                        "created_at":        now,
+                }
+                if err := tx.Table("platform_commissions").Create(commRecord).Error; err != nil {
+                        return fmt.Errorf("commission record: %w", err)
+                }
+                if err := tx.Table("platform_settings").
+                        Where("id IS NOT NULL").
+                        UpdateColumn("platform_balance", gorm.Expr("platform_balance + ?", commAmt)).Error; err != nil {
+                        return fmt.Errorf("wallet credit: %w", err)
+                }
+                return nil
+        })
+        if txErr != nil {
+                slog.Error("escrow release transaction failed",
+                        "escrow_id", escrow.ID.String(), "error", txErr.Error())
+                c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+                        "error":   "release_failed",
+                        "message": "Escrow release failed; no funds were moved. Please retry.",
+                })
+                return
         }
-
         slog.Info("escrow released",
                 "escrow_id",  escrow.ID.String(),
                 "buyer_id",   buyerID,
@@ -1111,7 +1123,7 @@ package payments
         clientSecret := ""
         piID := ""
         if stripeCustomerID != "" {
-                amountCents := int64(req.Amount * 100)
+                amountCents := int64(math.Round(req.Amount * 100))
                 piParams := &stripe.PaymentIntentParams{
                         Amount:   stripe.Int64(amountCents),
                         Currency: stripe.String(strings.ToLower(req.Currency)),

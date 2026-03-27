@@ -135,7 +135,7 @@ func (h *Handler) List(c *gin.Context) {
         case "oldest":
                 q = q.Order("created_at ASC")
         default:
-                q = q.Order("is_featured DESC, created_at DESC")
+                q = q.Order("CASE WHEN featured_until IS NOT NULL AND featured_until > NOW() THEN 0 ELSE 1 END, created_at DESC")
         }
 
         var total int64

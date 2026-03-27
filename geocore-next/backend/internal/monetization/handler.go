@@ -10,7 +10,9 @@ import (
         "github.com/geocore-next/backend/pkg/response"
         "github.com/gin-gonic/gin"
         "github.com/google/uuid"
-        "github.com/stripe/stripe-go/v79"
+        "math"
+
+	"github.com/stripe/stripe-go/v79"
         "github.com/stripe/stripe-go/v79/customer"
         "github.com/stripe/stripe-go/v79/paymentintent"
         strprice "github.com/stripe/stripe-go/v79/price"
@@ -89,7 +91,7 @@ func (h *Handler) BoostListing(c *gin.Context) {
         }
 
         // Create Stripe PaymentIntent for the boost fee
-        amountSmallest := int64(boostFee * 100)
+        amountSmallest := int64(math.Round(boostFee * 100))
         piParams := &stripe.PaymentIntentParams{
                 Amount:      stripe.Int64(amountSmallest),
                 Currency:    stripe.String(BoostCurrency),
@@ -581,7 +583,7 @@ func (h *Handler) ensureStripePrice(tier TierName, fee float64, productName stri
         // Create a new monthly price with inline product data
         p, err := strprice.New(&stripe.PriceParams{
                 Currency:   stripe.String("usd"),
-                UnitAmount: stripe.Int64(int64(fee * 100)),
+                UnitAmount: stripe.Int64(int64(math.Round(fee * 100))),
                 Recurring: &stripe.PriceRecurringParams{
                         Interval: stripe.String(string(stripe.PriceRecurringIntervalMonth)),
                 },
