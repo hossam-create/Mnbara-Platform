@@ -246,6 +246,34 @@ func main() {
         r.GET("/ws/auctions/:id", func(c *gin.Context) { auctions.ServeWS(auctionHub, c, db) })
         r.POST("/webhooks/stripe", payments.WebhookHandler(db))
 
+        // ── Static file serving for production (built by render-build.sh) ────────
+        if _, err := os.Stat("./web"); err == nil {
+                // Admin SPA at /admin
+                if _, err2 := os.Stat("./admin"); err2 == nil {
+                        adminFS := http.FileServer(http.Dir("./admin"))
+                        r.GET("/admin", func(c *gin.Context) { c.File("./admin/index.html") })
+                        r.GET("/admin/*filepath", func(c *gin.Context) {
+                                fp := c.Param("filepath")
+                                if _, serr := os.Stat("./admin" + fp); os.IsNotExist(serr) {
+                                        c.File("./admin/index.html")
+                                        return
+                                }
+                                adminFS.ServeHTTP(c.Writer, c.Request)
+                        })
+                }
+                // Web SPA — catch-all (must be last)
+                webFS := http.FileServer(http.Dir("./web"))
+                r.NoRoute(func(c *gin.Context) {
+                        p := c.Request.URL.Path
+                        if _, serr := os.Stat("./web" + p); os.IsNotExist(serr) {
+                                c.File("./web/index.html")
+                                return
+                        }
+                        webFS.ServeHTTP(c.Writer, c.Request)
+                })
+                logger.Info("Serving frontend static files from ./web (admin at ./admin)")
+        }
+
         port := util.Getenv("BACKEND_PORT", util.Getenv("PORT", "8080"))
         srv := &http.Server{
                 Addr:         ":" + port,
