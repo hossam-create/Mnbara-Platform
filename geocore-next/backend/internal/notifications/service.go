@@ -4,6 +4,7 @@ package notifications
         "context"
         "encoding/json"
         "log/slog"
+        "strconv"
         "time"
 
         "github.com/geocore-next/backend/internal/users"
@@ -128,7 +129,12 @@ package notifications
                 if auctionTitle == "" {
                         auctionTitle = "an auction"
                 }
-                _ = pkgemail.SendOutbidEmail(u.Email, u.Name, auctionTitle, 0, "")
+                var newAmount float64
+                if a, err := strconv.ParseFloat(input.Data["amount"], 64); err == nil {
+                        newAmount = a
+                }
+                currency := input.Data["currency"]
+                _ = pkgemail.SendOutbidEmail(u.Email, u.Name, auctionTitle, newAmount, currency)
         }
         // Other email types (auction won, purchase) are triggered directly by the
         // relevant handlers via pkg/email functions for richer context.
