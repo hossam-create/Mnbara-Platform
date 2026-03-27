@@ -388,58 +388,52 @@ package payments
                 return
         }
 
+        // ── Commission deduction (synchronous) ───────────────────────────────────
+        // Compute platform commission from settings (default 5%). The net payout
+        // is authoritative for the seller; commission is credited to platform wallet.
+        var commRate float64 = 0.05
+        var commSettings struct{ CommissionRate float64 }
+        if err := h.db.Table("platform_settings").Select("commission_rate").First(&commSettings).Error; err == nil && commSettings.CommissionRate > 0 {
+                commRate = commSettings.CommissionRate
+        }
+        commAmt := escrow.Amount * commRate
+        netAmt  := escrow.Amount - commAmt
+
+        commRecord := map[string]interface{}{
+                "id":                uuid.New(),
+                "escrow_id":         escrow.ID,
+                "seller_id":         escrow.SellerID,
+                "buyer_id":          escrow.BuyerID,
+                "gross_amount":      escrow.Amount,
+                "commission_rate":   commRate,
+                "commission_amount": commAmt,
+                "net_amount":        netAmt,
+                "currency":          escrow.Currency,
+                "created_at":        now,
+        }
+        if err := h.db.Table("platform_commissions").Create(commRecord).Error; err != nil {
+                slog.Warn("commission record failed", "escrow_id", escrow.ID.String(), "error", err.Error())
+        } else {
+                // Credit platform wallet atomically
+                if walletErr := h.db.Table("platform_settings").
+                        Where("id IS NOT NULL").
+                        UpdateColumn("platform_balance", gorm.Expr("platform_balance + ?", commAmt)).Error; walletErr != nil {
+                        slog.Warn("platform wallet credit failed", "escrow_id", escrow.ID.String(), "error", walletErr.Error())
+                }
+        }
+
         slog.Info("escrow released",
-                "escrow_id", escrow.ID.String(),
-                "buyer_id",  buyerID,
-                "seller_id", escrow.SellerID.String(),
-                "amount",    escrow.Amount,
+                "escrow_id",  escrow.ID.String(),
+                "buyer_id",   buyerID,
+                "seller_id",  escrow.SellerID.String(),
+                "gross",      escrow.Amount,
+                "commission", commAmt,
+                "net",        netAmt,
         )
 
-        // Record platform commission (non-blocking; failure is logged, not fatal)
+        // Notify seller of net payout (non-blocking) — in-app + email
         go func() {
-                var commRate float64 = 0.05
-                var settings struct{ CommissionRate float64 }
-                if err := h.db.Table("platform_settings").Select("commission_rate").First(&settings).Error; err == nil {
-                        commRate = settings.CommissionRate
-                }
-                if commRate <= 0 {
-                        commRate = 0.05
-                }
-                commAmt := escrow.Amount * commRate
-                netAmt  := escrow.Amount - commAmt
-                comm := map[string]interface{}{
-                        "id":               uuid.New(),
-                        "escrow_id":        escrow.ID,
-                        "seller_id":        escrow.SellerID,
-                        "buyer_id":         escrow.BuyerID,
-                        "gross_amount":     escrow.Amount,
-                        "commission_rate":  commRate,
-                        "commission_amount": commAmt,
-                        "net_amount":       netAmt,
-                        "currency":         escrow.Currency,
-                        "created_at":       time.Now(),
-                }
-                if err := h.db.Table("platform_commissions").Create(comm).Error; err != nil {
-                        slog.Warn("commission record failed",
-                                "escrow_id", escrow.ID.String(), "error", err.Error())
-                } else {
-                        // Credit platform wallet atomically
-                        if walletErr := h.db.Table("platform_settings").
-                                Where("id IS NOT NULL").
-                                UpdateColumn("platform_balance", gorm.Expr("platform_balance + ?", commAmt)).Error; walletErr != nil {
-                                slog.Warn("platform wallet credit failed",
-                                        "escrow_id", escrow.ID.String(), "error", walletErr.Error())
-                        }
-                        slog.Info("commission recorded and credited to platform wallet",
-                                "escrow_id", escrow.ID.String(),
-                                "commission", commAmt, "net", netAmt,
-                        )
-                }
-        }()
-
-        // Notify seller of fund release (non-blocking) — in-app + email
-        go func() {
-                notifyEscrowReleased(escrow.SellerID, escrow.Amount, escrow.Currency)
+                notifyEscrowReleased(escrow.SellerID, netAmt, escrow.Currency)
 
                 var sellerContact struct {
                         Email string
@@ -448,17 +442,22 @@ package payments
                 h.db.Table("users").Select("email, name").Where("id = ? AND deleted_at IS NULL", escrow.SellerID).Scan(&sellerContact)
                 sellerEmail, sellerName := sellerContact.Email, sellerContact.Name
                 if sellerEmail != "" {
-                        if err := pkgemail.SendEscrowReleasedEmail(sellerEmail, sellerName, escrow.Amount, escrow.Currency); err != nil {
+                        if err := pkgemail.SendEscrowReleasedEmail(sellerEmail, sellerName, netAmt, escrow.Currency); err != nil {
                                 slog.Warn("escrow release email failed", "err", err, "seller_email", sellerEmail)
                         }
                 }
         }()
 
         response.OK(c, gin.H{
-                "escrow_id":   escrow.ID,
-                "status":      EscrowStatusReleased,
-                "released_at": now,
-                "message":     "Funds released to seller.",
+                "escrow_id":         escrow.ID,
+                "status":            EscrowStatusReleased,
+                "released_at":       now,
+                "gross_amount":      escrow.Amount,
+                "commission_rate":   commRate,
+                "commission_amount": commAmt,
+                "net_amount":        netAmt,
+                "currency":          escrow.Currency,
+                "message":           "Funds released to seller (net of platform commission).",
         })
   }
 

@@ -284,9 +284,17 @@ func (h *Handler) Create(c *gin.Context) {
                 }
         }
 
-        // Enforce image count limit
+        // Enforce image count limit — return 402 instead of silently truncating
         if len(imageURLs) > maxImages {
-                imageURLs = imageURLs[:maxImages]
+                c.JSON(402, gin.H{
+                        "error":        "image_limit_exceeded",
+                        "message":      "Too many images for your subscription tier.",
+                        "current_tier": effectiveTier,
+                        "max_images":   maxImages,
+                        "provided":     len(imageURLs),
+                        "upgrade_hint": "Upgrade to Pro or Business to attach more images.",
+                })
+                return
         }
 
         expires := time.Now().AddDate(0, 2, 0) // 2 months
