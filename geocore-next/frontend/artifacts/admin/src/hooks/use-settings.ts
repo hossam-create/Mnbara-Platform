@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_SETTINGS = {
   general: {
@@ -36,7 +37,12 @@ export function useSettings() {
 export function useSaveSettings() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: any) => api.post("/admin/settings", data).catch(() => true),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_settings"] })
+    mutationFn: (data: any) => api.post("/admin/settings", data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_settings"] }),
+    onError: (err: any) => toast({
+      title: "Failed to save settings",
+      description: err?.response?.data?.error || "Please try again.",
+      variant: "destructive",
+    }),
   });
 }

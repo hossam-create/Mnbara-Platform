@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_AUCTIONS = Array.from({ length: 12 }).map((_, i) => ({
   id: `auc_${i}`,
@@ -36,12 +37,22 @@ export function useAuctionActions() {
   const queryClient = useQueryClient();
   return {
     endNow: useMutation({
-      mutationFn: (id: string) => api.post(`/admin/auctions/${id}/end`).catch(() => true),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_auctions"] })
+      mutationFn: (id: string) => api.post(`/admin/auctions/${id}/end`),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_auctions"] }),
+      onError: (err: any) => toast({
+        title: "Could not end auction",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     }),
     deleteAuction: useMutation({
-      mutationFn: (id: string) => api.delete(`/admin/auctions/${id}`).catch(() => true),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_auctions"] })
+      mutationFn: (id: string) => api.delete(`/admin/auctions/${id}`),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_auctions"] }),
+      onError: (err: any) => toast({
+        title: "Could not delete auction",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     })
   };
 }

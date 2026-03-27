@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_STORES = Array.from({ length: 8 }).map((_, i) => ({
   id: `store_${i}`,
@@ -36,13 +37,23 @@ export function useStorefrontActions() {
 
   return {
     toggleStatus: useMutation({
-      mutationFn: ({ id, suspend }: { id: string, suspend: boolean }) => 
-        api.post(`/admin/storefronts/${id}/${suspend ? 'suspend' : 'activate'}`).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: ({ id, suspend }: { id: string, suspend: boolean }) =>
+        api.post(`/admin/storefronts/${id}/${suspend ? 'suspend' : 'activate'}`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to update storefront status",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     }),
     toggleFeature: useMutation({
-      mutationFn: (id: string) => api.post(`/admin/storefronts/${id}/feature`).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: (id: string) => api.post(`/admin/storefronts/${id}/feature`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to update featured status",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     })
   };
 }

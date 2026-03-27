@@ -563,50 +563,52 @@ export default function DashboardPage() {
     return null;
   }
 
-  // Fetch seller stats
+  // Fetch seller stats from real backend endpoint
   const { data: stats } = useQuery({
     queryKey: ["seller-stats"],
     queryFn: async () => {
-      try {
-        const res = await api.get("/users/me/stats");
-        return res.data?.data ?? MOCK_STATS;
-      } catch {
-        return MOCK_STATS;
-      }
+      const res = await api.get("/users/me/stats");
+      return res.data?.data ?? res.data ?? {};
     },
   });
 
-  // Fetch my listings
+  // Fetch my listings from real backend
   const { data: listings } = useQuery<Listing[]>({
     queryKey: ["my-listings"],
     queryFn: async () => {
-      try {
-        const res = await api.get("/listings/me");
-        const data = res.data?.data ?? [];
-        return Array.isArray(data) ? data : MOCK_LISTINGS;
-      } catch {
-        return MOCK_LISTINGS;
-      }
+      const res = await api.get("/listings/me");
+      const data = res.data?.data ?? [];
+      return Array.isArray(data) ? data : [];
     },
   });
 
-  // Fetch my orders
+  // Fetch my orders — backend endpoint pending; shows empty state until available
   const { data: orders } = useQuery<Order[]>({
     queryKey: ["my-orders"],
     queryFn: async () => {
       try {
         const res = await api.get("/orders/me");
         const data = res.data?.data ?? [];
-        return Array.isArray(data) && data.length > 0 ? data : MOCK_ORDERS;
+        return Array.isArray(data) ? data : [];
       } catch {
-        return MOCK_ORDERS;
+        return [];
       }
     },
   });
 
-  const displayStats = stats ?? MOCK_STATS;
-  const displayListings = listings ?? MOCK_LISTINGS;
-  const displayOrders = orders ?? MOCK_ORDERS;
+  const displayStats = {
+    total_listings:    stats?.total_listings    ?? 0,
+    active_listings:   stats?.active_listings   ?? 0,
+    total_orders:      stats?.total_orders      ?? 0,
+    pending_orders:    stats?.pending_orders    ?? 0,
+    total_revenue:     stats?.total_revenue     ?? 0,
+    this_month_revenue: stats?.this_month_revenue ?? 0,
+    store_visits:      stats?.store_visits      ?? 0,
+    average_rating:    stats?.average_rating    ?? stats?.rating ?? 0,
+    wallet_balance:    stats?.wallet_balance    ?? 0,
+  };
+  const displayListings = listings ?? [];
+  const displayOrders = orders ?? [];
 
   const pendingOrdersCount = displayOrders.filter(
     (o) => o.role === "seller" && o.status === "pending"

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const generateMockListings = (status: string) => {
   return Array.from({ length: 15 }).map((_, i) => ({
@@ -38,30 +39,50 @@ export function useListings(status: string, search: string, page: number) {
 
 export function useListingActions() {
   const queryClient = useQueryClient();
-  
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin_listings"] });
 
   const approve = useMutation({
-    mutationFn: (id: string) => api.put(`/admin/listings/${id}/approve`).catch(() => true),
-    onSuccess: invalidate
+    mutationFn: (id: string) => api.put(`/admin/listings/${id}/approve`),
+    onSuccess: invalidate,
+    onError: (err: any) => toast({
+      title: "Failed to approve listing",
+      description: err?.response?.data?.error || "Please try again.",
+      variant: "destructive",
+    }),
   });
 
   const reject = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api.put(`/admin/listings/${id}/reject`, { reason }).catch(() => true),
-    onSuccess: invalidate
+      api.put(`/admin/listings/${id}/reject`, { reason }),
+    onSuccess: invalidate,
+    onError: (err: any) => toast({
+      title: "Failed to reject listing",
+      description: err?.response?.data?.error || "Please try again.",
+      variant: "destructive",
+    }),
   });
 
   const bulkApprove = useMutation({
     mutationFn: (ids: string[]) =>
-      Promise.all(ids.map(id => api.put(`/admin/listings/${id}/approve`).catch(() => true))),
-    onSuccess: invalidate
+      Promise.all(ids.map(id => api.put(`/admin/listings/${id}/approve`))),
+    onSuccess: invalidate,
+    onError: (err: any) => toast({
+      title: "Bulk approve failed",
+      description: err?.response?.data?.error || "Some listings could not be approved.",
+      variant: "destructive",
+    }),
   });
 
   const bulkReject = useMutation({
     mutationFn: ({ ids, reason }: { ids: string[]; reason: string }) =>
-      Promise.all(ids.map(id => api.put(`/admin/listings/${id}/reject`, { reason }).catch(() => true))),
-    onSuccess: invalidate
+      Promise.all(ids.map(id => api.put(`/admin/listings/${id}/reject`, { reason }))),
+    onSuccess: invalidate,
+    onError: (err: any) => toast({
+      title: "Bulk reject failed",
+      description: err?.response?.data?.error || "Some listings could not be rejected.",
+      variant: "destructive",
+    }),
   });
 
   return { approve, reject, bulkApprove, bulkReject };

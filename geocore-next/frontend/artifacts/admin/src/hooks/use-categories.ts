@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_CATEGORIES = [
   { id: "1", name_en: "Electronics", name_ar: "إلكترونيات", icon: "📱", active: true, custom_fields: [
@@ -29,16 +30,31 @@ export function useCategoryActions() {
 
   return {
     saveCategory: useMutation({
-      mutationFn: (data: any) => api.put(`/admin/categories/${data.id}`, data).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: (data: any) => api.put(`/admin/categories/${data.id}`, data),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to save category",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     }),
     saveField: useMutation({
-      mutationFn: (data: any) => api.post(`/admin/categories/${data.categoryId}/fields`, data).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: (data: any) => api.post(`/admin/categories/${data.categoryId}/fields`, data),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to save field",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     }),
     deleteField: useMutation({
-      mutationFn: ({ catId, fieldId }: any) => api.delete(`/admin/categories/${catId}/fields/${fieldId}`).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: ({ catId, fieldId }: any) => api.delete(`/admin/categories/${catId}/fields/${fieldId}`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to delete field",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     })
   };
 }

@@ -298,6 +298,24 @@ package auth
         return fmt.Sprintf("%x", sum)
   }
 
+
+  // Logout — POST /api/v1/auth/logout
+  // Immediately invalidates the caller's session by setting a revoke-before
+  // timestamp in Redis (so all existing access tokens are rejected) and
+  // deleting every refresh token stored for this user.
+  func (h *Handler) Logout(c *gin.Context) {
+        userID := c.MustGet("user_id").(string)
+        ctx := c.Request.Context()
+
+        if h.rdb != nil {
+                revokeKey := fmt.Sprintf("revoke-before:%s", userID)
+                h.rdb.Set(ctx, revokeKey, time.Now().Unix(), 30*24*time.Hour)
+                h.revokeAllRefreshTokens(ctx, userID)
+        }
+
+        response.OK(c, gin.H{"message": "Logged out successfully"})
+  }
+
   // revokeAllRefreshTokens deletes all refresh:userID:* keys for the given user.
   func (h *Handler) revokeAllRefreshTokens(ctx context.Context, userID string) {
         if h.rdb == nil {

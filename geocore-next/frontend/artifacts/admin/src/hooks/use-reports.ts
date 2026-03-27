@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_REPORTS = [
   { id: "1", type: "listing", reason: "Fraud", description: "This listing seems fake, asked for money upfront.", reporter: { name: "Ahmed K." }, target_id: "lst_123", status: "pending", created_at: new Date().toISOString() },
@@ -30,12 +31,22 @@ export function useReportActions() {
 
   return {
     resolve: useMutation({
-      mutationFn: (id: string) => api.post(`/admin/reports/${id}/resolve`).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: (id: string) => api.post(`/admin/reports/${id}/resolve`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to resolve report",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     }),
     ignore: useMutation({
-      mutationFn: (id: string) => api.post(`/admin/reports/${id}/ignore`).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: (id: string) => api.post(`/admin/reports/${id}/ignore`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Failed to ignore report",
+        description: err?.response?.data?.error || "Please try again.",
+        variant: "destructive",
+      }),
     })
   };
 }

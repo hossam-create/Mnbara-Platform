@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_USERS = Array.from({ length: 10 }).map((_, i) => ({
   id: `usr_${i}`,
@@ -38,19 +39,34 @@ export function useUserActions() {
     toggleBlock: useMutation({
       mutationFn: ({ id, block, reason }: { id: string, block: boolean, reason?: string }) =>
         block
-          ? api.post(`/admin/users/${id}/ban`, { reason: reason || "Violates terms of service" }).catch(() => true)
-          : api.post(`/admin/users/${id}/unban`).catch(() => true),
-      onSuccess: invalidate
+          ? api.post(`/admin/users/${id}/ban`, { reason: reason || "Violates terms of service" })
+          : api.post(`/admin/users/${id}/unban`),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Action failed",
+        description: err?.response?.data?.error || "Could not update user status.",
+        variant: "destructive",
+      }),
     }),
     addCredit: useMutation({
-      mutationFn: ({ id, amount, reason }: { id: string, amount: number, reason: string }) => 
-        api.post(`/admin/users/${id}/credit`, { amount, reason }).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: ({ id, amount, reason }: { id: string, amount: number, reason: string }) =>
+        api.post(`/admin/users/${id}/credit`, { amount, reason }),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Credit failed",
+        description: err?.response?.data?.error || "Could not add credit to user.",
+        variant: "destructive",
+      }),
     }),
     changeRole: useMutation({
-      mutationFn: ({ id, role }: { id: string, role: string }) => 
-        api.put(`/admin/users/${id}`, { role }).catch(() => true),
-      onSuccess: invalidate
+      mutationFn: ({ id, role }: { id: string, role: string }) =>
+        api.put(`/admin/users/${id}`, { role }),
+      onSuccess: invalidate,
+      onError: (err: any) => toast({
+        title: "Role change failed",
+        description: err?.response?.data?.error || "Could not change user role.",
+        variant: "destructive",
+      }),
     })
   };
 }

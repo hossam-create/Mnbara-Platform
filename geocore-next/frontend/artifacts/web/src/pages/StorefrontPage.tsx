@@ -5,15 +5,6 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { LoadingGrid } from "@/components/ui/LoadingGrid";
 import { Eye, Store, MessageCircle } from "lucide-react";
 
-const MOCK_STORES_BY_SLUG: Record<string, any> = {
-  "ahmed-phones": { id: "s1", slug: "ahmed-phones", name: "Ahmed Phones", description: "Premium smartphones and accessories. All items authentic and warranty-included. We carry the latest iPhone, Samsung, and Xiaomi devices at the best prices in Dubai.", welcome_msg: "Welcome! All phones come with original box and 1-year warranty.", views: 4821, logo_url: "", banner_url: "", created_at: "2024-01-15" },
-  "dubai-wheels": { id: "s2", slug: "dubai-wheels", name: "Dubai Wheels", description: "Certified pre-owned vehicles. Toyota, BMW, Mercedes. Trade-ins welcome. All cars inspected and come with full service history.", welcome_msg: "Drive your dream car with our 7-day return guarantee.", views: 12440, logo_url: "", banner_url: "", created_at: "2023-09-05" },
-  "gulf-luxury": { id: "s3", slug: "gulf-luxury", name: "Gulf Luxury", description: "Authentic luxury watches and jewelry. Rolex, Patek Philippe, Cartier. All items come with certificates of authenticity.", welcome_msg: "Experience luxury with confidence — every piece is 100% authenticated.", views: 8900, logo_url: "", banner_url: "", created_at: "2023-11-20" },
-  "riyadh-realty": { id: "s4", slug: "riyadh-realty", name: "Riyadh Realty", description: "Residential and commercial properties across Riyadh. 10+ years experience in Saudi real estate.", welcome_msg: "Find your dream home in Riyadh — we speak Arabic, English, and Urdu.", views: 6350, logo_url: "", banner_url: "", created_at: "2024-02-01" },
-  "techzone-kw": { id: "s5", slug: "techzone-kw", name: "TechZone Kuwait", description: "Electronics, gaming, and gadgets. Best prices in Kuwait. PS5, Xbox, PCs and accessories in stock.", welcome_msg: "Gamers welcome! Ask about our bundle deals.", views: 3200, logo_url: "", banner_url: "", created_at: "2024-03-10" },
-  "fashion-forward-ae": { id: "s6", slug: "fashion-forward-ae", name: "Fashion Forward", description: "Designer clothing and accessories. New arrivals weekly from Paris, Milan, and London.", welcome_msg: "Style that speaks — new arrivals every Thursday!", views: 5670, logo_url: "", banner_url: "", created_at: "2023-12-01" },
-};
-
 export default function StorefrontPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug;
@@ -24,8 +15,6 @@ export default function StorefrontPage() {
     retry: false,
   });
 
-  const mockFallback = MOCK_STORES_BY_SLUG[slug];
-
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-10">
@@ -35,7 +24,7 @@ export default function StorefrontPage() {
     );
   }
 
-  if ((error || !data) && !mockFallback) {
+  if (error || !data) {
     return (
       <div className="text-center py-20 text-gray-400">
         <p className="text-5xl mb-4">🏪</p>
@@ -47,7 +36,7 @@ export default function StorefrontPage() {
     );
   }
 
-  const storefront = data?.storefront ?? mockFallback;
+  const storefront = data?.storefront ?? data;
   const listings: any[] = data?.listings ?? [];
 
   return (

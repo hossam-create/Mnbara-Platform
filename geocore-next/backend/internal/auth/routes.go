@@ -72,6 +72,7 @@ package auth
                 authed.Use(middleware.Auth())
                 {
                         authed.GET("/me", h.Me)
+                        authed.POST("/logout", h.Logout)
 
                         // Per-user limit: prevent spamming verification emails
                         authed.POST("/resend-verification",

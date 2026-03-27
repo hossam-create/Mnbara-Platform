@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { toast } from "./use-toast";
 
 const MOCK_PLANS = [
   { id: "1", name: "Basic", group: "Default", max_listings: 5, max_images: 3, featured_allowed: false, final_value_fee: 5.0, price: 0 },
@@ -26,10 +27,15 @@ export function useSavePricingPlan() {
   return useMutation({
     mutationFn: async (plan: any) => {
       if (plan.id) {
-        return api.put(`/admin/pricing/${plan.id}`, plan).catch(() => true);
+        return api.put(`/admin/pricing/${plan.id}`, plan);
       }
-      return api.post(`/admin/pricing`, plan).catch(() => true);
+      return api.post(`/admin/pricing`, plan);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_pricing"] })
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin_pricing"] }),
+    onError: (err: any) => toast({
+      title: "Failed to save pricing plan",
+      description: err?.response?.data?.error || "Please try again.",
+      variant: "destructive",
+    }),
   });
 }
