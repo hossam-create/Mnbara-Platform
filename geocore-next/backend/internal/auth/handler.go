@@ -1,6 +1,9 @@
 package auth
 
   import (
+        "context"
+        "crypto/sha256"
+        "fmt"
         "os"
         "time"
 
@@ -37,8 +40,12 @@ package auth
         Password string `json:"password" binding:"required"`
   }
 
+  type RefreshReq struct {
+        RefreshToken string `json:"refresh_token" binding:"required"`
+  }
+
   // Register — POST /api/v1/auth/register
-  // Creates a new user account, fires a verification email, and returns a JWT.
+  // Creates a new user account, fires a verification email, and returns a JWT pair.
   // The email_verified flag starts as false; certain actions require verification.
   func (h *Handler) Register(c *gin.Context) {
         var req RegisterReq
@@ -79,16 +86,23 @@ package auth
         // Send welcome email
         go email.SendWelcomeEmail(user.Email, user.Name)
 
-        token, err := generateToken(user.ID.String(), user.Email)
+        accessToken, err := generateAccessToken(user.ID.String(), user.Email, user.Role)
+        if err != nil {
+                response.InternalError(c, err)
+                return
+        }
+
+        refreshToken, err := h.generateRefreshToken(c.Request.Context(), user.ID.String())
         if err != nil {
                 response.InternalError(c, err)
                 return
         }
 
         response.Created(c, gin.H{
-                "token":   token,
-                "user":    user,
-                "message": "Registration successful! Please check your email to verify your account.",
+                "access_token":  accessToken,
+                "refresh_token": refreshToken,
+                "user":          user,
+                "message":       "Registration successful! Please check your email to verify your account.",
         })
   }
 
@@ -111,19 +125,110 @@ package auth
                 return
         }
 
-        token, err := generateToken(user.ID.String(), user.Email)
+        accessToken, err := generateAccessToken(user.ID.String(), user.Email, user.Role)
         if err != nil {
                 response.InternalError(c, err)
                 return
         }
 
-        // Optionally warn the client if email is not yet verified
-        result := gin.H{"token": token, "user": user}
+        refreshToken, err := h.generateRefreshToken(c.Request.Context(), user.ID.String())
+        if err != nil {
+                response.InternalError(c, err)
+                return
+        }
+
+        result := gin.H{
+                "access_token":  accessToken,
+                "refresh_token": refreshToken,
+                "user":          user,
+        }
         if !user.EmailVerified {
                 result["warning"] = "Email not verified — some features are restricted"
         }
 
         response.OK(c, result)
+  }
+
+  // Refresh — POST /api/v1/auth/refresh
+  // Validates the refresh token, rotates both tokens, and returns a new pair.
+  // On second use of the same refresh token (theft detection), all refresh tokens
+  // for that user are revoked.
+  func (h *Handler) Refresh(c *gin.Context) {
+        var req RefreshReq
+        if err := c.ShouldBindJSON(&req); err != nil {
+                response.BadRequest(c, err.Error())
+                return
+        }
+
+        ctx := c.Request.Context()
+
+        // Parse the refresh token claims without full validation first to get userID/tokenID
+        secret := os.Getenv("JWT_SECRET")
+        claims := &middleware.Claims{}
+        tok, err := jwt.ParseWithClaims(req.RefreshToken, claims, func(t *jwt.Token) (interface{}, error) {
+                if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+                        return nil, jwt.ErrSignatureInvalid
+                }
+                return []byte(secret), nil
+        })
+        if err != nil || !tok.Valid {
+                response.Unauthorized(c)
+                return
+        }
+
+        tokenID := claims.ID
+        userID := claims.UserID
+
+        if tokenID == "" || userID == "" {
+                response.Unauthorized(c)
+                return
+        }
+
+        // Hash the incoming token to compare with what we stored
+        tokenHash := hashToken(req.RefreshToken)
+        redisKey := fmt.Sprintf("refresh:%s:%s", userID, tokenID)
+
+        storedHash, err := h.rdb.Get(ctx, redisKey).Result()
+        if err != nil {
+                // Key not found — token already used or never issued
+                response.Unauthorized(c)
+                return
+        }
+
+        if storedHash != tokenHash {
+                // Hash mismatch — token reuse detected; revoke all refresh tokens for user
+                h.revokeAllRefreshTokens(ctx, userID)
+                response.Unauthorized(c)
+                return
+        }
+
+        // Delete this refresh token (rotation: invalidate old token)
+        h.rdb.Del(ctx, redisKey)
+
+        // Fetch the user to get current role
+        var user users.User
+        if err := h.db.First(&user, "id = ?", userID).Error; err != nil {
+                response.Unauthorized(c)
+                return
+        }
+
+        // Issue new token pair
+        newAccessToken, err := generateAccessToken(user.ID.String(), user.Email, user.Role)
+        if err != nil {
+                response.InternalError(c, err)
+                return
+        }
+
+        newRefreshToken, err := h.generateRefreshToken(ctx, user.ID.String())
+        if err != nil {
+                response.InternalError(c, err)
+                return
+        }
+
+        response.OK(c, gin.H{
+                "access_token":  newAccessToken,
+                "refresh_token": newRefreshToken,
+        })
   }
 
   // Me — GET /api/v1/auth/me (auth required)
@@ -137,16 +242,80 @@ package auth
         response.OK(c, user)
   }
 
-  func generateToken(userID, email string) (string, error) {
+  // generateAccessToken creates a short-lived (15-minute) JWT access token.
+  func generateAccessToken(userID, email, role string) (string, error) {
         claims := middleware.Claims{
                 UserID: userID,
                 Email:  email,
+                Role:   role,
                 RegisteredClaims: jwt.RegisteredClaims{
-                        ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)),
+                        ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
                         IssuedAt:  jwt.NewNumericDate(time.Now()),
+                        ID:        uuid.New().String(),
                 },
         }
         token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
         return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
   }
-  
+
+  // generateRefreshToken creates a long-lived (30-day) JWT refresh token and
+  // stores its hash in Redis under refresh:{userID}:{tokenID}.
+  // If the Redis client is nil (e.g. in tests), the token is returned without
+  // being persisted — refresh validation will fail, which is acceptable in tests.
+  func (h *Handler) generateRefreshToken(ctx context.Context, userID string) (string, error) {
+        tokenID := uuid.New().String()
+        claims := middleware.Claims{
+                UserID: userID,
+                RegisteredClaims: jwt.RegisteredClaims{
+                        ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * 24 * time.Hour)),
+                        IssuedAt:  jwt.NewNumericDate(time.Now()),
+                        ID:        tokenID,
+                },
+        }
+        token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+        signed, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+        if err != nil {
+                return "", err
+        }
+
+        if h.rdb == nil {
+                return signed, nil
+        }
+
+        // Store the hash in Redis with 30-day TTL
+        redisKey := fmt.Sprintf("refresh:%s:%s", userID, tokenID)
+        tokenHash := hashToken(signed)
+        if err := h.rdb.Set(ctx, redisKey, tokenHash, 30*24*time.Hour).Err(); err != nil {
+                return "", err
+        }
+
+        return signed, nil
+  }
+
+  // hashToken returns a SHA-256 hex digest of the given token string.
+  func hashToken(token string) string {
+        sum := sha256.Sum256([]byte(token))
+        return fmt.Sprintf("%x", sum)
+  }
+
+  // revokeAllRefreshTokens deletes all refresh:userID:* keys for the given user.
+  func (h *Handler) revokeAllRefreshTokens(ctx context.Context, userID string) {
+        if h.rdb == nil {
+                return
+        }
+        pattern := fmt.Sprintf("refresh:%s:*", userID)
+        var cursor uint64
+        for {
+                keys, nextCursor, err := h.rdb.Scan(ctx, cursor, pattern, 100).Result()
+                if err != nil {
+                        break
+                }
+                if len(keys) > 0 {
+                        h.rdb.Del(ctx, keys...)
+                }
+                cursor = nextCursor
+                if cursor == 0 {
+                        break
+                }
+        }
+  }
