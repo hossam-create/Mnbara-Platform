@@ -49,6 +49,15 @@ func NewHub(rdb *redis.Client) *Hub {
         }
 }
 
+// Broadcast sends a message to all clients connected to the given auction room.
+// It is non-blocking: if the broadcast channel is full the message is dropped.
+func (h *Hub) Broadcast(msg *BroadcastMsg) {
+        select {
+        case h.broadcast <- msg:
+        default:
+        }
+}
+
 // Run processes register/unregister/broadcast events.
 func (h *Hub) Run() {
         for {

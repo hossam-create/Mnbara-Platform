@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -94,16 +95,84 @@ func (h *Hub) Run() {
 			h.mu.Unlock()
 
 		case msg := <-h.broadcast:
-			h.mu.RLock()
+			// Use a write lock because we may delete slow clients during broadcast.
+			h.mu.Lock()
 			for client := range h.clients[msg.ConversationID] {
 				select {
 				case client.send <- msg.Data:
 				default:
+					// Client send buffer full — remove it cleanly.
 					close(client.send)
 					delete(h.clients[msg.ConversationID], client)
 				}
 			}
-			h.mu.RUnlock()
+			h.mu.Unlock()
+		}
+	}
+}
+
+// SubscribeRedis listens to all chat message events published to Redis
+// (channel pattern "chat:*") and forwards them to connected WebSocket clients.
+// This enables multi-instance deployments to broadcast across server nodes.
+// It auto-reconnects with exponential backoff if the Redis channel closes.
+func (h *Hub) SubscribeRedis(ctx context.Context) {
+	if h.rdb == nil {
+		log.Println("[chat-hub] no Redis client — cross-node chat broadcast disabled")
+		return
+	}
+
+	backoff := time.Second
+	const maxBackoff = 30 * time.Second
+
+	for {
+		if ctx.Err() != nil {
+			return
+		}
+
+		pubsub := h.rdb.PSubscribe(ctx, "chat:*")
+		ch := pubsub.Channel()
+		log.Println("[chat-hub] Redis PSubscribe chat:* — listening for chat events")
+		backoff = time.Second // reset on successful subscribe
+
+		channelClosed := false
+		for !channelClosed {
+			select {
+			case <-ctx.Done():
+				pubsub.Close()
+				return
+			case msg, ok := <-ch:
+				if !ok {
+					channelClosed = true
+					break
+				}
+				// Channel format is "chat:<conversationID>"
+				convID := ""
+				if len(msg.Channel) > len("chat:") {
+					convID = msg.Channel[len("chat:"):]
+				}
+				if convID == "" {
+					continue
+				}
+				select {
+				case h.broadcast <- &WSBroadcast{
+					ConversationID: convID,
+					Data:           []byte(msg.Payload),
+				}:
+				default:
+					log.Printf("[chat-hub] broadcast channel full, dropping message for %s", convID)
+				}
+			}
+		}
+		pubsub.Close()
+
+		log.Printf("[chat-hub] Redis PubSub channel closed — reconnecting in %s", backoff)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(backoff):
+		}
+		if backoff < maxBackoff {
+			backoff *= 2
 		}
 	}
 }
@@ -218,9 +287,17 @@ func clientReadPump(c *WSClient, hub *Hub, db *gorm.DB) {
 			Where("conversation_id = ? AND user_id != ?", convID, senderID).
 			UpdateColumn("unread_count", gorm.Expr("unread_count + 1"))
 
-		// Broadcast the persisted message to all connected clients in this conversation
-		if data, jsonErr := json.Marshal(msg); jsonErr == nil {
-			hub.broadcast <- &WSBroadcast{ConversationID: c.conversationID, Data: data}
+		// Publish to Redis so other server nodes can broadcast to their clients.
+		if c.hub.rdb != nil {
+			if data, jsonErr := json.Marshal(msg); jsonErr == nil {
+				c.hub.rdb.Publish(context.Background(),
+					"chat:"+convID.String(), string(data))
+			}
+		} else {
+			// Single-node mode: broadcast directly without Redis.
+			if data, jsonErr := json.Marshal(msg); jsonErr == nil {
+				hub.broadcast <- &WSBroadcast{ConversationID: c.conversationID, Data: data}
+			}
 		}
 	}
 }

@@ -32,7 +32,7 @@ type SearchRequest struct {
         Radius       int      `form:"radius"` // km, default 50
         City         string   `form:"city"`
         Country      string   `form:"country"`
-        SortBy       string   `form:"sort_by"` // relevance | price_asc | price_desc | date | distance
+        SortBy       string   `form:"sort_by"` // relevance | price_asc | price_desc | date | distance | most_bids
         Page         int      `form:"page"`
         PerPage      int      `form:"per_page"`
 }
@@ -209,6 +209,11 @@ func (h *Handler) Search(c *gin.Context) {
                 } else {
                         q = q.Order("listings.created_at DESC")
                 }
+        case "most_bids":
+                // Sort listings by auction bid count (descending). Non-auction listings
+                // (no matching row in auctions) sort to the end with NULLS LAST.
+                q = q.Joins("LEFT JOIN auctions ON auctions.listing_id = listings.id AND auctions.deleted_at IS NULL").
+                        Order("auctions.bid_count DESC NULLS LAST, listings.created_at DESC")
         default: // "date"
                 q = q.Order("listings.is_featured DESC, listings.created_at DESC")
         }
@@ -412,6 +417,8 @@ func ApplySearchIndexes(db *gorm.DB) {
                 `CREATE INDEX IF NOT EXISTS idx_listings_geo      ON listings(latitude, longitude)`,
                 `CREATE INDEX IF NOT EXISTS idx_listings_city     ON listings(city)`,
                 `CREATE INDEX IF NOT EXISTS idx_listings_country  ON listings(country)`,
+                // Used when sort_by=most_bids — JOIN auctions.listing_id with bid_count ordering.
+                `CREATE INDEX IF NOT EXISTS idx_auctions_listing_bid_count ON auctions(listing_id, bid_count DESC) WHERE deleted_at IS NULL`,
         }
         for _, idx := range indexes {
                 if err := db.Exec(idx).Error; err != nil {
