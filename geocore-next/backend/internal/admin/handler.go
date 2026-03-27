@@ -7,6 +7,7 @@ package admin
         "fmt"
         "log/slog"
         "net/http"
+        "os"
         "strings"
         "time"
 
@@ -506,6 +507,107 @@ package admin
         if page < 1 { page = 1 }
         if perPage < 1 || perPage > 100 { perPage = 20 }
         return
+  }
+
+  // knownIntegrationKeys lists every integration key the platform can use.
+  // Env vars always override DB values.
+  var knownIntegrationKeys = []string{
+        // Stripe
+        "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PUBLISHABLE_KEY",
+        // PayPal
+        "PAYPAL_CLIENT_ID", "PAYPAL_CLIENT_SECRET", "PAYPAL_MODE",
+        // Resend (email)
+        "RESEND_API_KEY", "RESEND_FROM_EMAIL", "RESEND_FROM_NAME",
+        // Firebase push
+        "FIREBASE_SERVICE_ACCOUNT_JSON",
+        // Cloudflare R2 storage
+        "R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
+        "R2_BUCKET_NAME", "R2_PUBLIC_URL",
+        // Google OAuth
+        "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET",
+        // Google Analytics
+        "GA_MEASUREMENT_ID",
+        // Apple Sign In
+        "APPLE_TEAM_ID", "APPLE_KEY_ID", "APPLE_PRIVATE_KEY",
+        // Twilio SMS
+        "TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM_NUMBER",
+        // WhatsApp Business
+        "WHATSAPP_API_KEY", "WHATSAPP_PHONE_NUMBER_ID",
+        // Redis (for managed Redis in production)
+        "REDIS_URL",
+  }
+
+  // maskValue returns a masked version of a secret for display (e.g., sk_live_****abc).
+  func maskValue(v string) string {
+        if len(v) == 0 {
+                return ""
+        }
+        if len(v) <= 8 {
+                return "****"
+        }
+        return v[:4] + "****" + v[len(v)-4:]
+  }
+
+  // GetIntegrations returns the status of every integration key.
+  // Env vars are checked first; DB values serve as fallback.
+  // Raw values are NEVER returned — only masked versions.
+  func (h *Handler) GetIntegrations(c *gin.Context) {
+        // Load all DB-stored configs
+        var rows []IntegrationConfig
+        h.db.Find(&rows)
+        dbMap := make(map[string]IntegrationConfig, len(rows))
+        for _, r := range rows {
+                dbMap[r.Key] = r
+        }
+
+        out := make([]IntegrationStatus, 0, len(knownIntegrationKeys))
+        for _, key := range knownIntegrationKeys {
+                status := IntegrationStatus{Key: key, Source: "unset"}
+                envVal := os.Getenv(key)
+                if envVal != "" {
+                        status.Configured = true
+                        status.Source = "env"
+                        status.Masked = maskValue(envVal)
+                } else if row, ok := dbMap[key]; ok && row.Value != "" {
+                        status.Configured = true
+                        status.Source = "db"
+                        status.Masked = maskValue(row.Value)
+                        status.UpdatedAt = row.UpdatedAt
+                }
+                out = append(out, status)
+        }
+        response.OK(c, out)
+  }
+
+  // SaveIntegrations persists integration key-value pairs to the DB.
+  // Accepts: { "STRIPE_SECRET_KEY": "sk_live_...", ... }
+  // Empty string values delete the DB entry.
+  func (h *Handler) SaveIntegrations(c *gin.Context) {
+        var body map[string]string
+        if err := c.ShouldBindJSON(&body); err != nil {
+                response.BadRequest(c, "invalid body")
+                return
+        }
+
+        // Validate keys are all known
+        allowed := make(map[string]bool, len(knownIntegrationKeys))
+        for _, k := range knownIntegrationKeys {
+                allowed[k] = true
+        }
+
+        for key, val := range body {
+                if !allowed[key] {
+                        response.BadRequest(c, "unknown integration key: "+key)
+                        return
+                }
+                if val == "" {
+                        h.db.Delete(&IntegrationConfig{}, "key = ?", key)
+                        continue
+                }
+                h.db.Save(&IntegrationConfig{Key: key, Value: val})
+        }
+
+        response.OK(c, gin.H{"saved": len(body)})
   }
 
   

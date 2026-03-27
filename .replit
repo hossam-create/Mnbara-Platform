@@ -17,6 +17,10 @@ author = "agent"
 task = "workflow.run"
 args = "Go Backend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Web Frontend"
+
 [[workflows.workflow]]
 name = "Go Backend"
 author = "agent"
@@ -28,6 +32,18 @@ waitForPort = 9000
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow]]
+name = "Web Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash geocore-next/frontend/start.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
 localPort = 3000
@@ -82,13 +98,20 @@ run = ["bash", "-c", "cd geocore-next/frontend && npm start -- -p 5000"]
 [userenv]
 
 [userenv.shared]
-APP_ENV = "development"
 REDIS_HOST = "localhost"
 REDIS_PORT = "6379"
 REDIS_PASSWORD = ""
 FRONTEND_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
 APP_BASE_URL = "https://7ca9a76a-086e-4212-b96b-af311d65eac2-00-3akqqj9r08eoi-9ld65fsv.worf.replit.dev"
 BACKEND_PORT = "9000"
+
+[userenv.development]
+APP_ENV = "development"
+GIN_MODE = "debug"
+
+[userenv.production]
+APP_ENV = "production"
+GIN_MODE = "release"
 
 [postMerge]
 path = "scripts/post-merge.sh"

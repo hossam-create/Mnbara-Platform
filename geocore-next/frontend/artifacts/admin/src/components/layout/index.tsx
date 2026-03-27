@@ -4,7 +4,7 @@ import { useAuth, useLogout } from "@/hooks/use-auth";
 import { 
   LayoutDashboard, Tag, Hammer, Store, FolderOpen, 
   Users, ShieldAlert, CreditCard, DollarSign, 
-  Settings, Bell, Globe, Search, ChevronRight, ShieldCheck
+  Settings, Bell, Globe, Search, ChevronRight, ShieldCheck, Plug
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,7 @@ const navigation = [
   {
     section: "CONFIGURATION",
     items: [
+      { icon: Plug, label: "Integrations", path: "/integrations" },
       { icon: Settings, label: "Settings", path: "/settings" },
     ]
   }

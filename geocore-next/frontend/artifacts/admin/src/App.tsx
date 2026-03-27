@@ -19,6 +19,7 @@ import Storefronts from "./pages/storefronts";
 import Settings from "./pages/settings";
 import ListingDetailPage from "./pages/listing-detail";
 import KYC from "./pages/kyc";
+import Integrations from "./pages/integrations";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,9 @@ function Router() {
       </Route>
       <Route path="/kyc">
         <AdminLayout><KYC /></AdminLayout>
+      </Route>
+      <Route path="/integrations">
+        <AdminLayout><Integrations /></AdminLayout>
       </Route>
       <Route component={NotFound} />
     </Switch>
