@@ -56,6 +56,17 @@ After any task merge, the `scripts/post-merge.sh` script:
 - Admin: stats, user management, listing moderation, revenue, KYC
 - Stores/Storefronts, Reviews, KYC
 
+## Required Env Vars for Production
+
+Before deploying with `APP_ENV=production`, set at least one of:
+
+- `ALLOWED_ORIGINS` — comma-separated list of allowed CORS origins (e.g. `https://myapp.com,https://admin.myapp.com`). Wildcards (`*`) are stripped and not allowed in production.
+- `FRONTEND_URL` — fallback single origin used if `ALLOWED_ORIGINS` is unset (e.g. `https://myapp.com`).
+
+**If neither is set in production, the server refuses to start** with a descriptive fatal error — this prevents accidental deployment with an open or broken CORS policy.
+
+In development (`APP_ENV` is anything other than `production`), all origins are allowed automatically.
+
 ## Missing Env Vars (features disabled, not broken)
 
 - `STRIPE_SECRET_KEY` — payments
