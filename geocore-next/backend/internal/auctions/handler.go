@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Handler struct {
@@ -116,65 +117,81 @@ func (h *Handler) PlaceBid(c *gin.Context) {
 		return
 	}
 
-	var auction Auction
-	if err := h.db.First(&auction, "id = ? AND status = ?", auctionID, "active").Error; err != nil {
-		response.NotFound(c, "Auction")
-		return
-	}
-
-	if time.Now().After(auction.EndsAt) {
-		response.BadRequest(c, "Auction has ended")
-		return
-	}
-
-	if auction.SellerID == userID {
-		response.BadRequest(c, "Cannot bid on your own auction")
-		return
-	}
-
-	minBid := auction.CurrentBid
-	if auction.BidCount == 0 {
-		minBid = auction.StartPrice - 0.01
-	}
-	if req.Amount <= minBid {
-		response.BadRequest(c, fmt.Sprintf("Bid must be higher than %.2f", minBid))
-		return
-	}
-
-	bid := Bid{
-		ID:        uuid.New(),
-		AuctionID: auctionID,
-		UserID:    userID,
-		Amount:    req.Amount,
-		IsAuto:    req.IsAuto,
-		MaxAmount: req.MaxAmount,
-		PlacedAt:  time.Now(),
-	}
-
-	// Find previous leader to notify them they were outbid
-	var prevBid Bid
+	var bid Bid
 	var prevLeaderID *uuid.UUID
-	if auction.BidCount > 0 {
-		if h.db.Where("auction_id = ? AND user_id != ?", auctionID, userID).
-			Order("amount DESC").First(&prevBid).Error == nil {
-			prevLeaderID = &prevBid.UserID
-		}
-	}
 
-	h.db.Transaction(func(tx *gorm.DB) error {
-		tx.Create(&bid)
-		tx.Model(&auction).Updates(map[string]interface{}{
+	txErr := h.db.Transaction(func(tx *gorm.DB) error {
+		// SELECT FOR UPDATE serialises concurrent bids on the same auction row
+		var auction Auction
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			First(&auction, "id = ? AND status = ?", auctionID, "active").Error; err != nil {
+			return fmt.Errorf("auction not found")
+		}
+
+		if time.Now().After(auction.EndsAt) {
+			return fmt.Errorf("auction has ended")
+		}
+
+		if auction.SellerID == userID {
+			return fmt.Errorf("cannot bid on your own auction")
+		}
+
+		minBid := auction.CurrentBid
+		if auction.BidCount == 0 {
+			minBid = auction.StartPrice - 0.01
+		}
+		if req.Amount <= minBid {
+			return fmt.Errorf("bid must be higher than %.2f", minBid)
+		}
+
+		// Find previous leader to notify them they were outbid
+		if auction.BidCount > 0 {
+			var prevBid Bid
+			if tx.Where("auction_id = ? AND user_id != ?", auctionID, userID).
+				Order("amount DESC").First(&prevBid).Error == nil {
+				prevLeaderID = &prevBid.UserID
+			}
+		}
+
+		bid = Bid{
+			ID:        uuid.New(),
+			AuctionID: auctionID,
+			UserID:    userID,
+			Amount:    req.Amount,
+			IsAuto:    req.IsAuto,
+			MaxAmount: req.MaxAmount,
+			PlacedAt:  time.Now(),
+		}
+		if err := tx.Create(&bid).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&auction).Updates(map[string]interface{}{
 			"current_bid": req.Amount,
 			"bid_count":   gorm.Expr("bid_count + 1"),
-		})
+		}).Error; err != nil {
+			return err
+		}
+
+		// Load auction for notification (after update)
+		tx.First(&auction, "id = ?", auctionID)
+
+		go notifyNewBid(&auction, userID, prevLeaderID, req.Amount)
 		return nil
 	})
 
+	if txErr != nil {
+		msg := txErr.Error()
+		switch msg {
+		case "auction not found":
+			response.NotFound(c, "Auction")
+		default:
+			response.BadRequest(c, msg)
+		}
+		return
+	}
+
 	// Broadcast via Redis Pub/Sub
 	h.rdb.Publish(c, fmt.Sprintf("auction:%s", auctionID), fmt.Sprintf(`{"bid": %.2f, "user": "%s"}`, req.Amount, userID))
-
-	// Send notifications async
-	go notifyNewBid(&auction, userID, prevLeaderID, req.Amount)
 
 	response.Created(c, bid)
 }
@@ -187,6 +204,8 @@ func (h *Handler) GetBids(c *gin.Context) {
 }
 
 func defaultStr(s, d string) string {
-	if s == "" { return d }
+	if s == "" {
+		return d
+	}
 	return s
 }
