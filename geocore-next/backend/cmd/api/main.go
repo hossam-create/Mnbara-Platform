@@ -6,6 +6,7 @@ import (
         "net/http"
         "os"
         "os/signal"
+        "strings"
         "syscall"
         "time"
 
@@ -105,10 +106,26 @@ func main() {
                 AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
                 MaxAge:       12 * time.Hour,
         }
-        if os.Getenv("APP_ENV") == "production" {
-                corsConfig.AllowOrigins = []string{util.Getenv("FRONTEND_URL", "http://localhost:3000")}
+        // CORS origin policy:
+        //   ALLOWED_ORIGINS env var (comma-separated): restricts to that allowlist.
+        //   Unset in development: allow all origins (wildcard).
+        //   Production without ALLOWED_ORIGINS: warn and default to localhost.
+        if allowedOrigins := os.Getenv("ALLOWED_ORIGINS"); allowedOrigins != "" {
+                origins := strings.Split(allowedOrigins, ",")
+                for i, o := range origins {
+                        origins[i] = strings.TrimSpace(o)
+                }
+                corsConfig.AllowOrigins = origins
+                corsConfig.AllowCredentials = true
+                logger.Info("CORS allowlist active", zap.Strings("origins", origins))
+        } else if os.Getenv("APP_ENV") == "production" {
+                // Production without ALLOWED_ORIGINS: warn and lock down to localhost
+                // so a misconfigured deploy doesn't accidentally allow *.
+                logger.Warn("ALLOWED_ORIGINS not set in production — defaulting to localhost only")
+                corsConfig.AllowOrigins = []string{"http://localhost:3000", "http://localhost:5173"}
                 corsConfig.AllowCredentials = true
         } else {
+                // Development: allow all (wildcard) for easier local iteration.
                 corsConfig.AllowAllOrigins = true
         }
         r.Use(cors.New(corsConfig))
@@ -158,9 +175,9 @@ func main() {
         })
         auth.RegisterRoutes(v1, db, rdb)
         users.RegisterRoutes(v1, db, rdb)
-        listings.RegisterRoutes(v1, db, rdb)
-        auctions.RegisterRoutes(v1, db, rdb)
-        chat.RegisterRoutes(v1, db, rdb)
+        listings.RegisterRoutes(v1, db, rdb, rl)
+        auctions.RegisterRoutes(v1, db, rdb, rl)
+        chat.RegisterRoutes(v1, db, rdb, rl)
         payments.RegisterRoutes(v1, db, rdb)
         images.RegisterRoutes(v1, db, rdb)
         notifHub, notifSvc := notifications.RegisterRoutes(v1, db, rdb)

@@ -7,6 +7,7 @@ import (
         "strconv"
         "time"
 
+        "github.com/geocore-next/backend/internal/fraud"
         "github.com/geocore-next/backend/pkg/response"
         "github.com/geocore-next/backend/pkg/util"
         "github.com/gin-gonic/gin"
@@ -273,6 +274,9 @@ func (h *Handler) Create(c *gin.Context) {
 
         // Invalidate search result and suggestion caches so the new listing is discoverable immediately
         go h.invalidateSearchCaches()
+
+        // Evaluate fraud risk asynchronously — does not block the response.
+        go fraud.New(h.db, h.rdb).Evaluate(context.Background(), userID)
 
         response.Created(c, listing)
 }

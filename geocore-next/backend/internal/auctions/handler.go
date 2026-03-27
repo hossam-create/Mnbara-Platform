@@ -6,6 +6,7 @@ import (
         "strconv"
         "time"
 
+        "github.com/geocore-next/backend/internal/fraud"
         "github.com/geocore-next/backend/pkg/response"
         "github.com/geocore-next/backend/pkg/util"
         "github.com/gin-gonic/gin"
@@ -227,6 +228,9 @@ func (h *Handler) PlaceBid(c *gin.Context) {
 
         // Auto-bid proxy: trigger counter-bids from other bidders who set a max_amount
         go h.runAutoBidProxy(auctionID, userID, req.Amount)
+
+        // Evaluate fraud risk asynchronously — does not block the response.
+        go fraud.New(h.db, h.rdb).Evaluate(context.Background(), userID)
 
         response.Created(c, bid)
 }
