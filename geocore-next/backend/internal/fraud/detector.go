@@ -116,13 +116,20 @@ func (d *Detector) Evaluate(ctx context.Context, userID uuid.UUID) Score {
 
 // listingVelocity counts listings the user created in the past 24 hours.
 // Returns a normalized 0–1 score (saturates at 10 listings) and the raw count.
+// On DB error, logs and returns a conservative score of 1.0 (fail-strict).
 func (d *Detector) listingVelocity(ctx context.Context, userID uuid.UUID) (score float64, count int) {
         since := time.Now().Add(-24 * time.Hour)
         var total int64
-        d.db.WithContext(ctx).
+        // listings.user_id holds the creator's ID (not seller_id).
+        err := d.db.WithContext(ctx).
                 Table("listings").
-                Where("seller_id = ? AND created_at >= ?", userID, since).
-                Count(&total)
+                Where("user_id = ? AND created_at >= ?", userID, since).
+                Count(&total).Error
+        if err != nil {
+                slog.Error("fraud: listingVelocity DB query failed",
+                        "user_id", userID.String(), "error", err.Error())
+                return 1.0, 0 // conservative: treat unknown velocity as high risk
+        }
         count = int(total)
 
         const cap = 10
@@ -134,13 +141,20 @@ func (d *Detector) listingVelocity(ctx context.Context, userID uuid.UUID) (score
 
 // bidVelocity counts bids the user placed in the past hour.
 // Returns a normalized 0–1 score (saturates at 20 bids) and the raw count.
+// On DB error, logs and returns a conservative score of 1.0 (fail-strict).
 func (d *Detector) bidVelocity(ctx context.Context, userID uuid.UUID) (score float64, count int) {
         since := time.Now().Add(-time.Hour)
         var total int64
-        d.db.WithContext(ctx).
+        // bids.user_id is the bidder; bids.placed_at is the timestamp (not created_at).
+        err := d.db.WithContext(ctx).
                 Table("bids").
-                Where("bidder_id = ? AND created_at >= ?", userID, since).
-                Count(&total)
+                Where("user_id = ? AND placed_at >= ?", userID, since).
+                Count(&total).Error
+        if err != nil {
+                slog.Error("fraud: bidVelocity DB query failed",
+                        "user_id", userID.String(), "error", err.Error())
+                return 1.0, 0 // conservative: treat unknown velocity as high risk
+        }
         count = int(total)
 
         const cap = 20
@@ -152,13 +166,18 @@ func (d *Detector) bidVelocity(ctx context.Context, userID uuid.UUID) (score flo
 
 // newAccountFlag checks whether the account was created within the last 10 minutes.
 // Returns 1.0 if the account is brand-new, 0.0 otherwise, plus the age in minutes.
+// On DB error, logs and returns 0.0 (fail-open: don't penalize if age unknown).
 func (d *Detector) newAccountFlag(ctx context.Context, userID uuid.UUID) (score float64, ageMin float64) {
         var createdAt time.Time
-        d.db.WithContext(ctx).
+        err := d.db.WithContext(ctx).
                 Table("users").
                 Where("id = ?", userID).
-                Pluck("created_at", &createdAt)
-
+                Pluck("created_at", &createdAt).Error
+        if err != nil {
+                slog.Error("fraud: newAccountFlag DB query failed",
+                        "user_id", userID.String(), "error", err.Error())
+                return 0.0, 0 // fail-open: unknown age should not penalize the user
+        }
         if createdAt.IsZero() {
                 return 0, 0
         }

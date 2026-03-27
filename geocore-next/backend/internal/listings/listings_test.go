@@ -28,6 +28,12 @@ func setupListingsDB(t *testing.T) *gorm.DB {
         })
         require.NoError(t, err)
 
+        // Force a single DB connection so goroutines (e.g. fraud detector) share
+        // the same in-memory SQLite database instead of getting a fresh empty one.
+        sqlDB, err := db.DB()
+        require.NoError(t, err)
+        sqlDB.SetMaxOpenConns(1)
+
         // Create a minimal users table compatible with SQLite (no partial indexes).
         // We only need id, email_verified, deleted_at for the listings handler + email_verified guard.
         require.NoError(t, db.Exec(`CREATE TABLE IF NOT EXISTS users (
@@ -118,6 +124,17 @@ func setupListingsDB(t *testing.T) *gorm.DB {
                 id TEXT PRIMARY KEY,
                 user_id TEXT NOT NULL,
                 listing_id TEXT NOT NULL,
+                created_at DATETIME
+        )`).Error)
+
+        // Minimal bids table so the fraud detector's bidVelocity signal can query
+        // it without "no such table" errors when fired asynchronously from Create.
+        require.NoError(t, db.Exec(`CREATE TABLE IF NOT EXISTS bids (
+                id TEXT PRIMARY KEY,
+                auction_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                amount REAL NOT NULL,
+                placed_at DATETIME,
                 created_at DATETIME
         )`).Error)
 
