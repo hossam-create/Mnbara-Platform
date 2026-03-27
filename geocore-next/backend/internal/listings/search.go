@@ -169,9 +169,17 @@ func (h *Handler) Search(c *gin.Context) {
         // The bounding box eliminates the vast majority of rows before the Haversine is computed.
         if req.Lat != nil && req.Lng != nil {
                 radius := float64(req.Radius)
-                // 1 degree latitude ≈ 111 km; longitude degrees shrink with cos(lat)
+                // 1 degree latitude ≈ 111 km; longitude degrees shrink with cos(lat).
+                // Clamp lat to ±89° before computing lngDelta to avoid extreme values near the poles
+                // (cos approaches 0 at ±90°, causing lngDelta → ∞).
+                clampedLat := *req.Lat
+                if clampedLat > 89.0 {
+                        clampedLat = 89.0
+                } else if clampedLat < -89.0 {
+                        clampedLat = -89.0
+                }
                 latDelta := radius / 111.0
-                lngDelta := radius / (111.0 * math.Cos(*req.Lat * math.Pi / 180.0))
+                lngDelta := radius / (111.0 * math.Cos(clampedLat * math.Pi / 180.0))
 
                 // Bounding box — fast index scan
                 q = q.Where(
