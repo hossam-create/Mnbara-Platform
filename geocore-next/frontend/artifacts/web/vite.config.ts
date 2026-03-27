@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
-import { spawn, type ChildProcess } from "child_process";
 
 const rawPort = process.env.PORT;
 
@@ -29,41 +28,12 @@ if (!basePath) {
 
 const backendPort = process.env.BACKEND_PORT || "9000";
 
-function goBackendPlugin() {
-  let backendProc: ChildProcess | null = null;
-
-  return {
-    name: "go-backend",
-    configureServer() {
-      const startBackend = () => {
-        const env = { ...process.env, PORT: backendPort, BACKEND_PORT: backendPort };
-        backendProc = spawn(
-          "bash",
-          ["-c", `fuser -k ${backendPort}/tcp 2>/dev/null || true; sleep 1; redis-server --daemonize yes --logfile /tmp/redis.log 2>/dev/null || true; cd /home/runner/workspace/geocore-next/backend && go run ./cmd/api/`],
-          { env, stdio: "inherit", detached: false }
-        );
-        backendProc.on("exit", (code) => {
-          if (code !== 0) {
-            console.log(`[go-backend] exited with code ${code}, restarting in 5s...`);
-            setTimeout(startBackend, 5000);
-          }
-        });
-        console.log(`[go-backend] Started on port ${backendPort}`);
-      };
-      startBackend();
-
-      process.on("exit", () => backendProc?.kill());
-    },
-  };
-}
-
 export default defineConfig({
   base: basePath,
   plugins: [
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
-    goBackendPlugin(),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [

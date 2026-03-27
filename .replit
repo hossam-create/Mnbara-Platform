@@ -6,6 +6,28 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Go Backend"
+
+[[workflows.workflow]]
+name = "Go Backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash geocore-next/backend/start.sh"
+waitForPort = 9000
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 3000

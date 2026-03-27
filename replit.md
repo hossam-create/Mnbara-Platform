@@ -1,57 +1,67 @@
 # GeoCore Next
 
-Modern global classifieds and real-time auctions platform.
+Modern global classifieds and real-time auctions platform (Uber + eBay + Amazon roadmap).
 
 ## Project Structure
 
 - **Frontend Directory:** `geocore-next/frontend/` (pnpm monorepo — Vite + React)
-- **Backend Directory:** `geocore-next/backend/` (Go 1.25, Gin, GORM)
-- **Stack:** Vite, React, TailwindCSS, TypeScript + Go 1.25, Gin, GORM, PostgreSQL, Redis
+- **Backend Directory:** `geocore-next/backend/` (Go 1.23+, Gin, GORM)
+- **Stack:** Vite, React, TailwindCSS, TypeScript + Go, Gin, GORM, PostgreSQL, Redis
 
-## Workflows
+## Workflows & Ports
 
-- `GeoCore Frontend` → runs `cd geocore-next/frontend && PORT=5000 BASE_PATH=/ pnpm --filter @workspace/web run dev` (webview, port 5000)
-- `GeoCore Backend` → runs `cd geocore-next/backend && go run ./cmd/api/` (console, port 8080) — requires PostgreSQL
+| Workflow | Port | Description |
+|---|---|---|
+| `Go Backend` | 9000 | Go/Gin REST API — **independent workflow**, `geocore-next/backend/start.sh` |
+| `geocore-next/frontend/artifacts/web: web` | 22333 (ext 4200) | Vite/React web marketplace |
+| `geocore-next/frontend/artifacts/admin: web` | 23744 (ext 3003) | Admin dashboard |
+| `geocore-next/frontend/artifacts/mobile: expo` | 18115 (ext 5000) | React Native Expo mobile |
+| `geocore-next/frontend/artifacts/api-server: API Server` | 8080 | Node.js API server |
+| `geocore-next/frontend/artifacts/mockup-sandbox` | 8081 | Component preview server |
 
-## Frontend Details (geocore-next/frontend)
+## Critical Architecture Notes
 
-Sourced from: https://github.com/hossam-create/geocore-marketplace
+- **Go Backend is a SEPARATE workflow** (`Go Backend`) — NOT spawned by the Vite plugin.  
+  `vite.config.ts` was updated to remove `goBackendPlugin`. Backend is managed independently via `geocore-next/backend/start.sh`.
+- The web Vite server proxies `/api`, `/ws`, `/webhooks` to port 9000 (Go backend).
+- After task merges, `post-merge.sh` kills port 9000 → Replit auto-restarts `Go Backend` workflow.
+- The web/canvas iframes survive backend restarts because the Vite server is no longer coupled.
 
-- pnpm workspace monorepo with:
-  - `artifacts/web` — main Vite/React web app
-  - `artifacts/api-server` — API server
-  - `lib/api-client-react` — shared React API client
-  - `lib/api-spec`, `lib/api-zod`, `lib/db` — shared libraries
-- Requires `PORT=5000` and `BASE_PATH=/` env vars to run
+## CRITICAL: Do NOT change frontend design/UI/CSS
 
-## Backend (geocore-next/backend)
+Only work on the data layer, API connections, and backend logic.
 
-- Go backend requires PostgreSQL (port 5432) and Redis (port 6379)
-- Config: `geocore-next/backend/.env`
+## Canvas Iframe URLs
 
-## Go Backend Bug Fixes Applied
+- Web: `workspace_iframe.html?initialPath=%2Fweb%2F&id=artifacts%2Fweb`
+- Admin: `workspace_iframe.html?initialPath=%2Fadmin%2F&id=artifacts%2Fadmin`
+- Mobile: expo domain + `workspace_iframe.html?initialPath=%2F&id=artifacts%2Fmobile`
 
-- Added `Language`, `Currency` fields and `ToPublic()` method to `users/model.go`
-- Fixed pointer comparison issues in `listings/search_validation.go`
-- Fixed GORM Order() single-argument call in `listings/search.go`
-- Added missing `strings` import in `admin/handler.go`
+## Post-Merge Protocol
 
-## Auth Module (Task 12: Auth Hardening & Test Coverage)
+After any task merge, the `scripts/post-merge.sh` script:
+1. Runs `pnpm install`
+2. Runs `go build ./...` (compile check)
+3. Runs `fuser -k 9000/tcp` → kills Go backend → `Go Backend` workflow auto-restarts
 
-### Bugs Fixed
-- `verify_handler.go`: Silent error ignore on `generateToken()` in `VerifyEmail` — now returns 500 on failure
-- `password_reset_handler.go`: Nil pointer panic when Redis is nil (e.g. in tests) — added nil guards around all `h.rdb` calls in `ForgotPassword` and `ResetPassword`
-- `verify_handler.go`: Same nil panic in `ResendVerification` — added nil guards around all `h.rdb` calls
+## Go Backend Features (60+ endpoints)
 
-### Auth Test Suite (`internal/auth/auth_test.go`)
-Comprehensive coverage of all auth endpoints (44 tests):
-- **Register**: happy path, duplicate email, weak/missing/invalid inputs, name too short
-- **Login**: success, wrong password, nonexistent user, missing fields, unverified account warning
-- **Me endpoint**: success with valid JWT, no token, malformed token, expired token, wrong auth header format
-- **Email verification**: success (token consumed, user marked verified, fresh JWT returned), invalid token, already verified, expired token, missing token
-- **Forgot password**: registered email, unregistered email (blind 200), invalid email, rate limit behavior
-- **Validate reset token**: valid, invalid, expired
-- **Reset password**: success + login works + old password rejected, password mismatch, weak passwords (4 subtests), expired token, invalid token, token consumed after use, missing fields
-- **JWT middleware**: missing header, garbage token, expired token, wrong algorithm (RS256), wrong secret
-- **End-to-end password reset flow**: full sequence from register → inject token → validate → reset → login
-- **Rate limiter**: fail-open behavior when Redis is nil
+- Auth: register, login, refresh JWT, email verify, password reset, social login
+- Listings: CRUD, search/filter (full-text + geo), suggestions, favorites, expiry scheduler
+- Auctions: CRUD, bidding, auto-bid, anti-sniping, real-time WebSocket, auction-end cron
+- Chat: conversations, messages, WebSocket (Redis pub/sub)
+- Payments: Stripe integration (disabled without `STRIPE_SECRET_KEY`)
+- Images: R2 upload (disabled without `R2_ACCOUNT_ID`)
+- Notifications: push (disabled without `FIREBASE_SERVICE_ACCOUNT_JSON`), in-app
+- Admin: stats, user management, listing moderation, revenue, KYC
+- Stores/Storefronts, Reviews, KYC
+
+## Missing Env Vars (features disabled, not broken)
+
+- `STRIPE_SECRET_KEY` — payments
+- `R2_ACCOUNT_ID` — image uploads
+- `FIREBASE_SERVICE_ACCOUNT_JSON` — push notifications
+
+## Auth Module Tests
+
+44-test suite in `internal/auth/auth_test.go` covering all auth endpoints end-to-end.
