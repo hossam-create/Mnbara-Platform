@@ -33,7 +33,13 @@ func NewHandler(db *gorm.DB, rdb *redis.Client) *Handler {
 
 func (h *Handler) List(c *gin.Context) {
         page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-        perPage := 20
+        perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "20"))
+        if page < 1 {
+                page = 1
+        }
+        if perPage < 1 || perPage > 100 {
+                perPage = 20
+        }
         status := c.DefaultQuery("status", "active")
 
         var auctions []Auction
@@ -53,7 +59,11 @@ func (h *Handler) List(c *gin.Context) {
         q.Count(&total)
         q.Preload("Bids").Offset((page-1)*perPage).Limit(perPage).
                 Order("ends_at ASC").Find(&auctions)
-        response.OKMeta(c, auctions, gin.H{"total": total, "page": page})
+        pages := int64(1)
+        if perPage > 0 {
+                pages = (total + int64(perPage) - 1) / int64(perPage)
+        }
+        response.OKMeta(c, auctions, gin.H{"total": total, "page": page, "per_page": perPage, "pages": pages})
 }
 
 func (h *Handler) Get(c *gin.Context) {
@@ -313,9 +323,24 @@ func (h *Handler) runAutoBidProxy(auctionID uuid.UUID, lastBidderID uuid.UUID, c
 
 func (h *Handler) GetBids(c *gin.Context) {
         id, _ := uuid.Parse(c.Param("id"))
+        page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+        perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "50"))
+        if page < 1 {
+                page = 1
+        }
+        if perPage < 1 || perPage > 100 {
+                perPage = 50
+        }
+        var total int64
+        h.db.Model(&Bid{}).Where("auction_id = ?", id).Count(&total)
         var bids []Bid
-        h.db.Where("auction_id = ?", id).Order("amount DESC").Limit(50).Find(&bids)
-        response.OK(c, bids)
+        h.db.Where("auction_id = ?", id).Order("amount DESC").
+                Offset((page-1)*perPage).Limit(perPage).Find(&bids)
+        pages := int64(1)
+        if perPage > 0 {
+                pages = (total + int64(perPage) - 1) / int64(perPage)
+        }
+        response.OKMeta(c, bids, gin.H{"total": total, "page": page, "per_page": perPage, "pages": pages})
 }
 
 // Search handles complex multi-filter auction queries.

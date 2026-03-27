@@ -271,6 +271,9 @@ func (h *Handler) Create(c *gin.Context) {
                 })
         }
 
+        // Invalidate search result and suggestion caches so the new listing is discoverable immediately
+        go h.invalidateSearchCaches()
+
         response.Created(c, listing)
 }
 
@@ -341,6 +344,8 @@ func (h *Handler) Update(c *gin.Context) {
                 response.InternalError(c, err)
                 return
         }
+        // Invalidate search result and suggestion caches after an update
+        go h.invalidateSearchCaches()
         // Reload the listing to return fresh data
         h.db.Preload("Images").Preload("Category").First(&listing, "id = ?", id)
         response.OK(c, listing)
@@ -358,7 +363,34 @@ func (h *Handler) Delete(c *gin.Context) {
                 response.NotFound(c, "Listing")
                 return
         }
+        go h.invalidateSearchCaches()
         response.OK(c, gin.H{"message": "Listing deleted"})
+}
+
+// invalidateSearchCaches removes all search result and suggestion cache keys from Redis
+// so stale data is not served after listing mutations.
+// Both patterns are scanned with cursor iteration to handle large key spaces safely.
+func (h *Handler) invalidateSearchCaches() {
+        if h.rdb == nil {
+                return
+        }
+        ctx := context.Background()
+        for _, pattern := range []string{"search:*", "suggest:*"} {
+                var cursor uint64
+                for {
+                        keys, next, err := h.rdb.Scan(ctx, cursor, pattern, 100).Result()
+                        if err != nil {
+                                break
+                        }
+                        if len(keys) > 0 {
+                                h.rdb.Del(ctx, keys...)
+                        }
+                        cursor = next
+                        if cursor == 0 {
+                                break
+                        }
+                }
+        }
 }
 
 func (h *Handler) GetCategories(c *gin.Context) {

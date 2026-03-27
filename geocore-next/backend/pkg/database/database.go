@@ -78,6 +78,14 @@ func Connect() (*gorm.DB, error) {
         sql.SetMaxOpenConns(100)
         sql.SetConnMaxLifetime(5 * time.Minute)
         sql.SetConnMaxIdleTime(2 * time.Minute)
+
+        // Warm the connection pool: open one connection so the first real query
+        // doesn't pay the dial latency. QueryRow is lighter than Ping (Ping closes
+        // the connection immediately; QueryRow keeps it in the pool).
+        if _, warmErr := sql.Exec("SELECT 1"); warmErr != nil {
+                return nil, fmt.Errorf("db pool warm-up query failed: %w", warmErr)
+        }
+
         return db, nil
 }
 
