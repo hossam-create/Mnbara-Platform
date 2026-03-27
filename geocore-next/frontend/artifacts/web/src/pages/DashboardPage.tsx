@@ -74,36 +74,17 @@ interface Order {
   created_at: string;
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────────
-
-const MOCK_STATS = {
-  total_listings: 12,
-  active_listings: 8,
-  total_orders: 34,
-  pending_orders: 3,
-  total_revenue: 47850,
-  this_month_revenue: 8400,
-  store_visits: 1240,
-  average_rating: 4.7,
-  wallet_balance: 12300,
-};
-
-const MOCK_LISTINGS: Listing[] = [
-  { id: "lst-001", title: "iPhone 15 Pro Max 256GB — Natural Titanium", price: 4200, currency: "AED", status: "active", type: "buy_now", category: "electronics", views: 312, created_at: new Date(Date.now() - 3 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/phone1/80/80" }] },
-  { id: "lst-002", title: "Toyota Camry 2023 — Midnight Black", price: 89000, currency: "AED", status: "active", type: "standard_auction", category: "vehicles", views: 875, created_at: new Date(Date.now() - 7 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/car1/80/80" }] },
-  { id: "lst-003", title: "Luxury 2BR Apartment — Dubai Marina", price: 1800, currency: "AED", status: "active", type: "buy_now", category: "real-estate", views: 540, created_at: new Date(Date.now() - 10 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/apt1/80/80" }] },
-  { id: "lst-004", title: "Rolex Submariner — 2022 Box & Papers", price: 32000, currency: "AED", status: "sold", type: "standard_auction", category: "jewelry", views: 1240, created_at: new Date(Date.now() - 20 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/watch1/80/80" }] },
-  { id: "lst-005", title: "MacBook Pro M3 — Space Black 1TB", price: 9800, currency: "AED", status: "inactive", type: "buy_now", category: "electronics", views: 89, created_at: new Date(Date.now() - 15 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/mac1/80/80" }] },
-  { id: "lst-006", title: "PS5 Console + 3 Games Bundle", price: 2100, currency: "AED", status: "active", type: "buy_now", category: "gaming", views: 223, created_at: new Date(Date.now() - 5 * 86400000).toISOString(), images: [{ url: "https://picsum.photos/seed/ps5/80/80" }] },
-];
-
-const MOCK_ORDERS: Order[] = [
-  { id: "ord-001", item_title: "iPhone 15 Pro Max 256GB", buyer_name: "Ali Hassan", amount: 4200, currency: "AED", status: "pending", role: "seller", created_at: new Date(Date.now() - 1 * 86400000).toISOString() },
-  { id: "ord-002", item_title: "Rolex Submariner", buyer_name: "Sarah Al-Mansoori", amount: 32000, currency: "AED", status: "delivered", role: "seller", created_at: new Date(Date.now() - 5 * 86400000).toISOString() },
-  { id: "ord-003", item_title: "Samsung 85\" QLED TV", seller_name: "TechZone Store", amount: 7500, currency: "AED", status: "shipped", role: "buyer", created_at: new Date(Date.now() - 3 * 86400000).toISOString() },
-  { id: "ord-004", item_title: "PS5 Console + 3 Games Bundle", buyer_name: "Mohammed Khalid", amount: 2100, currency: "AED", status: "confirmed", role: "seller", created_at: new Date(Date.now() - 2 * 86400000).toISOString() },
-  { id: "ord-005", item_title: "Nike Air Max 270 — Size 44", seller_name: "SportZone UAE", amount: 450, currency: "AED", status: "delivered", role: "buyer", created_at: new Date(Date.now() - 8 * 86400000).toISOString() },
-];
+interface SellerStats {
+  total_listings: number;
+  active_listings: number;
+  total_orders: number;
+  pending_orders: number;
+  total_revenue: number;
+  this_month_revenue: number;
+  store_visits: number;
+  average_rating: number;
+  wallet_balance: number;
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -163,7 +144,7 @@ function StatCard({
 // ── Overview Tab ────────────────────────────────────────────────────────────────
 
 function OverviewTab({ stats, listings, orders }: {
-  stats: typeof MOCK_STATS;
+  stats: SellerStats;
   listings: Listing[];
   orders: Order[];
 }) {
@@ -453,7 +434,7 @@ function OrdersTab({ orders }: { orders: Order[] }) {
 
 // ── Analytics Tab ──────────────────────────────────────────────────────────────
 
-function AnalyticsTab({ stats, listings }: { stats: typeof MOCK_STATS; listings: Listing[] }) {
+function AnalyticsTab({ stats, listings }: { stats: SellerStats; listings: Listing[] }) {
   const topListings = [...listings].sort((a, b) => getViews(b) - getViews(a)).slice(0, 5);
 
   return (

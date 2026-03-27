@@ -172,6 +172,7 @@ func main() {
         // Wire notification service into dependent packages
         auctions.SetNotificationService(notifSvc)
         chat.SetNotificationService(notifSvc)
+        payments.SetNotificationService(notifSvc)
 
         // Presigned upload URL — used by KYC and listing image uploads from the browser.
         // Auth required to prevent abuse; returns mock URL in dev when R2 is not configured.

@@ -393,6 +393,9 @@ package payments
                 "amount",    escrow.Amount,
         )
 
+        // Notify seller of fund release (non-blocking)
+        go notifyEscrowReleased(escrow.SellerID, escrow.Amount, escrow.Currency)
+
         response.OK(c, gin.H{
                 "escrow_id":   escrow.ID,
                 "status":      EscrowStatusReleased,
@@ -616,6 +619,180 @@ package payments
   }
 
   // ════════════════════════════════════════════════════════════════════════════
+  // GetMyOrders — GET /api/v1/orders/me
+  // ════════════════════════════════════════════════════════════════════════════
+
+  // orderRow is the unified shape returned by GetMyOrders for both buyer and seller views.
+  type orderRow struct {
+        ID         uuid.UUID `json:"id"`
+        ItemTitle  string    `json:"item_title"`
+        BuyerName  string    `json:"buyer_name,omitempty"`
+        SellerName string    `json:"seller_name,omitempty"`
+        Amount     float64   `json:"amount"`
+        Currency   string    `json:"currency"`
+        Status     string    `json:"status"`
+        Role       string    `json:"role"`
+        CreatedAt  time.Time `json:"created_at"`
+  }
+
+  // mapOrderStatus converts raw payment/escrow status values to the frontend Order status enum.
+  func mapOrderStatus(paymentStatus, escrowStatus string) string {
+        switch paymentStatus {
+        case "pending":
+                return "pending"
+        case "failed", "cancelled":
+                return "cancelled"
+        case "refunded":
+                return "cancelled"
+        case "succeeded":
+                switch escrowStatus {
+                case "released":
+                        return "delivered"
+                case "refunded", "disputed":
+                        return "cancelled"
+                default:
+                        return "confirmed"
+                }
+        }
+        return "pending"
+  }
+
+  // GetMyOrders returns the authenticated user's orders in two views:
+  //   - buyer view:  payments where user_id = me AND kind IN (purchase, auction_payment)
+  //   - seller view: escrow_accounts where seller_id = me
+  // Both are combined and sorted by created_at DESC. ?role=buyer|seller filters the view.
+  func (h *Handler) GetMyOrders(c *gin.Context) {
+        userID := c.GetString("user_id")
+        userUUID, err := uuid.Parse(userID)
+        if err != nil {
+                response.BadRequest(c, "invalid user id")
+                return
+        }
+
+        role := c.Query("role") // "buyer", "seller", or "" (all)
+        page, perPage := paginationParams(c)
+
+        var orders []orderRow
+
+        // ── Buyer orders: payments I made ─────────────────────────────────────────
+        if role == "" || role == "buyer" {
+                type rawBuyerRow struct {
+                        ID             uuid.UUID
+                        ListingTitle   string
+                        AuctionListing string
+                        SellerName     string
+                        Amount         float64
+                        Currency       string
+                        PaymentStatus  string
+                        EscrowStatus   string
+                        CreatedAt      time.Time
+                }
+                var rows []rawBuyerRow
+                h.db.Raw(`
+                        SELECT
+                                p.id,
+                                COALESCE(l.title, al.title, 'Unlisted item') AS listing_title,
+                                '' AS auction_listing,
+                                COALESCE(seller.name, '') AS seller_name,
+                                p.amount,
+                                p.currency,
+                                p.status AS payment_status,
+                                COALESCE(ea.status, '') AS escrow_status,
+                                p.created_at
+                        FROM payments p
+                        LEFT JOIN listings l ON l.id = p.listing_id AND l.deleted_at IS NULL
+                        LEFT JOIN auctions au ON au.id = p.auction_id AND au.deleted_at IS NULL
+                        LEFT JOIN listings al ON al.id = au.listing_id AND al.deleted_at IS NULL
+                        LEFT JOIN escrow_accounts ea ON ea.payment_id = p.id
+                        LEFT JOIN users seller ON seller.id = ea.seller_id AND seller.deleted_at IS NULL
+                        WHERE p.user_id = ?
+                          AND p.kind IN ('purchase', 'auction_payment')
+                          AND p.deleted_at IS NULL
+                        ORDER BY p.created_at DESC
+                        LIMIT ? OFFSET ?
+                `, userUUID, perPage, (page-1)*perPage).Scan(&rows)
+
+                for _, r := range rows {
+                        orders = append(orders, orderRow{
+                                ID:         r.ID,
+                                ItemTitle:  r.ListingTitle,
+                                SellerName: r.SellerName,
+                                Amount:     r.Amount,
+                                Currency:   r.Currency,
+                                Status:     mapOrderStatus(r.PaymentStatus, r.EscrowStatus),
+                                Role:       "buyer",
+                                CreatedAt:  r.CreatedAt,
+                        })
+                }
+        }
+
+        // ── Seller orders: escrow accounts where I am the seller ─────────────────
+        if role == "" || role == "seller" {
+                type rawSellerRow struct {
+                        ID            uuid.UUID
+                        ListingTitle  string
+                        BuyerName     string
+                        Amount        float64
+                        Currency      string
+                        EscrowStatus  string
+                        PaymentStatus string
+                        CreatedAt     time.Time
+                }
+                var rows []rawSellerRow
+                h.db.Raw(`
+                        SELECT
+                                ea.id,
+                                COALESCE(l.title, al.title, 'Unlisted item') AS listing_title,
+                                COALESCE(buyer.name, '') AS buyer_name,
+                                ea.amount,
+                                ea.currency,
+                                ea.status AS escrow_status,
+                                COALESCE(p.status, 'pending') AS payment_status,
+                                ea.created_at
+                        FROM escrow_accounts ea
+                        JOIN payments p ON p.id = ea.payment_id AND p.deleted_at IS NULL
+                        LEFT JOIN listings l ON l.id = p.listing_id AND l.deleted_at IS NULL
+                        LEFT JOIN auctions au ON au.id = p.auction_id AND au.deleted_at IS NULL
+                        LEFT JOIN listings al ON al.id = au.listing_id AND al.deleted_at IS NULL
+                        LEFT JOIN users buyer ON buyer.id = ea.buyer_id AND buyer.deleted_at IS NULL
+                        WHERE ea.seller_id = ?
+                        ORDER BY ea.created_at DESC
+                        LIMIT ? OFFSET ?
+                `, userUUID, perPage, (page-1)*perPage).Scan(&rows)
+
+                for _, r := range rows {
+                        orders = append(orders, orderRow{
+                                ID:        r.ID,
+                                ItemTitle: r.ListingTitle,
+                                BuyerName: r.BuyerName,
+                                Amount:    r.Amount,
+                                Currency:  r.Currency,
+                                Status:    mapOrderStatus(r.PaymentStatus, r.EscrowStatus),
+                                Role:      "seller",
+                                CreatedAt: r.CreatedAt,
+                        })
+                }
+        }
+
+        // Sort combined results newest-first
+        if len(orders) > 1 {
+                for i := 0; i < len(orders)-1; i++ {
+                        for j := i + 1; j < len(orders); j++ {
+                                if orders[j].CreatedAt.After(orders[i].CreatedAt) {
+                                        orders[i], orders[j] = orders[j], orders[i]
+                                }
+                        }
+                }
+        }
+
+        if orders == nil {
+                orders = []orderRow{}
+        }
+
+        response.OK(c, orders)
+  }
+
+  // ════════════════════════════════════════════════════════════════════════════
   // GetPaymentHistory — GET /api/v1/payments
   // ════════════════════════════════════════════════════════════════════════════
 
@@ -730,6 +907,28 @@ package payments
                 "amount",     payment.Amount,
                 "currency",   payment.Currency,
         )
+
+        // Send notifications (non-blocking; best-effort)
+        go func() {
+                itemTitle := payment.Description
+                if payment.ListingID != nil {
+                        var t struct{ Title string }
+                        h.db.Table("listings").Select("title").Where("id = ?", *payment.ListingID).Scan(&t)
+                        if t.Title != "" {
+                                itemTitle = t.Title
+                        }
+                } else if payment.AuctionID != nil {
+                        var t struct{ Title string }
+                        h.db.Raw(`SELECT l.title FROM listings l
+                                JOIN auctions a ON a.listing_id = l.id
+                                WHERE a.id = ? AND a.deleted_at IS NULL`, *payment.AuctionID).Scan(&t)
+                        if t.Title != "" {
+                                itemTitle = t.Title
+                        }
+                }
+                notifyPaymentConfirmed(payment.UserID, sellerUUID, payment.Amount, payment.Currency, itemTitle)
+        }()
+
         return nil
   }
 

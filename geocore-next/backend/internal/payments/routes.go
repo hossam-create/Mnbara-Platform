@@ -20,6 +20,13 @@ package payments
         h  := NewHandler(db)
         rl := middleware.NewRateLimiter(rdb)
 
+        // ── Orders ────────────────────────────────────────────────────────────────
+        o := r.Group("/orders")
+        o.Use(middleware.Auth())
+        {
+                o.GET("/me", h.GetMyOrders)
+        }
+
         p := r.Group("/payments")
         p.Use(middleware.Auth())
         {
