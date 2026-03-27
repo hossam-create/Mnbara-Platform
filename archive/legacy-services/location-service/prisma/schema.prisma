@@ -1,0 +1,96 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  userId    String
+  userType  String   // TRAVELER, BUYER, SELLER
+  latitude  Float
+  longitude Float
+  accuracy  Float?
+  altitude  Float?
+  heading   Float?
+  speed     Float?
+  address   String?
+  city      String?
+  country   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userType])
+  @@index([isActive])
+  @@map("locations")
+}
+
+model Route {
+  id          String   @id @default(uuid())
+  travelerId  String
+  origin      String
+  destination String
+  originLat   Float
+  originLon   Float
+  destLat     Float
+  destLon     Float
+  distance    Float    // in kilometers
+  duration    Int?     // in minutes
+  capacity    Int      @default(5)
+  status      String   @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  departureAt DateTime
+  arrivalAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([travelerId])
+  @@index([status])
+  @@index([departureAt])
+  @@map("routes")
+}
+
+model DeliveryRequest {
+  id          String   @id @default(uuid())
+  buyerId     String
+  productId   String
+  pickupLat   Float
+  pickupLon   Float
+  deliveryLat Float
+  deliveryLon Float
+  pickupAddr  String
+  deliveryAddr String
+  distance    Float
+  status      String   @default("PENDING") // PENDING, MATCHED, IN_TRANSIT, DELIVERED, CANCELLED
+  matchedWith String?  // Route ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([buyerId])
+  @@index([status])
+  @@index([matchedWith])
+  @@map("delivery_requests")
+}
+
+model GeofenceZone {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // DELIVERY_ZONE, RESTRICTED_AREA, SERVICE_AREA
+  centerLat   Float
+  centerLon   Float
+  radius      Float    // in meters
+  isActive    Boolean  @default(true)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([isActive])
+  @@map("geofence_zones")
+}

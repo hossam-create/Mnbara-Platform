@@ -1,0 +1,128 @@
+/* Payment Status Badge Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+/* Size Variants */
+.small {
+  padding: 2px 6px;
+  font-size: 10px;
+  gap: 4px;
+}
+
+.medium {
+  padding: 4px 8px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.large {
+  padding: 6px 12px;
+  font-size: 14px;
+  gap: 8px;
+}
+
+/* Status Colors */
+.bg-yellow-100 {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.bg-blue-100 {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.bg-green-100 {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.bg-orange-100 {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+/* Icon */
+.icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.small .icon {
+  font-size: 12px;
+}
+
+.large .icon {
+  font-size: 16px;
+}
+
+/* Label */
+.label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Hover Effects */
+.badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Focus States */
+.badge:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .badge {
+    font-size: 11px;
+    padding: 3px 6px;
+    gap: 4px;
+  }
+
+  .small {
+    font-size: 9px;
+    padding: 2px 4px;
+    gap: 3px;
+  }
+
+  .large {
+    font-size: 13px;
+    padding: 5px 10px;
+    gap: 6px;
+  }
+
+  .icon {
+    font-size: 12px;
+  }
+
+  .small .icon {
+    font-size: 10px;
+  }
+
+  .large .icon {
+    font-size: 14px;
+  }
+}

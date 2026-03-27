@@ -1,0 +1,36 @@
+@echo off
+echo Running migrations with existing PostgreSQL...
+
+echo [1/10] Auth...
+cd backend\services\auth-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/auth_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [2/10] User...
+cd backend\services\user-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/listing_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [3/10] Payment...
+cd backend\services\payment-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/payment_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [4/10] Product...
+cd backend\services\product-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/orders_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [5/10] Wallet...
+cd backend\services\wallet-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/wallet_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [6/10] Orders...
+cd backend\services\orders-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/orders_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [7/10] Escrow...
+cd backend\services\escrow-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/escrow_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [8/10] Trips...
+cd backend\services\trips-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/trips_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [9/10] Matching...
+cd backend\services\matching-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/matching_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo [10/10] Notification...
+cd backend\services\notification-service && set DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@localhost:5432/notification_db?schema=public && npx prisma migrate deploy && cd ..\..\..
+
+echo.
+echo Done! Now run: scripts\start-services-manual.bat
+pause

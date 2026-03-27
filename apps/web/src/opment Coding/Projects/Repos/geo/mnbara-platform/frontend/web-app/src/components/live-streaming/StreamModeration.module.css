@@ -1,0 +1,246 @@
+.container {
+  padding: 16px;
+}
+
+.moderationCard {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.moderationCard :global(.ant-card-head) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px 16px 0 0;
+  border-bottom: none;
+}
+
+.moderationCard :global(.ant-card-head-title) {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.filters {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.usersTable {
+  margin-bottom: 24px;
+}
+
+.usersTable :global(.ant-table-thead > tr > th) {
+  background: rgba(102, 126, 234, 0.1);
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.usersTable :global(.ant-table-tbody > tr:hover) {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.actionsSection {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.actionsSection h3 {
+  color: #667eea;
+  font-weight: 600;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.actionsTable :global(.ant-table-thead > tr > th) {
+  background: rgba(118, 75, 162, 0.1);
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid rgba(118, 75, 162, 0.3);
+}
+
+.actionsTable :global(.ant-table-tbody > tr:hover) {
+  background: rgba(118, 75, 162, 0.05);
+}
+
+/* Status tag colors */
+:global(.ant-tag-green) {
+  background: #52c41a;
+  border-color: #52c41a;
+  color: white;
+}
+
+:global(.ant-tag-orange) {
+  background: #fa8c16;
+  border-color: #fa8c16;
+  color: white;
+}
+
+:global(.ant-tag-red) {
+  background: #ff4d4f;
+  border-color: #ff4d4f;
+  color: white;
+}
+
+:global(.ant-tag-blue) {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: white;
+}
+
+:global(.ant-tag-gold) {
+  background: #faad14;
+  border-color: #faad14;
+  color: white;
+}
+
+/* Action button styles */
+:global(.ant-btn-text) {
+  transition: all 0.3s ease;
+}
+
+:global(.ant-btn-text:hover) {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+}
+
+:global(.ant-btn-text[danger]:hover) {
+  background: rgba(255, 77, 79, 0.1);
+  color: #ff4d4f;
+}
+
+/* Search and filter styles */
+:global(.ant-input-search) {
+  border-radius: 8px;
+}
+
+:global(.ant-select-selector) {
+  border-radius: 8px !important;
+}
+
+:global(.ant-switch) {
+  background: #d9d9d9;
+}
+
+:global(.ant-switch-checked) {
+  background: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+  
+  .moderationCard {
+    border-radius: 12px;
+  }
+  
+  .filters {
+    padding: 12px;
+  }
+  
+  .usersTable :global(.ant-table-content) {
+    overflow-x: auto;
+  }
+  
+  .actionsSection {
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters {
+    :global(.ant-space) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+  
+  .actionsSection h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+  
+  .moderationCard {
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .filters {
+    background: rgba(30, 30, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .usersTable :global(.ant-table-thead > tr > th) {
+    background: rgba(102, 126, 234, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .usersTable :global(.ant-table-tbody > tr:hover) {
+    background: rgba(102, 126, 234, 0.1);
+  }
+  
+  .actionsSection h3 {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .actionsTable :global(.ant-table-thead > tr > th) {
+    background: rgba(118, 75, 162, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .actionsTable :global(.ant-table-tbody > tr:hover) {
+    background: rgba(118, 75, 162, 0.1);
+  }
+}
+
+/* Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.moderationCard {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Custom Scrollbar */
+.moderationCard::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.moderationCard::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.moderationCard::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+}
+
+.moderationCard::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}

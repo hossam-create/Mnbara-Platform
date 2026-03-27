@@ -1,0 +1,524 @@
+/* Refund Request Card Styles */
+.refundRequestCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+}
+
+.refundRequestCard:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 20px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.statusSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.statusIcon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.statusInfo {
+  flex: 1;
+}
+
+.statusTitle {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.requestDate {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.expandButton {
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.expandButton:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Amount Section */
+.amountSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.amount,
+.reason {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amountLabel,
+.reasonLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.amountValue,
+.reasonValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Expanded Content */
+.expandedContent {
+  padding: 0 20px 20px;
+}
+
+.descriptionSection,
+.orderSection,
+.guaranteeSection,
+.processingSection,
+.evidenceSection,
+.reviewSection {
+  margin-bottom: 24px;
+}
+
+.descriptionSection h5,
+.orderSection h5,
+.guaranteeSection h5,
+.processingSection h5,
+.evidenceSection h5,
+.reviewSection h5 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.description {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Order Section */
+.orderLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.orderLink:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+/* Guarantee Section */
+.guaranteeInfo {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #bae6fd;
+}
+
+.guaranteeLevel,
+.guaranteePolicy,
+.coverageAmount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.guaranteeLevel:last-child,
+.guaranteePolicy:last-child,
+.coverageAmount:last-child {
+  border-bottom: none;
+}
+
+.guaranteeLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #0c4a6e;
+}
+
+.guaranteeValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Processing Section */
+.processingInfo {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.processingMethod,
+.estimatedCompletion,
+.trackingNumber {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.processingMethod:last-child,
+.estimatedCompletion:last-child,
+.trackingNumber:last-child {
+  border-bottom: none;
+}
+
+.processingLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.processingValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Evidence Section */
+.evidenceInfo {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.evidenceFiles {
+  margin-bottom: 16px;
+}
+
+.evidenceLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.evidenceList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.evidenceFile {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.fileType {
+  font-size: 11px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.uploadDate {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.evidenceDescription {
+  margin-top: 16px;
+}
+
+.evidenceDescription p {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.evidenceUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.uploadInput {
+  display: none;
+}
+
+.uploadButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.uploadButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.uploadButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Review Section */
+.reviewInfo {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.reviewItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.reviewItem:last-child {
+  border-bottom: none;
+}
+
+.reviewLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.reviewValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Timeline Visual */
+.refundRequestCard::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 3px;
+  background: getTimelineColor();
+  border-radius: 2px;
+}
+
+.refundRequestCard::after {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 3px;
+  background: getTimelineColor();
+  border-radius: 2px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .refundRequestCard {
+    margin-bottom: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .statusSection {
+    gap: 12px;
+  }
+
+  .statusIcon {
+    font-size: 28px;
+  }
+
+  .statusTitle {
+    font-size: 16px;
+  }
+
+  .amountSection {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .amount,
+  .reason {
+    width: 100%;
+  }
+
+  .amountValue,
+  .reasonValue {
+    font-size: 16px;
+  }
+
+  .expandedContent {
+    padding: 0 16px 16px;
+  }
+
+  .descriptionSection h5,
+  .orderSection h5,
+  .guaranteeSection h5,
+  .processingSection h5,
+  .evidenceSection h5,
+  .reviewSection h5 {
+    font-size: 15px;
+    }
+
+  .evidenceList {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .evidenceFile {
+    padding: 8px;
+  }
+
+  .evidenceUpload {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .uploadButton {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .reviewItem {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .reviewLabel,
+  .reviewValue {
+    width: 100%;
+  }
+
+  .reviewValue {
+    text-align: right;
+  }
+}
+
+@media (max-width: 480px) {
+  .refundRequestCard {
+    margin-bottom: 12px;
+  }
+
+  .header {
+    padding: 12px;
+  }
+
+  .statusIcon {
+    font-size: 24px;
+  }
+
+  .statusTitle {
+    font-size: 15px;
+  }
+
+  .amountSection {
+    padding: 10px;
+  }
+
+  .amountValue,
+  .reasonValue {
+    font-size: 15px;
+  }
+
+  .expandedContent {
+    padding: 0 12px 12px;
+  }
+
+  .descriptionSection h5,
+  .orderSection h5,
+  .guaranteeSection h5,
+  .processingSection h5,
+  .evidenceSection h5,
+  .reviewSection h5 {
+    font-size: 14px;
+  }
+
+  .evidenceFile {
+    padding: 6px;
+  }
+
+  .uploadButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

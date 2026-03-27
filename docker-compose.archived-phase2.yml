@@ -1,0 +1,435 @@
+# Archived Services Phase 2: Medium Priority Services (20 services)
+
+version: '3.8'
+
+services:
+  # ========================================
+  # PHASE 2: MEDIUM PRIORITY SERVICES (20 services)
+  # ========================================
+
+  # 22. profile-service
+  profile-service:
+    build: ./backend/services/archived/profile-service
+    container_name: mnbarh-profile-service
+    ports:
+      - "3018:3018"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3018
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3018/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 23. permission-service
+  permission-service:
+    build: ./backend/services/archived/permission-service
+    container_name: mnbarh-permission-service
+    ports:
+      - "3022:3022"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3022
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3022/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 24. role-service
+  role-service:
+    build: ./backend/services/archived/role-service
+    container_name: mnbarh-role-service
+    ports:
+      - "3023:3023"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - PORT=3023
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3023/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 25. catalog-service
+  catalog-service:
+    build: ./backend/services/archived/catalog-service
+    container_name: mnbarh-catalog-service
+    ports:
+      - "3032:3032"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3032
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3032/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 26. pricing-service
+  pricing-service:
+    build: ./backend/services/archived/pricing-service
+    container_name: mnbarh-pricing-service
+    ports:
+      - "3034:3034"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - REDIS_URL=redis:6379
+      - PORT=3034
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3034/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 27. return-service
+  return-service:
+    build: ./backend/services/archived/return-service
+    container_name: mnbarh-return-service
+    ports:
+      - "3042:3042"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3042
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3042/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 28. refund-service
+  refund-service:
+    build: ./backend/services/archived/refund-service
+    container_name: mnbarh-refund-service
+    ports:
+      - "3043:3043"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3043
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3043/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 29. cancellation-service
+  cancellation-service:
+    build: ./backend/services/archived/cancellation-service
+    container_name: mnbarh-cancellation-service
+    ports:
+      - "3045:3045"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3045
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3045/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 30. review-service
+  review-service:
+    build: ./backend/services/archived/review-service
+    container_name: mnbarh-review-service
+    ports:
+      - "3047:3047"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3047
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3047/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 31. rating-service
+  rating-service:
+    build: ./backend/services/archived/rating-service
+    container_name: mnbarh-rating-service
+    ports:
+      - "3048:3048"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - REDIS_URL=redis:6379
+      - PORT=3048
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3048/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 32. sms-service
+  sms-service:
+    build: ./backend/services/archived/sms-service
+    container_name: mnbarh-sms-service
+    ports:
+      - "3053:3053"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - SMS_GATEWAY_URL=${SMS_GATEWAY_URL}
+      - SMS_GATEWAY_KEY=${SMS_GATEWAY_KEY}
+      - PORT=3053
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3053/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 33. push-service
+  push-service:
+    build: ./backend/services/archived/push-service
+    container_name: mnbarh-push-service
+    ports:
+      - "3054:3054"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - FCM_SERVER_KEY=${FCM_SERVER_KEY}
+      - APNS_KEY=${APNS_KEY}
+      - PORT=3054
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3054/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 34. chat-service
+  chat-service:
+    build: ./backend/services/archived/chat-service
+    container_name: mnbarh-chat-service
+    ports:
+      - "3055:3055"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3055
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3055/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 35. alert-service
+  alert-service:
+    build: ./backend/services/archived/alert-service
+    container_name: mnbarh-alert-service
+    ports:
+      - "3059:3059"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3059
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3059/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 36. dashboard-service
+  dashboard-service:
+    build: ./backend/services/archived/dashboard-service
+    container_name: mnbarh-dashboard-service
+    ports:
+      - "3069:3069"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3069
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3069/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 37. insight-service
+  insight-service:
+    build: ./backend/services/archived/insight-service
+    container_name: mnbarh-insight-service
+    ports:
+      - "3070:3070"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3070
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3070/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 38. personalization-service
+  personalization-service:
+    build: ./backend/services/archived/personalization-service
+    container_name: mnbarh-personalization-service
+    ports:
+      - "3072:3072"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/listing_db
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - PORT=3072
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3072/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 39. archive-service
+  archive-service:
+    build: ./backend/services/archived/archive-service
+    container_name: mnbarh-archive-service
+    ports:
+      - "3084:3084"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - PORT=3084
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3084/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 40. cleanup-service
+  cleanup-service:
+    build: ./backend/services/archived/cleanup-service
+    container_name: mnbarh-cleanup-service
+    ports:
+      - "3085:3085"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3085
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3085/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 41. maintenance-service
+  maintenance-service:
+    build: ./backend/services/archived/maintenance-service
+    container_name: mnbarh-maintenance-service
+    ports:
+      - "3086:3086"
+    environment:
+      - DATABASE_URL=postgresql://mnbarh:mnbarh_dev_password@postgres:5432/mnbarh
+      - REDIS_URL=redis:6379
+      - PORT=3086
+    networks:
+      - mnbarh-network
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3086/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mnbarh-network:
+    external: true

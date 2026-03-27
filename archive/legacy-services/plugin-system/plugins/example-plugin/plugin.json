@@ -1,0 +1,25 @@
+{
+  "name": "@mnbara/example-plugin",
+  "version": "1.0.0",
+  "description": "Example plugin demonstrating plugin system usage",
+  "author": "Mnbara Team",
+  "license": "MIT",
+  "mnbara": {
+    "minVersion": "1.0.0"
+  },
+  "type": "CUSTOM",
+  "category": "UTILITY",
+  "hooks": [
+    "example.hook"
+  ],
+  "permissions": [],
+  "config": {
+    "message": {
+      "type": "string",
+      "required": false,
+      "default": "Hello from example plugin!"
+    }
+  },
+  "entry": "dist/index.js"
+}
+

@@ -1,0 +1,462 @@
+/**
+ * Role-based Component Styles
+ * Styles for role-based UI components
+ */
+
+/* Base button styles */
+.roleBasedButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 36px;
+}
+
+.roleBasedButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.roleBasedButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.roleBasedButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.roleBasedButton.loading {
+  pointer-events: none;
+}
+
+.roleBasedButton .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Button variants */
+.roleBasedButton.primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.roleBasedButton.primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+.roleBasedButton.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.roleBasedButton.secondary:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.roleBasedButton.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.roleBasedButton.danger:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.roleBasedButton.admin {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+}
+
+.roleBasedButton.admin:hover {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+.roleBasedButton.ops {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.roleBasedButton.ops:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+/* Button sizes */
+.roleBasedButton.small {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-height: 28px;
+}
+
+.roleBasedButton.medium {
+  padding: 10px 16px;
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.roleBasedButton.large {
+  padding: 14px 24px;
+  font-size: 16px;
+  min-height: 44px;
+}
+
+/* Card styles */
+.roleBasedCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 24px;
+  margin: 16px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.roleBasedCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.roleBasedCard.default {
+  border-color: #e5e7eb;
+}
+
+.roleBasedCard.admin {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+}
+
+.roleBasedCard.ops {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+.roleBasedCard.danger {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+}
+
+.roleBasedCard.warning {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+}
+
+.cardHeader {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.cardContent {
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Section styles */
+.roleBasedSection {
+  margin: 24px 0;
+  padding: 24px;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.roleBasedSection.default {
+  background: white;
+  border-color: #e5e7eb;
+}
+
+.roleBasedSection.admin {
+  background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+  border-color: #8b5cf6;
+}
+
+.roleBasedSection.ops {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border-color: #f59e0b;
+}
+
+.sectionHeader {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.sectionDescription {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sectionContent {
+  color: #374151;
+  line-height: 1.6;
+}
+
+/* Menu item styles */
+.roleBasedMenuItem {
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.roleBasedMenuItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.roleBasedMenuItem.default {
+  color: #374151;
+}
+
+.roleBasedMenuItem.danger {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.roleBasedMenuItem.danger:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.roleBasedMenuItem.admin {
+  color: #7c3aed;
+  background: #faf5ff;
+}
+
+.roleBasedMenuItem.admin:hover {
+  background: #f3e8ff;
+  color: #6d28d9;
+}
+
+.roleBasedMenuItem.ops {
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.roleBasedMenuItem.ops:hover {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* Badge styles */
+.roleBasedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.roleBasedBadge.user {
+  background: #3b82f6;
+  color: white;
+}
+
+.roleBasedBadge.admin {
+  background: #8b5cf6;
+  color: white;
+}
+
+.roleBasedBadge.ops {
+  background: #f59e0b;
+  color: white;
+}
+
+.roleBasedBadge.danger {
+  background: #ef4444;
+  color: white;
+}
+
+.roleBasedBadge.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.roleBasedBadge.success {
+  background: #10b981;
+  color: white;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .roleBasedButton {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 32px;
+  }
+  
+  .roleBasedCard {
+    padding: 16px;
+    margin: 12px 0;
+  }
+  
+  .roleBasedSection {
+    padding: 16px;
+    margin: 16px 0;
+  }
+  
+  .cardTitle {
+    font-size: 16px;
+  }
+  
+  .sectionTitle {
+    font-size: 18px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .roleBasedButton.primary {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  }
+  
+  .roleBasedButton.secondary {
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+  }
+  
+  .roleBasedButton.secondary:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+  }
+  
+  .roleBasedButton.danger {
+    background: linear-gradient(135deg, #f87171, #ef4444);
+  }
+  
+  .roleBasedButton.admin {
+    background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  }
+  
+  .roleBasedButton.ops {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  }
+  
+  .roleBasedCard {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .roleBasedCard.admin {
+    background: linear-gradient(135deg, #2a1a4a, #1e1b4b);
+    border-color: #7c3aed;
+  }
+  
+  .roleBasedCard.ops {
+    background: linear-gradient(135deg, #4a3a1a, #4b3a1a);
+    border-color: #d97706;
+  }
+  
+  .roleBasedCard.danger {
+    background: linear-gradient(135deg, #4a1a1a, #4b1a1a);
+    border-color: #dc2626;
+  }
+  
+  .roleBasedSection {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+  
+  .cardTitle,
+  .sectionTitle {
+    color: #f9fafb;
+  }
+  
+  .cardContent,
+  .sectionDescription {
+    color: #d1d5db;
+  }
+  
+  .cardHeader,
+  .sectionHeader {
+    border-bottom-color: #374151;
+  }
+  
+  .roleBasedMenuItem {
+    color: #d1d5db;
+  }
+  
+  .roleBasedMenuItem:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+  
+  .roleBasedMenuItem.danger {
+    color: #f87171;
+    background: #4a1a1a;
+  }
+  
+  .roleBasedMenuItem.danger:hover {
+    background: #4b1a1a;
+    color: #f87171;
+  }
+  
+  .roleBasedMenuItem.admin {
+    color: #a78bfa;
+    background: #2a1a4a;
+  }
+  
+  .roleBasedMenuItem.admin:hover {
+    background: #2b1a4b;
+    color: #a78bfa;
+  }
+  
+  .roleBasedMenuItem.ops {
+    color: #fbbf24;
+    background: #4a3a1a;
+  }
+  
+  .roleBasedMenuItem.ops:hover {
+    background: #4b3a1b;
+    color: #fbbf24;
+  }
+}

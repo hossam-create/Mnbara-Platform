@@ -1,12 +1,12 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# Mnbara Platform - Build and Deploy Script
+# mnbarh Platform - Build and Deploy Script
 # Launch Date: January 1, 2026
 # Status: FINAL SPRINT
 
 set -e
 
-echo "🚀 Mnbara Platform - Build and Deploy Script"
+echo "ًںڑ€ mnbarh Platform - Build and Deploy Script"
 echo "============================================="
 echo "Launch Date: January 1, 2026"
 echo "Current Date: $(date)"
@@ -35,7 +35,7 @@ print_error() {
 }
 
 # Configuration
-DOCKER_REGISTRY="mnbara"
+DOCKER_REGISTRY="mnbarh"
 VERSION="v1.0.0"
 BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -333,21 +333,21 @@ fi
 
 # Step 8: Summary
 echo ""
-echo "🎉 BUILD AND DEPLOY COMPLETED!"
+echo "ًںژ‰ BUILD AND DEPLOY COMPLETED!"
 echo "=============================="
 echo ""
 print_success "All services built successfully:"
-echo "  ✅ Auth Service (Java/Spring Boot): ${DOCKER_REGISTRY}/auth-service:${VERSION}"
-echo "  ✅ Listing Service (Node.js): ${DOCKER_REGISTRY}/listing-service:${VERSION}"
-echo "  ✅ Payment Service (Node.js): ${DOCKER_REGISTRY}/payment-service:${VERSION}"
-echo "  ✅ Order Service (Node.js): ${DOCKER_REGISTRY}/order-service:${VERSION}"
-echo "  ✅ Frontend (React): ${DOCKER_REGISTRY}/frontend:${VERSION}"
+echo "  âœ… Auth Service (Java/Spring Boot): ${DOCKER_REGISTRY}/auth-service:${VERSION}"
+echo "  âœ… Listing Service (Node.js): ${DOCKER_REGISTRY}/listing-service:${VERSION}"
+echo "  âœ… Payment Service (Node.js): ${DOCKER_REGISTRY}/payment-service:${VERSION}"
+echo "  âœ… Order Service (Node.js): ${DOCKER_REGISTRY}/order-service:${VERSION}"
+echo "  âœ… Frontend (React): ${DOCKER_REGISTRY}/frontend:${VERSION}"
 echo ""
-echo "🚀 Ready for January 1, 2026 launch!"
+echo "ًںڑ€ Ready for January 1, 2026 launch!"
 echo ""
 echo "Next steps:"
 echo "1. Set PUSH_TO_REGISTRY=true to push to Docker registry"
 echo "2. Set DEPLOY_TO_K8S=true to deploy to Kubernetes"
 echo "3. Configure production environment variables"
 echo "4. Set up domain and SSL certificates"
-echo "5. 🎊 LAUNCH! 🎊"
+echo "5. ًںژٹ LAUNCH! ًںژٹ"

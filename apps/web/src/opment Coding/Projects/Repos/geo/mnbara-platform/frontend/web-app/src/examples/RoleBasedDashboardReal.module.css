@@ -1,0 +1,349 @@
+/**
+ * Role-based Dashboard Styles - Real Integration
+ * Styles for dashboard with real backend API integration
+ */
+
+.dashboard-real {
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.dashboard-header {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.dashboard-main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-footer {
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* User Dashboard */
+.user-dashboard {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.user-dashboard h3 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.user-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.user-actions button {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #3b82f6;
+  background: white;
+  color: #3b82f6;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-actions button:hover {
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Statistics Grid */
+.admin-stats-grid,
+.ops-stats-grid,
+.user-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-item {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-number {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.stat-growth {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.stat-growth.positive {
+  color: #10b981;
+}
+
+.stat-growth.negative {
+  color: #ef4444;
+}
+
+/* Stats Footer */
+.stats-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.stats-period {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* Loading States */
+.loading-stats {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-stats p {
+  margin: 0 0 1rem 0;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.error-stats {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-message {
+  margin: 0 0 1.5rem 0;
+  color: #ef4444;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.retry-button {
+  padding: 0.75rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* Admin Actions */
+.admin-actions,
+.ops-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Analytics Section */
+.analytics-section,
+.disputes-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 1.5rem 0;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-section h3,
+.disputes-section h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.analytics-section p,
+.disputes-section p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1rem;
+  }
+  
+  .dashboard-main {
+    padding: 1rem;
+  }
+  
+  .admin-stats-grid,
+  .ops-stats-grid,
+  .user-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .user-actions,
+  .admin-actions,
+  .ops-actions {
+    flex-direction: column;
+  }
+  
+  .user-actions button,
+  .admin-actions > *,
+  .ops-actions > * {
+    width: 100%;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .dashboard-real {
+    background: #0f172a;
+  }
+  
+  .dashboard-header {
+    background: #1e293b;
+    border-bottom-color: #334155;
+  }
+  
+  .dashboard-header h1 {
+    color: #f1f5f9;
+  }
+  
+  .user-dashboard,
+  .analytics-section,
+  .disputes-section {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  
+  .user-dashboard h3,
+  .analytics-section h3,
+  .disputes-section h3 {
+    color: #f1f5f9;
+  }
+  
+  .stat-item {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  
+  .stat-item h4 {
+    color: #94a3b8;
+  }
+  
+  .stat-number {
+    color: #f1f5f9;
+  }
+  
+  .stat-label {
+    color: #94a3b8;
+  }
+  
+  .stats-period {
+    color: #94a3b8;
+  }
+  
+  .loading-stats p {
+    color: #94a3b8;
+  }
+  
+  .spinner {
+    border-color: #334155;
+    border-top-color: #60a5fa;
+  }
+  
+  .stats-footer {
+    border-top-color: #334155;
+  }
+  
+  .dashboard-footer {
+    background: #1e293b;
+    border-top-color: #334155;
+    color: #94a3b8;
+  }
+}

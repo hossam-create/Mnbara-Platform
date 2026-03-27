@@ -145,8 +145,8 @@ services:
     name: payment-service
     env: node
     plan: starter
-    buildCommand: cd backend/services/payment-service && npm install
-    startCommand: cd backend/services/payment-service && npm start
+    buildCommand: cd services/financial/payment-service && npm install
+    startCommand: cd services/financial/payment-service && npm start
     envVars:
       - key: NODE_ENV
         value: production

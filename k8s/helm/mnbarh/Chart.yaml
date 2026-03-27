@@ -1,0 +1,78 @@
+apiVersion: v2
+name: mnbarh-platform
+description: Mnbara E-commerce Platform - Full Stack Helm Chart
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  # Core Services
+  - name: api-gateway
+    version: 1.0.0
+    repository: "file://charts/api-gateway"
+  - name: auth-service
+    version: 1.0.0
+    repository: "file://charts/auth-service"
+  - name: user-service
+    version: 1.0.0
+    repository: "file://charts/user-service"
+  - name: listing-service
+    version: 1.0.0
+    repository: "file://charts/listing-service"
+  - name: auction-service
+    version: 1.0.0
+    repository: "file://charts/auction-service"
+  - name: payment-service
+    version: 1.0.0
+    repository: "file://charts/payment-service"
+  - name: escrow-service
+    version: 1.0.0
+    repository: "file://charts/escrow-service"
+  - name: orders-service
+    version: 1.0.0
+    repository: "file://charts/orders-service"
+  - name: notification-service
+    version: 1.0.0
+    repository: "file://charts/notification-service"
+  - name: matching-service
+    version: 1.0.0
+    repository: "file://charts/matching-service"
+  - name: internal-ledger-service
+    version: 1.0.0
+    repository: "file://charts/internal-ledger-service"
+  
+  # AI Services
+  - name: ai-core
+    version: 1.0.0
+    repository: "file://charts/ai-core"
+  - name: recommendation-service
+    version: 1.0.0
+    repository: "file://charts/recommendation-service"
+  
+  # Database & Cache
+  - name: postgresql
+    version: 12.x.x
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: 18.x.x
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: rabbitmq
+    version: 11.x.x
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: rabbitmq.enabled
+  - name: elasticsearch
+    version: 8.x.x
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: elasticsearch.enabled
+  
+  # Monitoring
+  - name: prometheus
+    version: 25.x.x
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: prometheus.enabled
+  - name: grafana
+    version: 6.x.x
+    repository: "https://grafana.github.io/helm-charts"
+    condition: grafana.enabled

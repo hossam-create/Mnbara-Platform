@@ -1,0 +1,318 @@
+/* Dispute Action Panel Styles */
+.disputeActionPanel {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 24px;
+}
+
+.header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.statusInfo {
+  margin-top: 8px;
+}
+
+.statusText {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+/* Guarantee Context */
+.guaranteeContext {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid #e2e8f0;
+}
+
+.guaranteeBadge {
+  margin-bottom: 16px;
+}
+
+.guaranteeInfo h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.guaranteeInfo p {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.outcomeList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outcomeList li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.4;
+}
+
+.outcomeList strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Form Section */
+.formSection {
+  margin-bottom: 24px;
+}
+
+.formSection h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.select,
+.textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #111827;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+/* Evidence Section */
+.evidenceSection {
+  margin-bottom: 24px;
+}
+
+.evidenceSection h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.evidenceHelp {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Submit Section */
+.submitSection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.submitButton {
+  width: 100%;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-bottom: 16px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.submitButton:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.disclaimer {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.disclaimer p {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.4;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.contactSupport,
+.viewPolicy {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.contactSupport:hover,
+.viewPolicy:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .disputeActionPanel {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header h3 {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .guaranteeContext {
+    padding: 12px;
+  }
+
+  .guaranteeInfo h4 {
+    font-size: 15px;
+  }
+
+  .guaranteeInfo p {
+    font-size: 13px;
+  }
+
+  .outcomeList li {
+    font-size: 12px;
+  }
+
+  .formSection h4,
+  .evidenceSection h4 {
+    font-size: 15px;
+  }
+
+  .select,
+  .textarea {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  .submitButton {
+    font-size: 15px;
+    padding: 10px 20px;
+  }
+
+  .disclaimer p {
+    font-size: 12px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .contactSupport,
+  .viewPolicy {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .disputeActionPanel {
+    padding: 12px;
+  }
+
+  .header h3 {
+    font-size: 16px;
+  }
+
+  .guaranteeContext {
+    padding: 10px;
+  }
+
+  .guaranteeInfo h4 {
+    font-size: 14px;
+  }
+
+  .outcomeList li {
+    font-size: 11px;
+  }
+
+  .formSection h4,
+  .evidenceSection h4 {
+    font-size: 14px;
+  }
+
+  .submitButton {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}

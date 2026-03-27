@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "debug": false,
+    "timeout": 30000,
+    "retries": 3
+  },
+  "features": {
+    "logging": true,
+    "caching": false,
+    "rateLimiting": true
+  }
+}

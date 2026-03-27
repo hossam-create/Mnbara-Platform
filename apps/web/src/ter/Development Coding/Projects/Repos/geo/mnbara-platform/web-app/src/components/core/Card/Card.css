@@ -1,0 +1,93 @@
+.mnbara-card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+/* Variants */
+.mnbara-card--default {
+  border: 1px solid var(--border-primary);
+}
+
+.mnbara-card--elevated {
+  box-shadow: var(--shadow-md);
+  border: none;
+}
+
+.mnbara-card--outlined {
+  border: 2px solid var(--border-primary);
+}
+
+/* Padding */
+.mnbara-card--padding-none {
+  padding: 0;
+}
+
+.mnbara-card--padding-sm {
+  padding: var(--spacing-sm);
+}
+
+.mnbara-card--padding-md {
+  padding: var(--spacing-md);
+}
+
+.mnbara-card--padding-lg {
+  padding: var(--spacing-lg);
+}
+
+/* Hoverable */
+.mnbara-card--hoverable {
+  transition: all var(--transition-normal);
+}
+
+.mnbara-card--hoverable:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Clickable */
+.mnbara-card--clickable {
+  cursor: pointer;
+}
+
+/* Card Parts */
+.mnbara-card-header {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.mnbara-card-body {
+  padding: var(--spacing-lg);
+}
+
+.mnbara-card-footer {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-top: 1px solid var(--border-primary);
+}
+
+.mnbara-card-footer--align-left {
+  justify-content: flex-start;
+}
+
+.mnbara-card-footer--align-center {
+  justify-content: center;
+}
+
+.mnbara-card-footer--align-right {
+  justify-content: flex-end;
+}
+
+.mnbara-card-footer--align-between {
+  justify-content: space-between;
+}
+
+/* RTL Support */
+[dir="rtl"] .mnbara-card-footer--align-left {
+  justify-content: flex-end;
+}
+
+[dir="rtl"] .mnbara-card-footer--align-right {
+  justify-content: flex-start;
+}

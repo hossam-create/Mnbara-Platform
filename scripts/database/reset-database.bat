@@ -1,9 +1,9 @@
-@echo off
+﻿@echo off
 echo ========================================
 echo Resetting Database (Fixing Password Issue)
 echo ========================================
 echo.
-echo ⚠️  WARNING: This will delete all data in the database!
+echo âڑ ï¸ڈ  WARNING: This will delete all data in the database!
 echo This is necessary to fix the "Authentication failed" error.
 echo.
 echo Press Ctrl+C to cancel, or any key to continue...
@@ -15,7 +15,7 @@ docker-compose down
 
 echo.
 echo 2. Removing database volume...
-docker volume rm mnbara-platform_postgres_data
+docker volume rm mnbarh-platform_postgres_data
 docker volume prune -f
 
 echo.
@@ -35,3 +35,4 @@ echo ========================================
 echo Done!
 echo ========================================
 pause
+

@@ -1,0 +1,145 @@
+// Task Scheduler Service - Prisma Schema
+// Inspired by xyOps workflow automation system
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Task = Event in xyOps terminology
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  plugin      String   // Plugin name to execute
+  params      Json     @default("{}")  // Plugin parameters
+  enabled     Boolean  @default(true)
+  
+  // Triggers (when to run)
+  triggers    Json     @default("[]")  // Array of Trigger objects
+  
+  // Metadata
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  executions  TaskExecution[]
+  
+  @@index([enabled])
+  @@index([plugin])
+  @@map("tasks")
+}
+
+// TaskExecution = Job in xyOps terminology
+model TaskExecution {
+  id          String   @id @default(uuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  status      ExecutionStatus @default(PENDING)
+  
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+  duration    Int?      // milliseconds
+  
+  // Results
+  result      Json?
+  error       String?
+  logs        String?   @db.Text
+  
+  // Metadata
+  triggeredBy String?   // 'schedule', 'manual', 'webhook', etc.
+  createdAt   DateTime  @default(now())
+  
+  @@index([taskId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("task_executions")
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  ERROR
+  ABORTED
+}
+
+// Workflow = Visual graph of connected tasks
+model Workflow {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  enabled     Boolean  @default(true)
+  
+  // Graph structure
+  nodes       Json     @default("[]")  // Array of Node objects
+  connections Json     @default("[]")  // Array of Connection objects
+  
+  // Metadata
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  executions  WorkflowExecution[]
+  
+  @@index([enabled])
+  @@map("workflows")
+}
+
+// WorkflowExecution = Workflow Job
+model WorkflowExecution {
+  id          String   @id @default(uuid())
+  workflowId  String
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  status      ExecutionStatus @default(PENDING)
+  
+  // Timing
+  startedAt   DateTime?
+  completedAt DateTime?
+  duration    Int?
+  
+  // Results
+  result      Json?
+  error       String?
+  
+  // Sub-jobs tracking
+  subJobs     Json     @default("[]")  // Array of sub-job IDs
+  
+  // Metadata
+  triggeredBy String?
+  createdAt   DateTime @default(now())
+  
+  @@index([workflowId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("workflow_executions")
+}
+
+// ScheduledTask = Internal tracking for cron jobs
+model ScheduledTask {
+  id          String   @id @default(uuid())
+  taskId      String   @unique
+  cronExpression String?
+  intervalMs  Int?
+  
+  lastRun     DateTime?
+  nextRun     DateTime?
+  
+  active      Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([active])
+  @@index([nextRun])
+  @@map("scheduled_tasks")
+}

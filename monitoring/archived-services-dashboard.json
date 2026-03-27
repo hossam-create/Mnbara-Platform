@@ -1,0 +1,37 @@
+﻿{
+    "dashboard":  {
+                      "panels":  [
+                                     {
+                                         "title":  "Service Health Status",
+                                         "type":  "stat",
+                                         "targets":  [
+                                                         {
+                                                             "legendFormat":  "{{job}}",
+                                                             "expr":  "up{job=~\"archived-.*\"}"
+                                                         }
+                                                     ]
+                                     },
+                                     {
+                                         "title":  "Service Response Times",
+                                         "type":  "graph",
+                                         "targets":  [
+                                                         {
+                                                             "legendFormat":  "{{job}}",
+                                                             "expr":  "http_request_duration_seconds{job=~\"archived-.*\"}"
+                                                         }
+                                                     ]
+                                     },
+                                     {
+                                         "title":  "Service Error Rates",
+                                         "type":  "graph",
+                                         "targets":  [
+                                                         {
+                                                             "legendFormat":  "{{job}}",
+                                                             "expr":  "rate(http_requests_total{status=~\"5..\",job=~\"archived-.*\"}[5m])"
+                                                         }
+                                                     ]
+                                     }
+                                 ],
+                      "title":  "Archived Services Health"
+                  }
+}

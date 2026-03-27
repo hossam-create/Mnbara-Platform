@@ -1,13 +1,8 @@
-# ========================================
-# Node.js Dependencies
-# ========================================
+# Dependencies
 node_modules/
-**/node_modules/
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
-.pnp
-.pnp.js
 
 # ========================================
 # Environment Variables (CRITICAL)
@@ -29,212 +24,234 @@ nohup.out
 # ========================================
 dist/
 build/
-*.tsbuildinfo
 .next/
 out/
 .nuxt/
 .cache/
-.parcel-cache/
-.vercel/
+.vuepress/dist/
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test
+.yarn/cache
+.yarn/unplugged
 
-# ========================================
-# Logs
-# ========================================
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.npm/
+# Nx
+.nx/cache
+.nx/workspace-data
+.nx/installation
+dist/apps
+dist/services
+dist/packages
+nx-cloud.env
 
-# ========================================
-# IDE & Editors
-# ========================================
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
 .project
 .classpath
 .c9/
 *.launch
 .settings/
 *.sublime-workspace
+.env.local
+.env.*.local
 
-# ========================================
-# OS Files
-# ========================================
-.DS_Store
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production.local
+.env.development.local
+.env.test.local
+.env.staging.local
 
-# ========================================
-# Testing & Coverage
-# ========================================
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Testing
 coverage/
 .nyc_output/
 *.lcov
-.jest/
+.jest-cache/
+.vitest/
 
-# ========================================
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # Docker
-# ========================================
 .dockerignore
 docker-compose.override.yml
 
-# ========================================
-# AWS & Cloud
-# ========================================
-.aws/
-.serverless/
-.terraform/
-*.tfstate
-*.tfstate.backup
-.terraform.lock.hcl
-
-# ========================================
-# Mobile (React Native)
-# ========================================
-mobile/**/android/
-mobile/**/ios/
-mobile/**/.expo/
-mobile/**/node_modules/
-mobile/**/.expo-shared/
-mobile/**/web-build/
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-
-# ========================================
-# Database Files
-# ========================================
+# Database
 *.db
 *.sqlite
 *.sqlite3
-*.db-shm
-*.db-wal
-/data/
-pgdata/
-/database/data/
+postgres_data/
+mysql_data/
+mongodb_data/
 
-# ========================================
-# Prisma
-# ========================================
-prisma/migrations/*.sql
-# Keep migrations directory structure but ignore SQL files
+# Certificates
+*.pem
+*.key
+*.crt
+*.cert
 
-# ========================================
-# Large Files & Archives
-# ========================================
+# Archives
 *.zip
 *.tar.gz
 *.rar
 *.7z
-*.dmg
-*.pkg
-*.iso
 
-# ========================================
-# Temporary Files
-# ========================================
-*.tmp
-*.temp
-*.swp
-*.swo
-*~.nib
-.lock-wscript
+# Backup files
+*.backup
+*.bak
+backup_*/
 
-# ========================================
-# Security & Secrets (CRITICAL)
-# ========================================
-*.pem
-*.key
-*.cert
-*.p8
-*.p12
-*.pfx
-*.jks
-*.keystore
-secrets/
-credentials/
-.secrets/
-k8s/secrets.yaml
-infrastructure/k8s/secrets.yaml
-infrastructure/docker/docker-compose.yml
-config/oauth-providers.yaml
-config/secrets.yaml
-.env.secrets
-*.secret
-*.encrypted
-.vault-token
-vault-token
-.aws/
-.gcp/
-.azure/
-.ssh/
-private_key*
-public_key*
-id_rsa*
-id_dsa*
-id_ecdsa*
-id_ed25519*
-known_hosts
-authorized_keys
-.kube/config
+# Node modules in services and packages
+services/*/node_modules/
+packages/*/node_modules/
+apps/*/node_modules/
+
+# Build artifacts in services and packages
+services/*/dist/
+services/*/build/
+packages/*/dist/
+packages/*/build/
+apps/*/dist/
+apps/*/build/
+
+# Coverage reports
+services/*/.coverage/
+packages/*/.coverage/
+apps/*/.coverage/
+
+# Prisma
+prisma/migrations/
+.prisma/
+
+# Mobile app specific
+mobile-app/android/
+mobile-app/ios/
+mobile-app/.gradle/
+mobile-app/build/
+mobile-app/.m2/
+
+# Storybook
+storybook-static/
+.storybook-out/
+
+# TypeScript
+*.tsbuildinfo
+.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Vercel
+.vercel/
+
+# Netlify
+.netlify/
+
+# AWS
+.aws-sam/
+sam-tests/
+
+# Kubernetes
 kubeconfig
-.docker/config.json
-docker-compose.override.yml
-.env.*.local
-.env.*.production
-.env.*.staging
+.kube/
 
-# ========================================
-# Extracted Resources (VERY IMPORTANT!)
-# ========================================
-# Don't upload the extracted folder from prepare MnBarh
-**/extracted/
-**/prepare MnBarh/
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
 
-# ========================================
-# Legacy Projects
-# ========================================
-web/mnbara-web-legacy/
+# Misc
+.cache/
+.parcel-cache/
+dist-ssr/
+*.local
+*.tsbuildinfo
 
-# ========================================
-# Security Scanning
-# ========================================
-gitleaks-report.json
-gitleaks-report*.json
-.gitleaks.toml
-trufflehog-report.json
+# ESLint cache
+.eslintcache
 
-# ========================================
-# Mobile Sensitive Files
-# ========================================
-android/app/google-services.json
-ios/GoogleService-Info.plist
-*.mobileprovision
-*.apk
-*.ipa
-*.aab
+# Prettier cache
+.prettiercache
 
+# Yarn
+.yarn/install-state.gz
+
+# pnpm
+pnpm-debug.log
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+
+# Detox (React Native E2E)
+artifacts/
+
+# Archive directory (read-only, but exclude generated files)
+archive/**/*.log
+archive/**/*.tmp
+
+# Phase 2 backup
+backup_phase2_/
+
+# Shared packages build artifacts
+packages/@mnbara/*/dist/
+packages/@mnbara/*/build/
+packages/@mnbara/*/.turbo/
+packages/@mnbara/*/.nx/
+
+# Service-specific patterns
+services/core/*/dist/
+services/core/*/build/
+services/marketplace/*/dist/
+services/marketplace/*/build/
+services/crowdshipping/*/dist/
+services/crowdshipping/*/build/
+services/financial/*/dist/
+services/financial/*/build/

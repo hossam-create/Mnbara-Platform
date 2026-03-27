@@ -1,0 +1,267 @@
+// Matching Service Database Schema
+// Responsible for geospatial optimization and pairing orders with travelers
+// Enhanced with AI/ML models for Smart Matching Engine
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== CORE MATCHING MODELS ====================
+
+model MatchCandidate {
+  id                String   @id @default(cuid())
+  orderId           String
+  tripId            String
+  score             Float    // AI context/matching score (0-100)
+  status            MatchStatus @default(PENDING)
+  frictionSignals   Json?    // Trust/Fraud signals at time of matching
+
+  // Geospatial data
+  pickupDeviation   Float?   // Extra distance for traveler in km
+  dropoffDeviation  Float?   // Extra distance for traveler in km
+
+  // Country of Origin Layer (COOL) - Country filtering
+  productOriginCountry      String?  // Product origin country
+  productPurchaseCountry     String?  // Product purchase country
+  productDeliveryCountry    String?  // Product delivery country
+  tripOriginCountry         String?  // Trip origin country
+  tripDestinationCountry    String?  // Trip destination country
+  countryMatchValid         Boolean  @default(false)  // Whether countries match
+
+  // AI/ML Scoring breakdown
+  scoreBreakdown    Json?    // Detailed score components
+  confidenceScore   Float?   // ML model confidence
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([orderId, tripId])
+  @@map("match_candidates")
+}
+
+model Geofence {
+  id          String   @id @default(cuid())
+  name        String
+  polygon     Json     // GeoJSON structure
+  type        FenceType @default(CORRIDOR)
+  isActive    Boolean  @default(true)
+  
+  // Priority zones for matching
+  priorityLevel Int     @default(1)  // 1=low, 5=high priority
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("geofences")
+}
+
+model MatchingOptimization {
+  id              String   @id @default(cuid())
+  algorithm       String   // e.g., 'GEOSPATIAL_V1', 'NEURAL_MATCH_V2', 'HYPER_MATCH_V3'
+  parameters      Json     // Hyperparameters used
+  executionTime   Int      // in ms
+  resultsCount    Int
+  
+  // Performance metrics
+  avgScore        Float?
+  successRate     Float?
+  
+  timestamp       DateTime @default(now())
+
+  @@map("matching_optimizations")
+}
+
+// ==================== AI/ML MODELS FOR RECOMMENDATIONS ====================
+
+model UserBehavior {
+  id              String   @id @default(cuid())
+  userId          String
+  userType        UserType @default(BUYER)  // BUYER, SELLER, TRAVELER
+  
+  // Behavioral data
+  eventType       String   // VIEW, SEARCH, BOOKING, CANCELLATION, RATING
+  eventData       Json     // Additional context
+  
+  // Location context
+  latitude        Float?
+  longitude       Float?
+  city            String?
+  country         String?
+  
+  // Temporal context
+  timestamp       DateTime @default(now())
+  sessionId       String?
+  deviceType      String?
+  
+  @@index([userId, eventType])
+  @@map("user_behaviors")
+}
+
+model UserEmbedding {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  userType        UserType
+  
+  // Vector embedding for collaborative filtering (384 dimensions for all-MiniLM)
+  embedding       Float[]  
+  embeddingModel  String   @default('sentence-transformers/all-MiniLM-L6-v2')
+  
+  // Behavior summary
+  totalViews      Int      @default(0)
+  totalBookings   Int      @default(0)
+  totalCancellations Int  @default(0)
+  avgRating       Float?
+  
+  // Preference vectors (normalized)
+  pricePreference Float[]  // Price sensitivity bands
+  categoryWeights Json?    // Category preferences
+  locationWeights  Json?    // Geographic preferences
+  
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@map("user_embeddings")
+}
+
+model ListingEmbedding {
+  id              String   @id @default(cuid())
+  listingId       String   @unique
+  
+  // Vector embedding for content-based filtering
+  embedding       Float[]
+  embeddingModel  String   @default('sentence-transformers/all-MiniLM-L6-v2')
+  
+  // Content features
+  title           String
+  description     String?
+  category        String?
+  subcategory     String?
+  
+  // Price features
+  price           Float?
+  currency        String   @default("USD")
+  
+  // Location features
+  city            String?
+  country         String?
+  latitude        Float?
+  longitude       Float?
+  
+  // Quality features
+  avgRating       Float?
+  reviewCount     Int      @default(0)
+  
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@map("listings_embeddings")
+}
+
+model MatchHistory {
+  id              String   @id @default(cuid())
+  buyerId         String
+  sellerId        String?
+  travelerId      String?
+  listingId       String?
+  orderId         String?
+  
+  // Match details
+  matchScore      Float
+  matchType      MatchType @default(ALGORITHMIC)
+  
+  // Outcome tracking
+  wasAccepted     Boolean  @default(false)
+  wasCompleted    Boolean  @default(false)
+  buyerRating     Float?
+  sellerRating    Float?
+  
+  // Temporal features
+  createdAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  @@index([buyerId, createdAt])
+  @@index([matchScore])
+  @@map("match_history")
+}
+
+model RecommendationCache {
+  id              String   @id @default(cuid())
+  userId          String
+  userType        UserType
+  
+  // Recommendation context
+  recommendationType String  // SIMILAR_LISTINGS, TOP_TRAVELERS, PRICE_PREDICTION
+  contextId       String?    // e.g., listingId, orderId
+  
+  // Results
+  recommendations Json       // Array of recommended items with scores
+  
+  // Validity
+  expiresAt       DateTime
+  
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, recommendationType, contextId])
+  @@map("recommendation_cache")
+}
+
+// ==================== WEIGHT CONFIGURATION ====================
+
+model MatchWeightConfig {
+  id              String   @id @default(cuid())
+  name            String   @unique  // e.g., 'DEFAULT', 'SPEED_PRIORITY', 'PRICE_PRIORITY'
+  description     String?
+  
+  // Weight factors (must sum to 1.0)
+  distanceWeight  Float    @default(0.25)
+  priceWeight     Float    @default(0.20)
+  ratingWeight    Float    @default(0.20)
+  timingWeight    Float    @default(0.15)
+  trustWeight     Float    @default(0.10)
+  availabilityWeight Float @default(0.10)
+  
+  // Algorithm version
+  algorithmVersion String  @default('3.0')
+  
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("match_weight_configs")
+}
+
+// ==================== ENUMS ====================
+
+enum MatchStatus {
+  PENDING
+  PROPOSED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum FenceType {
+  CORRIDOR
+  RESTRICTED_ZONE
+  PICKUP_HUB
+  HIGH_DEMAND_ZONE
+}
+
+enum UserType {
+  BUYER
+  SELLER
+  TRAVELER
+}
+
+enum MatchType {
+  ALGORITHMIC
+  COLLABORATIVE
+  CONTENT_BASED
+  HYBRID
+  MANUAL
+}

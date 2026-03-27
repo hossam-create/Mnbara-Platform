@@ -1,0 +1,135 @@
+{
+  "extends": "nx/presets/npm.json",
+  "npmScope": "mnbara",
+  "packageManager": "npm",
+  "defaultBase": "main",
+  "defaultProject": null,
+  "nxCloudAccessToken": "${NX_CLOUD_ACCESS_TOKEN}",
+  "plugins": [
+    {
+      "plugin": "@nx/js/plugin",
+      "options": {
+        "targetName": "build"
+      }
+    },
+    {
+      "plugin": "@nx/react/plugin",
+      "options": {
+        "componentGenerator": "@nx/react:component"
+      }
+    },
+    {
+      "plugin": "@nx/node/plugin",
+      "options": {
+        "targetName": "build"
+      }
+    }
+  ],
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ],
+        "runtimeCacheInputs": [
+          "node --version"
+        ]
+      }
+    },
+    "cloud": {
+      "runner": "nx-cloud",
+      "options": {
+        "accessToken": "${NX_CLOUD_ACCESS_TOKEN}",
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ],
+        "runtimeCacheInputs": [
+          "node --version"
+        ]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": [
+        "default",
+        "^default"
+      ],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/build"
+      ]
+    },
+    "lint": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ],
+      "outputs": [
+        "{projectRoot}/lint-report.json"
+      ]
+    },
+    "test": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^build",
+        "{workspaceRoot}/jest.config.js",
+        "{workspaceRoot}/vitest.config.ts"
+      ],
+      "dependsOn": ["build"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ]
+    },
+    "e2e": {
+      "cache": true,
+      "inputs": [
+        "default",
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/test-results"
+      ]
+    }
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "packages"
+  },
+  "generators": {
+    "@nx/js:library": {
+      "unitTestRunner": "jest",
+      "bundler": "tsc"
+    },
+    "@nx/react:library": {
+      "unitTestRunner": "jest",
+      "style": "css"
+    },
+    "@nx/react:application": {
+      "bundler": "vite",
+      "unitTestRunner": "vitest",
+      "e2eTestRunner": "playwright"
+    },
+    "@nx/node:application": {
+      "framework": "express",
+      "bundler": "tsc"
+    }
+  },
+  "cacheDirectory": ".nx/cache",
+  "parallel": 4,
+  "affected": {
+    "defaultBase": "main"
+  }
+}

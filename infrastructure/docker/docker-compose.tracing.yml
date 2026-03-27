@@ -1,0 +1,161 @@
+# OpenTelemetry Distributed Tracing - Docker Compose Additions
+
+# Add this to your docker-compose.yml file to enable distributed tracing with Jaeger
+
+services:
+  # ============================================
+  # JAEGER - Distributed Tracing Platform
+  # ============================================
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: mnbara-jaeger
+    restart: unless-stopped
+    ports:
+      # Jaeger UI
+      - "16686:16686"
+      # OTLP gRPC
+      - "4317:4317"
+      # OTLP HTTP
+      - "4318:4318"
+      # Zipkin compat
+      - "9411:9411"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - COLLECTOR_OTLP_GRPC_PORT=4317
+      - COLLECTOR_OTLP_HTTP_PORT=4318
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - LOG_LEVEL=info
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # TEMPO - Alternative Lightweight Tracing (optional)
+  # ============================================
+  tempo:
+    image: grafana/tempo:2.3.0
+    container_name: mnbara-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./tempo-config.yml:/etc/tempo.yml
+    ports:
+      - "3200:3200"  # Tempo HTTP
+      - "9095:9095"  # Tempo gRPC
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # GRAFANA - Visualization for Tempo
+  # ============================================
+  grafana-tracing:
+    image: grafana/grafana:10.2.0
+    container_name: mnbara-grafana-tracing
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    depends_on:
+      - tempo
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # API GATEWAY - Updated with tracing env vars
+  # ============================================
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: mnbara-api-gateway
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Existing env vars...
+      # OpenTelemetry Configuration
+      - OTEL_SERVICE_NAME=api-gateway
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_ENVIRONMENT=production
+      - OTEL_SAMPLING_RATE=0.2
+      # Alternative: Use Tempo
+      # - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4318/v1/traces
+    depends_on:
+      - jaeger
+      - redis
+      - kafka
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # WALLET SERVICE - Tracing enabled
+  # ============================================
+  wallet-service:
+    build: ./backend/services/wallet-service
+    container_name: mnbara-wallet-service
+    restart: unless-stopped
+    ports:
+      - "3006:3006"
+    environment:
+      # Existing env vars...
+      - OTEL_SERVICE_NAME=wallet-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_ENVIRONMENT=production
+      - OTEL_SAMPLING_RATE=0.2
+    depends_on:
+      - jaeger
+      - postgres
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # TRAVELER SERVICE - Tracing enabled
+  # ============================================
+  traveler-service:
+    build: ./backend/services/trips-service  # or traveler-service
+    container_name: mnbara-traveler-service
+    restart: unless-stopped
+    ports:
+      - "3007:3007"
+    environment:
+      - OTEL_SERVICE_NAME=traveler-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_ENVIRONMENT=production
+      - OTEL_SAMPLING_RATE=0.2
+    depends_on:
+      - jaeger
+      - postgres
+    networks:
+      - mnbara-network
+
+  # ============================================
+  # MARKETPLACE SERVICE - Tracing enabled
+  # ============================================
+  marketplace-service:
+    build: ./backend/services/product-service  # or marketplace-service
+    container_name: mnbara-marketplace-service
+    restart: unless-stopped
+    ports:
+      - "3008:3008"
+    environment:
+      - OTEL_SERVICE_NAME=marketplace-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_ENVIRONMENT=production
+      - OTEL_SAMPLING_RATE=0.2
+    depends_on:
+      - jaeger
+      - postgres
+    networks:
+      - mnbara-network
+
+volumes:
+  grafana-storage:
+
+networks:
+  mnbara-network:
+    driver: bridge

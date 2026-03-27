@@ -1,0 +1,288 @@
+/**
+ * Role-based Navigation Styles
+ * Styles for role-based navigation components
+ */
+
+.roleBasedNavigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.roleBasedNavigation.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.roleBasedNavigation.vertical {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.roleBasedNavigation.sidebar {
+  flex-direction: column;
+  align-items: stretch;
+  background: transparent;
+  padding: 0;
+}
+
+.navigationGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.roleBasedNavigation.vertical .navigationGroup,
+.roleBasedNavigation.sidebar .navigationGroup {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.navigationSection {
+  margin-bottom: 24px;
+}
+
+.navigationSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px 0;
+  padding: 0 12px;
+}
+
+.groupTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 16px 0 8px 0;
+  padding: 0 12px;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 16px 12px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.navItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+  transform: translateY(-1px);
+}
+
+.navItem.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #2563eb;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.navItem.active:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.roleBasedNavigation.vertical .navItem,
+.roleBasedNavigation.sidebar .navItem {
+  padding: 12px 16px;
+  font-size: 15px;
+}
+
+.icon {
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.roleBasedNavigation.vertical .icon,
+.roleBasedNavigation.sidebar .icon {
+  font-size: 18px;
+}
+
+.label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Role-based menu styles */
+.roleBasedMenu {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.menuItem.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.menuItem .description {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.menuItem.active .description {
+  color: #dbeafe;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .roleBasedNavigation {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .navigationGroup {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .navItem {
+    padding: 12px 16px;
+    font-size: 15px;
+  }
+  
+  .icon {
+    font-size: 18px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .roleBasedNavigation {
+    background: #1f2937;
+  }
+  
+  .roleBasedNavigation.sidebar {
+    background: transparent;
+  }
+  
+  .navItem {
+    color: #d1d5db;
+  }
+  
+  .navItem:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+  
+  .navItem.active {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .sectionTitle {
+    color: #9ca3af;
+  }
+  
+  .groupTitle {
+    color: #6b7280;
+  }
+  
+  .divider {
+    background: #374151;
+  }
+  
+  .roleBasedMenu {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .menuItem {
+    color: #d1d5db;
+  }
+  
+  .menuItem:hover {
+    background: #374151;
+    color: #f9fafb;
+  }
+  
+  .menuItem .description {
+    color: #9ca3af;
+  }
+}
+
+/* Compact mode */
+.roleBasedNavigation.compact .navItem {
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.roleBasedNavigation.compact .icon {
+  font-size: 14px;
+}
+
+.roleBasedNavigation.compact .label {
+  display: none;
+}
+
+.roleBasedNavigation.compact:hover .label {
+  display: block;
+}
+
+/* Animation for role-based visibility changes */
+.navItem {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

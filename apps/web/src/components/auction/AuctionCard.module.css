@@ -1,0 +1,466 @@
+/* Auction Card Styles */
+.auctionCard {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.auctionCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #d1d5db;
+}
+
+.cardLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Compact Version */
+.compact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.compactLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.compactImage {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.compactImage img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.compactContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.compact .title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compact .bidInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.compact .currentBid {
+  font-size: 16px;
+  font-weight: 700;
+  color: #059669;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.compact .bidCount {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.compact .countdown {
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+/* Image Section */
+.imageSection {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.auctionCard:hover .image {
+  transform: scale(1.05);
+}
+
+.statusBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.categoryBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 2;
+}
+
+.countdownOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 16px 12px 12px;
+  z-index: 2;
+}
+
+.countdownOverlay.endingSoon {
+  background: linear-gradient(to top, rgba(220, 38, 38, 0.9), transparent);
+}
+
+.countdownContent {
+  text-align: center;
+}
+
+.countdownTime {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.endingLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Content Section */
+.contentSection {
+  padding: 20px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Current Bid Section */
+.currentBidSection {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.bidLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.bidAmount {
+  font-size: 24px;
+  font-weight: 800;
+  color: #059669;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  margin-bottom: 4px;
+}
+
+.bidCount {
+  font-size: 13px;
+  color: #166534;
+  font-weight: 500;
+}
+
+/* Next Bid Section */
+.nextBidSection {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.nextBidLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #1e40af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.nextBidAmount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e40af;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+/* Auction Info */
+.auctionInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.infoLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Time Remaining */
+.timeRemaining {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timeRemaining.endingSoon {
+  background: #fef2f2;
+  border-color: #fecaca;
+  animation: pulse 2s infinite;
+}
+
+.timeIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.timeContent {
+  flex: 1;
+}
+
+.timeLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.timeValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.timeRemaining.endingSoon .timeLabel,
+.timeRemaining.endingSoon .timeValue {
+  color: #991b1b;
+}
+
+/* Bid Button */
+.bidButton {
+  width: 100%;
+  background: linear-gradient(135deg, #059669, #047857);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bidButton:hover {
+  background: linear-gradient(135deg, #047857, #065f46);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.bidButton:active {
+  transform: translateY(0);
+}
+
+/* Ended Message */
+.endedMessage {
+  text-align: center;
+  padding: 16px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .auctionCard {
+    border-radius: 8px;
+  }
+  
+  .imageSection {
+    height: 200px;
+  }
+  
+  .contentSection {
+    padding: 16px;
+  }
+  
+  .title {
+    font-size: 16px;
+  }
+  
+  .bidAmount {
+    font-size: 20px;
+  }
+  
+  .auctionInfo {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .timeRemaining {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .bidButton {
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .compact {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .compactLink {
+    flex-direction: column;
+  }
+  
+  .compactImage img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .compact .title {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  .compact .bidInfo {
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .imageSection {
+    height: 160px;
+  }
+  
+  .contentSection {
+    padding: 12px;
+  }
+  
+  .title {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  
+  .bidAmount {
+    font-size: 18px;
+  }
+  
+  .currentBidSection,
+  .nextBidSection,
+  .timeRemaining {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+}

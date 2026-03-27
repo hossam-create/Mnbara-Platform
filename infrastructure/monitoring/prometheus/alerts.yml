@@ -1,0 +1,285 @@
+# =============================================================================
+# Mnbara Platform - Prometheus Alerting Rules
+# =============================================================================
+# Alert rules for monitoring the Mnbara Platform
+# =============================================================================
+
+groups:
+  # =============================================================================
+  # General Service Alerts
+  # =============================================================================
+  - name: mnbara-services
+    rules:
+      # ------------------------------------------------------------------------
+      # High Error Rate
+      # ------------------------------------------------------------------------
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          /
+          sum(rate(http_requests_total[5m])) by (service)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate on {{ $labels.service }} is {{ $value | humanizePercentage }}. More than 5% of requests are failing."
+
+      # ------------------------------------------------------------------------
+      # High Latency
+      # ------------------------------------------------------------------------
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))
+          > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.service }}"
+          description: "95th percentile latency on {{ $labels.service }} is {{ $value | humanizeDuration }}. Threshold is 2s."
+
+      # ------------------------------------------------------------------------
+      # Service Down
+      # ------------------------------------------------------------------------
+      - alert: ServiceDown
+        expr: up{job=~"mnbara.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.service }} is down"
+          description: "{{ $labels.service }} has been down for more than 1 minute."
+
+  # =============================================================================
+  # Infrastructure Alerts
+  # =============================================================================
+  - name: mnbara-infrastructure
+    rules:
+      # ------------------------------------------------------------------------
+      # High CPU Usage
+      # ------------------------------------------------------------------------
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanizePercentage }}. Threshold is 80%."
+
+      # ------------------------------------------------------------------------
+      # High Memory Usage
+      # ------------------------------------------------------------------------
+      - alert: HighMemoryUsage
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}. Threshold is 85%."
+
+      # ------------------------------------------------------------------------
+      # Disk Space Low
+      # ------------------------------------------------------------------------
+      - alert: DiskSpaceLow
+        expr: |
+          (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanizePercentage }}. Threshold is 85%."
+
+      # ------------------------------------------------------------------------
+      # Disk Read/Write High
+      # ------------------------------------------------------------------------
+      - alert: DiskIOHigh
+        expr: |
+          rate(node_disk_read_bytes_total[5m]) + rate(node_disk_written_bytes_total[5m]) > 100000000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk I/O on {{ $labels.instance }}"
+          description: "Disk I/O is {{ $value | humanizeRate }}. Threshold is 100MB/s."
+
+  # =============================================================================
+  # Database Alerts
+  # =============================================================================
+  - name: mnbara-database
+    rules:
+      # ------------------------------------------------------------------------
+      # PostgreSQL Down
+      # ------------------------------------------------------------------------
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL has been down for more than 1 minute."
+
+      # ------------------------------------------------------------------------
+      # PostgreSQL High Connections
+      # ------------------------------------------------------------------------
+      - alert: PostgreSQLHighConnections
+        expr: |
+          pg_stat_activity_count / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL high connections"
+          description: "PostgreSQL connections are at {{ $value | humanizePercentage }}. Threshold is 80%."
+
+      # ------------------------------------------------------------------------
+      # PostgreSQL Slow Queries
+      # ------------------------------------------------------------------------
+      - alert: PostgreSQLSlowQueries
+        expr: |
+          rate(pg_stat_statements_total{datname!~"template.*"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "More than 10 slow queries per second detected."
+
+  # =============================================================================
+  # Redis Alerts
+  # =============================================================================
+  - name: mnbara-redis
+    rules:
+      # ------------------------------------------------------------------------
+      # Redis Down
+      # ------------------------------------------------------------------------
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been down for more than 1 minute."
+
+      # ------------------------------------------------------------------------
+      # Redis High Memory Usage
+      # ------------------------------------------------------------------------
+      - alert: RedisHighMemory
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}. Threshold is 80%."
+
+      # ------------------------------------------------------------------------
+      # Redis Connected Clients High
+      # ------------------------------------------------------------------------
+      - alert: RedisHighClients
+        expr: |
+          redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high number of connected clients"
+          description: "Redis has {{ $value }} connected clients. Threshold is 1000."
+
+  # =============================================================================
+  # Elasticsearch Alerts
+  # =============================================================================
+  - name: mnbara-elasticsearch
+    rules:
+      # ------------------------------------------------------------------------
+      # Elasticsearch Cluster Health Red
+      # ------------------------------------------------------------------------
+      - alert: ElasticsearchClusterRed
+        expr: elasticsearch_cluster_health_status == 2
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Elasticsearch cluster health is RED"
+          description: "Elasticsearch cluster status is RED. Immediate action required."
+
+      # ------------------------------------------------------------------------
+      # Elasticsearch Cluster Health Yellow
+      # ------------------------------------------------------------------------
+      - alert: ElasticsearchClusterYellow
+        expr: elasticsearch_cluster_health_status == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch cluster health is YELLOW"
+          description: "Elasticsearch cluster status is YELLOW. Some shards may be unassigned."
+
+      # ------------------------------------------------------------------------
+      # Elasticsearch High JVM Memory
+      # ------------------------------------------------------------------------
+      - alert: ElasticsearchJVMHigh
+        expr: |
+          elasticsearch_jvm_memory_used_heap_bytes / elasticsearch_jvm_memory_max_heap_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Elasticsearch JVM memory usage is high"
+          description: "Elasticsearch JVM heap usage is {{ $value | humanizePercentage }}. Threshold is 80%."
+
+  # =============================================================================
+  # Business Metrics Alerts
+  # =============================================================================
+  - name: mnbara-business
+    rules:
+      # ------------------------------------------------------------------------
+      # Low Matching Rate
+      # ------------------------------------------------------------------------
+      - alert: LowMatchingRate
+        expr: |
+          rate(matching_requests_total{status="success"}[5m]) < 10
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low matching rate detected"
+          description: "Matching rate is {{ $value | humanizeRate }}/s. Expected > 10/s."
+
+      # ------------------------------------------------------------------------
+      # High Order Cancellation Rate
+      # ------------------------------------------------------------------------
+      - alert: HighOrderCancellationRate
+        expr: |
+          rate(orders_total{status="cancelled"}[5m])
+          /
+          rate(orders_total[5m]) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High order cancellation rate"
+          description: "Order cancellation rate is {{ $value | humanizePercentage }}. Threshold is 20%."
+
+      # ------------------------------------------------------------------------
+      # Low Trip Completion Rate
+      # ------------------------------------------------------------------------
+      - alert: LowTripCompletionRate
+        expr: |
+          rate(trips_total{status="completed"}[5m])
+          /
+          rate(trips_total[5m]) < 0.7
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low trip completion rate"
+          description: "Trip completion rate is {{ $value | humanizePercentage }}. Expected > 70%."

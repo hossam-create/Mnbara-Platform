@@ -1,0 +1,42 @@
+# PowerShell script to generate Prisma client with updated schema
+Write-Host "Generating Prisma client with updated audit logs and live streaming events..."
+
+# Navigate to auth-service directory
+Set-Location "E:\New computer\Development Coding\Projects\Repos\geo\mnbara-platform\backend\services\auth-service"
+
+# Generate Prisma client
+npx prisma generate
+
+Write-Host "Prisma client generated successfully!"
+Write-Host "New AuditAction enum values added:"
+Write-Host "- LIVE_STREAM_STARTED"
+Write-Host "- LIVE_STREAM_ENDED" 
+Write-Host "- LIVE_STREAM_CANCELLED"
+Write-Host "- LIVE_STREAM_VIEWER_JOINED"
+Write-Host "- LIVE_STREAM_VIEWER_LEFT"
+Write-Host "- LIVE_STREAM_CHAT_MESSAGE_SENT"
+Write-Host "- LIVE_STREAM_CHAT_MESSAGE_DELETED"
+Write-Host "- LIVE_STREAM_USER_BANNED"
+Write-Host "- LIVE_STREAM_USER_UNBANNED"
+Write-Host "- LIVE_STREAM_PRODUCT_PINNED"
+Write-Host "- LIVE_STREAM_PRODUCT_UNPINNED"
+Write-Host "- LIVE_AUCTION_STARTED"
+Write-Host "- LIVE_AUCTION_ENDED"
+Write-Host "- LIVE_AUCTION_BID_PLACED"
+Write-Host "- LIVE_AUCTION_BID_CANCELLED"
+Write-Host "- LIVE_AUCTION_WINNER_DETERMINED"
+Write-Host "- LIVE_AUCTION_PAYMENT_CAPTURED"
+Write-Host "- LIVE_STREAM_TECHNICAL_ERROR"
+Write-Host "- LIVE_STREAM_QUALITY_DEGRADED"
+Write-Host "- LIVE_STREAM_RECORDING_STARTED"
+Write-Host "- LIVE_STREAM_RECORDING_ENDED"
+Write-Host "- LIVE_STREAM_RECORDING_UPLOADED"
+Write-Host "- LIVE_STREAM_THUMBNAIL_UPDATED"
+Write-Host "- LIVE_STREAM_METADATA_UPDATED"
+Write-Host "- LIVE_STREAM_RTMP_CONNECTION_ESTABLISHED"
+Write-Host "- LIVE_STREAM_RTMP_CONNECTION_LOST"
+Write-Host "- LIVE_STREAM_HLS_SEGMENT_CREATED"
+Write-Host "- LIVE_STREAM_WEBRTC_CONNECTION_ESTABLISHED"
+Write-Host "- LIVE_STREAM_WEBRTC_CONNECTION_LOST"
+Write-Host "- LIVE_STREAM_MODERATION_ACTION_TAKEN"
+Write-Host "- LIVE_STREAM_ANALYTICS_DATA_COLLECTED"

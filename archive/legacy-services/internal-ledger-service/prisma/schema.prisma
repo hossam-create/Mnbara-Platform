@@ -1,0 +1,600 @@
+// ============================================================
+// Internal Ledger System - Prisma Schema
+// Enhanced with Double-Entry Bookkeeping, Matching, and Compliance
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// PHASE 1.1: Internal Wallet System
+// Simple wallet with available and locked balances
+// ============================================================
+
+// Wallet - User's wallet per currency
+model Wallet {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  currency          String   @default("USD") // USD, EUR, SAR, etc.
+  
+  // Balances
+  availableBalance  Decimal  @default(0) @db.Decimal(19, 4)
+  lockedBalance     Decimal  @default(0) @db.Decimal(19, 4) // For escrow holds
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  transactions      WalletTransaction[]
+  buyerEscrows      EscrowHold[]        @relation("BuyerWallet")
+  sellerEscrows     EscrowHold[]        @relation("SellerWallet")
+  
+  @@unique([userId, currency])
+  @@index([userId])
+  @@index([currency])
+}
+
+// Wallet Transaction - All wallet movements
+model WalletTransaction {
+  id              Int      @id @default(autoincrement())
+  walletId        Int
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+  
+  transactionType TransactionType
+  amount          Decimal  @db.Decimal(19, 4)
+  
+  // Reference to external entity (Request, Payout, etc.)
+  referenceType   String?  // "Request", "Payout", "Escrow", etc.
+  referenceId     String?  // Changed to String to support UUID references
+  
+  status          TransactionStatus @default(PENDING)
+  
+  // Additional details
+  metadata        Json?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([walletId])
+  @@index([transactionType])
+  @@index([status])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+}
+
+// Escrow Hold - Money locked for transactions
+model EscrowHold {
+  id                Int      @id @default(autoincrement())
+  requestId         Int      @unique
+  
+  // Wallets involved
+  buyerWalletId     Int
+  buyerWallet       Wallet   @relation("BuyerWallet", fields: [buyerWalletId], references: [id])
+  
+  sellerWalletId    Int
+  sellerWallet      Wallet   @relation("SellerWallet", fields: [sellerWalletId], references: [id])
+  
+  // Amounts
+  amount            Decimal  @db.Decimal(19, 4)
+  platformFee       Decimal  @db.Decimal(19, 4)
+  
+  status            EscrowStatus @default(HELD)
+  
+  // Timestamps
+  heldAt            DateTime @default(now())
+  releasedAt        DateTime?
+  expiresAt         DateTime?
+  
+  // Release conditions
+  releaseConditions Json?
+  
+  @@index([requestId])
+  @@index([buyerWalletId])
+  @@index([sellerWalletId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+// ============================================================
+// PHASE 2: Double-Entry Ledger System
+// Proper debit/credit tracking for all financial movements
+// ============================================================
+
+// LedgerEntry - Double-entry bookkeeping entries
+model LedgerEntry {
+  id              String   @id @default(uuid())
+  transactionId   String   @unique // Unique transaction reference
+  
+  // Entry Type
+  entryType       LedgerEntryType
+  
+  // Account categorization
+  accountType     AccountType
+  accountId       String   // Reference to specific account (wallet, fee_pool, etc.)
+  
+  // Debit/Credit
+  debitAmount     Decimal  @default(0) @db.Decimal(19, 4)
+  creditAmount    Decimal  @default(0) @db.Decimal(19, 4)
+  currency        String   @default("USD")
+  
+  // Balance after entry
+  runningBalance  Decimal  @db.Decimal(19, 4)
+  
+  // Description
+  description     String   @db.Text
+  
+  // Related entities
+  referenceType   String?  // "Escrow", "Payout", "Settlement", etc.
+  referenceId     String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  @@index([transactionId])
+  @@index([accountType, accountId])
+  @@index([entryType])
+  @@index([createdAt])
+}
+
+// ============================================================
+// PHASE 2: Buyer/Seller Matching System
+// Match buyer requests with seller offers
+// ============================================================
+
+// BuyRequest - Buyer wanting to purchase currency/services
+model BuyRequest {
+  id              String   @id @default(uuid())
+  userId          Int
+  
+  // Request details
+  currency        String   @default("USD") // Currency to buy
+  amount          Decimal  @db.Decimal(19, 4) // Amount wanted
+  maxPricePerUnit Decimal  @db.Decimal(19, 4) // Maximum price willing to pay
+  totalMaxAmount  Decimal  @db.Decimal(19, 4) // Maximum total expenditure
+  
+  // Status
+  status          BuyRequestStatus @default(OPEN)
+  priority        Int        @default(1) // Higher = more priority
+  
+  // Matching
+  matchedAmount   Decimal    @default(0) @db.Decimal(19, 4)
+  matchedOfferIds  String[]   // Array of matched offer IDs
+  
+  // Expiration
+  expiresAt       DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([userId])
+  @@index([currency])
+  @@index([status])
+  @@index([maxPricePerUnit])
+  @@index([expiresAt])
+}
+
+// SellOffer - Seller offering currency/services for sale
+model SellOffer {
+  id              String   @id @default(uuid())
+  userId          Int
+  
+  // Offer details
+  currency        String   @default("USD") // Currency being sold
+  amount          Decimal  @db.Decimal(19, 4) // Amount available
+  minPricePerUnit Decimal  @db.Decimal(19, 4) // Minimum price acceptable
+  totalMinAmount  Decimal  @db.Decimal(19, 4) // Minimum total acceptable
+  
+  // Status
+  status          SellOfferStatus @default(OPEN)
+  priority        Int        @default(1) // Higher = more priority
+  
+  // Matching
+  matchedAmount   Decimal    @default(0) @db.Decimal(19, 4)
+  matchedRequestIds String[]  // Array of matched request IDs
+  
+  // Expiration
+  expiresAt       DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([userId])
+  @@index([currency])
+  @@index([status])
+  @@index([minPricePerUnit])
+  @@index([expiresAt])
+}
+
+// Matching Settlement - Record of matched trades
+model MatchingSettlement {
+  id              String   @id @default(uuid())
+  
+  // Matched parties
+  buyerId         Int
+  sellerId        Int
+  
+  // Matched items
+  buyRequestId    String
+  sellOfferId     String
+  
+  // Settlement details
+  currency        String   @default("USD")
+  amount          Decimal  @db.Decimal(19, 4)
+  pricePerUnit    Decimal  @db.Decimal(19, 4)
+  totalAmount     Decimal  @db.Decimal(19, 4)
+  
+  // Fees
+  platformFee     Decimal  @db.Decimal(19, 4)
+  processingFee   Decimal  @db.Decimal(19, 4)
+  totalFees       Decimal  @db.Decimal(19, 4)
+  
+  // Settlement status
+  status          SettlementStatus @default(PENDING)
+  
+  // Processing
+  processedAt     DateTime?
+  completedAt     DateTime?
+  
+  // Settlement reference
+  settlementRef   String?  @unique
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([buyRequestId])
+  @@index([sellOfferId])
+  @@index([status])
+}
+
+// ============================================================
+// PHASE 1.2: Manual Payout System
+// Travelers can request withdrawals, admins process manually
+// ============================================================
+
+// Payout Request - Manual withdrawal requests
+model PayoutRequest {
+  id                    String   @id @default(uuid())
+  userId                Int
+  walletId              Int
+  
+  // Amount details
+  amount                Decimal  @db.Decimal(19, 4)
+  currency              String   @default("USD")
+  
+  // Status tracking
+  status                PayoutStatus @default(PENDING)
+  
+  // Payout method
+  method                PayoutMethod
+  
+  // Encrypted account details (JSON)
+  accountDetails        String   @db.Text
+  
+  // Timestamps
+  requestedAt           DateTime @default(now())
+  processedAt           DateTime?
+  completedAt           DateTime?
+  rejectedAt            DateTime?
+  
+  // Admin tracking
+  processedByAdminId    Int?
+  approvedByAdminId     Int?
+  rejectedByAdminId     Int?
+  
+  // Notes and rejection reason
+  notes                 String?  @db.Text
+  rejectionReason       String?  @db.Text
+  
+  // Metadata
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([walletId])
+  @@index([status])
+  @@index([requestedAt])
+  @@index([processedByAdminId])
+  @@index([status, requestedAt])
+}
+
+// ============================================================
+// PHASE 2: Compliance & Audit Trail
+// AML/KYC compliance and complete audit logging
+// ============================================================
+
+// ComplianceCheck - AML/KYC verification records
+model ComplianceCheck {
+  id              String   @id @default(uuid())
+  
+  // Check type
+  checkType       ComplianceCheckType
+  
+  // Related entities
+  userId          Int?
+  transactionId   String?
+  settlementId    String?
+  
+  // Check details
+  status          ComplianceStatus @default(PENDING)
+  riskLevel       RiskLevel?
+  riskScore       Int? // 0-100
+  
+  // Check results
+  passedAt        DateTime?
+  failedAt        DateTime?
+  failureReason   String?  @db.Text
+  
+  // Check data (JSON)
+  checkData       Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime?
+  
+  @@index([userId])
+  @@index([transactionId])
+  @@index([settlementId])
+  @@index([checkType])
+  @@index([status])
+  @@index([riskLevel])
+}
+
+// TransactionLimit - User transaction limits
+model TransactionLimit {
+  id              String   @id @default(uuid())
+  userId          Int
+  
+  // Limit type
+  limitType       LimitType
+  
+  // Limit value
+  maxAmount       Decimal  @db.Decimal(19, 4)
+  period          LimitPeriod @default(DAILY)
+  usedAmount      Decimal  @default(0) @db.Decimal(19, 4)
+  
+  // Status
+  isActive        Boolean  @default(true)
+  
+  // Timestamps
+  resetAt         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([userId, limitType, period])
+  @@index([userId])
+  @@index([limitType])
+  @@index([isActive])
+}
+
+// AuditLog - Complete audit trail
+model AuditLog {
+  id              String   @id @default(uuid())
+  
+  // Action details
+  action          String   // CREATE, UPDATE, DELETE, VIEW, etc.
+  entityType      String   // Wallet, Transaction, Settlement, etc.
+  entityId        String
+  
+  // Actor
+  userId          Int?
+  userRole        String?
+  ipAddress       String?
+  userAgent       String?
+  
+  // Changes
+  oldValues       Json?
+  newValues       Json?
+  changes         Json?    // Computed changes
+  
+  // Context
+  description     String?  @db.Text
+  metadata        Json?
+  
+  // Verification
+  isVerified      Boolean  @default(false)
+  verifiedBy      Int?
+  verifiedAt      DateTime?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([isVerified])
+}
+
+// RollbackRecord - Transaction rollback records
+model RollbackRecord {
+  id              String   @id @default(uuid())
+  
+  // Original transaction
+  originalTransactionId String
+  entityType      String
+  entityId        String
+  
+  // Rollback details
+  reason          String   @db.Text
+  status          RollbackStatus @default(PENDING)
+  
+  // Actor
+  triggeredBy     Int?
+  triggerType     TriggerType @default(MANUAL)
+  
+  // Processing
+  processedAt     DateTime?
+  completedAt     DateTime?
+  failureReason   String?  @db.Text
+  
+  // Compensation data (JSON)
+  compensationData Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  @@index([originalTransactionId])
+  @@index([entityType, entityId])
+  @@index([status])
+  @@index([triggeredBy])
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  ESCROW_LOCK
+  ESCROW_RELEASE
+  ESCROW_REFUND
+  FEE_DEDUCTION
+  PAYOUT
+  // Phase 2 additions
+  SETTLEMENT_IN
+  SETTLEMENT_OUT
+  FEE_REVERSAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  // Phase 2 additions
+  PARTIALLY_RELEASED
+  CANCELLED
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  PROCESSING
+  COMPLETED
+  REJECTED
+  FAILED
+}
+
+enum PayoutMethod {
+  BANK_TRANSFER
+  PAYPAL
+  STRIPE_TRANSFER
+  CRYPTO
+  WALLET_TRANSFER
+}
+
+enum LedgerEntryType {
+  JOURNAL       // Journal entry
+  ADJUSTMENT    // Balance adjustment
+  CORRECTION    // Error correction
+  REVERSAL      // Transaction reversal
+}
+
+enum AccountType {
+  WALLET_AVAILABLE     // User's available wallet balance
+  WALLET_LOCKED        // User's locked wallet balance
+  PLATFORM_FEE         // Platform fee collection account
+  PROCESSING_FEE       // Payment processing fee account
+  ESCROW_HOLD          // Escrow hold account
+  SETTLEMENT_POOL      // Settlement pool for matching
+  HOLDING_ACCOUNT      // Temporary holding account
+  FEE_REVERSAL         // Fee reversal account
+}
+
+enum BuyRequestStatus {
+  OPEN
+  PARTIALLY_MATCHED
+  FULLY_MATCHED
+  CANCELLED
+  EXPIRED
+}
+
+enum SellOfferStatus {
+  OPEN
+  PARTIALLY_MATCHED
+  FULLY_MATCHED
+  CANCELLED
+  EXPIRED
+}
+
+enum SettlementStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  ROLLED_BACK
+}
+
+enum ComplianceCheckType {
+  IDENTITY_VERIFICATION      // KYC identity check
+  ADDRESS_VERIFICATION       // KYC address check
+  WATCHLIST_SCREENING        // AML watchlist check
+  TRANSACTION_MONITORING     // AML transaction monitoring
+  SANCTIONS_CHECK           // Sanctions list check
+  PEP_SCREENING             // Politically exposed person check
+  SOURCE_OF_FUNDS           // Source of funds verification
+  RISK_ASSESSMENT           // Overall risk assessment
+}
+
+enum ComplianceStatus {
+  PENDING
+  IN_PROGRESS
+  PASSED
+  FAILED
+  EXPIRED
+  REVIEW_REQUIRED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum LimitType {
+  DAILY_DEPOSIT
+  DAILY_WITHDRAWAL
+  DAILY_TRANSACTION
+  WEEKLY_TRANSACTION
+  MONTHLY_TRANSACTION
+  SINGLE_TRANSACTION
+  ESCROW_HOLD
+}
+
+enum LimitPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  LIFETIME
+}
+
+enum RollbackStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TriggerType {
+  MANUAL          // Admin triggered
+  AUTOMATIC       // System triggered (e.g., timeout)
+  COMPLIANCE      // Compliance triggered
+  FRAUD_DETECTION // Fraud detection triggered
+  USER_REQUEST    // User requested
+}

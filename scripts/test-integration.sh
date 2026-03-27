@@ -1,12 +1,12 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-# Mnbara Platform - Integration Testing Script
+# mnbarh Platform - Integration Testing Script
 # Launch Date: January 1, 2026
 # Status: FINAL TESTING BEFORE LAUNCH
 
 set -e
 
-echo "🧪 Mnbara Platform - Integration Testing"
+echo "ًں§ھ mnbarh Platform - Integration Testing"
 echo "========================================"
 echo "Launch Date: January 1, 2026"
 echo "Current Date: $(date)"
@@ -35,9 +35,9 @@ print_error() {
 }
 
 # Configuration
-BASE_URL="https://mnbara.com"
+BASE_URL="https://mnbarh.com"
 API_URL="$BASE_URL/api"
-TEST_EMAIL="test@mnbara.com"
+TEST_EMAIL="test@mnbarh.com"
 TEST_PASSWORD="TestPass123!"
 
 # Test counters
@@ -75,9 +75,9 @@ run_test "Order Service Health" "curl -f -s $API_URL/orders/health > /dev/null"
 # Test 2: Database Connectivity
 print_status "=== DATABASE CONNECTIVITY TESTS ==="
 
-run_test "PostgreSQL Connection" "kubectl exec -n mnbara-production deployment/postgres -- pg_isready -U mnbara_user"
-run_test "Redis Connection" "kubectl exec -n mnbara-production deployment/redis -- redis-cli ping"
-run_test "Elasticsearch Connection" "curl -f -s http://elasticsearch-service.mnbara-production.svc.cluster.local:9200/_cluster/health > /dev/null"
+run_test "PostgreSQL Connection" "kubectl exec -n mnbarh-production deployment/postgres -- pg_isready -U mnbarh_user"
+run_test "Redis Connection" "kubectl exec -n mnbarh-production deployment/redis -- redis-cli ping"
+run_test "Elasticsearch Connection" "curl -f -s http://elasticsearch-service.mnbarh-production.svc.cluster.local:9200/_cluster/health > /dev/null"
 
 # Test 3: Authentication Flow
 print_status "=== AUTHENTICATION TESTS ==="
@@ -200,7 +200,7 @@ run_test "API Response Time (<1s)" "[ $(echo '$API_RESPONSE_TIME < 1.0' | bc -l)
 print_status "=== SECURITY TESTS ==="
 
 # HTTPS redirect
-run_test "HTTPS Redirect" "curl -s -I http://mnbara.com | grep -q '301\\|302'"
+run_test "HTTPS Redirect" "curl -s -I http://mnbarh.com | grep -q '301\\|302'"
 
 # Security headers
 SECURITY_HEADERS=$(curl -s -I "$BASE_URL")
@@ -215,26 +215,26 @@ run_test "Rate Limiting" "for i in {1..10}; do curl -s $API_URL/products/categor
 print_status "=== MONITORING TESTS ==="
 
 # Prometheus metrics
-run_test "Prometheus Metrics" "curl -f -s https://monitoring.mnbara.com/prometheus/api/v1/query?query=up > /dev/null"
+run_test "Prometheus Metrics" "curl -f -s https://monitoring.mnbarh.com/prometheus/api/v1/query?query=up > /dev/null"
 
 # Grafana dashboard
-run_test "Grafana Dashboard" "curl -f -s https://monitoring.mnbara.com/grafana/api/health > /dev/null"
+run_test "Grafana Dashboard" "curl -f -s https://monitoring.mnbarh.com/grafana/api/health > /dev/null"
 
 # Test 12: Kubernetes Health
 print_status "=== KUBERNETES HEALTH TESTS ==="
 
 # Check all pods are running
-run_test "All Pods Running" "kubectl get pods -n mnbara-production --no-headers | grep -v Running | wc -l | grep -q '^0$'"
+run_test "All Pods Running" "kubectl get pods -n mnbarh-production --no-headers | grep -v Running | wc -l | grep -q '^0$'"
 
 # Check services are accessible
-run_test "Services Accessible" "kubectl get endpoints -n mnbara-production | grep -v '<none>' | wc -l | grep -q '[1-9]'"
+run_test "Services Accessible" "kubectl get endpoints -n mnbarh-production | grep -v '<none>' | wc -l | grep -q '[1-9]'"
 
 # Check HPA is working
-run_test "HPA Active" "kubectl get hpa -n mnbara-production --no-headers | wc -l | grep -q '[1-9]'"
+run_test "HPA Active" "kubectl get hpa -n mnbarh-production --no-headers | wc -l | grep -q '[1-9]'"
 
 # Final Results
 echo ""
-echo "🏁 INTEGRATION TEST RESULTS"
+echo "ًںڈپ INTEGRATION TEST RESULTS"
 echo "==========================="
 echo ""
 print_status "Total Tests: $TOTAL_TESTS"
@@ -247,45 +247,45 @@ print_status "Success Rate: $SUCCESS_RATE%"
 
 if [ $SUCCESS_RATE -ge 95 ]; then
     echo ""
-    print_success "🎉 EXCELLENT! Platform is ready for launch!"
-    print_success "🚀 All critical systems are operational"
+    print_success "ًںژ‰ EXCELLENT! Platform is ready for launch!"
+    print_success "ًںڑ€ All critical systems are operational"
     echo ""
-    echo "✅ Launch Readiness: APPROVED"
-    echo "✅ System Health: EXCELLENT"
-    echo "✅ Performance: OPTIMAL"
-    echo "✅ Security: SECURE"
+    echo "âœ… Launch Readiness: APPROVED"
+    echo "âœ… System Health: EXCELLENT"
+    echo "âœ… Performance: OPTIMAL"
+    echo "âœ… Security: SECURE"
     echo ""
-    echo "🎊 READY FOR JANUARY 1, 2026 LAUNCH! 🎊"
+    echo "ًںژٹ READY FOR JANUARY 1, 2026 LAUNCH! ًںژٹ"
 elif [ $SUCCESS_RATE -ge 85 ]; then
     echo ""
-    print_warning "⚠️  GOOD - Minor issues detected"
-    print_warning "🔧 Some non-critical tests failed"
+    print_warning "âڑ ï¸ڈ  GOOD - Minor issues detected"
+    print_warning "ًں”§ Some non-critical tests failed"
     echo ""
-    echo "⚠️  Launch Readiness: CONDITIONAL"
-    echo "✅ System Health: GOOD"
-    echo "⚠️  Performance: ACCEPTABLE"
-    echo "✅ Security: SECURE"
+    echo "âڑ ï¸ڈ  Launch Readiness: CONDITIONAL"
+    echo "âœ… System Health: GOOD"
+    echo "âڑ ï¸ڈ  Performance: ACCEPTABLE"
+    echo "âœ… Security: SECURE"
     echo ""
-    echo "🚀 Can launch with monitoring for issues"
+    echo "ًںڑ€ Can launch with monitoring for issues"
 else
     echo ""
-    print_error "❌ CRITICAL ISSUES DETECTED"
-    print_error "🚨 Too many tests failed for safe launch"
+    print_error "â‌Œ CRITICAL ISSUES DETECTED"
+    print_error "ًںڑ¨ Too many tests failed for safe launch"
     echo ""
-    echo "❌ Launch Readiness: NOT READY"
-    echo "❌ System Health: ISSUES DETECTED"
-    echo "❌ Performance: NEEDS IMPROVEMENT"
-    echo "❌ Security: REVIEW REQUIRED"
+    echo "â‌Œ Launch Readiness: NOT READY"
+    echo "â‌Œ System Health: ISSUES DETECTED"
+    echo "â‌Œ Performance: NEEDS IMPROVEMENT"
+    echo "â‌Œ Security: REVIEW REQUIRED"
     echo ""
-    echo "🔧 Fix critical issues before launch"
+    echo "ًں”§ Fix critical issues before launch"
 fi
 
 echo ""
-echo "📊 Detailed test results saved to integration-test-results.txt"
+echo "ًں“ٹ Detailed test results saved to integration-test-results.txt"
 
 # Save detailed results
 cat > integration-test-results.txt << EOF
-Mnbara Platform - Integration Test Results
+mnbarh Platform - Integration Test Results
 ==========================================
 Test Date: $(date)
 Launch Target: January 1, 2026
@@ -297,18 +297,18 @@ Summary:
 - Success Rate: $SUCCESS_RATE%
 
 Test Categories:
-✅ Health Checks
-✅ Database Connectivity
-✅ Authentication Flow
-✅ Product Catalog
-✅ Shopping Cart
-✅ Payment Processing
-✅ Order Management
-✅ Search Functionality
-✅ Performance Tests
-✅ Security Tests
-✅ Monitoring Tests
-✅ Kubernetes Health
+âœ… Health Checks
+âœ… Database Connectivity
+âœ… Authentication Flow
+âœ… Product Catalog
+âœ… Shopping Cart
+âœ… Payment Processing
+âœ… Order Management
+âœ… Search Functionality
+âœ… Performance Tests
+âœ… Security Tests
+âœ… Monitoring Tests
+âœ… Kubernetes Health
 
 Launch Readiness: $([ $SUCCESS_RATE -ge 95 ] && echo "APPROVED" || ([ $SUCCESS_RATE -ge 85 ] && echo "CONDITIONAL" || echo "NOT READY"))
 
@@ -317,7 +317,7 @@ Next Steps:
 2. Re-run integration tests
 3. Perform load testing
 4. Final security audit
-5. 🚀 LAUNCH ON JANUARY 1, 2026!
+5. ًںڑ€ LAUNCH ON JANUARY 1, 2026!
 EOF
 
 exit $([ $SUCCESS_RATE -ge 85 ] && echo 0 || echo 1)

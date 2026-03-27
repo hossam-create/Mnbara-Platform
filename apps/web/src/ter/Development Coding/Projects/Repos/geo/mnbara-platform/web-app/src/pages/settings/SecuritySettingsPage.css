@@ -1,0 +1,430 @@
+/**
+ * Security Settings Page Styles
+ */
+
+.mnbara-security-settings-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.mnbara-security-settings-page__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.mnbara-security-settings-page__header {
+  margin-bottom: 24px;
+}
+
+.mnbara-security-settings-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 8px 0;
+}
+
+.mnbara-security-settings-page__subtitle {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0;
+}
+
+.mnbara-security-settings-page__tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 0;
+}
+
+.mnbara-security-settings-page__tab {
+  padding: 12px 24px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.mnbara-security-settings-page__tab:hover {
+  color: #495057;
+}
+
+.mnbara-security-settings-page__tab.active {
+  color: #0d6efd;
+}
+
+.mnbara-security-settings-page__tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #0d6efd;
+}
+
+.mnbara-security-settings-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mnbara-security-settings-page__card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mnbara-security-settings-page__card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 8px 0;
+}
+
+.mnbara-security-settings-page__card-description {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.mnbara-security-settings-page__btn-primary {
+  padding: 12px 24px;
+  background-color: #0d6efd;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__btn-primary:hover {
+  background-color: #0b5ed7;
+}
+
+.mnbara-security-settings-page__btn-secondary {
+  padding: 12px 24px;
+  background-color: #f1f3f5;
+  color: #495057;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__btn-secondary:hover {
+  background-color: #e9ecef;
+}
+
+.mnbara-security-settings-page__btn-danger {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__btn-danger:hover {
+  background-color: #c82333;
+}
+
+.mnbara-security-settings-page__requirements {
+  margin: 0;
+  padding-left: 20px;
+  color: #495057;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.mnbara-security-settings-page__mfa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.mnbara-security-settings-page__mfa-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #d1e7dd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.mnbara-security-settings-page__mfa-badge {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0a5132;
+}
+
+.mnbara-security-settings-page__mfa-text {
+  font-size: 14px;
+  color: #0a5132;
+}
+
+.mnbara-security-settings-page__mfa-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 12px 0;
+}
+
+.mnbara-security-settings-page__mfa-method {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__mfa-method:hover {
+  border-color: #0d6efd;
+}
+
+.mnbara-security-settings-page__mfa-method input[type="radio"] {
+  margin-top: 4px;
+}
+
+.mnbara-security-settings-page__mfa-method-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mnbara-security-settings-page__mfa-method-icon {
+  font-size: 24px;
+}
+
+.mnbara-security-settings-page__mfa-method-content > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.mnbara-security-settings-page__mfa-method-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+}
+
+.mnbara-security-settings-page__mfa-method-desc {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mnbara-security-settings-page__sessions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.mnbara-security-settings-page__sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnbara-security-settings-page__session-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.mnbara-security-settings-page__session-icon {
+  font-size: 24px;
+}
+
+.mnbara-security-settings-page__session-info {
+  flex: 1;
+}
+
+.mnbara-security-settings-page__session-device {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mnbara-security-settings-page__session-browser {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+}
+
+.mnbara-security-settings-page__session-current {
+  padding: 2px 8px;
+  background-color: #d1e7dd;
+  color: #0a5132;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.mnbara-security-settings-page__session-meta {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mnbara-security-settings-page__session-terminate {
+  padding: 8px 16px;
+  background-color: #f8d7da;
+  color: #842029;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__session-terminate:hover {
+  background-color: #f1aeb5;
+}
+
+.mnbara-security-settings-page__accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mnbara-security-settings-page__account-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.mnbara-security-settings-page__account-icon {
+  font-size: 24px;
+}
+
+.mnbara-security-settings-page__account-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mnbara-security-settings-page__account-provider {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+}
+
+.mnbara-security-settings-page__account-email {
+  font-size: 13px;
+  color: #495057;
+}
+
+.mnbara-security-settings-page__account-date {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mnbara-security-settings-page__account-disconnect {
+  padding: 8px 16px;
+  background-color: #f1f3f5;
+  color: #495057;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__account-disconnect:hover {
+  background-color: #e9ecef;
+}
+
+.mnbara-security-settings-page__empty {
+  padding: 24px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.mnbara-security-settings-page__connect-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.mnbara-security-settings-page__connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__connect-btn:hover {
+  background-color: #e9ecef;
+}
+
+.mnbara-security-settings-page__connect-icon {
+  font-size: 18px;
+}
+
+.mnbara-security-settings-page__actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mnbara-security-settings-page__save-btn {
+  padding: 12px 32px;
+  background-color: #0d6efd;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mnbara-security-settings-page__save-btn:hover:not(:disabled) {
+  background-color: #0b5ed7;
+}
+
+.mnbara-security-settings-page__save-btn:disabled {
+  background-color: #0d6efd;
+  opacity: 0.6;
+  cursor: not-allowed;
+}

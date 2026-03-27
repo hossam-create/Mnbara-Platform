@@ -1,0 +1,199 @@
+// ============================================================
+// PHASE 5.0 — AUCTIONS FOUNDATION
+// eBay-style auction system with ZERO payment integration
+// Money stored as INTEGER (minor units): 10000 = 100.00 EGP
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// AUCTION — Core auction entity
+// Lifecycle: DRAFT → SCHEDULED → ACTIVE → ENDED
+// ============================================================
+
+model Auction {
+  id              String          @id @default(uuid())
+  
+  // Basic information
+  title           String
+  description     String          @db.Text
+  sellerId        String          // Reference to user service
+  sellerName      String?         // Cached for display
+  
+  // Pricing (stored as BigInt - minor units)
+  startingBid     BigInt          // e.g., 10000 = 100.00 EGP
+  reservePrice    BigInt?         // Minimum acceptable price (hidden from bidders)
+  buyNowPrice     BigInt?         // Instant purchase price (future feature)
+  currentBid      BigInt          @default(0)
+  
+  currency        String          @default("EGP") @db.Char(3)
+  
+  // Timing
+  startsAt        DateTime
+  endsAt          DateTime
+  originalEndsAt  DateTime        // Original end time before any extensions
+  
+  // Anti-sniping configuration
+  autoExtendEnabled     Boolean   @default(true)
+  autoExtendThresholdMs Int       @default(120000)  // 2 minutes in milliseconds
+  autoExtendDurationMs  Int       @default(120000)  // Extend by 2 minutes
+  maxExtensions         Int       @default(10)      // Maximum number of extensions allowed
+  extensionCount        Int       @default(0)       // Current number of extensions
+  
+  // Bid rules
+  minBidIncrement BigInt          @default(100)     // 1.00 EGP minimum increment
+  
+  // Lifecycle state
+  status          AuctionStatus   @default(DRAFT)
+  
+  // Winner tracking (set when status → ENDED)
+  winnerId        String?
+  winnerName      String?         // Cached for display
+  finalPrice      BigInt?         // Final winning bid amount
+  
+  // Metadata
+  category        String?
+  images          String[]        // Array of image URLs
+  tags            String[]        // Search tags
+  
+  // Relations
+  bids            Bid[]
+  extensions      AuctionExtension[]
+  
+  // Audit trail
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Constraints
+  @@index([status])
+  @@index([endsAt])
+  @@index([sellerId])
+  @@index([category])
+  @@index([startsAt])
+  
+  @@map("auction")
+}
+
+// ============================================================
+// BID — Append-only bid records
+// IMMUTABLE: Insert only, no updates (except status changes)
+// ============================================================
+
+model Bid {
+  id          String      @id @default(uuid())
+  
+  // Auction reference
+  auctionId   String
+  auction     Auction     @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  
+  // Bidder information
+  bidderId    String      // Reference to user service
+  bidderName  String?     // Cached for display (anonymized)
+  
+  // Bid amount (minor units)
+  amount      BigInt      // e.g., 15000 = 150.00 EGP
+  
+  // Bid context
+  isAutoBid   Boolean     @default(false)  // Future: proxy bidding
+  maxAmount   BigInt?     // Future: maximum amount for proxy bidding
+  
+  // Extension tracking
+  triggeredExtension Boolean @default(false)
+  
+  // Status tracking
+  status      BidStatus   @default(ACTIVE)
+  
+  // Immutable timestamp
+  createdAt   DateTime    @default(now())
+  
+  // NO updatedAt — bids are immutable records
+  
+  // Constraints
+  @@index([auctionId, createdAt(sort: Desc)])
+  @@index([bidderId])
+  @@index([status])
+  @@index([auctionId, status])
+  
+  @@map("bid")
+}
+
+// ============================================================
+// AUCTION EXTENSION — Anti-sniping audit trail
+// Tracks each time an auction was extended
+// ============================================================
+
+model AuctionExtension {
+  id              String      @id @default(uuid())
+  
+  // Auction reference
+  auctionId       String
+  auction         Auction     @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  
+  // Extension details
+  previousEndTime DateTime
+  newEndTime      DateTime
+  extensionMs     Int         // Duration of extension in milliseconds
+  extensionNumber Int         // 1st, 2nd, 3rd extension, etc.
+  
+  // Trigger tracking
+  triggeredByBidId String?    // Which bid caused this extension
+  triggeredByUserId String?   // Which user's bid triggered it
+  
+  // Timestamp
+  createdAt       DateTime    @default(now())
+  
+  // Constraints
+  @@index([auctionId])
+  @@index([createdAt])
+  
+  @@map("auction_extension")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum AuctionStatus {
+  DRAFT       // Created, not yet published
+  SCHEDULED   // Published, waiting for start time
+  ACTIVE      // Live, accepting bids
+  ENDED       // Time expired, winner determined
+  CANCELLED   // Cancelled by seller/admin
+  
+  @@map("auction_status")
+}
+
+enum BidStatus {
+  ACTIVE      // Current highest bid
+  OUTBID      // Outbid by another user
+  WINNING     // Auction ended, this bid won
+  CANCELLED   // Bid cancelled (rare, admin only)
+  
+  @@map("bid_status")
+}
+
+// ============================================================
+// PHASE 5.0 NOTES
+// ============================================================
+// 
+// ABSOLUTE RULES:
+// 1. NO payment integration in this phase
+// 2. NO wallet debits
+// 3. NO escrow creation
+// 4. Bids are append-only (no updates except status)
+// 5. Winner determination ≠ payment processing
+//
+// FUTURE (Phase 5.1):
+// - Auction settlement
+// - Winner payment capture
+// - Escrow integration
+// - Seller payout
+//
+// ============================================================

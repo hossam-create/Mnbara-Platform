@@ -1,0 +1,432 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Medusa-inspired Product Catalog
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  subtitle    String?
+  description String?
+  handle      String   @unique
+  isGiftcard  Boolean  @default(false)
+  status      String   @default("draft") // draft, proposed, published, rejected
+  thumbnail   String?
+  weight      Int?
+  length      Int?
+  height      Int?
+  width       Int?
+  hsCode      String?
+  originCountry String?
+  material    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  variants    ProductVariant[]
+  options     ProductOption[]
+  images      ProductImage[]
+  tags        ProductTag[]
+  categories  ProductCategory[]
+  collection  ProductCollection? @relation(fields: [collectionId], references: [id])
+  collectionId String?
+
+  // Mnbara specific
+  sellerId    String
+  sellerType  String // INDIVIDUAL, BUSINESS
+  
+  @@index([handle])
+  @@index([status])
+  @@index([sellerId])
+  @@map("products")
+}
+
+model ProductVariant {
+  id          String   @id @default(uuid())
+  title       String
+  productId   String
+  sku         String?  @unique
+  barcode     String?
+  ean         String?
+  upc         String?
+  inventoryQuantity Int @default(0)
+  allowBackorder Boolean @default(false)
+  manageInventory Boolean @default(true)
+  hsCode      String?
+  originCountry String?
+  material    String?
+  weight      Int?
+  length      Int?
+  height      Int?
+  width       Int?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  prices      ProductVariantPrice[]
+  options     ProductOptionValue[]
+
+  @@index([productId])
+  @@index([sku])
+  @@map("product_variants")
+}
+
+model ProductVariantPrice {
+  id          String   @id @default(uuid())
+  variantId   String
+  currencyCode String  // SAR, USD, EUR
+  amount      Int      // in cents
+  minQuantity Int?
+  maxQuantity Int?
+  priceListId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([variantId])
+  @@index([currencyCode])
+  @@map("product_variant_prices")
+}
+
+model ProductOption {
+  id          String   @id @default(uuid())
+  productId   String
+  title       String   // Size, Color, Material
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  values      ProductOptionValue[]
+
+  @@index([productId])
+  @@map("product_options")
+}
+
+model ProductOptionValue {
+  id          String   @id @default(uuid())
+  value       String   // Small, Medium, Large / Red, Blue
+  optionId    String
+  variantId   String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  option      ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@index([optionId])
+  @@index([variantId])
+  @@map("product_option_values")
+}
+
+model ProductImage {
+  id          String   @id @default(uuid())
+  productId   String
+  url         String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@map("product_images")
+}
+
+model ProductTag {
+  id          String   @id @default(uuid())
+  value       String   @unique
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products    Product[]
+
+  @@map("product_tags")
+}
+
+model ProductCategory {
+  id          String   @id @default(uuid())
+  name        String
+  handle      String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  isInternal  Boolean  @default(false)
+  parentId    String?
+  rank        Int      @default(0)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  parent      ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@index([handle])
+  @@index([parentId])
+  @@map("product_categories")
+}
+
+model ProductCollection {
+  id          String   @id @default(uuid())
+  title       String
+  handle      String   @unique
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  products    Product[]
+
+  @@index([handle])
+  @@map("product_collections")
+}
+
+// Cart System
+model Cart {
+  id          String   @id @default(uuid())
+  email       String?
+  customerId  String?
+  paymentId   String?
+  type        String   @default("default") // default, swap, draft_order, payment_link
+  completedAt DateTime?
+  paymentAuthorizedAt DateTime?
+  idempotencyKey String?
+  context     Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  items       CartItem[]
+  shippingAddress Address? @relation("CartShipping", fields: [shippingAddressId], references: [id])
+  billingAddress  Address? @relation("CartBilling", fields: [billingAddressId], references: [id])
+  shippingAddressId String?
+  billingAddressId  String?
+
+  @@index([customerId])
+  @@map("carts")
+}
+
+model CartItem {
+  id          String   @id @default(uuid())
+  cartId      String
+  title       String
+  description String?
+  thumbnail   String?
+  isReturn    Boolean  @default(false)
+  isGiftcard  Boolean  @default(false)
+  shouldMerge Boolean  @default(true)
+  allowDiscounts Boolean @default(true)
+  hasShipping Boolean  @default(false)
+  unitPrice   Int
+  variantId   String?
+  quantity    Int
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  cart        Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@index([cartId])
+  @@map("cart_items")
+}
+
+model Address {
+  id          String   @id @default(uuid())
+  customerId  String?
+  company     String?
+  firstName   String?
+  lastName    String?
+  address1    String?
+  address2    String?
+  city        String?
+  countryCode String?
+  province    String?
+  postalCode  String?
+  phone       String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  shippingCarts Cart[] @relation("CartShipping")
+  billingCarts  Cart[] @relation("CartBilling")
+
+  @@index([customerId])
+  @@map("addresses")
+}
+
+// Vendor/Seller Management (Mercur Extension)
+model Vendor {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  businessName String
+  businessType String  // INDIVIDUAL, BUSINESS, ENTERPRISE
+  email       String
+  phone       String?
+  status      String   @default("pending") // pending, active, suspended, banned
+  verificationStatus String @default("unverified") // unverified, pending, verified
+  taxId       String?
+  businessLicense String?
+  commissionRate Float  @default(10.0) // Platform commission percentage
+  payoutMethod String? // bank_transfer, stripe, paypal
+  payoutDetails Json?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  commissions VendorCommission[]
+  payouts     VendorPayout[]
+  analytics   VendorAnalytics?
+
+  @@index([userId])
+  @@index([status])
+  @@map("vendors")
+}
+
+model VendorCommission {
+  id          String   @id @default(uuid())
+  vendorId    String
+  orderId     String
+  orderItemId String
+  productId   String
+  saleAmount  Int      // Total sale amount in cents
+  commissionRate Float // Commission rate at time of sale
+  commissionAmount Int // Commission amount in cents
+  netAmount   Int      // Amount vendor receives (saleAmount - commissionAmount)
+  status      String   @default("pending") // pending, approved, paid
+  paidAt      DateTime?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@index([orderId])
+  @@index([status])
+  @@map("vendor_commissions")
+}
+
+model VendorPayout {
+  id          String   @id @default(uuid())
+  vendorId    String
+  amount      Int      // Payout amount in cents
+  currency    String   @default("SAR")
+  method      String   // bank_transfer, stripe, paypal
+  status      String   @default("pending") // pending, processing, completed, failed
+  commissionIds Json   // Array of commission IDs included in this payout
+  reference   String?  // External reference (bank transaction, Stripe transfer ID)
+  failureReason String?
+  processedAt DateTime?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@index([status])
+  @@map("vendor_payouts")
+}
+
+model VendorAnalytics {
+  id          String   @id @default(uuid())
+  vendorId    String   @unique
+  totalSales  Int      @default(0) // Total sales in cents
+  totalOrders Int      @default(0)
+  totalCommissions Int @default(0) // Total commissions paid
+  totalPayouts Int     @default(0) // Total payouts received
+  averageOrderValue Int @default(0)
+  productCount Int     @default(0)
+  rating      Float?
+  reviewCount Int      @default(0)
+  lastSaleAt  DateTime?
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@map("vendor_analytics")
+}
+
+// Order System
+model Order {
+  id          String   @id @default(uuid())
+  status      String   @default("pending") // pending, completed, archived, canceled, requires_action
+  fulfillmentStatus String @default("not_fulfilled") // not_fulfilled, partially_fulfilled, fulfilled, partially_shipped, shipped, partially_returned, returned, canceled, requires_action
+  paymentStatus String @default("not_paid") // not_paid, awaiting, captured, partially_refunded, refunded, canceled, requires_action
+  displayId   Int      @unique @default(autoincrement())
+  cartId      String?
+  customerId  String
+  email       String
+  currencyCode String
+  taxRate     Float?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  canceledAt  DateTime?
+
+  // Relations
+  items       OrderItem[]
+  shippingAddress Address? @relation("OrderShipping", fields: [shippingAddressId], references: [id])
+  billingAddress  Address? @relation("OrderBilling", fields: [billingAddressId], references: [id])
+  shippingAddressId String?
+  billingAddressId  String?
+
+  @@index([customerId])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  title       String
+  description String?
+  thumbnail   String?
+  isReturn    Boolean  @default(false)
+  isGiftcard  Boolean  @default(false)
+  unitPrice   Int
+  variantId   String?
+  quantity    Int
+  fulfilledQuantity Int @default(0)
+  returnedQuantity  Int @default(0)
+  shippedQuantity   Int @default(0)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@map("order_items")
+}

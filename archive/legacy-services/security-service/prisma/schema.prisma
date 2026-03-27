@@ -1,0 +1,857 @@
+// Security Service - Code Watermarking, Customs Warnings, Vulnerability Scanning
+// Service de sécurité - Filigrane de code, Avertissements douaniers, Détection de vulnérabilités
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 🔐 CODE WATERMARKING - Filigrane de code
+// ==========================================
+
+model CodeWatermark {
+  id                String   @id @default(uuid())
+  
+  // Watermark Identification
+  watermarkId       String   @unique
+  codeHash          String   @unique        // SHA-256 hash of the code
+  version           String                   // Code version
+  buildNumber       String?
+  commitHash        String?
+  
+  // Ownership Information
+  organizationId    String
+  organizationName  String
+  licenseId         String?
+  
+  // Watermark Data (encrypted)
+  watermarkData     Json                     // { ownerId, licenseType, expiration, permissions }
+  watermarkSignature String                  // Digital signature
+  
+  // Injection Details
+  injectedAt        DateTime  @default(now())
+  injectedBy        String
+  injectionMethod   String                   // AST, comments, binary, etc.
+  injectionLocation  String                   // File path or region
+  
+  // Distribution Tracking
+  distributedTo      String[]                // Authorized recipients
+  distributionDate   DateTime?
+  
+  // Status
+  isActive          Boolean  @default(true)
+  isCompromised     Boolean  @default(false)
+  compromisedAt     DateTime?
+  compromisedReason  String?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  expiresAt         DateTime?
+  
+  @@index([organizationId])
+  @@index([codeHash])
+  @@index([watermarkId])
+}
+
+// ==========================================
+// 🔍 LEAK TRACKING - Suivi des fuites
+// ==========================================
+
+model CodeLeak {
+  id                String   @id @default(uuid())
+  
+  // Leak Detection
+  leakId            String   @unique
+  sourceWatermarkId String
+  sourceWatermark   CodeWatermark? @relation(fields: [sourceWatermarkId], references: [id])
+  
+  // Detection Method
+  detectionMethod   DetectionMethod
+  detectionSource   String                   // URL, repository, forum, etc.
+  confidence        Float                    // 0.0 - 1.0
+  
+  // Leak Details
+  leakType          LeakType
+  leakedContent     Json?                   // Sample of leaked content (encrypted)
+  leakSize          Int?                    // Size in bytes
+  fileTypes         String[]
+  
+  // Location Information
+  platform          String?                 // GitHub, Pastebin, etc.
+  platformURL       String?
+  authorUsername    String?
+  authorProfileURL  String?
+  
+  // Legal Information
+  dmcaStatus        DMCAStatus              @default(NOT_SUBMITTED)
+  dmcaFiledAt       DateTime?
+  dmcaResponseDueAt  DateTime?
+  legalCaseNumber   String?
+  
+  // Actions Taken
+  actionsTaken      String[]
+  isResolved        Boolean  @default(false)
+  resolvedAt        DateTime?
+  resolutionNotes   String?
+  
+  // Priority (for tracking severity)
+  priority          Int       @default(1)   // 1-5 (5 = most critical)
+  
+  // Timestamps
+  detectedAt        DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([sourceWatermarkId])
+  @@index([detectionMethod])
+  @@index([dmcaStatus])
+}
+
+enum DetectionMethod {
+  AUTOMATED_SCAN
+  MANUAL_REPORT
+  THIRD_PARTY_ALERT
+  COMMUNITY_REPORT
+  LEGAL_INQUIRY
+  WEB_CRAWLER
+  SOCIAL_MONITORING
+}
+
+enum LeakType {
+  SOURCE_CODE
+  COMPILED_BINARY
+  CONFIG_FILES
+  CREDENTIALS
+  API_KEYS
+  DATABASE
+  DOCUMENTATION
+  INTERNAL_COMMUNICATION
+}
+
+enum DMCAStatus {
+  NOT_SUBMITTED
+  SUBMITTED
+  ACKNOWLEDGED
+  CONTENT_REMOVED
+  COUNTER_NOTICE
+  DISPUTED
+  RESOLVED
+}
+
+// ==========================================
+// 📦 CUSTOMS WARNINGS - Avertissements douaniers
+// ==========================================
+
+model CustomsRegulation {
+  id                String   @id @default(uuid())
+  
+  // Country Information
+  countryCode       String                   // ISO 3166-1 alpha-2
+  countryName       String
+  countryNameAr     String?                  // Arabic name
+  
+  // Regulation Details
+  regulationId      String   @unique
+  category          CustomsCategory
+  subcategory        String?
+  title             String
+  titleAr           String?
+  description       String
+  descriptionAr     String?
+  
+  // Legal References
+  lawReference      String?                  // e.g., "EU Regulation 2019/1024"
+  officialLink      String?                 // URL to official source
+  effectiveDate     DateTime?
+  expiryDate        DateTime?
+  
+  // Requirements
+  requiredDocuments String[]                // ["invoice", "certificate", "license"]
+  restrictedItems   String[]                // Items requiring special handling
+  prohibitedItems   String[]                // Items that cannot be imported
+  quantityLimits    Json?                   // { "alcohol": { "max": "2L", "unit": "liters" } }
+  
+  // Duties and Taxes
+  dutyRates         Json?                   // { "category": "electronics", "rate": "5%", "minDuty": "10" }
+  taxRates          Json?                   // { "vat": "20%", "excise": true }
+  
+  // Special Notes
+  specialNotes      String?
+  specialNotesAr    String?
+  warnings          String[]
+  warningsAr        String[]
+  
+  // Status
+  isActive          Boolean  @default(true)
+  lastVerifiedAt    DateTime?
+  source            String?                 // Where data was obtained
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([countryCode])
+  @@index([category])
+}
+
+model CustomsWarning {
+  id                String   @id @default(uuid())
+  
+  // Reference
+  warningId         String   @unique
+  regulationId      String
+  regulation        CustomsRegulation? @relation(fields: [regulationId], references: [id])
+  
+  // Warning Details
+  warningType       WarningType
+  severity          WarningSeverity
+  title             String
+  message           String
+  messageAr         String?
+  
+  // Product Information
+  productCategories  String[]
+  hsCodes           String[]                // Harmonized System codes
+  
+  // Triggers
+  conditions        Json?                   // When this warning applies
+  
+  // Actions Required
+  requiredActions   String[]
+  recommendations   String[]
+  links             Json?                   // [{ "title": "Link text", "url": "https://..." }]
+  
+  // Affected Regions
+  affectedRegions   String[]
+  
+  // Status
+  isActive          Boolean  @default(true)
+  effectiveFrom     DateTime?
+  effectiveUntil    DateTime?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([countryCode])
+  @@index([warningType])
+  @@index([severity])
+}
+
+enum CustomsCategory {
+  PROHIBITED
+  RESTRICTED
+  TAXABLE
+  DOCUMENTATION_REQUIRED
+  SPECIAL_PERMIT
+  QUOTA_RESTRICTED
+  TEMPORARY_IMPORT
+  RE_EXPORT
+  FREE_TRADE_AGREEMENT
+  GENERAL
+}
+
+enum WarningType {
+  PROHIBITED_ITEM
+  RESTRICTED_ITEM
+  DUTY_TAX_WARNING
+  DOCUMENTATION_REQUIRED
+  QUOTA_WARNING
+  SANCTIONS
+  EMBARGO
+  SPECIAL_REQUIREMENTS
+  SEASONAL_RESTRICTIONS
+  SAFETY_STANDARDS
+}
+
+enum WarningSeverity {
+  INFO
+  WARNING
+  CRITICAL
+  BLOCKING
+}
+
+// ==========================================
+// 🔒 VULNERABILITY SCANNING - Détection de vulnérabilités
+// ==========================================
+
+model VulnerabilityScan {
+  id                String   @id @default(uuid())
+  
+  // Scan Information
+  scanId            String   @unique
+  scanType          ScanType
+  target            String                   // URL, IP, repository, package name
+  targetType        TargetType
+  
+  // Scan Results
+  vulnerabilities   Vulnerability[]
+  criticalCount     Int       @default(0)
+  highCount         Int       @default(0)
+  mediumCount       Int       @default(0)
+  lowCount          Int       @default(0)
+  infoCount         Int       @default(0)
+  
+  // Scan Status
+  status            ScanStatus @default(PENDING)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  durationMs        Int?
+  
+  // Scanner Information
+  scannerTool       String
+  scannerVersion    String?
+  
+  // Configuration
+  scanConfig        Json?                   // Scan configuration used
+  
+  // Policy
+  compliancePolicy  String?
+  
+  // Report
+  reportUrl         String?
+  reportData        Json?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([target])
+  @@index([status])
+  @@index([scanType])
+}
+
+model Vulnerability {
+  id                String   @id @default(uuid())
+  
+  // Vulnerability Details
+  vulnId            String   @unique  // CVE ID or internal ID
+  cveId             String?          // CVE-2023-1234
+  title             String
+  description       String
+  descriptionAr     String?
+  
+  // Severity (CVSS v3.1)
+  cvssScore         Float?
+  cvssVector        String?
+  severity          VulnSeverity
+  
+  // Classification
+  category          VulnCategory
+  cweId             String?          // CWE-79
+  affectedComponent String
+  affectedVersion   String?
+  fixedVersion      String?
+  
+  // Remediation
+  remediation       String
+  remediationAr     String?
+  patchAvailable    Boolean  @default(false)
+  patchUrl          String?
+  
+  // Exploit Information
+  hasExploit        Boolean  @default(false)
+  exploitReferences String[]
+  exploitComplexity VulnExploitComplexity?
+  
+  // Status
+  status            VulnStatus   @default(OPEN)
+  assignedTo        String?
+  resolvedAt        DateTime?
+  resolutionNotes   String?
+  
+  // Risk Assessment
+  riskLevel         String?
+  businessImpact    String?
+  
+  // Timestamps
+  discoveredAt      DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastFalsePositiveAt DateTime?
+  
+  @@index([scanId])
+  @@index([severity])
+  @@index([cveId])
+  @@index([status])
+}
+
+enum ScanType {
+  FULL_SCAN
+  QUICK_SCAN
+  TARGETED_SCAN
+  DEPENDENCY_SCAN
+  CONTAINER_SCAN
+  INFRASTRUCTURE_SCAN
+  WEB_APPLICATION_SCAN
+  API_SCAN
+  SCHEDULED
+  MANUAL
+}
+
+enum TargetType {
+  REPOSITORY
+  PACKAGE
+  CONTAINER
+  INFRASTRUCTURE
+  WEB_APPLICATION
+  API
+  MOBILE_APPLICATION
+  SOURCE_CODE
+  COMPILED_BINARY
+}
+
+enum ScanStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+  SCHEDULED
+}
+
+enum VulnSeverity {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+  INFO
+}
+
+enum VulnCategory {
+  INJECTION
+  AUTHENTICATION
+  AUTHORIZATION
+  CRYPTOGRAPHY
+  CONFIGURATION
+  SENSITIVE_DATA
+  ACCESS_CONTROL
+  INPUT_VALIDATION
+  OUTPUT_ENCODING
+  SESSION_MANAGEMENT
+  ERROR_HANDLING
+  LOGGING
+  NETWORK_SECURITY
+  DEPENDENCY
+  CONTAINER_SECURITY
+  INFRASTRUCTURE
+  OTHER
+}
+
+enum VulnExploitComplexity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum VulnStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  FALSE_POSITIVE
+  ACCEPTED_RISK
+  SUPPRESSED
+}
+
+// ==========================================
+// 📋 SECURITY PATCH MANAGEMENT - Gestion des correctifs
+// ==========================================
+
+model SecurityPatch {
+  id                String   @id @default(uuid())
+  
+  // Patch Information
+  patchId           String   @unique
+  source            PatchSource
+  externalId        String?          // Vendor's patch ID
+  
+  // Vulnerability Reference
+  cveId             String?
+  cweId             String?
+  vulnId            String?
+  vulnerability     Vulnerability? @relation(fields: [vulnId], references: [id])
+  
+  // Details
+  title             String
+  description       String
+  descriptionAr     String?
+  
+  // Severity
+  severity          VulnSeverity
+  cvssScore         Float?
+  
+  // Affected Systems
+  affectedProducts  String[]
+  affectedVersions  String[]
+  fixedVersions     String[]
+  
+  // Patch Data
+  patchUrl          String?
+  patchSize         Int?
+  patchChecksum     String?
+  patchType         PatchType
+  
+  // Availability
+  releaseDate       DateTime?
+  availability      PatchAvailability
+  
+  // Installation
+  installInstructions String?
+  installInstructionsAr String?
+  rollbackInstructions String?
+  
+  // Dependencies
+  prerequisites     String[]
+  conflictsWith      String[]
+  
+  // Status
+  isCritical        Boolean  @default(false)
+  isMandatory       Boolean  @default(false)
+  dueDate           DateTime?           // Mandatory patch deadline
+  
+  // Deployment Tracking
+  deployedTo        String[]            // Environments deployed to
+  deploymentStatus  Json?               // { "production": "deployed", "staging": "pending" }
+  
+  // Review
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  reviewNotes       String?
+  approvalStatus    ApprovalStatus     @default(PENDING)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([source])
+  @@index([severity])
+  @@index([cveId])
+  @@index([approvalStatus])
+}
+
+model PatchDeployment {
+  id                String   @id @default(uuid())
+  
+  // Deployment Information
+  deploymentId      String   @unique
+  patchId           String
+  patch             SecurityPatch? @relation(fields: [patchId], references: [id])
+  
+  // Target Environment
+  environment       String                   // production, staging, development
+  targetSystem      String
+  targetVersion     String?
+  
+  // Deployment Status
+  status            DeploymentStatus
+  startedAt         DateTime?
+  completedAt       DateTime?
+  durationMs        Int?
+  
+  // Result
+  success           Boolean
+  errorMessage      String?
+  logs              String?
+  rollbackPerformed Boolean  @default(false)
+  rollbackReason    String?
+  
+  // Verification
+  verificationTests  String[]
+  verifiedBy        String?
+  verifiedAt        DateTime?
+  
+  // Actor
+  deployedBy        String?
+  deploymentMethod  String?                  // manual, automated, script
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([patchId])
+  @@index([environment])
+  @@index([status])
+}
+
+enum PatchSource {
+  VENDOR
+  OPEN_SOURCE
+  INTERNAL
+  COMMUNITY
+  SECURITY_BULLETIN
+}
+
+enum PatchType {
+  SECURITY_UPDATE
+  HOTFIX
+  SERVICE_PACK
+  BUNDLE_UPDATE
+  MANUAL_PATCH
+}
+
+enum PatchAvailability {
+  AVAILABLE
+  SCHEDULED
+  BETA
+  NOT_AVAILABLE
+  WORKAROUND_ONLY
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DEFERRED
+  EMERGENCY_APPROVED
+}
+
+enum DeploymentStatus {
+  PENDING
+  IN_PROGRESS
+  SUCCESS
+  FAILED
+  ROLLED_BACK
+  VERIFIED
+}
+
+// ==========================================
+// 📊 AUDIT LOGGING - Journalisation d'audit
+// ==========================================
+
+model SecurityAuditLog {
+  id                String   @id @default(uuid())
+  
+  // Event Identification
+  eventId           String   @unique
+  eventType         AuditEventType
+  eventCategory     String
+  
+  // Actor
+  actorId           String?
+  actorType         ActorType
+  actorName         String?
+  actorEmail        String?
+  actorIP           String?
+  actorUserAgent    String?
+  
+  // Target
+  targetId          String?
+  targetType        String?
+  targetName        String?
+  
+  // Action Details
+  action            String
+  description       String
+  descriptionAr     String?
+  
+  // Result
+  result            AuditResult
+  resultMessage     String?
+  
+  // Risk Assessment
+  riskLevel         RiskLevel
+  riskScore         Int?
+  
+  // Security Context
+  ipAddress         String?
+  userAgent         String?
+  sessionId         String?
+  requestId         String?
+  
+  // Location
+  country           String?
+  city              String?
+  
+  // Additional Data
+  metadata          Json?
+  oldValue          Json?
+  newValue          Json?
+  
+  // Compliance
+  complianceFlags   String[]
+  regulationRefs    String[]
+  
+  // Timestamps
+  timestamp         DateTime  @default(now())
+  
+  @@index([eventType])
+  @@index([actorId])
+  @@index([timestamp])
+  @@index([riskLevel])
+  @@index([result])
+}
+
+enum AuditEventType {
+  // Authentication
+  LOGIN_SUCCESS
+  LOGIN_FAILURE
+  LOGOUT
+  MFA_ENABLED
+  MFA_DISABLED
+  PASSWORD_CHANGE
+  PASSWORD_RESET
+  SESSION_CREATE
+  SESSION_TERMINATE
+  
+  // Authorization
+  ACCESS_GRANTED
+  ACCESS_DENIED
+  PERMISSION_CHANGE
+  ROLE_ASSIGN
+  ROLE_REMOVE
+  
+  // Data Access
+  DATA_VIEW
+  DATA_EXPORT
+  DATA_DOWNLOAD
+  DATA_DELETE
+  DATA_MODIFY
+  
+  // Security Events
+  SUSPICIOUS_ACTIVITY
+  BRUTE_FORCE_DETECTED
+  ANOMALY_DETECTED
+  INTRUSION_ATTEMPT
+  FIREWALL_BLOCK
+  
+  // System Changes
+  CONFIG_CHANGE
+  USER_CREATE
+  USER_DELETE
+  USER_MODIFY
+  API_KEY_CREATE
+  API_KEY_REVOKE
+  
+  // Security Scans
+  SCAN_STARTED
+  SCAN_COMPLETED
+  VULNERABILITY_FOUND
+  PATCH_APPLIED
+  
+  // Legal/Compliance
+  DATA_REQUEST_RECEIVED
+  DATA_DELETION_REQUEST
+  COMPLIANCE_VIOLATION
+  AUDIT_LOG_ACCESS
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  API
+  SERVICE
+  ADMIN
+  ANONYMOUS
+  EXTERNAL
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+  PARTIAL
+  DENIED
+  ERROR
+  PENDING
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ==========================================
+// 🔑 API KEYS & CREDENTIALS - Gestion des clés API
+// ==========================================
+
+model ApiKey {
+  id                String   @id @default(uuid())
+  
+  // Key Information
+  keyId             String   @unique
+  keyPrefix         String                   // First 8 chars for identification
+  keyHash           String                   // Hashed key
+  name              String
+  description       String?
+  
+  // Owner
+  ownerId           String
+  ownerType         String
+  ownerEmail        String?
+  
+  // Permissions
+  permissions       String[]
+  allowedIPs        String[]
+  rateLimit         Int?                     // Requests per hour
+  
+  // Status
+  status            ApiKeyStatus @default(ACTIVE)
+  lastUsedAt        DateTime?
+  lastIP            String?
+  usageCount        Int       @default(0)
+  
+  // Expiration
+  expiresAt         DateTime?
+  rotationRequired  Boolean  @default(false)
+  lastRotatedAt     DateTime?
+  
+  // Security
+  failedAttempts    Int       @default(0)
+  lockedAt          DateTime?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([ownerId])
+  @@index([status])
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  REVOKED
+  LOCKED
+  PENDING
+}
+
+// ==========================================
+// 📈 SECURITY METRICS - Métriques de sécurité
+// ==========================================
+
+model SecurityMetric {
+  id                String   @id @default(uuid())
+  
+  // Metric Identification
+  metricId          String   @unique
+  metricType        String
+  category          String
+  
+  // Values
+  value             Float
+  previousValue     Float?
+  changePercent     Float?
+  
+  // Context
+  timePeriod        String                   // daily, weekly, monthly
+  timestamp         DateTime
+  
+  // Thresholds
+  thresholdWarning  Float?
+  thresholdCritical Float?
+  
+  // Status
+  status            MetricStatus @default(NORMAL)
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([metricType])
+  @@index([timestamp])
+}
+
+enum MetricStatus {
+  NORMAL
+  WARNING
+  CRITICAL
+  UNKNOWN
+}

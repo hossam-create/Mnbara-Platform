@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  firstName     String
+  lastName      String
+  phone         String?
+  avatar        String?
+  bio           String?
+  
+  // Profile information
+  role          UserRole       @default(USER)
+  status        UserStatus     @default(ACTIVE)
+  emailVerified Boolean        @default(false)
+  phoneVerified Boolean        @default(false)
+  
+  // KYC
+  kycStatus     KycStatus      @default(PENDING)
+  kycVerifiedAt DateTime?
+  
+  // Trust and reputation
+  trustScore    Float          @default(5.0)
+  totalReviews  Int            @default(0)
+  
+  // Timestamps
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  addresses     Address[]
+  preferences   UserPreference?
+  
+  @@index([email])
+  @@index([status])
+  @@index([role])
+  @@index([kycStatus])
+  @@map("users")
+}
+
+model Address {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type          AddressType    @default(SHIPPING)
+  label         String?
+  street        String
+  city          String
+  state         String?
+  postalCode    String
+  country       String
+  
+  latitude      Float?
+  longitude     Float?
+  
+  isDefault     Boolean        @default(false)
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  @@index([userId])
+  @@index([country])
+  @@map("addresses")
+}
+
+model UserPreference {
+  id                    String         @id @default(uuid())
+  userId                String         @unique
+  user                  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Notification preferences
+  emailNotifications    Boolean        @default(true)
+  smsNotifications      Boolean        @default(false)
+  pushNotifications     Boolean        @default(true)
+  
+  // Privacy preferences
+  profileVisibility    ProfileVisibility @default(PUBLIC)
+  showEmail            Boolean        @default(false)
+  showPhone            Boolean        @default(false)
+  
+  // Marketing
+  marketingEmails      Boolean        @default(true)
+  
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  
+  @@map("user_preferences")
+}
+
+enum UserRole {
+  USER
+  SELLER
+  ADMIN
+  MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+  BOTH
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
+  FRIENDS_ONLY
+}
+
+model AuditLog {
+  id            Int            @id @default(autoincrement())
+  userId        String?
+  action        String
+  entityType    String
+  entityId      String?
+  changes       Json?
+  oldValues     Json?
+  newValues     Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime       @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

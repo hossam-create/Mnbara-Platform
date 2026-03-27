@@ -1,0 +1,42 @@
+{
+  "name": "test-live-plugin",
+  "version": "1.0.0",
+  "description": "A live-streaming plugin",
+  "main": "dist/index.js",
+  "type": "custom",
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@mnbara/plugin-core": "^1.0.0",
+    "@mnbara/live-streaming": "^1.0.0",
+    "socket.io-client": "^4.5.0"
+  },
+  "config": {
+    "streamUrl": "string",
+    "chatEnabled": "boolean",
+    "maxViewers": "number",
+    "streamQuality": "string"
+  },
+  "hooks": {
+    "stream:start": "onStreamStart",
+    "stream:stop": "onStreamStop",
+    "stream:viewer-joined": "onViewerJoined",
+    "stream:viewer-left": "onViewerLeft",
+    "stream:chat-message": "onChatMessage",
+    "stream:quality-changed": "onQualityChanged"
+  },
+  "permissions": [
+    "stream:read",
+    "stream:write",
+    "chat:read",
+    "chat:write"
+  ],
+  "resources": {
+    "memory": "256MB",
+    "cpu": "500m",
+    "storage": "1GB"
+  }
+}

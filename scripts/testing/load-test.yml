@@ -1,0 +1,124 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up - 10 users/sec"
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained load - 50 users/sec"
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak load - 100 users/sec"
+  processor: "./load-test-processor.js"
+  
+scenarios:
+  - name: "Complete User Journey"
+    weight: 50
+    flow:
+      # 1. User Registration
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "test{{ $randomNumber() }}@example.com"
+            password: "Test123!@#"
+            firstName: "Test"
+            lastName: "User"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # 2. Browse Products
+      - get:
+          url: "/api/products"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      # 3. View Product Details
+      - get:
+          url: "/api/products/{{ $randomString() }}"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      # 4. Add to Cart
+      - post:
+          url: "/api/cart/items"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            productId: "{{ $randomString() }}"
+            quantity: 1
+      
+      # 5. View Cart
+      - get:
+          url: "/api/cart"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+  
+  - name: "Seller Flow"
+    weight: 30
+    flow:
+      # 1. Login
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "seller@example.com"
+            password: "Seller123!@#"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # 2. Create Product
+      - post:
+          url: "/api/products"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            title: "Test Product {{ $randomNumber() }}"
+            description: "Test description"
+            price: 99.99
+            countryOfOrigin: "US"
+            category: "electronics"
+      
+      # 3. View My Listings
+      - get:
+          url: "/api/products/my-listings"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+  
+  - name: "Payment Flow"
+    weight: 20
+    flow:
+      # 1. Login
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "buyer@example.com"
+            password: "Buyer123!@#"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      # 2. Create Payment Intent
+      - post:
+          url: "/api/payments/create-intent"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            amount: 2999
+            currency: "usd"
+            orderId: "{{ $randomString() }}"
+      
+      # 3. Check Wallet Balance
+      - get:
+          url: "/api/wallet/balance"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+# Performance expectations
+expect:
+  - statusCode: 200
+  - contentType: json
+  - maxErrorRate: 1
+  - p95: 500  # 95th percentile response time < 500ms
+  - p99: 1000 # 99th percentile response time < 1000ms

@@ -1,0 +1,413 @@
+// ============================================================
+// Unified Wallet Service Prisma Schema - Consolidated Schema
+// ============================================================
+
+// Users table (extends existing user system)
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  username          String    @unique
+  fullName          String
+  
+  // KYC/AML fields
+  kycVerified       Boolean   @default(false)
+  kycLevel          KycLevel  @default(BASIC)
+  userType          UserType  @default(INDIVIDUAL)
+  
+  // Risk assessment
+  riskScore         Int       @default(0)
+  riskLevel         RiskLevel @default(LOW)
+  
+  // Status and settings
+  status            UserStatus @default(ACTIVE)
+  isActive          Boolean   @default(true)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  wallets           Wallet[]
+  ledgerEntries     LedgerEntry[]
+  complianceChecks  ComplianceCheck[]
+  payouts           Payout[]
+  escrowTransactions EscrowTransaction[] @relation("EscrowUser")
+  
+  @@index([email])
+  @@index([username])
+  @@index([kycVerified])
+  @@index([userType])
+  @@index([status])
+}
+
+// Multi-currency wallets
+model Wallet {
+  id                String        @id @default(cuid())
+  userId            String
+  currency          String        @db.VarChar(3) // ISO 4217 currency codes
+  
+  // Wallet details
+  type              WalletType    @default(PERSONAL)
+  status            WalletStatus  @default(ACTIVE)
+  
+  // Balances
+  balance           Decimal       @default(0) @db.Decimal(15, 2)
+  pendingBalance    Decimal       @default(0) @db.Decimal(15, 2)
+  totalBalance      Decimal       @default(0) @db.Decimal(15, 2)
+  
+  // Limits (in currency units)
+  dailyLimit        Decimal       @default(10000) @db.Decimal(15, 2)
+  monthlyLimit      Decimal       @default(100000) @db.Decimal(15, 2)
+  yearlyLimit       Decimal       @default(1000000) @db.Decimal(15, 2)
+  perTransactionLimit Decimal     @default(5000) @db.Decimal(15, 2)
+  
+  // Security
+  isLocked          Boolean       @default(false)
+  lockReason        String?
+  lockExpiresAt     DateTime?
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  lastTransactionAt DateTime?
+  
+  // Relations
+  user              User          @relation(fields: [userId], references: [id])
+  ledgerEntries     LedgerEntry[]
+  escrowBuyer       EscrowTransaction[] @relation("EscrowBuyer")
+  escrowSeller      EscrowTransaction[] @relation("EscrowSeller")
+  
+  @@unique([userId, currency])
+  @@index([userId])
+  @@index([currency])
+  @@index([status])
+  @@index([isLocked])
+}
+
+// Double-entry ledger entries
+model LedgerEntry {
+  id              String          @id @default(cuid())
+  walletId        String
+  currency        String          @db.VarChar(3)
+  
+  // Entry details
+  type            LedgerType      // debit or credit
+  amount          Decimal         @db.Decimal(15, 2)
+  balance         Decimal         @db.Decimal(15, 2) // Balance after this entry
+  
+  // Reference information
+  description     String
+  referenceId     String?         // External reference (order ID, transaction ID, etc.)
+  referenceType   ReferenceType?  // Type of reference
+  
+  // Additional data
+  metadata        Json?           // Store additional transaction data
+  tags            String[]        @default([])
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  wallet          Wallet          @relation(fields: [walletId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
+  userId          String
+  
+  @@index([walletId])
+  @@index([userId])
+  @@index([currency])
+  @@index([type])
+  @@index([referenceId])
+  @@index([referenceType])
+  @@index([createdAt])
+}
+
+// Escrow transactions
+model EscrowTransaction {
+  id              String          @id @default(cuid())
+  buyerWalletId   String
+  sellerWalletId  String
+  orderId         String          @unique
+  
+  // Transaction details
+  amount          Decimal         @db.Decimal(15, 2)
+  currency        String          @db.VarChar(3)
+  status          EscrowStatus    @default(PENDING)
+  
+  // Release conditions
+  releaseType     ReleaseType     @default(MANUAL)
+  releaseConditions Json?         // JSON structure for release conditions
+  holdDuration    Int?            // Duration in milliseconds
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  releasedAt      DateTime?
+  expiresAt       DateTime?
+  
+  // Relations
+  buyerWallet     Wallet          @relation("EscrowBuyer", fields: [buyerWalletId], references: [id])
+  sellerWallet    Wallet          @relation("EscrowSeller", fields: [sellerWalletId], references: [id])
+  buyer           User            @relation("EscrowUser", fields: [buyerId], references: [id])
+  buyerId         String
+  
+  @@index([buyerWalletId])
+  @@index([sellerWalletId])
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Payout requests
+model Payout {
+  id              String          @id @default(cuid())
+  walletId        String
+  
+  // Payout details
+  amount          Decimal         @db.Decimal(15, 2)
+  currency        String          @db.VarChar(3)
+  status          PayoutStatus    @default(PENDING)
+  
+  // Destination information
+  destinationType DestinationType
+  destinationDetails Json         // Store destination details (bank account, PayPal, etc.)
+  
+  // Reference and tracking
+  referenceId     String?         @unique
+  externalId      String?         // External system ID (bank transfer ID, etc.)
+  
+  // Processing information
+  processingFee   Decimal         @default(0) @db.Decimal(15, 2)
+  netAmount       Decimal         @db.Decimal(15, 2)
+  exchangeRate    Decimal?        @db.Decimal(10, 6) // For currency conversions
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  processedAt     DateTime?
+  completedAt     DateTime?
+  
+  // Additional data
+  metadata        Json?
+  failureReason   String?
+  
+  // Relations
+  wallet          Wallet          @relation(fields: [walletId], references: [id])
+  
+  @@index([walletId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([referenceId])
+}
+
+// Compliance checks
+model ComplianceCheck {
+  id              String          @id @default(cuid())
+  userId          String
+  
+  // Check details
+  transactionType TransactionType
+  amount          Decimal         @db.Decimal(15, 2)
+  currency        String          @db.VarChar(3)
+  counterpartyId  String?
+  
+  // Check results
+  status          ComplianceStatus @default(PENDING)
+  approved        Boolean         @default(false)
+  reason          String?
+  riskScore       Int             @default(0)
+  
+  // Additional data
+  metadata        Json?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  completedAt     DateTime?
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([status])
+  @@index([approved])
+  @@index([createdAt])
+}
+
+// Currency exchange rates
+model ExchangeRate {
+  id              String          @id @default(cuid())
+  
+  // Currency pair
+  fromCurrency    String          @db.VarChar(3)
+  toCurrency      String          @db.VarChar(3)
+  
+  // Exchange rate information
+  rate            Decimal         @db.Decimal(10, 6)
+  bidRate         Decimal         @db.Decimal(10, 6) // Buying rate
+  askRate         Decimal         @db.Decimal(10, 6) // Selling rate
+  spread          Decimal         @db.Decimal(5, 4)   // Spread percentage
+  
+  // Source and validity
+  source          String          // Data source (ECB, XE, etc.)
+  validFrom       DateTime
+  validTo         DateTime?
+  isActive        Boolean         @default(true)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@unique([fromCurrency, toCurrency, validFrom])
+  @@index([fromCurrency, toCurrency])
+  @@index([isActive])
+  @@index([validFrom, validTo])
+}
+
+// Transaction limits
+model TransactionLimit {
+  id              String          @id @default(cuid())
+  
+  // Limit scope
+  userId          String?
+  userType        UserType?
+  kycLevel        KycLevel?
+  
+  // Limit details
+  transactionType TransactionType
+  currency        String          @db.VarChar(3)
+  
+  // Limit values
+  dailyLimit      Decimal         @db.Decimal(15, 2)
+  monthlyLimit    Decimal         @db.Decimal(15, 2)
+  yearlyLimit     Decimal         @db.Decimal(15, 2)
+  perTransactionLimit Decimal     @db.Decimal(15, 2)
+  
+  // Status
+  isActive        Boolean         @default(true)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([userId])
+  @@index([userType])
+  @@index([kycLevel])
+  @@index([transactionType])
+  @@index([isActive])
+}
+
+// Enums
+enum WalletType {
+  PERSONAL
+  BUSINESS
+  MERCHANT
+  PLATFORM
+}
+
+enum WalletStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+  SUSPENDED
+  CLOSED
+}
+
+enum LedgerType {
+  DEBIT
+  CREDIT
+}
+
+enum ReferenceType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  SETTLEMENT
+  CONVERSION
+  FEE
+  REFUND
+  CHARGEBACK
+  ESCROW
+  PAYOUT
+}
+
+enum EscrowStatus {
+  PENDING
+  HELD
+  RELEASED
+  CANCELLED
+  DISPUTED
+  EXPIRED
+}
+
+enum ReleaseType {
+  MANUAL
+  AUTOMATIC
+  TIME_BASED
+  MILESTONE
+  CONDITIONAL
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum DestinationType {
+  BANK_ACCOUNT
+  PAYPAL
+  STRIPE
+  CRYPTO
+  MOBILE_MONEY
+  CHECK
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  CONVERSION
+  SETTLEMENT
+  ESCROW
+  PAYOUT
+}
+
+enum ComplianceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  MANUAL_REVIEW
+}
+
+enum UserType {
+  INDIVIDUAL
+  BUSINESS
+  MERCHANT
+  ADMIN
+}
+
+enum KycLevel {
+  BASIC
+  VERIFIED
+  ENHANCED
+  CORPORATE
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+  PENDING_VERIFICATION
+}

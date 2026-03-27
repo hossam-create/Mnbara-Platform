@@ -1,6 +1,6 @@
-#!/bin/bash
+﻿#!/bin/bash
 
-echo "Starting MNBara MVP Platform..."
+echo "Starting mnbarh MVP Platform..."
 echo ""
 
 echo "Starting Docker services..."
@@ -20,7 +20,7 @@ cd backend/services/compliance-service && npm run prisma:migrate && cd ../../..
 
 echo ""
 echo "========================================"
-echo "MNBara MVP Platform Started!"
+echo "mnbarh MVP Platform Started!"
 echo "========================================"
 echo ""
 echo "Services:"
@@ -35,3 +35,4 @@ echo ""
 echo "To view logs: docker-compose -f docker-compose.dev.yml logs -f"
 echo "To stop: docker-compose -f docker-compose.dev.yml down"
 echo ""
+

@@ -1,0 +1,335 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LiveStream {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  streamKey   String   @unique
+  rtmpUrl     String?
+  hlsUrl      String?
+  webrtcUrl   String?
+  status      StreamStatus @default(offline)
+  isLive      Boolean  @default(false)
+  viewerCount Int      @default(0)
+  maxViewers  Int      @default(0)
+  duration    Int      @default(0) // in seconds
+  thumbnail   String?
+  tags        String[]
+  metadata    Json?
+  
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  chatRoom    ChatRoom?
+  auctions    LiveAuction[]
+  analytics   StreamAnalytics[]
+  
+  // Timestamps
+  startedAt   DateTime?
+  endedAt     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([isLive])
+}
+
+model ChatRoom {
+  id        String   @id @default(cuid())
+  name      String
+  isActive  Boolean  @default(true)
+  settings  Json?
+  
+  // Relations
+  streamId  String   @unique
+  stream    LiveStream @relation(fields: [streamId], references: [id])
+  
+  messages  ChatMessage[]
+  users     ChatUser[]
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([streamId])
+  @@index([isActive])
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  content     String
+  messageType MessageType @default(text)
+  isDeleted   Boolean  @default(false)
+  metadata    Json?
+  
+  // Relations
+  roomId      String
+  room        ChatRoom @relation(fields: [roomId], references: [id])
+  
+  userId      String
+  user        ChatUser @relation(fields: [userId], references: [id])
+  
+  reactions   MessageReaction[]
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([roomId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ChatUser {
+  id           String   @id @default(cuid())
+  username     String
+  avatar       String?
+  isModerator  Boolean  @default(false)
+  isBanned     Boolean  @default(false)
+  banExpiry    DateTime?
+  metadata     Json?
+  
+  // Relations
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  
+  rooms        ChatRoom[]
+  messages     ChatMessage[]
+  reactions    MessageReaction[]
+  violations   ModerationViolation[]
+  
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isBanned])
+}
+
+model MessageReaction {
+  id        String   @id @default(cuid())
+  emoji     String
+  
+  // Relations
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id])
+  
+  userId    String
+  user      ChatUser @relation(fields: [userId], references: [id])
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@index([messageId])
+}
+
+model LiveAuction {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  startingPrice   Float
+  currentPrice    Float
+  reservePrice    Float?
+  minBidIncrement Float    @default(1.0)
+  status          AuctionStatus @default(scheduled)
+  isActive        Boolean  @default(false)
+  autoExtend      Boolean  @default(true)
+  antiSnipeTime   Int      @default(300) // seconds
+  
+  // Timing
+  startTime       DateTime
+  endTime         DateTime
+  extendedEndTime DateTime?
+  
+  // Product info
+  productId       String
+  productName     String
+  productImage    String?
+  productUrl      String?
+  
+  // Relations
+  streamId        String
+  stream          LiveStream @relation(fields: [streamId], references: [id])
+  
+  sellerId        String
+  seller          User     @relation(fields: [sellerId], references: [id])
+  
+  bids            AuctionBid[]
+  payments        AuctionPayment[]
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([streamId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([startTime])
+  @@index([endTime])
+}
+
+model AuctionBid {
+  id          String   @id @default(cuid())
+  amount      Float
+  isWinning   Boolean  @default(false)
+  isProxy     Boolean  @default(false)
+  proxyLimit  Float?
+  metadata    Json?
+  
+  // Relations
+  auctionId   String
+  auction     LiveAuction @relation(fields: [auctionId], references: [id])
+  
+  bidderId    String
+  bidder      User     @relation(fields: [bidderId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  @@unique([auctionId, amount])
+  @@index([auctionId])
+  @@index([bidderId])
+  @@index([createdAt])
+}
+
+model AuctionPayment {
+  id            String   @id @default(cuid())
+  amount        Float
+  currency      String   @default("USD")
+  status        PaymentStatus @default(pending)
+  paymentMethod String?
+  transactionId String?
+  metadata      Json?
+  
+  // Relations
+  auctionId     String   @unique
+  auction       LiveAuction @relation(fields: [auctionId], references: [id])
+  
+  payerId       String
+  payer         User     @relation(fields: [payerId], references: [id])
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  paidAt        DateTime?
+  timeoutAt     DateTime?
+
+  @@index([auctionId])
+  @@index([payerId])
+  @@index([status])
+}
+
+model StreamAnalytics {
+  id              String   @id @default(cuid())
+  date            DateTime @default(now())
+  
+  // Metrics
+  totalViewers    Int      @default(0)
+  uniqueViewers   Int      @default(0)
+  peakViewers     Int      @default(0)
+  averageViewers  Float    @default(0)
+  totalWatchTime  Int      @default(0) // seconds
+  chatMessages    Int      @default(0)
+  reactions       Int      @default(0)
+  shares          Int      @default(0)
+  
+  // Revenue
+  totalRevenue    Float    @default(0)
+  auctionRevenue  Float    @default(0)
+  tips            Float    @default(0)
+  
+  // Demographics
+  demographics    Json?
+  
+  // Relations
+  streamId        String
+  stream          LiveStream @relation(fields: [streamId], references: [id])
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([streamId, date])
+  @@index([streamId])
+  @@index([date])
+}
+
+model ModerationViolation {
+  id          String   @id @default(cuid())
+  ruleId      String
+  action      String
+  reason      String
+  severity    String
+  expiresAt   DateTime?
+  metadata    Json?
+  
+  // Relations
+  userId      String
+  user        ChatUser @relation(fields: [userId], references: [id])
+  
+  messageId   String?
+  message     ChatMessage? @relation(fields: [messageId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([ruleId])
+}
+
+// Reference to existing User model (assumed to exist)
+model User {
+  id           String   @id @default(cuid())
+  // ... existing user fields ...
+  
+  // Relations
+  liveStreams  LiveStream[]
+  chatUser     ChatUser?
+  auctions     LiveAuction[]
+  bids         AuctionBid[]
+  payments     AuctionPayment[]
+}
+
+// Enums
+enum StreamStatus {
+  offline
+  live
+  scheduled
+  ended
+  error
+}
+
+enum MessageType {
+  text
+  emote
+  announcement
+  system
+}
+
+enum AuctionStatus {
+  scheduled
+  active
+  ended
+  cancelled
+  payment_pending
+  completed
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  completed
+  failed
+  cancelled
+  refunded
+}

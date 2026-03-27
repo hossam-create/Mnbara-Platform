@@ -1,0 +1,133 @@
+groups:
+  - name: decision_authority_alerts
+    interval: 30s
+    rules:
+      # High error rate alert
+      - alert: HighDecisionErrorRate
+        expr: |
+          (rate(decision_errors_total[5m]) / rate(decision_requests_total[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: decision-authority-service
+        annotations:
+          summary: "High decision error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/high-error-rate"
+
+      # High latency alert
+      - alert: HighDecisionLatency
+        expr: |
+          histogram_quantile(0.95, rate(decision_requests_duration_ms_bucket[5m])) > 5000
+        for: 5m
+        labels:
+          severity: warning
+          service: decision-authority-service
+        annotations:
+          summary: "High decision request latency detected"
+          description: "P95 latency is {{ $value }}ms (threshold: 5000ms)"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/high-latency"
+
+      # Service down alert
+      - alert: DecisionAuthorityServiceDown
+        expr: |
+          up{job="decision-authority-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: decision-authority-service
+        annotations:
+          summary: "Decision Authority Service is down"
+          description: "Service has been down for more than 1 minute"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/service-down"
+
+      # Database connection error alert
+      - alert: DatabaseConnectionError
+        expr: |
+          increase(decision_errors_total{error_type="database_connection"}[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          service: decision-authority-service
+        annotations:
+          summary: "Database connection error detected"
+          description: "Cannot connect to database"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/database-connection-error"
+
+      # Custodii API error alert
+      - alert: CustodiiApiError
+        expr: |
+          increase(custodii_api_errors_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: decision-authority-service
+        annotations:
+          summary: "Custodii API errors detected"
+          description: "{{ $value }} Custodii API errors in last 5 minutes"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/custodii-api-error"
+
+      # High polling backlog alert
+      - alert: HighPollingBacklog
+        expr: |
+          active_decisions > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: decision-authority-service
+        annotations:
+          summary: "High polling backlog detected"
+          description: "{{ $value }} active pending decisions"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/polling-backlog-growth"
+
+      # Slow database queries alert
+      - alert: SlowDatabaseQueries
+        expr: |
+          histogram_quantile(0.95, rate(db_query_duration_ms_bucket[5m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: decision-authority-service
+        annotations:
+          summary: "Slow database queries detected"
+          description: "P95 query duration is {{ $value }}ms (threshold: 1000ms)"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/slow-queries"
+
+      # Low cache hit rate alert
+      - alert: LowCacheHitRate
+        expr: |
+          cache_hit_rate < 0.5
+        for: 10m
+        labels:
+          severity: info
+          service: decision-authority-service
+        annotations:
+          summary: "Low cache hit rate detected"
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 50%)"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/low-cache-hit-rate"
+
+      # Decision timeout alert
+      - alert: DecisionTimeout
+        expr: |
+          increase(decision_errors_total{error_type="timeout"}[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: decision-authority-service
+        annotations:
+          summary: "Decision timeout errors detected"
+          description: "{{ $value }} timeout errors in last 5 minutes"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/decision-timeout"
+
+      # External auto-disabled alert
+      - alert: ExternalAutoDisabled
+        expr: |
+          increase(decision_errors_total{error_type="external_disabled"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: decision-authority-service
+        annotations:
+          summary: "External decision authority auto-disabled"
+          description: "External mode has been automatically disabled due to errors"
+          runbook_url: "https://wiki.mnbarh.com/runbooks/external-auto-disabled"

@@ -1,0 +1,201 @@
+# CrafterCMS Deployer Configuration
+# Base configuration for content deployment
+
+# Target configurations
+targets:
+  - name: mnbara-authoring
+    site_name: mnbara
+    engine_url: http://crafter-engine:8080
+    local_repo_path: /opt/crafter/data/repos/sites/mnbara
+    deployment_policy: always
+    
+    # Deployment pipeline
+    pipeline:
+      - processor_name: gitPullProcessor
+        remote_repo:
+          url: /opt/crafter/data/repos/sites/mnbara/published
+          branch: master
+          
+      - processor_name: searchIndexingProcessor
+        elasticsearch:
+          urls:
+            - http://elasticsearch:9200
+          username: ''
+          password: ''
+          
+      - processor_name: httpMethodCallProcessor
+        method: POST
+        url: http://crafter-engine:8080/api/1/site/context/rebuild.json?crafterSite=mnbara
+        
+      - processor_name: httpMethodCallProcessor
+        method: POST
+        url: http://crafter-engine:8080/api/1/site/context/graphql/rebuild.json?crafterSite=mnbara
+
+  - name: mnbara-delivery
+    site_name: mnbara
+    engine_url: http://crafter-engine:8081
+    local_repo_path: /opt/crafter/data/repos/sites/mnbara-delivery
+    deployment_policy: on_commit
+    
+    pipeline:
+      - processor_name: gitPullProcessor
+        remote_repo:
+          url: /opt/crafter/data/repos/sites/mnbara/published
+          branch: master
+          
+      - processor_name: searchIndexingProcessor
+        elasticsearch:
+          urls:
+            - http://elasticsearch:9200
+          
+      - processor_name: httpMethodCallProcessor
+        method: POST
+        url: http://crafter-engine:8081/api/1/site/context/rebuild.json?crafterSite=mnbara
+
+# Global deployment settings
+deployment:
+  # Thread pool settings
+  thread_pool:
+    core_pool_size: 10
+    max_pool_size: 50
+    queue_capacity: 1000
+    keep_alive_seconds: 60
+    
+  # Retry settings
+  retry:
+    max_attempts: 3
+    initial_interval: 1000
+    max_interval: 30000
+    multiplier: 2
+    
+  # Timeout settings
+  timeout:
+    connection: 30000
+    read: 60000
+    
+# Git settings
+git:
+  # Credentials for private repos (if needed)
+  credentials:
+    # provider: https
+    # username: ${env:GIT_USERNAME}
+    # password: ${env:GIT_PASSWORD}
+    
+  # SSL settings
+  ssl:
+    verify: false
+    
+# Search settings
+search:
+  elasticsearch:
+    # Connection settings
+    connection:
+      timeout: 30000
+      max_retries: 3
+      
+    # Index settings
+    index:
+      settings:
+        number_of_shards: 1
+        number_of_replicas: 0
+        
+    # Mapping settings
+    mapping:
+      date_detection: false
+      numeric_detection: false
+      
+# Webhook settings
+webhooks:
+  enabled: true
+  
+  # Deployment webhooks
+  deployment:
+    - name: content_update_webhook
+      url: http://content-service:3000/api/webhooks/content-updated
+      method: POST
+      headers:
+        Content-Type: application/json
+        X-Webhook-Secret: ${env:WEBHOOK_SECRET}
+      events:
+        - deployment_completed
+        - deployment_failed
+        
+    - name: search_index_webhook
+      url: http://search-service:3001/api/webhooks/index-updated
+      method: POST
+      headers:
+        Content-Type: application/json
+      events:
+        - search_index_updated
+
+# Monitoring settings
+monitoring:
+  enabled: true
+  
+  # Metrics collection
+  metrics:
+    enabled: true
+    export_interval: 60000  # 1 minute
+    
+  # Health checks
+  health:
+    enabled: true
+    check_interval: 30000  # 30 seconds
+    
+  # Alerting
+  alerts:
+    enabled: true
+    
+    # Email alerts (if configured)
+    email:
+      smtp:
+        host: ${env:SMTP_HOST}
+        port: ${env:SMTP_PORT:587}
+        username: ${env:SMTP_USERNAME}
+        password: ${env:SMTP_PASSWORD}
+        
+      recipients:
+        - admin@mnbara.com
+        - devops@mnbara.com
+        
+    # Slack alerts (if configured)
+    slack:
+      webhook_url: ${env:SLACK_WEBHOOK_URL}
+      channel: "#alerts"
+      
+# Logging settings
+logging:
+  level: INFO
+  
+  # File logging
+  file:
+    enabled: true
+    path: /opt/crafter/logs/deployer
+    max_size: 10MB
+    max_files: 10
+    
+  # Console logging
+  console:
+    enabled: true
+    pattern: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    
+# Security settings
+security:
+  # Encryption settings
+  encryption:
+    enabled: true
+    key: ${env:ENCRYPTION_KEY}
+    
+  # Access control
+  access:
+    # IP whitelist (if needed)
+    whitelist:
+      - 127.0.0.1
+      - 172.20.0.0/16  # Docker network
+      - 10.0.0.0/8     # Internal network
+      
+    # Authentication (if needed)
+    auth:
+      enabled: false
+      # username: ${env:DEPLOYER_USERNAME}
+      # password: ${env:DEPLOYER_PASSWORD}

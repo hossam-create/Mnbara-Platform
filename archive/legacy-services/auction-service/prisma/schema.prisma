@@ -1,0 +1,1596 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  firstName     String
+  lastName      String
+  
+  bids          Bid[]
+  listings      Listing[]
+  proxyBids     ProxyBid[]
+  sellerPreferences SellerPreference[]
+  
+  // Phase 6.0: Enforcement
+  enforcementActions EnforcementAction[]
+  enforcementAppeals EnforcementAppeal[]
+  appealSubmissions  EnforcementAppealSubmission[]
+  
+  // Phase 6.2: Trust Actions
+  trustActions  TrustAction[]
+  
+  // Phase 6.4: Trust Scores
+  trustScore    TrustScore?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Listing {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String       @db.Text
+  price       Decimal      @db.Decimal(10, 2)
+  currency    String       @default("USD")
+  
+  sellerId    Int
+  seller      User         @relation(fields: [sellerId], references: [id])
+  
+  // Auction fields
+  isAuction   Boolean      @default(false)
+  startingBid Decimal?     @db.Decimal(10, 2)
+  reservePrice Decimal?    @db.Decimal(10, 2)
+  buyNowPrice Decimal?     @db.Decimal(10, 2)
+  currentBid  Decimal?     @db.Decimal(10, 2)
+  auctionEndsAt DateTime?
+  auctionStartsAt DateTime?
+  
+  // Auto-extend configuration (sniping prevention)
+  autoExtendEnabled     Boolean  @default(true)
+  autoExtendThresholdMs Int      @default(120000)  // 2 minutes in milliseconds
+  autoExtendDurationMs  Int      @default(120000)  // Extend by 2 minutes
+  maxExtensions         Int      @default(10)      // Maximum number of extensions
+  extensionCount        Int      @default(0)       // Current extension count
+  originalEndTime       DateTime?                  // Original end time before extensions
+  
+  // Bid increment configuration
+  minBidIncrement       Decimal? @db.Decimal(10, 2) @default(1.00)
+  
+  // Winner tracking
+  winnerId              Int?
+  finalPrice            Decimal? @db.Decimal(10, 2)
+  
+  // Phase 5.3: Reserve Price & Settlement Outcome
+  reservePriceEncrypted String?  // Encrypted at rest
+  reservePriceIV        String?  // Encryption IV
+  reserveMet            Boolean? // Computed at settlement
+  endedReason           AuctionEndReason?
+  minIncrementRule      Decimal? @db.Decimal(10, 2)
+  reserveSetAt          DateTime?
+  
+  status      ListingStatus @default(DRAFT)
+  isActive    Boolean      @default(true)
+  
+  bids        Bid[]
+  proxyBids   ProxyBid[]
+  auctionExtensions AuctionExtension[]
+  
+  // Phase 5.2: Dispute tracking
+  hasOpenDisputes Boolean @default(false)
+  disputes        AuctionDispute[]
+  bidInvalidationLogs BidInvalidationLog[]
+  
+  // Phase 5.3: Settlement outcome & escrow release logs
+  settlementOutcomeLogs SettlementOutcomeLog[]
+  escrowReleaseLogs     EscrowReleaseLog[]
+  
+  // Phase 5.4: Bid throttling logs
+  throttleLogs        BidThrottleLog[]
+  throttleStates      BidThrottleState[]
+  
+  // Phase 5.5: Appeals and settlement finality
+  appeals             AuctionAppeal[]
+  appealsWindowConfig AppealsWindowConfig?
+  overrideLogs        SettlementOverrideLog[]
+  
+  // Phase 5.6: Seller protections and auto-relist
+  protectionLogs      SellerProtectionLog[]
+  relistLogs          RelistAuditLog[]        @relation("OriginalAuction")
+  relistedFrom        RelistAuditLog[]        @relation("RelistedAuction")
+  
+  // Phase 5.7: Analytics snapshots
+  analyticsSnapshots  AuctionAnalyticsSnapshot[]
+  
+  // Phase 6.0: Enforcement
+  enforcementActions  EnforcementAction[]
+  
+  // Phase 6.2: Trust Actions
+  trustActions        TrustAction[]
+  
+  // Phase 4: Decision Authority Integration
+  dispositionStatus DispositionStatus @default(APPROVED) @map("disposition_status")
+  decisionId        Int? @map("decision_id")
+  decisionRef       String? @map("decision_ref")
+  decisionRequestedAt DateTime? @map("decision_requested_at")
+  decisionDecidedAt   DateTime? @map("decision_decided_at")
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  @@index([sellerId])
+  @@index([status])
+  @@index([isAuction])
+  @@index([auctionEndsAt])
+  @@index([hasOpenDisputes])
+  @@index([dispositionStatus])
+  @@index([decisionId])
+}
+
+model Bid {
+  id         Int      @id @default(autoincrement())
+  amount     Decimal  @db.Decimal(10, 2)
+  
+  listingId  Int
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  bidderId   Int
+  bidder     User     @relation(fields: [bidderId], references: [id])
+  
+  isAutoBid  Boolean  @default(false)
+  maxAmount  Decimal? @db.Decimal(10, 2) // For auto-bidding
+  
+  // Track if this bid triggered an extension
+  triggeredExtension Boolean @default(false)
+  
+  // Bid status
+  status     BidStatus @default(ACTIVE)
+  
+  // Phase 6: Real-time auction support
+  idempotencyKey String? @unique  // Prevent duplicate bids
+  isWinning      Boolean @default(false)  // Current winning bid flag
+  
+  // Phase 5.2: Dispute relations
+  disputes   AuctionDispute[]
+  invalidationLogs BidInvalidationLog[]
+  
+  // Phase 5.3: Escrow release logs
+  escrowReleaseLogs EscrowReleaseLog[]
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([createdAt])
+  @@index([status])
+  @@index([isWinning])
+}
+
+// Proxy bid configuration for automatic bidding
+model ProxyBid {
+  id          Int      @id @default(autoincrement())
+  
+  listingId   Int
+  listing     Listing  @relation(fields: [listingId], references: [id])
+  bidderId    Int
+  bidder      User     @relation(fields: [bidderId], references: [id])
+  
+  maxAmount   Decimal  @db.Decimal(10, 2)  // Maximum amount user is willing to pay
+  currentBid  Decimal  @db.Decimal(10, 2)  // Current bid placed by proxy
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([listingId, bidderId])
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([isActive])
+}
+
+// Track auction extensions for audit purposes
+model AuctionExtension {
+  id              Int      @id @default(autoincrement())
+  
+  listingId       Int
+  listing         Listing  @relation(fields: [listingId], references: [id])
+  
+  previousEndTime DateTime
+  newEndTime      DateTime
+  extensionMs     Int      // Duration of extension in milliseconds
+  
+  triggeredByBidId Int?    // The bid that triggered this extension
+  extensionNumber  Int     // Which extension this is (1st, 2nd, etc.)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([listingId])
+  @@index([createdAt])
+}
+
+enum ListingStatus {
+  DRAFT
+  SCHEDULED
+  ACTIVE
+  ENDED_UNMET_RESERVE  // Phase 5.3: Auction ended but reserve not met
+  ENDED_AWAITING_SETTLEMENT  // Phase 5.3: Auction ended, awaiting settlement
+  SETTLED  // Phase 5.5: Settled, appeals window open
+  CANCELLED
+  DELETED
+}
+
+enum DispositionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum AuctionEndReason {
+  NORMAL
+  RESERVE_NOT_MET
+  CANCELLED
+  SYSTEM_ERROR
+}
+
+enum BidStatus {
+  ACTIVE
+  OUTBID
+  WINNING
+  WON
+  CANCELLED
+  INVALIDATED  // Phase 5.2: Bid excluded from settlement
+  SETTLED      // Phase 5.2: Bid participated in final settlement
+}
+
+// Phase 5.2: Dispute Reason - NO custom free-text reasons allowed
+enum DisputeReason {
+  FRAUD_SUSPECTED
+  DUPLICATE_BID
+  BOT_ACTIVITY
+  ESCROW_FAILURE_POST_ACCEPT
+  RULE_VIOLATION
+  SYSTEM_ERROR
+}
+
+// Phase 5.2: Dispute Status
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  ESCALATED
+}
+
+// Phase 5.2: Resolution Type
+enum ResolutionType {
+  DISMISS     // Bid remains valid
+  INVALIDATE  // Bid excluded from settlement
+  ESCALATE    // Requires higher approval
+}
+
+
+// ============================================================
+// Phase 5.2: Auction Disputes & Bid Invalidations
+// APPEND-ONLY dispute and invalidation layer
+// ============================================================
+
+// Auction Dispute - Immutable record of dispute claims
+model AuctionDispute {
+  id              Int              @id @default(autoincrement())
+  
+  auctionId       Int
+  auction         Listing          @relation(fields: [auctionId], references: [id])
+  bidId           Int
+  bid             Bid              @relation(fields: [bidId], references: [id])
+  
+  reason          DisputeReason
+  status          DisputeStatus    @default(OPEN)
+  resolution      ResolutionType?
+  resolutionNote  String?          @db.Text
+  
+  createdBy       String           // System rule or Admin ID
+  resolvedBy      String?
+  
+  createdAt       DateTime         @default(now())
+  resolvedAt      DateTime?
+  
+  resolutionLogs  DisputeResolutionLog[]
+  
+  @@index([auctionId])
+  @@index([bidId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Dispute Resolution Log - APPEND-ONLY audit trail
+model DisputeResolutionLog {
+  id              Int              @id @default(autoincrement())
+  
+  disputeId       Int
+  dispute         AuctionDispute   @relation(fields: [disputeId], references: [id])
+  
+  action          String           // Action taken (e.g., "STATUS_CHANGE", "RESOLUTION_SET")
+  previousStatus  DisputeStatus?
+  newStatus       DisputeStatus?
+  
+  actorId         String           // Who performed the action
+  metadata        Json?            // Additional context
+  
+  createdAt       DateTime         @default(now())
+  
+  @@index([disputeId])
+  @@index([createdAt])
+}
+
+// Bid Invalidation Log - APPEND-ONLY audit trail for bid invalidations
+model BidInvalidationLog {
+  id              Int              @id @default(autoincrement())
+  
+  bidId           Int
+  bid             Bid              @relation(fields: [bidId], references: [id])
+  auctionId       Int
+  auction         Listing          @relation(fields: [auctionId], references: [id])
+  
+  disputeId       Int?             // Optional link to dispute that triggered invalidation
+  reason          DisputeReason
+  previousStatus  BidStatus
+  
+  // Escrow handling
+  escrowAction    String?          // "RELEASED" or null if no escrow
+  escrowEntryId   String?          // Ledger entry ID for escrow release
+  
+  actorId         String           // Who performed the invalidation
+  
+  createdAt       DateTime         @default(now())
+  
+  @@index([bidId])
+  @@index([auctionId])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// Phase 5.3: Reserve Price & Settlement Outcome Tracking
+// APPEND-ONLY settlement and escrow release logs
+// ============================================================
+
+// Settlement Outcome Log - APPEND-ONLY audit trail
+model SettlementOutcomeLog {
+  id                    Int              @id @default(autoincrement())
+  
+  auctionId             Int
+  auction               Listing          @relation(fields: [auctionId], references: [id])
+  
+  highestValidBidId     Int?
+  highestValidBidAmount Decimal?         @db.Decimal(18, 2)
+  reservePrice          Decimal?         @db.Decimal(18, 2)
+  reserveMet            Boolean
+  endedReason           AuctionEndReason
+  
+  winnerId              Int?
+  finalPrice            Decimal?         @db.Decimal(18, 2)
+  
+  invalidatedBidsCount  Int              @default(0)
+  totalBidsCount        Int              @default(0)
+  escrowsReleasedCount  Int              @default(0)
+  
+  metadata              Json?
+  
+  createdAt             DateTime         @default(now())
+  
+  @@index([auctionId])
+  @@index([createdAt])
+  @@index([reserveMet])
+}
+
+// Escrow Release Log - APPEND-ONLY for reserve-unmet releases
+model EscrowReleaseLog {
+  id                Int              @id @default(autoincrement())
+  
+  auctionId         Int
+  auction           Listing          @relation(fields: [auctionId], references: [id])
+  bidId             Int
+  bid               Bid              @relation(fields: [bidId], references: [id])
+  bidderId          Int
+  
+  escrowAmount      Decimal          @db.Decimal(18, 2)
+  releaseReason     String           // "RESERVE_NOT_MET" | "AUCTION_CANCELLED" | etc
+  ledgerEntryId     String?          // Ledger entry ID from wallet service
+  
+  releasedAt        DateTime         @default(now())
+  releasedBy        String           // System or Admin ID
+  
+  @@index([auctionId])
+  @@index([bidId])
+  @@index([releasedAt])
+}
+
+
+// Phase 5.4: Throttle Decision
+enum ThrottleDecision {
+  ALLOW
+  SOFT_BLOCK
+  HARD_BLOCK
+}
+
+// Phase 5.4: Throttle Reason
+enum ThrottleReason {
+  RATE_LIMIT
+  VELOCITY
+  SELF_OUTBID
+  PATTERN
+  NONE
+}
+
+// ============================================================
+// Phase 5.4: Anti-Fraud Bid Throttling
+// APPEND-ONLY throttling decision log
+// ============================================================
+
+// Bid Throttle Log - APPEND-ONLY audit trail
+model BidThrottleLog {
+  id                  Int              @id @default(autoincrement())
+  
+  auctionId           Int
+  auction             Listing          @relation(fields: [auctionId], references: [id])
+  bidderId            Int
+  
+  decision            ThrottleDecision
+  reason              ThrottleReason
+  
+  timeSinceLastBid    Int?             // Milliseconds since last bid
+  bidCountInWindow    Int?             // Number of bids in time window
+  auctionVelocity     Decimal?         @db.Decimal(10, 2)  // Bids per minute
+  
+  metadata            Json?            // Additional context
+  
+  createdAt           DateTime         @default(now())
+  
+  @@index([auctionId])
+  @@index([bidderId])
+  @@index([decision])
+  @@index([createdAt])
+}
+
+// Bid Throttle State - Current throttle state (mutable for performance)
+model BidThrottleState {
+  id                  Int              @id @default(autoincrement())
+  
+  auctionId           Int
+  auction             Listing          @relation(fields: [auctionId], references: [id])
+  bidderId            Int
+  
+  lastBidAt           DateTime?
+  bidCountInWindow    Int              @default(0)
+  
+  softBlockUntil      DateTime?
+  hardBlockUntil      DateTime?
+  
+  updatedAt           DateTime         @default(now())
+  
+  @@unique([auctionId, bidderId])
+  @@index([softBlockUntil])
+  @@index([hardBlockUntil])
+}
+
+
+// ============================================================
+// Phase 5.5: Settlement Finality & Appeals Window
+// APPEND-ONLY appeals and override logs
+// ============================================================
+
+// Appeal Reason Enum
+enum AppealReason {
+  TECHNICAL_ERROR
+  FRAUD_CLAIM
+  DISPUTE_UNRESOLVED
+  ESCROW_ISSUE
+  SETTLEMENT_ERROR
+  OTHER
+}
+
+// Appeal Status Enum
+enum AppealStatus {
+  OPEN
+  REJECTED
+  ACCEPTED
+  ESCALATED
+}
+
+// Settlement State Enum
+enum SettlementState {
+  ENDED
+  SETTLED_PENDING_APPEAL
+  FINALIZED
+  OVERRIDDEN
+}
+
+// Auction Appeal (APPEND-ONLY)
+model AuctionAppeal {
+  id              Int              @id @default(autoincrement())
+  
+  auctionId       Int
+  auction         Listing          @relation(fields: [auctionId], references: [id])
+  
+  appellantId     Int
+  reasonCode      AppealReason
+  description     String?          @db.Text
+  
+  status          AppealStatus     @default(OPEN)
+  
+  createdAt       DateTime         @default(now())
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolutionNote  String?          @db.Text
+  
+  @@index([auctionId])
+  @@index([appellantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Settlement Override Log (APPEND-ONLY, requires dual approval)
+model SettlementOverrideLog {
+  id              Int              @id @default(autoincrement())
+  
+  auctionId       Int
+  auction         Listing          @relation(fields: [auctionId], references: [id])
+  
+  overrideReason  String
+  previousState   SettlementState
+  newState        SettlementState
+  
+  initiatedBy     String
+  approvedBy      String
+  
+  metadata        Json?
+  
+  createdAt       DateTime         @default(now())
+  
+  @@index([auctionId])
+  @@index([createdAt])
+}
+
+// Appeals Window Configuration (per auction)
+model AppealsWindowConfig {
+  id              Int              @id @default(autoincrement())
+  
+  auctionId       Int              @unique
+  auction         Listing          @relation(fields: [auctionId], references: [id])
+  
+  windowDurationMs Int
+  windowStartsAt  DateTime
+  windowEndsAt    DateTime
+  
+  createdAt       DateTime         @default(now())
+  
+  @@index([auctionId])
+  @@index([windowEndsAt])
+}
+
+
+// ============================================================
+// Phase 5.6: Seller Protections & Auto-Relist
+// APPEND-ONLY seller protection and relist logs
+// ============================================================
+
+// Seller Protection Decision Enum
+enum SellerProtectionDecision {
+  ELIGIBLE_FOR_RELIST
+  ELIGIBLE_FOR_MANUAL_REVIEW
+  FINAL_NO_ACTION
+}
+
+// Seller Protection Trigger Enum
+enum SellerProtectionTrigger {
+  NO_SALE
+  RESERVE_NOT_MET
+  ZERO_BIDS
+  WINNER_INVALIDATED
+  PAYMENT_TIMEOUT
+  APPEAL_RESOLVED_AGAINST_BUYER
+}
+
+// Relist Status Enum
+enum RelistStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  REJECTED
+  CANCELLED
+}
+
+// Seller Preference Type Enum
+enum SellerPreferenceType {
+  AUTO_RELIST_ENABLED
+  MAX_RELIST_ATTEMPTS
+  RELIST_COOLDOWN_MS
+  RELIST_MODE
+}
+
+// Seller Protection Log (APPEND-ONLY)
+model SellerProtectionLog {
+  id              Int                        @id @default(autoincrement())
+  
+  auctionId       Int
+  auction         Listing                    @relation(fields: [auctionId], references: [id])
+  
+  sellerId        Int
+  decision        SellerProtectionDecision
+  triggerReasons  SellerProtectionTrigger[]
+  reason          String                     @db.Text
+  
+  metadata        Json?
+  
+  createdAt       DateTime                   @default(now())
+  
+  @@index([auctionId])
+  @@index([sellerId])
+  @@index([decision])
+  @@index([createdAt])
+}
+
+// Relist Audit Log (APPEND-ONLY)
+model RelistAuditLog {
+  id                    Int              @id @default(autoincrement())
+  
+  originalAuctionId     Int
+  originalAuction       Listing          @relation("OriginalAuction", fields: [originalAuctionId], references: [id])
+  
+  relistedAuctionId     Int
+  relistedAuction       Listing          @relation("RelistedAuction", fields: [relistedAuctionId], references: [id])
+  
+  sellerId              Int
+  status                RelistStatus     @default(PENDING)
+  approvedBy            String?
+  relistAttemptNumber   Int
+  
+  metadata              Json?
+  
+  createdAt             DateTime         @default(now())
+  
+  @@index([originalAuctionId])
+  @@index([relistedAuctionId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Seller Preference (mutable, for seller configuration)
+model SellerPreference {
+  id                Int                  @id @default(autoincrement())
+  
+  sellerId          Int
+  seller            User                 @relation(fields: [sellerId], references: [id])
+  
+  preferenceType    SellerPreferenceType
+  value             String
+  
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  
+  @@unique([sellerId, preferenceType])
+  @@index([sellerId])
+}
+
+
+// ============================================================
+// Phase 5.7: Auction Analytics & Trust Signals
+// READ-ONLY analytics snapshots (append-only)
+// ============================================================
+
+// Trust Tier Enum
+enum TrustTier {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+// Seller Badge Enum
+enum SellerBadge {
+  NEW
+  VERIFIED
+  WATCHLISTED
+}
+
+// Auction Analytics Snapshot (APPEND-ONLY)
+model AuctionAnalyticsSnapshot {
+  id                      Int              @id @default(autoincrement())
+  
+  auctionId               Int
+  auction                 Listing          @relation(fields: [auctionId], references: [id])
+  
+  totalBidsCount          Int
+  uniqueBiddersCount      Int
+  bidVelocity             Decimal          @db.Decimal(10, 4)
+  priceProgression        Json
+  competitivenessScore    Int
+  reserveMet              Boolean
+  auctionDurationMinutes  Int
+  
+  metadata                Json?
+  
+  createdAt               DateTime         @default(now())
+  
+  @@index([auctionId])
+  @@index([createdAt])
+}
+
+// Bidder Trust Snapshot (APPEND-ONLY)
+model BidderTrustSnapshot {
+  id                      Int              @id @default(autoincrement())
+  
+  bidderId                Int
+  participationCount      Int
+  winCount                Int
+  lossCount               Int
+  winLossRatio            Decimal          @db.Decimal(10, 4)
+  bidRetractionRate       Decimal          @db.Decimal(10, 2)
+  invalidatedBidsCount    Int
+  paymentCompletionRate   Decimal          @db.Decimal(10, 2)
+  disputeInvolvementRate  Decimal          @db.Decimal(10, 2)
+  trustTier               TrustTier
+  confidenceScore         Int
+  
+  metadata                Json?
+  
+  createdAt               DateTime         @default(now())
+  
+  @@index([bidderId])
+  @@index([trustTier])
+  @@index([createdAt])
+}
+
+// Seller Trust Snapshot (APPEND-ONLY)
+model SellerTrustSnapshot {
+  id                                  Int              @id @default(autoincrement())
+  
+  sellerId                            Int
+  auctionsCompleted                   Int
+  successfulSettlementsPercent        Decimal          @db.Decimal(10, 2)
+  autoRelistFrequency                 Decimal          @db.Decimal(10, 2)
+  disputeRate                         Decimal          @db.Decimal(10, 2)
+  avgTimeToPaymentCompletionMinutes   Int
+  reliabilityScore                    Int
+  badgeEligibility                    SellerBadge
+  
+  metadata                            Json?
+  
+  createdAt                           DateTime         @default(now())
+  
+  @@index([sellerId])
+  @@index([badgeEligibility])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// Phase 6.0: Trust & Safety Enforcement
+// APPEND-ONLY enforcement and appeal logs
+// ============================================================
+
+// Enforcement Action Type Enum
+enum EnforcementActionType {
+  BID_THROTTLE
+  TEMP_SUSPENSION
+  AUCTION_PARTICIPATION_BLOCK
+  PAYOUT_DELAY
+  TRUST_BADGE_REMOVAL
+  AUCTION_FREEZE
+  BID_INVALIDATION
+  AUCTION_CANCEL
+  AUTO_RELIST_DISABLE
+  LISTING_CREATION_LIMIT
+  SELLER_REVIEW_FLAG
+}
+
+// Enforcement Status Enum
+enum EnforcementStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  EXECUTED
+  REVERTED
+  APPEALED
+}
+
+// Enforcement Tier Enum
+enum EnforcementTier {
+  TIER_1_SOFT
+  TIER_2_TEMPORARY
+  TIER_3_SEVERE
+}
+
+// Appeal Status Enum (for enforcement appeals)
+enum EnforcementAppealStatus {
+  OPEN
+  APPROVED
+  REJECTED
+  CLOSED
+}
+
+// Enforcement Action (APPEND-ONLY)
+model EnforcementAction {
+  id                    Int                      @id @default(autoincrement())
+  
+  targetUserId          Int?
+  targetUser            User?                    @relation(fields: [targetUserId], references: [id])
+  
+  targetAuctionId       Int?
+  targetAuction         Listing?                 @relation(fields: [targetAuctionId], references: [id])
+  
+  targetSellerId        Int?
+  
+  actionType            EnforcementActionType
+  tier                  EnforcementTier
+  status                EnforcementStatus        @default(PENDING_REVIEW)
+  durationMinutes       Int?
+  justification         String                   @db.Text
+  
+  approvedBy            String?
+  approvedAt            DateTime?
+  rejectedBy            String?
+  rejectedAt            DateTime?
+  executedBy            String?
+  executedAt            DateTime?
+  revertedBy            String?
+  revertedAt            DateTime?
+  
+  metadata              Json?
+  
+  evidence              EnforcementEvidence[]
+  auditLogs             EnforcementAuditLog[]
+  appeals               EnforcementAppeal[]
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([targetUserId])
+  @@index([targetAuctionId])
+  @@index([targetSellerId])
+  @@index([status])
+  @@index([tier])
+  @@index([createdAt])
+}
+
+// Enforcement Evidence (APPEND-ONLY)
+model EnforcementEvidence {
+  id                    Int                      @id @default(autoincrement())
+  
+  actionId              Int
+  action                EnforcementAction        @relation(fields: [actionId], references: [id])
+  
+  evidenceType          String
+  evidence              Json
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([actionId])
+  @@index([createdAt])
+}
+
+// Enforcement Audit Log (APPEND-ONLY)
+model EnforcementAuditLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  actionId              Int
+  action                EnforcementAction        @relation(fields: [actionId], references: [id])
+  
+  action_type           String
+  executedBy            String
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([actionId])
+  @@index([createdAt])
+}
+
+// Enforcement Appeal (APPEND-ONLY)
+model EnforcementAppeal {
+  id                    Int                      @id @default(autoincrement())
+  
+  actionId              Int                      @unique
+  action                EnforcementAction        @relation(fields: [actionId], references: [id])
+  
+  userId                Int
+  user                  User                     @relation(fields: [userId], references: [id])
+  
+  status                EnforcementAppealStatus  @default(OPEN)
+  appealWindowEndsAt    DateTime
+  submittedAt           DateTime?
+  decidedAt             DateTime?
+  
+  metadata              Json?
+  
+  submissions           EnforcementAppealSubmission[]
+  decision              EnforcementAppealDecision?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([actionId])
+  @@index([userId])
+  @@index([status])
+  @@index([appealWindowEndsAt])
+}
+
+// Enforcement Appeal Submission (APPEND-ONLY)
+model EnforcementAppealSubmission {
+  id                    Int                      @id @default(autoincrement())
+  
+  appealId              Int
+  appeal                EnforcementAppeal        @relation(fields: [appealId], references: [id])
+  
+  userId                Int
+  user                  User                     @relation(fields: [userId], references: [id])
+  
+  reason                String                   @db.Text
+  evidence              Json?
+  
+  submittedAt           DateTime
+  
+  @@index([appealId])
+  @@index([userId])
+}
+
+// Enforcement Appeal Decision (APPEND-ONLY)
+model EnforcementAppealDecision {
+  id                    Int                      @id @default(autoincrement())
+  
+  appealId              Int                      @unique
+  appeal                EnforcementAppeal        @relation(fields: [appealId], references: [id])
+  
+  decision              String
+  decidedBy             String
+  justification         String                   @db.Text
+  metadata              Json?
+  
+  decidedAt             DateTime
+  
+  @@index([appealId])
+}
+
+// Enforcement Policy Version (IMMUTABLE)
+model EnforcementPolicyVersion {
+  id                    Int                      @id @default(autoincrement())
+  
+  version               String                   @unique
+  rules                 Json
+  description           String                   @db.Text
+  isActive              Boolean                  @default(true)
+  
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([version])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+// Enforcement Policy Evaluation Log (APPEND-ONLY)
+model EnforcementPolicyEvaluationLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  targetUserId          Int?
+  targetAuctionId       Int?
+  targetSellerId        Int?
+  
+  policyVersion         String
+  signals               Json
+  recommendation        Json
+  
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([targetUserId])
+  @@index([targetAuctionId])
+  @@index([targetSellerId])
+  @@index([policyVersion])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// Phase 6.1: Automated Safeguards (Soft Limits Only)
+// APPEND-ONLY safeguard activation and audit logs
+// ============================================================
+
+// Safeguard Type Enum
+enum SafeguardType {
+  BID_RATE_LIMIT
+  BID_COOLDOWN
+  MAX_BID_AMOUNT_CAP
+  DAILY_BID_COUNT_CAP
+  AUCTION_JOIN_LIMIT
+  TEMP_BID_DELAY
+  MAX_CONCURRENT_BIDDERS_SOFT_CAP
+  EXTENSION_THROTTLE
+  LISTING_CREATION_RATE_LIMIT
+  MAX_ACTIVE_AUCTIONS_SOFT_CAP
+}
+
+// Safeguard Scope Enum
+enum SafeguardScope {
+  USER
+  AUCTION
+  SELLER
+}
+
+// Safeguard Status Enum
+enum SafeguardStatus {
+  ACTIVE
+  LIFTED
+  ESCALATED
+}
+
+// Safeguard Activation (APPEND-ONLY)
+model SafeguardActivation {
+  id                    Int                      @id @default(autoincrement())
+  
+  targetUserId          Int?
+  targetAuctionId       Int?
+  targetSellerId        Int?
+  
+  safeguardType         SafeguardType
+  scope                 SafeguardScope
+  status                SafeguardStatus          @default(ACTIVE)
+  durationMinutes       Int
+  parameters            Json
+  reason                String
+  confidence            Decimal                  @db.Decimal(10, 2)
+  
+  activatedAt           DateTime
+  liftAt                DateTime
+  liftedAt              DateTime?
+  
+  metadata              Json?
+  
+  auditLogs             SafeguardAuditLog[]
+  liftEvent             SafeguardLiftEvent?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([targetUserId])
+  @@index([targetAuctionId])
+  @@index([targetSellerId])
+  @@index([safeguardType])
+  @@index([status])
+  @@index([liftAt])
+  @@index([createdAt])
+}
+
+// Safeguard Audit Log (APPEND-ONLY)
+model SafeguardAuditLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  activationId          Int
+  activation            SafeguardActivation      @relation(fields: [activationId], references: [id])
+  
+  action                String
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([activationId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// Safeguard Lift Event (APPEND-ONLY)
+model SafeguardLiftEvent {
+  id                    Int                      @id @default(autoincrement())
+  
+  activationId          Int                      @unique
+  activation            SafeguardActivation      @relation(fields: [activationId], references: [id])
+  
+  reason                String
+  liftedAt              DateTime
+  
+  @@index([activationId])
+  @@index([liftedAt])
+}
+
+// Safeguard Policy Version (IMMUTABLE)
+model SafeguardPolicyVersion {
+  id                    Int                      @id @default(autoincrement())
+  
+  version               String                   @unique
+  rules                 Json
+  description           String                   @db.Text
+  isActive              Boolean                  @default(true)
+  
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([version])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+// Safeguard Policy Evaluation Log (APPEND-ONLY)
+model SafeguardPolicyEvaluationLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  targetUserId          Int?
+  targetAuctionId       Int?
+  targetSellerId        Int?
+  
+  policyVersion         String
+  signals               Json
+  recommendation        Json
+  
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([targetUserId])
+  @@index([targetAuctionId])
+  @@index([targetSellerId])
+  @@index([policyVersion])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// Phase 6.2: Trust & Safety Enforcement (Hard Controls)
+// APPEND-ONLY trust action and audit logs
+// ============================================================
+
+// Trust Action Type Enum
+enum TrustActionType {
+  FREEZE_WALLET
+  FREEZE_ESCROW_RELEASE
+  BLOCK_PAYOUTS
+  AUCTION_BID_BLOCK
+  ACCOUNT_RESTRICTED
+}
+
+// Trust Severity Enum
+enum TrustSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Trust Action Status Enum
+enum TrustActionStatus {
+  ACTIVE
+  LIFTED
+  EXPIRED
+  REVERTED
+}
+
+// Trust Action (APPEND-ONLY)
+model TrustAction {
+  id                    Int                      @id @default(autoincrement())
+  
+  userId                Int?
+  user                  User?                    @relation(fields: [userId], references: [id])
+  
+  walletId              Int?
+  auctionId             Int?
+  auction               Listing?                 @relation(fields: [auctionId], references: [id])
+  
+  actionType            TrustActionType
+  severity              TrustSeverity
+  status                TrustActionStatus        @default(ACTIVE)
+  reason                String                   @db.Text
+  durationMinutes       Int?
+  
+  activatedAt           DateTime
+  expiresAt             DateTime?
+  liftedAt              DateTime?
+  liftedBy              String?
+  revertedAt            DateTime?
+  revertedBy            String?
+  expiredAt             DateTime?
+  
+  metadata              Json?
+  
+  logs                  TrustActionLog[]
+  appeals               Appeal[]
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([userId])
+  @@index([walletId])
+  @@index([auctionId])
+  @@index([actionType])
+  @@index([severity])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+// Trust Action Log (APPEND-ONLY)
+model TrustActionLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  actionId              Int
+  action                TrustAction              @relation(fields: [actionId], references: [id])
+  
+  action_type           String
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([actionId])
+  @@index([action_type])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// Phase 6.3: Appeals & Review Workflow (Controlled Reversal)
+// APPEND-ONLY appeal submission and decision logs
+// ============================================================
+
+// Appeal Reason Enum (Phase 6.3)
+enum TrustAppealReason {
+  INCORRECT_ENFORCEMENT
+  EVIDENCE_MISUNDERSTOOD
+  CIRCUMSTANCES_CHANGED
+  TECHNICAL_ERROR
+  DISPUTE_RESOLVED
+  OTHER
+}
+
+// Appeal Status Enum (Phase 6.3)
+enum TrustAppealStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+// Appeal Subject Type Enum (Phase 6.3)
+enum TrustAppealSubjectType {
+  USER
+  WALLET
+  AUCTION
+}
+
+// Appeal (APPEND-ONLY)
+model Appeal {
+  id                    Int                      @id @default(autoincrement())
+  
+  trustActionId         Int
+  trustAction           TrustAction              @relation(fields: [trustActionId], references: [id])
+  
+  subjectType           TrustAppealSubjectType
+  subjectId             Int
+  
+  appealReason          TrustAppealReason
+  userStatement         String                   @db.Text
+  evidence              Json?
+  
+  status                TrustAppealStatus        @default(PENDING)
+  
+  assignedTo            String?
+  assignedAt            DateTime?
+  
+  decidedBy             String?
+  decidedAt             DateTime?
+  decision              String?
+  justification         String?                  @db.Text
+  
+  submittedAt           DateTime
+  
+  decisionLogs          AppealDecisionLog[]
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@unique([trustActionId])
+  @@index([trustActionId])
+  @@index([subjectType])
+  @@index([subjectId])
+  @@index([status])
+  @@index([submittedAt])
+  @@index([createdAt])
+}
+
+// Appeal Decision Log (APPEND-ONLY)
+model AppealDecisionLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  appealId              Int
+  appeal                Appeal                   @relation(fields: [appealId], references: [id])
+  
+  action                String
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([appealId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================================
+// Phase 6.4: Trust Scoring Finalization (Non-Monetary)
+// READ-ONLY deterministic trust scoring system
+// ============================================================
+
+// Trust Score Level Enum
+enum TrustScoreLevel {
+  EXCELLENT
+  GOOD
+  WATCH
+  RESTRICTED
+}
+
+// Trust Score (APPEND-ONLY snapshots)
+model TrustScore {
+  id                    Int                      @id @default(autoincrement())
+  
+  userId                Int
+  user                  User?                    @relation(fields: [userId], references: [id])
+  
+  score                 Int                      // 0-100
+  level                 TrustScoreLevel
+  
+  // Score breakdown (for auditability)
+  breakdown             Json                     // { completedTransactions: 20, disputes: -10, ... }
+  
+  // Calculation metadata
+  calculatedAt          DateTime
+  lastCalculatedAt      DateTime?
+  
+  // Audit trail
+  auditLogs             TrustScoreAuditLog[]
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@unique([userId])
+  @@index([userId])
+  @@index([level])
+  @@index([score])
+  @@index([calculatedAt])
+  @@index([createdAt])
+}
+
+// Trust Score Audit Log (APPEND-ONLY)
+model TrustScoreAuditLog {
+  id                    Int                      @id @default(autoincrement())
+  
+  scoreId               Int
+  score                 TrustScore               @relation(fields: [scoreId], references: [id])
+  
+  action                String                   // CALCULATED, RECALCULATED, etc
+  previousScore         Int?
+  newScore              Int?
+  previousLevel         TrustScoreLevel?
+  newLevel              TrustScoreLevel?
+  
+  reason                String?
+  metadata              Json?
+  
+  createdAt             DateTime                 @default(now())
+  
+  @@index([scoreId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+
+// ============================================================
+// SECURITY-CRITICAL: Event Logging System
+// APPEND-ONLY event log for audit and compliance
+// ============================================================
+
+// Event Type Enum
+enum EventType {
+  // User Events
+  USER_LOGIN
+  USER_LOGOUT
+  USER_REGISTERED
+  USER_PROFILE_UPDATED
+  USER_PASSWORD_CHANGED
+  USER_EMAIL_VERIFIED
+  
+  // Auction Events
+  AUCTION_CREATED
+  AUCTION_UPDATED
+  AUCTION_STARTED
+  AUCTION_ENDED
+  AUCTION_CANCELLED
+  AUCTION_EXTENDED
+  AUCTION_SETTLED
+  AUCTION_FINALIZED
+  
+  // Bid Events
+  BID_PLACED
+  BID_OUTBID
+  BID_WON
+  BID_CANCELLED
+  BID_INVALIDATED
+  BID_THROTTLED
+  
+  // Proxy Bid Events
+  PROXY_BID_CREATED
+  PROXY_BID_ACTIVATED
+  PROXY_BID_DEACTIVATED
+  
+  // Dispute Events
+  DISPUTE_CREATED
+  DISPUTE_RESOLVED
+  DISPUTE_ESCALATED
+  
+  // Appeal Events
+  APPEAL_SUBMITTED
+  APPEAL_APPROVED
+  APPEAL_REJECTED
+  
+  // Wallet Events
+  WALLET_CREATED
+  WALLET_BALANCE_VIEWED
+  WALLET_TRANSACTION_VIEWED
+  
+  // Escrow Events
+  ESCROW_CREATED
+  ESCROW_RELEASED
+  ESCROW_REFUNDED
+  ESCROW_VIEWED
+  
+  // Order Events
+  ORDER_CREATED
+  ORDER_UPDATED
+  ORDER_COMPLETED
+  ORDER_CANCELLED
+  ORDER_VIEWED
+  
+  // Payment Events
+  PAYMENT_INITIATED
+  PAYMENT_COMPLETED
+  PAYMENT_FAILED
+  PAYMENT_REFUNDED
+  
+  // Trust & Safety Events
+  TRUST_ACTION_CREATED
+  TRUST_ACTION_LIFTED
+  TRUST_ACTION_EXPIRED
+  TRUST_SCORE_CALCULATED
+  TRUST_SCORE_UPDATED
+  
+  // Enforcement Events
+  ENFORCEMENT_ACTION_CREATED
+  ENFORCEMENT_ACTION_APPROVED
+  ENFORCEMENT_ACTION_REJECTED
+  ENFORCEMENT_ACTION_EXECUTED
+  ENFORCEMENT_ACTION_REVERTED
+  
+  // Safeguard Events
+  SAFEGUARD_ACTIVATED
+  SAFEGUARD_LIFTED
+  SAFEGUARD_ESCALATED
+  
+  // Settlement Events
+  SETTLEMENT_OUTCOME_LOGGED
+  SETTLEMENT_OVERRIDE_LOGGED
+  SETTLEMENT_FINALIZED
+  
+  // Seller Protection Events
+  SELLER_PROTECTION_TRIGGERED
+  SELLER_RELIST_REQUESTED
+  SELLER_RELIST_APPROVED
+  SELLER_RELIST_EXECUTED
+  
+  // Analytics Events
+  ANALYTICS_SNAPSHOT_CREATED
+  
+  // Admin Events
+  ADMIN_LOGIN
+  ADMIN_ACTION_PERFORMED
+  ADMIN_REPORT_GENERATED
+  ADMIN_CONFIG_CHANGED
+  
+  // System Events
+  SYSTEM_ERROR
+  SYSTEM_WARNING
+  SYSTEM_MAINTENANCE_START
+  SYSTEM_MAINTENANCE_END
+  
+  // Security Events
+  SECURITY_SUSPICIOUS_ACTIVITY
+  SECURITY_ACCESS_DENIED
+  SECURITY_RATE_LIMIT_EXCEEDED
+  SECURITY_INVALID_TOKEN
+  SECURITY_UNAUTHORIZED_ACCESS
+}
+
+// Event Category Enum
+enum EventCategory {
+  USER
+  AUCTION
+  BID
+  DISPUTE
+  APPEAL
+  WALLET
+  ESCROW
+  ORDER
+  PAYMENT
+  TRUST_SAFETY
+  ENFORCEMENT
+  SAFEGUARD
+  SETTLEMENT
+  SELLER_PROTECTION
+  ANALYTICS
+  ADMIN
+  SYSTEM
+  SECURITY
+}
+
+// Actor Type Enum
+enum ActorType {
+  USER
+  ADMIN
+  SYSTEM
+}
+
+// Target Type Enum
+enum TargetType {
+  USER
+  AUCTION
+  BID
+  ORDER
+  WALLET
+  ESCROW
+  PAYMENT
+  DISPUTE
+  APPEAL
+  TRUST_ACTION
+  ENFORCEMENT_ACTION
+  SAFEGUARD
+  SETTLEMENT
+  ANALYTICS
+  SYSTEM
+}
+
+// Event Model - APPEND-ONLY, IMMUTABLE
+// SECURITY-CRITICAL: NO business logic impact, NO financial actions
+model Event {
+  id                    Int              @id @default(autoincrement())
+  
+  // Event identification
+  event_id              String           @unique @default(uuid())
+  event_type            EventType
+  event_category        EventCategory
+  
+  // Actor information (who performed the action)
+  actor_type            ActorType
+  actor_id              String
+  
+  // Target information (what entity was affected)
+  target_type           TargetType
+  target_id             String
+  
+  // Context and metadata (validated JSON)
+  context               Json
+  
+  // Request metadata
+  ip_address            String?
+  user_agent            String?
+  
+  // Immutable timestamp
+  created_at            DateTime         @default(now())
+  
+  // Indexes for efficient querying
+  @@index([event_type])
+  @@index([event_category])
+  @@index([actor_type])
+  @@index([actor_id])
+  @@index([target_type])
+  @@index([target_id])
+  @@index([created_at])
+  @@index([event_category, created_at])
+  @@index([actor_id, created_at])
+  @@index([target_id, created_at])
+}

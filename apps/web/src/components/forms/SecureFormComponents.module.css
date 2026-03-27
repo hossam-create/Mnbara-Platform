@@ -1,0 +1,463 @@
+/**
+ * 🔒 SECURITY-FIRST FORM COMPONENTS STYLES
+ * ACCESS CONTROL & AUTHORITY POLICY IMPLEMENTATION
+ * 
+ * CRITICAL SECURITY NOTICE:
+ * - All styling is SECURITY-CRITICAL for user feedback
+ * - Visual indicators show validation states clearly
+ * - Security levels have distinct visual representations
+ * - Error states prevent form submission
+ * 
+ * ARABIC SECURITY REQUIREMENTS IMPLEMENTATION:
+ * ✅ Clear validation feedback
+ * ✅ Security level indicators
+ * ✅ Error state prevention
+ * ✅ User-friendly security warnings
+ */
+
+/* Base Security Input Styles */
+.secureInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.2s ease-in-out;
+  background-color: #ffffff;
+  color: #2d3748;
+  box-sizing: border-box;
+  
+  /* SECURITY: Prevent text selection issues */
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.secureInput:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  background-color: #ffffff;
+}
+
+.secureInput:disabled {
+  background-color: #f7fafc;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Security Level Specific Styles */
+.secureInput[data-security-level="LOW"] {
+  border-left: 4px solid #48bb78;
+}
+
+.secureInput[data-security-level="MEDIUM"] {
+  border-left: 4px solid #ed8936;
+}
+
+.secureInput[data-security-level="HIGH"] {
+  border-left: 4px solid #f56565;
+}
+
+.secureInput[data-security-level="CRITICAL"] {
+  border-left: 4px solid #e53e3e;
+  background-color: #fff5f5;
+}
+
+/* Validation State Styles */
+.inputError {
+  border-color: #f56565 !important;
+  background-color: #fff5f5 !important;
+  animation: securityShake 0.5s ease-in-out;
+}
+
+.inputWarning {
+  border-color: #ed8936 !important;
+  background-color: #fffaf0 !important;
+}
+
+.inputCritical {
+  border-color: #e53e3e !important;
+  background-color: #fed7d7 !important;
+  font-weight: bold;
+}
+
+.inputHighRisk {
+  border-color: #c53030 !important;
+  background-color: #feb2b2 !important;
+}
+
+/* Character Counter Styles */
+.characterCounter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #718096;
+}
+
+.characterProgress {
+  height: 2px;
+  background-color: #4299e1;
+  border-radius: 1px;
+  transition: width 0.2s ease;
+}
+
+.warningText {
+  color: #ed8936 !important;
+  font-weight: 600;
+}
+
+/* Validation Display Styles */
+.validationDisplay {
+  margin-top: 8px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  border-left: 4px solid;
+}
+
+.validationError {
+  background-color: #fff5f5;
+  border-left-color: #f56565;
+  color: #c53030;
+}
+
+.validationWarning {
+  background-color: #fffaf0;
+  border-left-color: #ed8936;
+  color: #c05621;
+}
+
+.validationCritical {
+  background-color: #fed7d7;
+  border-left-color: #e53e3e;
+  color: #9b2c2c;
+  font-weight: 600;
+}
+
+.validationHighRisk {
+  background-color: #feb2b2;
+  border-left-color: #c53030;
+  color: #742a2a;
+}
+
+.validationInfo {
+  background-color: #ebf8ff;
+  border-left-color: #4299e1;
+  color: #2b6cb0;
+}
+
+.errorMessages, .warningMessages {
+  margin-bottom: 8px;
+}
+
+.errorMessage, .warningMessage {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.errorMessage:last-child, .warningMessage:last-child {
+  margin-bottom: 0;
+}
+
+.debugInfo {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* Secure Textarea Styles */
+.secureTextareaContainer {
+  position: relative;
+}
+
+.secureTextarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease-in-out;
+  background-color: #ffffff;
+  color: #2d3748;
+  box-sizing: border-box;
+  
+  /* SECURITY: Prevent text selection issues */
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+.secureTextarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  background-color: #ffffff;
+}
+
+.secureTextarea:disabled {
+  background-color: #f7fafc;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.textareaError {
+  border-color: #f56565 !important;
+  background-color: #fff5f5 !important;
+  animation: securityShake 0.5s ease-in-out;
+}
+
+.textareaWarning {
+  border-color: #ed8936 !important;
+  background-color: #fffaf0 !important;
+}
+
+.textareaMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #718096;
+}
+
+.characterInfo {
+  display: flex;
+  gap: 16px;
+}
+
+.lineCount {
+  opacity: 0.7;
+}
+
+/* Secure Form Styles */
+.secureForm {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.secureForm:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.formContent {
+  margin-bottom: 24px;
+}
+
+.formValidationSummary {
+  background-color: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.formValidationSummary h4 {
+  margin: 0 0 12px 0;
+  color: #c53030;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.fieldError {
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background-color: #fed7d7;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #9b2c2c;
+}
+
+.fieldError:last-child {
+  margin-bottom: 0;
+}
+
+.fieldError strong {
+  font-weight: 600;
+}
+
+/* Secure Submit Button Styles */
+.secureSubmitButton {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.secureSubmitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+}
+
+.secureSubmitButton:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+.secureSubmitButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+.secureSubmitButton.submitting {
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+  cursor: wait;
+  animation: securityPulse 1.5s ease-in-out infinite;
+}
+
+.secureSubmitButton[data-security-level="HIGH"] {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+.secureSubmitButton[data-security-level="CRITICAL"] {
+  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+  animation: securityAlert 2s ease-in-out infinite;
+}
+
+/* Security Animations */
+@keyframes securityShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+@keyframes securityPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes securityAlert {
+  0%, 100% { 
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+  }
+  50% { 
+    background: linear-gradient(135deg, #c53030 0%, #9b2c2c 100%);
+    box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+  }
+}
+
+/* Responsive Security Styles */
+@media (max-width: 768px) {
+  .secureForm {
+    padding: 16px;
+    margin: 16px;
+  }
+  
+  .secureInput,
+  .secureTextarea {
+    font-size: 16px; /* SECURITY: Prevent zoom on iOS */
+    padding: 10px 12px;
+  }
+  
+  .secureSubmitButton {
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+  
+  .validationDisplay {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+}
+
+/* High Contrast Security Mode */
+@media (prefers-contrast: high) {
+  .secureInput,
+  .secureTextarea {
+    border-width: 3px;
+  }
+  
+  .validationDisplay {
+    border-width: 2px;
+  }
+  
+  .secureSubmitButton {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced Motion Security */
+@media (prefers-reduced-motion: reduce) {
+  .secureInput,
+  .secureTextarea,
+  .secureSubmitButton,
+  .validationDisplay {
+    transition: none;
+  }
+  
+  .secureSubmitButton.submitting {
+    animation: none;
+  }
+  
+  .secureSubmitButton[data-security-level="CRITICAL"] {
+    animation: none;
+  }
+  
+  .inputError,
+  .textareaError {
+    animation: none;
+  }
+}
+
+/* Security Focus Indicators */
+.secureInput:focus-visible,
+.secureTextarea:focus-visible,
+.secureSubmitButton:focus-visible {
+  outline: 3px solid #4299e1;
+  outline-offset: 2px;
+}
+
+.secureInput:focus-visible[data-security-level="CRITICAL"],
+.secureTextarea:focus-visible[data-security-level="CRITICAL"] {
+  outline-color: #e53e3e;
+}
+
+/* Security Print Styles */
+@media print {
+  .secureForm {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .validationDisplay {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+    border: 1px solid #000;
+  }
+  
+  .secureSubmitButton {
+    display: none;
+  }
+}

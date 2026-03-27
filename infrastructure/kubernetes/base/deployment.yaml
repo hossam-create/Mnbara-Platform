@@ -1,0 +1,316 @@
+# =============================================================================
+# Mnbara Platform - Base Kubernetes Deployment Template
+# =============================================================================
+# This is a template for deploying Node.js microservices on Kubernetes
+# Replace all ${PLACEHOLDERS} with environment-specific values
+# =============================================================================
+
+---
+# =============================================================================
+# Deployment
+# =============================================================================
+# Main deployment resource for a microservice
+# Includes container specification, health checks, and resource limits
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${SERVICE_NAME:-mnbara-service}
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    # Standard labels for identification
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+    environment: ${ENVIRONMENT:-dev}
+    tier: ${TIER:-backend}
+    managed-by: kubectl
+    # Service mesh labels (if using Istio/Linkerd)
+    service-mesh: enabled
+  annotations:
+    # Deployment description
+    description: ${SERVICE_DESCRIPTION:-Mnbara Platform Microservice}
+    # Maintainer contact
+    maintainer: ${CONTACT_EMAIL:-dev@mnbara.com}
+    # Release tracking
+    release: ${RELEASE_NAME:-${SERVICE_VERSION:-latest}}
+    # Git commit reference (set during CI/CD)
+    git-commit: ${GIT_COMMIT:-unknown}
+
+spec:
+  # Number of replicas (override in overlays for different environments)
+  replicas: ${REPLICAS:-2}
+  
+  # Rolling update strategy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: ${MAX_SURGE:-25%}
+      maxUnavailable: ${MAX_UNAVAILABLE:-25%}
+  
+  # Selector for pods managed by this deployment
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME:-mnbara-service}
+      version: ${SERVICE_VERSION:-latest}
+
+  # Pod template specification
+  template:
+    metadata:
+      labels:
+        app: ${SERVICE_NAME:-mnbara-service}
+        version: ${SERVICE_VERSION:-latest}
+        environment: ${ENVIRONMENT:-dev}
+        tier: ${TIER:-backend}
+        # Pod labels for service mesh
+        service-mesh: enabled
+      annotations:
+        # Prometheus metrics scraping (if using Prometheus Operator)
+        prometheus.io/scrape: "${PROMETHEUS_SCRAPE:-true}"
+        prometheus.io/port: "${PROMETHEUS_PORT:-3000}"
+        prometheus.io/path: "${PROMETHEUS_METRICS_PATH:-/metrics}"
+        # Configuration checksum for rolling updates
+        config.kubernetes.io/hash: ${CONFIG_HASH:-}
+
+    spec:
+      # Service account (create if needed)
+      serviceAccountName: ${SERVICE_ACCOUNT:-default}
+      
+      # Security context at pod level
+      securityContext:
+        runAsNonRoot: ${RUN_AS_NON_ROOT:-true}
+        runAsUser: ${RUN_AS_USER:-1000}
+        runAsGroup: ${RUN_AS_GROUP:-1000}
+        fsGroup: ${FS_GROUP:-1000}
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Graceful termination
+      terminationGracePeriodSeconds: ${TERMINATION_GRACE_PERIOD:-30}
+      
+      # Init containers (if needed)
+      initContainers:
+        # Example: Wait for dependencies
+        # - name: wait-for-db
+        #   image: busybox:1.36
+        #   command: ['sh', '-c', 'until nc -z $DB_HOST $DB_PORT; do echo waiting for db; sleep 2; done']
+
+      # Main container
+      containers:
+        - name: ${CONTAINER_NAME:-${SERVICE_NAME:-mnbara-service}}
+          image: ${IMAGE:-${DOCKER_REGISTRY:-docker.io}/mnbara/${SERVICE_NAME:-service}:${SERVICE_VERSION:-latest}}
+          imagePullPolicy: ${IMAGE_PULL_POLICY:-Always}
+          
+          # Container ports
+          ports:
+            - name: http
+              containerPort: ${CONTAINER_PORT:-3000}
+              protocol: TCP
+            - name: metrics
+              containerPort: ${METRICS_PORT:-9090}
+              protocol: TCP
+
+          # Environment variables
+          env:
+            # Service identification
+            - name: SERVICE_NAME
+              value: ${SERVICE_NAME:-mnbara-service}
+            - name: SERVICE_VERSION
+              value: ${SERVICE_VERSION:-latest}
+            - name: NODE_ENV
+              value: ${NODE_ENV:-production}
+            - name: PORT
+              value: "${CONTAINER_PORT:-3000}"
+            
+            # Database connections
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ${DATABASE_SECRET:-db-credentials}
+                  key: url
+                  optional: false
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ${REDIS_CONFIGMAP:-redis-config}
+                  key: url
+            
+            # Additional environment variables
+            # Add service-specific env vars here
+
+          # Environment variables from secrets
+          # envFrom:
+          #   - secretRef:
+          #       name: ${SECRET_NAME:-app-secrets}
+
+          # Resource requests and limits
+          resources:
+            requests:
+              cpu: ${CPU_REQUEST:-100m}
+              memory: ${MEMORY_REQUEST:-128Mi}
+            limits:
+              cpu: ${CPU_LIMIT:-1000m}
+              memory: ${MEMORY_LIMIT:-1024Mi}
+
+          # Liveness probe
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: ${CONTAINER_PORT:-3000}
+              httpHeaders:
+                - name: X-Health-Check
+                  value: liveness
+            initialDelaySeconds: ${LIVENESS_INITIAL_DELAY:-30}
+            periodSeconds: ${LIVENESS_PERIOD:-10}
+            timeoutSeconds: ${LIVENESS_TIMEOUT:-5}
+            failureThreshold: ${LIVENESS_FAILURE_THRESHOLD:-3}
+            successThreshold: ${LIVENESS_SUCCESS_THRESHOLD:-1}
+
+          # Readiness probe
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: ${CONTAINER_PORT:-3000}
+              httpHeaders:
+                - name: X-Health-Check
+                  value: readiness
+            initialDelaySeconds: ${READINESS_INITIAL_DELAY:-10}
+            periodSeconds: ${READINESS_PERIOD:-5}
+            timeoutSeconds: ${READINESS_TIMEOUT:-3}
+            failureThreshold: ${READINESS_FAILURE_THRESHOLD:-3}
+            successThreshold: ${READINESS_SUCCESS_THRESHOLD:-1}
+
+          # Startup probe (for slow starting services)
+          startupProbe:
+            httpGet:
+              path: /health
+              port: ${CONTAINER_PORT:-3000}
+            initialDelaySeconds: ${STARTUP_INITIAL_DELAY:-0}
+            periodSeconds: ${STARTUP_PERIOD:-10}
+            timeoutSeconds: ${STARTUP_TIMEOUT:-5}
+            failureThreshold: ${STARTUP_FAILURE_THRESHOLD:-30}
+            successThreshold: ${STARTUP_SUCCESS_THRESHOLD:-1}
+
+          # Security context at container level
+          securityContext:
+            allowPrivilegeEscalation: ${PRIVILEGE_ESCALATION:-false}
+            readOnlyRootFilesystem: ${READONLY_ROOTFS:-true}
+            capabilities:
+              drop:
+                - ALL
+              # Add only if needed:
+              # add:
+              #   - NET_BIND_SERVICE
+
+          # Volume mounts
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+            # - name: config
+            #   mountPath: /app/config
+            #   readOnly: true
+
+      # Volumes
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+        # - name: config
+        #   configMap:
+        #     name: ${CONFIGMAP_NAME:-app-config}
+
+      # Pod topology spread (for high availability)
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: ${SERVICE_NAME:-mnbara-service}
+
+      # Affinity rules (can be overridden in overlays)
+      affinity:
+        # Pod anti-affinity for high availability
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - ${SERVICE_NAME:-mnbara-service}
+                topologyKey: kubernetes.io/hostname
+        # Node affinity (if specific nodes required)
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #       - matchExpressions:
+        #           - key: node-type
+        #             operator: In
+        #             values:
+        #               - worker
+
+---
+
+# =============================================================================
+# Horizontal Pod Autoscaler
+# =============================================================================
+# Automatically scales replicas based on metrics
+# =============================================================================
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${SERVICE_NAME:-mnbara-service}
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  # Reference to the deployment
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${SERVICE_NAME:-mnbara-service}
+  
+  # Min and max replicas
+  minReplicas: ${HPA_MIN_REPLICAS:-1}
+  maxReplicas: ${HPA_MAX_REPLICAS:-10}
+  
+  # Scaling metrics
+  metrics:
+    # CPU utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: ${HPA_CPU_UTILIZATION:-70}
+    # Memory utilization (optional)
+    # - type: Resource
+    #   resource:
+    #     name: memory
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: ${HPA_MEMORY_UTILIZATION:-80}
+  
+  # Behavior configuration
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: ${HPA_SCALE_UP_WINDOW:-60}
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: ${HPA_SCALE_DOWN_WINDOW:-300}
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60

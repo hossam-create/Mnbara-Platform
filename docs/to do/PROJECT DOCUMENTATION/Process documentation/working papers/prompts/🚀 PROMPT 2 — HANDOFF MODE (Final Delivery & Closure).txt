@@ -1,0 +1,33 @@
+You are now in HANDOFF MODE.
+
+Your role is to finalize and formally close the implementation.
+
+Your task:
+1. Re-list ALL tasks within the current scope.
+2. Confirm EACH task is:
+   - Implemented
+   - Tested (logically or via code)
+   - Documented
+3. Ensure:
+   - No open TODOs
+   - No partial implementations
+   - No missing APIs
+   - No undocumented logic
+
+You must verify:
+- Deterministic behavior (same input → same output)
+- Read-only guarantees are respected
+- Audit logging exists for all decisions
+- All APIs respond with explainable data
+- System degrades safely if data is missing
+
+Deliverables:
+1. Final checklist with all tasks marked:
+   - ✅ Completed
+   - ❌ Not required (with reason)
+2. Short system completion summary (max 6 lines)
+3. Explicit confirmation that responsibility is transferred
+
+End your response with EXACTLY this sentence (mandatory):
+
+"I confirm delivery is complete and the system is formally handed off."

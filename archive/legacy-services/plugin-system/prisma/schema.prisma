@@ -1,0 +1,216 @@
+// ============================================================
+// Plugin System - Prisma Schema
+// Core plugin registry and management
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// PLUGIN REGISTRY
+// ============================================================
+
+model Plugin {
+  id              String   @id @default(uuid())
+  name            String   @unique // e.g., "@mnbara/stripe-payment"
+  version         String
+  type            PluginType
+  category        PluginCategory
+  manifest        Json     // Full plugin.json manifest
+  status          PluginStatus @default(INACTIVE)
+  installedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  activatedAt     DateTime?
+  deactivatedAt   DateTime?
+  errorMessage    String?
+  
+  // Relations
+  hooks           PluginHook[]
+  configs         PluginConfig[]
+  installations   PluginInstallation[]
+  marketplace     MarketplacePlugin?
+  
+  @@index([name])
+  @@index([status])
+  @@index([type, category])
+  @@map("plugins")
+}
+
+enum PluginType {
+  PAYMENT_GATEWAY
+  SHIPPING_PROVIDER
+  ANALYTICS
+  MARKETING
+  CONTENT
+  SECURITY
+  INTEGRATION
+  CUSTOM
+}
+
+enum PluginCategory {
+  PAYMENT
+  SHIPPING
+  MARKETING
+  ANALYTICS
+  CUSTOMER_SERVICE
+  CONTENT
+  SOCIAL
+  MARKETPLACE
+  UTILITY
+  SECURITY
+}
+
+enum PluginStatus {
+  INACTIVE
+  ACTIVE
+  ERROR
+  UPDATING
+  UNINSTALLING
+}
+
+// ============================================================
+// PLUGIN HOOKS
+// ============================================================
+
+model PluginHook {
+  id              String   @id @default(uuid())
+  pluginId        String
+  hookName        String   // e.g., "payment.process"
+  handlerFunction String   // Function name in plugin
+  priority        Int      @default(100) // Lower = higher priority
+  enabled         Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  
+  plugin          Plugin   @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, hookName])
+  @@index([hookName])
+  @@index([pluginId, priority])
+  @@map("plugin_hooks")
+}
+
+// ============================================================
+// PLUGIN CONFIGURATIONS
+// ============================================================
+
+model PluginConfig {
+  id          String   @id @default(uuid())
+  pluginId    String
+  configKey   String
+  configValue Json?    // Can be string, number, boolean, object
+  isSecret    Boolean  @default(false) // Encrypted if true
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  plugin      Plugin   @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, configKey])
+  @@index([pluginId])
+  @@map("plugin_configs")
+}
+
+// ============================================================
+// PLUGIN INSTALLATIONS
+// ============================================================
+
+model PluginInstallation {
+  id          String   @id @default(uuid())
+  pluginId    String
+  userId      String?  // null = system-wide installation
+  version     String
+  config      Json?    // Installation-specific config
+  status      InstallationStatus @default(ACTIVE)
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  uninstalledAt DateTime?
+  
+  plugin      Plugin   @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@index([pluginId])
+  @@index([userId])
+  @@index([status])
+  @@map("plugin_installations")
+}
+
+enum InstallationStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  UPDATING
+}
+
+// ============================================================
+// MARKETPLACE
+// ============================================================
+
+model MarketplacePlugin {
+  id            String   @id @default(uuid())
+  pluginId      String   @unique
+  developerId   String   // User ID of developer
+  name          String
+  description   String?  @db.Text
+  category      PluginCategory
+  price         Decimal  @default(0) @db.Decimal(10, 2)
+  isVerified    Boolean  @default(false)
+  isPublished   Boolean  @default(false)
+  downloadCount Int      @default(0)
+  rating        Decimal  @default(0) @db.Decimal(3, 2) // 0.00 to 5.00
+  reviewCount   Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  publishedAt   DateTime?
+  
+  plugin        Plugin   @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  reviews       PluginReview[]
+  
+  @@index([category])
+  @@index([isPublished, isVerified])
+  @@index([rating])
+  @@map("marketplace_plugins")
+}
+
+// ============================================================
+// PLUGIN REVIEWS
+// ============================================================
+
+model PluginReview {
+  id          String   @id @default(uuid())
+  pluginId    String   // Marketplace plugin ID
+  userId      String
+  rating      Int      // 1 to 5
+  comment     String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  plugin      MarketplacePlugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, userId])
+  @@index([pluginId])
+  @@index([rating])
+  @@map("plugin_reviews")
+}
+
+// ============================================================
+// PLUGIN EVENTS (Audit Log)
+// ============================================================
+
+model PluginEvent {
+  id          String   @id @default(uuid())
+  pluginId    String?
+  eventType   String   // e.g., "plugin.installed", "plugin.error"
+  eventData   Json?
+  userId      String?
+  createdAt   DateTime @default(now())
+  
+  @@index([pluginId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("plugin_events")
+}
+

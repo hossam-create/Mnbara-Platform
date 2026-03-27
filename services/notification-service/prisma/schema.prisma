@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Notification types enum
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+  WEBHOOK
+}
+
+enum NotificationType {
+  // Auction notifications
+  AUCTION_ENDING_SOON
+  NEW_BID_RECEIVED
+  OUTBID
+  AUCTION_WON
+  AUCTION_LOST
+  AUCTION_CANCELLED
+  
+  // Payment notifications
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  REFUND_ISSUED
+  
+  // Order notifications
+  ORDER_CONFIRMED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  ORDER_DISPUTE
+  
+  // Chat notifications
+  NEW_MESSAGE
+  MESSAGE_RECEIVED
+  
+  // System notifications
+  ACCOUNT_VERIFIED
+  PASSWORD_CHANGED
+  NEW_REVIEW
+  SYSTEM_ALERT
+}
+
+enum NotificationStatus {
+  PENDING
+  QUEUED
+  SENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+  DISMISSED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model Notification {
+  id            String              @id @default(uuid())
+  
+  // Type and Channel
+  type          NotificationType
+  channel       NotificationChannel
+  
+  // Recipient
+  userId        String
+  recipient     String              // Email, phone, or device token
+  deviceTokenId String?
+  
+  // Content
+  title         String?
+  subject       String?              // For emails
+  content       String               // Message body
+  data          Json?                // Additional payload data
+  
+  // Status and Priority
+  status        NotificationStatus   @default(PENDING)
+  priority      Priority            @default(NORMAL)
+  
+  // Provider info
+  provider      String?             // SENDGRID, TWILIO, FCM
+  providerId    String?             // Provider's message ID
+  
+  // Error handling
+  error         String?
+  retryCount    Int                 @default(0)
+  maxRetries    Int                 @default(3)
+  
+  // Delivery tracking
+  sentAt        DateTime?
+  deliveredAt   DateTime?
+  readAt        DateTime?
+  
+  // Scheduling
+  scheduledFor  DateTime?
+  expiresAt     DateTime?
+  
+  // Timestamps
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  // Relations
+  deviceToken   DeviceToken?        @relation(fields: [deviceTokenId], references: [id])
+  
+  @@index([userId])
+  @@index([type])
+  @@index([channel])
+  @@index([status])
+  @@index([createdAt])
+  @@index([scheduledFor])
+  @@map("notifications")
+}
+
+model DeviceToken {
+  id          String         @id @default(uuid())
+  userId      String
+  token       String         @unique
+  platform    String         // IOS, ANDROID, WEB
+  provider    String         // FCM, ONESIGNAL
+  isActive    Boolean        @default(true)
+  lastUsed    DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  notifications Notification[]
+  
+  @@index([userId])
+  @@index([token])
+  @@map("device_tokens")
+}
+
+model NotificationTemplate {
+  id          String   @id @default(uuid())
+  
+  // Template info
+  name        String   @unique
+  type        NotificationType
+  channel     NotificationChannel
+  
+  // Content
+  title       String?
+  subject     String?  // For emails
+  template    String   // Template content (Handlebars)
+  
+  // Variables
+  variables   Json?    // List of required variables
+  
+  // Status
+  active      Boolean  @default(true)
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([name])
+  @@index([type])
+  @@index([channel])
+  @@map("notification_templates")
+}
+
+model UserNotificationSettings {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  
+  // Channel preferences
+  emailEnabled    Boolean  @default(true)
+  smsEnabled      Boolean  @default(true)
+  pushEnabled     Boolean  @default(true)
+  inAppEnabled    Boolean  @default(true)
+  
+  // Notification type preferences
+  auctionAlerts   Boolean  @default(true)
+  bidAlerts       Boolean  @default(true)
+  outbidAlerts    Boolean  @default(true)
+  paymentAlerts   Boolean  @default(true)
+  orderAlerts      Boolean  @default(true)
+  chatAlerts       Boolean  @default(true)
+  marketingAlerts  Boolean  @default(false)
+  
+  // Quiet hours
+  quietHoursEnabled Boolean  @default(false)
+  quietHoursStart   String?   // "22:00"
+  quietHoursEnd     String?   // "08:00"
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("user_notification_settings")
+}
+
+model NotificationDeliveryLog {
+  id              String   @id @default(uuid())
+  notificationId  String
+  event           String   // SENT, DELIVERED, FAILED, CLICKED, OPENED
+  timestamp       DateTime @default(now())
+  metadata        Json?
+  
+  @@index([notificationId])
+  @@index([event])
+  @@index([timestamp])
+  @@map("notification_delivery_logs")
+}

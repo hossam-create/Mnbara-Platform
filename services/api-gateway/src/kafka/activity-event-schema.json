@@ -1,0 +1,179 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Activity Event Schema",
+  "description": "Schema for activity events published to Kafka activity-events topic",
+  
+  "definitions": {
+    "ActivityDomain": {
+      "type": "string",
+      "enum": ["wallet", "traveler", "marketplace"]
+    },
+    
+    "ActivityStatus": {
+      "type": "string",
+      "enum": ["pending", "completed", "failed", "cancelled"]
+    },
+    
+    "BaseActivityEvent": {
+      "type": "object",
+      "required": ["id", "domain", "userId", "eventType", "timestamp"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique event ID (UUID)"
+        },
+        "domain": {
+          "$ref": "#/definitions/ActivityDomain"
+        },
+        "userId": {
+          "type": "string",
+          "description": "User who performed the activity"
+        },
+        "eventType": {
+          "type": "string",
+          "description": "Type of activity event"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp"
+        },
+        "correlationId": {
+          "type": "string",
+          "description": "Correlation ID for distributed tracing"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source service that generated the event"
+        }
+      }
+    }
+  },
+
+  "oneOf": [
+    {
+      "title": "Wallet Activity Event",
+      "allOf": [
+        { "$ref": "#/definitions/BaseActivityEvent" },
+        {
+          "type": "object",
+          "properties": {
+            "domain": { "const": "wallet" },
+            "eventType": {
+              "type": "string",
+              "enum": [
+                "deposit",
+                "withdrawal",
+                "transfer",
+                "escrow_hold",
+                "escrow_release",
+                "refund",
+                "fee"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "transactionId": { "type": "string" },
+                "amount": { "type": "number" },
+                "currency": { "type": "string" },
+                "status": { "$ref": "#/definitions/ActivityStatus" },
+                "fromAccount": { "type": "string" },
+                "toAccount": { "type": "string" },
+                "description": { "type": "string" },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "required": ["payload"]
+        }
+      ]
+    },
+    {
+      "title": "Traveler Activity Event",
+      "allOf": [
+        { "$ref": "#/definitions/BaseActivityEvent" },
+        {
+          "type": "object",
+          "properties": {
+            "domain": { "const": "traveler" },
+            "eventType": {
+              "type": "string",
+              "enum": [
+                "route_created",
+                "route_updated",
+                "route_cancelled",
+                "offer_accepted",
+                "offer_rejected",
+                "delivery_completed",
+                "review_received"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "routeId": { "type": "string" },
+                "offerId": { "type": "string" },
+                "origin": { "type": "string" },
+                "destination": { "type": "string" },
+                "departureDate": { "type": "string", "format": "date-time" },
+                "arrivalDate": { "type": "string", "format": "date-time" },
+                "status": { "$ref": "#/definitions/ActivityStatus" },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "required": ["payload"]
+        }
+      ]
+    },
+    {
+      "title": "Marketplace Activity Event",
+      "allOf": [
+        { "$ref": "#/definitions/BaseActivityEvent" },
+        {
+          "type": "object",
+          "properties": {
+            "domain": { "const": "marketplace" },
+            "eventType": {
+              "type": "string",
+              "enum": [
+                "order_placed",
+                "order_shipped",
+                "order_delivered",
+                "order_cancelled",
+                "review_submitted",
+                "product_listed",
+                "product_sold"
+              ]
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "orderId": { "type": "string" },
+                "productId": { "type": "string" },
+                "productName": { "type": "string" },
+                "sellerId": { "type": "string" },
+                "buyerId": { "type": "string" },
+                "amount": { "type": "number" },
+                "currency": { "type": "string" },
+                "status": { "$ref": "#/definitions/ActivityStatus" },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          },
+          "required": ["payload"]
+        }
+      ]
+    }
+  ]
+}

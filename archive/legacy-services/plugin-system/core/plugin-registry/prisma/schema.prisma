@@ -1,0 +1,261 @@
+// This is your Prisma schema file for the Plugin System
+// It extends the existing auth-service schema with plugin-related tables
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Include existing models from auth-service
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  password      String?
+  name          String?
+  avatar        String?
+  role          UserRole       @default(USER)
+  status        UserStatus     @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+  
+  oauthAccounts OAuthAccount[]
+  refreshTokens RefreshToken[]
+  
+  @@index([email])
+  @@index([status])
+  @@map("users")
+}
+
+model OAuthAccount {
+  id           String       @id @default(uuid())
+  userId       String
+  provider     OAuthProvider
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  profile      Json?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// Plugin System Models
+
+model Plugin {
+  id              String        @id @default(uuid())
+  name            String        @unique
+  version         String
+  type            PluginType
+  category        String
+  description     String?
+  author          String?
+  manifest        Json          // Complete plugin.json content
+  status          PluginStatus  @default(pending)
+  installedAt     DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  // Relations
+  hooks           PluginHook[]
+  configs         PluginConfig[]
+  installations   PluginInstallation[]
+  marketplaceInfo PluginMarketplace[]
+  
+  @@index([type])
+  @@index([category])
+  @@index([status])
+  @@index([installedAt])
+  @@index([updatedAt])
+  @@map("plugins")
+}
+
+model PluginHook {
+  id                String    @id @default(uuid())
+  pluginId          String
+  hookName          String
+  handlerFunction   String
+  priority          Int       @default(100)
+  enabled           Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  
+  plugin Plugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@index([pluginId])
+  @@index([hookName])
+  @@index([enabled])
+  @@map("plugin_hooks")
+}
+
+model PluginConfig {
+  id            String    @id @default(uuid())
+  pluginId      String
+  configKey     String
+  configValue   Json?
+  isSecret      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  plugin Plugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, configKey])
+  @@index([pluginId])
+  @@map("plugin_configs")
+}
+
+model PluginInstallation {
+  id            String              @id @default(uuid())
+  pluginId      String
+  userId        String
+  version       String
+  config        Json?
+  status        InstallationStatus  @default(active)
+  installedAt   DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  
+  plugin Plugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([pluginId, userId])
+  @@index([pluginId])
+  @@index([userId])
+  @@index([status])
+  @@map("plugin_installations")
+}
+
+model PluginMarketplace {
+  id              String          @id @default(uuid())
+  pluginId        String
+  developerId     String
+  name            String
+  description     String?
+  category        String
+  price           Decimal         @default(0)
+  currency        String          @default("USD")
+  isVerified      Boolean         @default(false)
+  isPublished     Boolean         @default(false)
+  downloadCount   Int             @default(0)
+  rating          Decimal         @default(0) @db.Decimal(3, 2)
+  reviewCount     Int             @default(0)
+  tags            String[]        @default([])
+  screenshots     String[]        @default([])
+  documentation   String?
+  repository      String?
+  homepage        String?
+  supportUrl      String?
+  license         String?
+  minPlatformVersion String?
+  maxPlatformVersion String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  plugin  Plugin @relation(fields: [pluginId], references: [id], onDelete: Cascade)
+  developer User @relation(fields: [developerId], references: [id])
+  reviews PluginReview[]
+  
+  @@index([category])
+  @@index([isVerified])
+  @@index([isPublished])
+  @@index([rating])
+  @@index([downloadCount])
+  @@index([createdAt])
+  @@map("plugin_marketplace")
+}
+
+model PluginReview {
+  id          String    @id @default(uuid())
+  marketplacePluginId String
+  userId      String
+  rating      Int       @db.SmallInt // 1-5
+  title       String?
+  comment     String?
+  isVerified  Boolean   @default(false)
+  helpfulCount Int      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  marketplacePlugin PluginMarketplace @relation(fields: [marketplacePluginId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([marketplacePluginId, userId])
+  @@index([marketplacePluginId])
+  @@index([userId])
+  @@index([rating])
+  @@index([createdAt])
+  @@map("plugin_reviews")
+}
+
+// Enums
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+  DEVELOPER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum OAuthProvider {
+  GOOGLE
+  FACEBOOK
+  APPLE
+  GITHUB
+}
+
+enum PluginType {
+  PAYMENT
+  ANALYTICS
+  SHIPPING
+  NOTIFICATION
+  CUSTOM
+  INTEGRATION
+  SECURITY
+  MARKETING
+}
+
+enum PluginStatus {
+  active
+  inactive
+  error
+  updating
+  pending
+  deprecated
+  suspended
+}
+
+enum InstallationStatus {
+  active
+  inactive
+  error
+  updating
+  pending
+  uninstalled
+}

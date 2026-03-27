@@ -1,0 +1,386 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ebay-live
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ebay-live-config
+  namespace: ebay-live
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  FRONTEND_URL: "https://live.mnbara.com"
+  LOG_LEVEL: "info"
+  RTMP_PORT: "1935"
+  HTTP_PORT: "8080"
+  HLS_SEGMENT_DURATION: "6"
+  HLS_LIST_SIZE: "5"
+  WEBRTC_STUN_SERVER: "stun:stun.l.google.com:19302"
+  MAX_CONCURRENT_STREAMS: "100"
+  MAX_VIEWERS_PER_STREAM: "10000"
+  STREAM_TIMEOUT_MS: "30000"
+  CHAT_RATE_LIMIT: "10"
+  AUCTION_MIN_BID_INCREMENT: "1.0"
+  AUCTION_AUTO_EXTEND_TIME: "300"
+  AUCTION_PAYMENT_TIMEOUT: "1800"
+  AUCTION_MAX_BIDS_PER_USER: "10"
+  AUCTION_ANTI_SNIPE_TIME: "60"
+  HEALTH_CHECK_INTERVAL: "30000"
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "9090"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ebay-live-secrets
+  namespace: ebay-live
+type: Opaque
+stringData:
+  DB_PASSWORD: "secure_password_123"
+  JWT_SECRET: "your_jwt_secret_here"
+  RTMP_SECRET: "your_rtmp_secret_here"
+  WEBRTC_TURN_SERVER: ""
+  WEBRTC_TURN_USERNAME: ""
+  WEBRTC_TURN_CREDENTIAL: ""
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ebay-live-service
+  namespace: ebay-live
+  labels:
+    app: ebay-live-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ebay-live-service
+  template:
+    metadata:
+      labels:
+        app: ebay-live-service
+    spec:
+      containers:
+      - name: ebay-live-service
+        image: mnbara/ebay-live-service:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 1935
+          name: rtmp
+        - containerPort: 8080
+          name: hls
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://ebay_live_user:$(DB_PASSWORD)@postgres-service:5432/ebay_live_db"
+        - name: REDIS_URL
+          value: "redis://redis-service:6379"
+        envFrom:
+        - configMapRef:
+            name: ebay-live-config
+        - secretRef:
+            name: ebay-live-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        volumeMounts:
+        - name: media-storage
+          mountPath: /app/media
+        - name: logs-storage
+          mountPath: /app/logs
+      volumes:
+      - name: media-storage
+        persistentVolumeClaim:
+          claimName: media-pvc
+      - name: logs-storage
+        persistentVolumeClaim:
+          claimName: logs-pvc
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - ebay-live-service
+              topologyKey: kubernetes.io/hostname
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebay-live-service
+  namespace: ebay-live
+  labels:
+    app: ebay-live-service
+spec:
+  selector:
+    app: ebay-live-service
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+  - name: rtmp
+    port: 1935
+    targetPort: 1935
+  - name: hls
+    port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-service
+  namespace: ebay-live
+  labels:
+    app: postgres-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-service
+  template:
+    metadata:
+      labels:
+        app: postgres-service
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: "ebay_live_db"
+        - name: POSTGRES_USER
+          value: "ebay_live_user"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ebay-live-secrets
+              key: DB_PASSWORD
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - ebay_live_user
+            - -d
+            - ebay_live_db
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - ebay_live_user
+            - -d
+            - ebay_live_db
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: ebay-live
+  labels:
+    app: postgres-service
+spec:
+  selector:
+    app: postgres-service
+  ports:
+  - port: 5432
+    targetPort: 5432
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-service
+  namespace: ebay-live
+  labels:
+    app: redis-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-service
+  template:
+    metadata:
+      labels:
+        app: redis-service
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: ebay-live
+  labels:
+    app: redis-service
+spec:
+  selector:
+    app: redis-service
+  ports:
+  - port: 6379
+    targetPort: 6379
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: ebay-live
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-pvc
+  namespace: ebay-live
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: logs-pvc
+  namespace: ebay-live
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ebay-live-ingress
+  namespace: ebay-live
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/websocket-services: "ebay-live-service"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - live.mnbara.com
+    secretName: ebay-live-tls
+  rules:
+  - host: live.mnbara.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ebay-live-service
+            port:
+              number: 3000
+      - path: /hls
+        pathType: Prefix
+        backend:
+          service:
+            name: ebay-live-service
+            port:
+              number: 8080
+      - path: /ws
+        pathType: Prefix
+        backend:
+          service:
+            name: ebay-live-service
+            port:
+              number: 3000

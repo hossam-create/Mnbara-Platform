@@ -1,0 +1,162 @@
+<html><head><script src="//archive.org/includes/analytics.js?v=cf34f82" type="text/javascript"></script>
+<script type="text/javascript">window.addEventListener('DOMContentLoaded',function(){var v=archive_analytics.values;v.service='wb';v.server_name='wwwb-app218.us.archive.org';v.server_ms=2374;archive_analytics.send_pageview({});});</script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/bundle-playback.js?v=t1Bf4PY_" charset="utf-8"></script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/wombat.js?v=txqj7nKC" charset="utf-8"></script>
+<script>window.RufflePlayer=window.RufflePlayer||{};window.RufflePlayer.config={"autoplay":"on","unmuteOverlay":"hidden"};</script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/ruffle/ruffle.js"></script>
+<script type="text/javascript">
+  __wm.init("https://web.archive.org/web");
+  __wm.wombat("http://www.maktoob.com:80/","20041001081443","https://web.archive.org/","web","https://web-static.archive.org/_static/",
+	      "1096618483");
+</script>
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/banner-styles.css?v=S1zqJCYt">
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/iconochive.css?v=qtvMKcIJ">
+<!-- End Wayback Rewrite JS Include -->
+
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="max-age" content="0">
+<meta http-equiv="Expires" content="-1">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1256">
+
+<script language="javascript">
+
+function setCountryE() {
+document.form0.interface1.value='ar';
+arcoun = new Array(30)
+arcoun[0] = "0"; arcoun[1] = "24"; arcoun[2] = "10"; arcoun[3] = "2"; arcoun[4] = "8"; arcoun[5] = "3"; arcoun[6] = "25"; arcoun[7] = "23"; arcoun[8] = "1"; arcoun[9] = "5"; arcoun[10] = "6", arcoun[11] = "19"; arcoun[12] = "16"; arcoun[13] = "21"; arcoun[14] = "22"; arcoun[15] = "20"; arcoun[16] = "9"; arcoun[17] = "17"; arcoun[18] = "18"; arcoun[19] = "4"; arcoun[20] = "11"; arcoun[21] = "12"; arcoun[22] = "13"; arcoun[23] = "7"; arcoun[24] = "15"; arcoun[25] = "14"; arcoun[26] = "26"; arcoun[27] = "27"; arcoun[28] = "28";
+document.form0.encountry.selectedIndex = arcoun[document.form0.arcountry.selectedIndex];
+}
+
+function setCountryA() {
+document.form0.interface1.value='en';
+encoun = new Array(30)
+encoun[0] = "0"; encoun[1] = "8"; encoun[2] = "3"; encoun[3] = "5"; encoun[4] = "19"; encoun[5] = "9"; encoun[6] = "10"; encoun[7] = "23"; encoun[8] = "4"; encoun[9] = "16"; encoun[10] = "2", encoun[11] = "20"; encoun[12] = "21"; encoun[13] = "22"; encoun[14] = "25"; encoun[15] = "24"; encoun[16] = "12"; encoun[17] = "17"; encoun[18] = "18"; encoun[19] = "11"; encoun[20] = "15"; encoun[21] = "13"; encoun[22] = "14"; encoun[23] = "7"; encoun[24] = "1"; encoun[25] = "6"; encoun[26] = "26"; encoun[27] = "27"; encoun[28] = "28";
+document.form0.arcountry.selectedIndex = encoun[document.form0.encountry.selectedIndex];
+}
+
+function checkS() {
+
+if ( document.form0.arcountry.selectedIndex == 0 ) {
+alert("Please enter the country you are in");
+}
+else {
+document.form0.submit();
+}
+
+}	
+
+
+</script>
+<title>Please select the country you are in</title>
+</head>
+<body bgcolor="#000066" text="#FFCC00" link="#3399FF" vlink="#FFFF99" alink="#33CCFF" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"><!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<script>__wm.rw(0);</script>
+<div id="wm-ipp-base" lang="en" style="display: block; direction: ltr;">
+</div><div id="wm-ipp-print">The Wayback Machine - https://web.archive.org/web/20041001081443/http://www.maktoob.com:80/</div>
+<script type="text/javascript">//<![CDATA[
+__wm.bt(725,27,25,2,"web","http://www.maktoob.com/","20041001081443",1996,"https://web-static.archive.org/_static/",["https://web-static.archive.org/_static/css/banner-styles.css?v=S1zqJCYt","https://web-static.archive.org/_static/css/iconochive.css?v=qtvMKcIJ"], false);
+  __wm.rw(1);
+//]]></script>
+<!-- END WAYBACK TOOLBAR INSERT -->
+ 
+<form name="form0" method="POST" action="index.pl?mm=82313">
+<input type="hidden" name="interface1" value="">
+  <div align="center"> 
+<br>
+    <br>
+    <br>
+      <img src="https://web.archive.org/web/20041001081443im_/http://images.maktoob.com/images/logo_largest.gif" width="423" height="112"><br>
+      <img src="https://web.archive.org/web/20041001081443im_/http://images.maktoob.com/images/line.gif" width="476" height="5">
+    </div>
+  <div align="center">
+    <table width="60%" border="0" cellspacing="2" cellpadding="2">
+      <tbody><tr> 
+        <td align="center" valign="middle"><img src="https://web.archive.org/web/20041001081443im_/http://images.maktoob.com/images/please.gif" width="223" height="36"><br>
+          <select name="encountry" size="1" onchange="setCountryA()">
+            <option value="-Select-" selected="">-Select-</option>
+            <option value="dz">Algeria</option>
+            <option value="au">Australia</option>
+            <option value="bh">Bahrain</option>
+            <option value="ca">Canada</option>
+            <option value="km">ComorosIslands</option>
+            <option value="dj">Djibouti</option>
+            <option value="eg">Egypt</option>
+            <option value="ir">Iran</option>
+            <option value="iq">Iraq</option>
+            <option value="jo">Jordan</option>
+            <option value="kw">Kuwait</option>
+            <option value="lb">Lebanon</option>
+            <option value="ly">Libya</option>
+            <option value="mr">Mauritania</option>
+            <option value="ma">Morocco</option>
+            <option value="om">Oman</option>
+            <option value="pal">Palestine</option>
+            <option value="qa">Qatar</option>
+            <option value="sa">Saudi Arabia</option>
+            <option value="so">Somalia</option>
+            <option value="sd">Sudan</option>
+            <option value="sy">Syria</option>
+            <option value="tn">Tunisia</option>
+            <option value="ae">United Arab Emirates</option>
+            <option value="uk">United Kingdom</option>
+            <option value="us">United States</option>
+            <option value="ye">Yemen</option>
+            <option value="other">Other</option>
+          </select>
+          <br>
+        </td>
+        <td align="center" valign="middle" background="https://web.archive.org/web/20041001081443im_/http://images.maktoob.com/images/verticaldots.gif">&nbsp;</td>
+        <td align="center" valign="middle"><img src="https://web.archive.org/web/20041001081443im_/http://images.maktoob.com/images/a_please.gif" width="218" height="37"><br>
+          <font face="Arial (Arabic)" size="1"> 
+          <select name="arcountry" size="1" onchange="setCountryE()">
+            <option value="-?????-" selected="">-?????-</option>
+            <option value="ae">???????? ????????? ???????</option>
+            <option value="jo">??????</option>
+            <option value="au">????????</option>
+            <option value="ir">?????</option>
+            <option value="bh">???????</option>
+            <option value="uk">????????</option>
+            <option value="tn">??????</option>
+            <option value="dz">????????</option>
+            <option value="km">?????????</option>
+            <option value="dj">??????</option>
+            <option value="sa">??????????</option>
+            <option value="om">????? ??????</option>
+            <option value="sd">??????????</option>
+            <option value="sy">?????????????</option>
+            <option value="so">??????????</option>
+            <option value="iq">????????</option>
+            <option value="pal">???????</option>
+            <option value="qa">?????</option>
+            <option value="ca">?????</option>
+            <option value="kw">?????????</option>
+            <option value="lb">????????</option>
+            <option value="ly">???????</option>
+            <option value="eg">??????</option>
+            <option value="ma">?????????</option>
+            <option value="mr">??????????</option>
+            <option value="us">???????? ??????? ?????????</option>
+            <option value="ye">???????????</option>
+            <option value="other">??? ????</option>
+          </select>
+          </font></td>
+      </tr>
+    </tbody></table>
+  </div>
+  <p align="center">
+    <input type="button" name="B1" value="Go" onclick="checkS()">
+</p></form>
+<br>
+
+
+
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="max-age" content="0">
+<meta http-equiv="Expires" content="-1">
+
+
+
+
+</body></html>

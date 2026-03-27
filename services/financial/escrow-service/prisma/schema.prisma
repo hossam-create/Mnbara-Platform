@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Escrow Account - holds funds during transaction
+model EscrowAccount {
+  id                String   @id @default(cuid())
+  transactionId     String   @unique
+  buyerId           String
+  sellerId          String
+  amount            Float
+  currency          String   @default("USD")
+  status            EscrowStatus @default(PENDING)
+  
+  // Escrow details
+  description       String?
+  releaseConditions String?
+  
+  // Timeline
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  releasedAt        DateTime?
+  disputedAt        DateTime?
+  
+  // Relations
+  timeline          EscrowTimeline[]
+  disputes          EscrowDispute[]
+  
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Escrow Timeline - track all events
+model EscrowTimeline {
+  id                String   @id @default(cuid())
+  escrowId          String
+  event             String
+  description       String?
+  metadata          Json?
+  
+  createdAt         DateTime @default(now())
+  
+  // Relations
+  escrow            EscrowAccount @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
+  @@index([escrowId])
+  @@index([createdAt])
+}
+
+// Escrow Dispute - handle disputes
+model EscrowDispute {
+  id                String   @id @default(cuid())
+  escrowId          String
+  initiatedBy       String   // buyerId or sellerId
+  reason            String
+  description       String?
+  evidence          String?
+  status            DisputeStatus @default(OPEN)
+  
+  // Resolution
+  resolution        String?
+  resolvedBy        String?
+  resolutionAmount  Float?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  resolvedAt        DateTime?
+  
+  // Relations
+  escrow            EscrowAccount @relation(fields: [escrowId], references: [id], onDelete: Cascade)
+  
+  @@index([escrowId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Audit Log - compliance and tracking
+model EscrowAuditLog {
+  id                String   @id @default(cuid())
+  escrowId          String?
+  action            String
+  actor             String
+  details           Json?
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([escrowId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// Enums
+enum EscrowStatus {
+  PENDING
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+}

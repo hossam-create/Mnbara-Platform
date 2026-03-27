@@ -1,0 +1,798 @@
+// Mnbara Platform - Unified Prisma Schema with PostGIS Extensions
+// This schema includes all core entities for the e-commerce/marketplace platform
+// with geospatial support via PostGIS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                Int              @id @default(autoincrement())
+  email             String           @unique
+  passwordHash      String?
+  firstName         String
+  lastName          String
+  phone             String?
+  avatar            String?
+  role              UserRole         @default(BUYER)
+  status            UserStatus       @default(ACTIVE)
+  emailVerified     Boolean          @default(false)
+  phoneVerified      Boolean         @default(false)
+  twoFactorEnabled  Boolean          @default(false)
+  twoFactorSecret   String?
+  
+  // KYC
+  kycStatus         KycStatus        @default(PENDING)
+  kycVerifiedAt     DateTime?
+  
+  // Location for geo-based services
+  location          PostGISPoint?
+  
+  // Wallet
+  wallet            Wallet?
+  
+  // Timestamps
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  lastLoginAt      DateTime?
+  
+  // Relations
+  listings          Listing[]
+  bids              Bid[]
+  orders            Order[]
+  reviews           Review[]
+  addresses         Address[]
+  notifications     Notification[]
+  trustScore        TrustScore?
+  enforcementActions EnforcementAction[]
+  appeals           EnforcementAppeal[]
+  
+  @@index([email])
+  @@index([status])
+  @@index([role])
+  @@index([kycStatus])
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+  MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+model Address {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  type          AddressType   @default(SHIPPING)
+  label         String?
+  street        String
+  city          String
+  state         String?
+  postalCode    String
+  country       String
+  isDefault     Boolean       @default(false)
+  
+  // Geospatial coordinates (for PostGIS)
+  latitude      Float?
+  longitude     Float?
+  location      PostGISPoint?
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  orders        Order[]
+  
+  @@index([userId])
+  @@index([country])
+  @@index([postalCode])
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+  BOTH
+}
+
+// ============================================
+// PRODUCTS & LISTINGS
+// ============================================
+
+model Listing {
+  id              Int             @id @default(autoincrement())
+  sellerId        Int
+  seller          User            @relation(fields: [sellerId], references: [id])
+  
+  title           String
+  description     String          @db.Text
+  condition       ProductCondition @default(NEW)
+  status          ListingStatus   @default(DRAFT)
+  
+  // Pricing
+  price           Decimal         @db.Decimal(10, 2)
+  currency        String          @default("USD")
+  compareAtPrice  Decimal?        @db.Decimal(10, 2)
+  
+  // Auction fields
+  isAuction       Boolean         @default(false)
+  startingBid     Decimal?        @db.Decimal(10, 2)
+  reservePrice    Decimal?        @db.Decimal(10, 2)
+  currentBid      Decimal?        @db.Decimal(10, 2)
+  auctionEndsAt   DateTime?
+  auctionStartsAt DateTime?
+  
+  // Auto-extend configuration
+  autoExtendEnabled     Boolean   @default(true)
+  autoExtendThresholdMs Int       @default(120000)
+  autoExtendDurationMs  Int       @default(120000)
+  maxExtensions         Int       @default(10)
+  extensionCount        Int       @default(0)
+  originalEndTime       DateTime?
+  
+  // Buy Now
+  buyNowPrice     Decimal?        @db.Decimal(10, 2)
+  
+  // Winner tracking
+  winnerId        Int?
+  finalPrice      Decimal?        @db.Decimal(10, 2)
+  
+  // Category & Attributes
+  categoryId      Int?
+  category        Category?       @relation(fields: [categoryId], references: [id])
+  attributes      Json?
+  
+  // Location for local pickup/shipping
+  location        PostGISPoint?
+  shippingFrom    String?
+  
+  // Media
+  images          ListingImage[]
+  
+  // Relations
+  bids            Bid[]
+  reviews         Review[]
+  favorites       Favorite[]
+  
+  // Audit
+  viewCount       Int             @default(0)
+  favoriteCount   Int             @default(0)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([sellerId])
+  @@index([status])
+  @@index([isAuction])
+  @@index([auctionEndsAt])
+  @@index([categoryId])
+  @@index([price])
+  @@index([createdAt])
+}
+
+model ListingImage {
+  id          Int       @id @default(autoincrement())
+  listingId   Int
+  listing     Listing   @relation(fields: [listingId], references: [id])
+  url         String
+  alt         String?
+  position    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  
+  @@index([listingId])
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  VERY_GOOD
+  GOOD
+  ACCEPTABLE
+  PARTS
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  SOLD
+  ENDED
+  CANCELLED
+  DELETED
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String?
+  parentId    Int?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  icon        String?
+  image       String?
+  position    Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  listings    Listing[]
+  
+  @@index([parentId])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model Favorite {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  listingId   Int
+  listing     Listing   @relation(fields: [listingId], references: [id])
+  createdAt   DateTime  @default(now())
+  
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+}
+
+// ============================================
+// AUCTIONS & BIDS
+// ============================================
+
+model Bid {
+  id                Int           @id @default(autoincrement())
+  listingId         Int
+  listing           Listing       @relation(fields: [listingId], references: [id])
+  bidderId          Int
+  bidder            User          @relation(fields: [bidderId], references: [id])
+  
+  amount            Decimal       @db.Decimal(10, 2)
+  isAutoBid         Boolean       @default(false)
+  maxAmount         Decimal?      @db.Decimal(10, 2)
+  
+  // Extension tracking
+  triggeredExtension Boolean      @default(false)
+  
+  // Status
+  status            BidStatus     @default(ACTIVE)
+  
+  // Real-time auction support
+  idempotencyKey   String?       @unique
+  isWinning        Boolean       @default(false)
+  
+  createdAt        DateTime      @default(now())
+  
+  @@index([listingId])
+  @@index([bidderId])
+  @@index([createdAt])
+  @@index([status])
+  @@index([isWinning])
+}
+
+enum BidStatus {
+  ACTIVE
+  OUTBID
+  WINNING
+  WON
+  CANCELLED
+  INVALIDATED
+  SETTLED
+}
+
+// ============================================
+// ORDERS & PAYMENTS
+// ============================================
+
+model Order {
+  id                Int            @id @default(autoincrement())
+  orderNumber       String         @unique
+  userId            Int
+  user              User           @relation(fields: [userId], references: [id])
+  
+  // Pricing
+  subtotal          Decimal        @db.Decimal(10, 2)
+  shippingCost      Decimal        @db.Decimal(10, 2)
+  tax               Decimal        @db.Decimal(10, 2)
+  discount          Decimal        @db.Decimal(10, 2) @default(0)
+  total             Decimal        @db.Decimal(10, 2)
+  currency          String         @default("USD")
+  
+  // Status
+  status            OrderStatus    @default(PENDING)
+  paymentStatus     PaymentStatus  @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Shipping
+  shippingAddressId Int?
+  shippingAddress   Address?       @relation(fields: [shippingAddressId], references: [id])
+  shippingMethod    String?
+  trackingNumber    String?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  
+  // Payment
+  paymentMethod     String?
+  paymentId         String?
+  paidAt            DateTime?
+  
+  // Notes
+  customerNote      String?
+  internalNote      String?
+  
+  // Timestamps
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  cancelledAt       DateTime?
+  completedAt       DateTime?
+  
+  // Relations
+  items             OrderItem[]
+  transactions      Transaction[]
+  
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id              Int       @id @default(autoincrement())
+  orderId         Int
+  order           Order     @relation(fields: [orderId], references: [id])
+  listingId       Int
+  listingTitle    String
+  listingImage    String?
+  quantity        Int       @default(1)
+  unitPrice       Decimal   @db.Decimal(10, 2)
+  totalPrice      Decimal   @db.Decimal(10, 2)
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([orderId])
+  @@index([listingId])
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  DISPUTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  RETURNED
+}
+
+// ============================================
+// TRANSACTIONS & ESCROW
+// ============================================
+
+model Transaction {
+  id              Int              @id @default(autoincrement())
+  orderId         Int?
+  order           Order?           @relation(fields: [orderId], references: [id])
+  
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+  
+  amount          Decimal          @db.Decimal(18, 2)
+  currency        String           @default("USD")
+  
+  fromWalletId    Int?
+  toWalletId      Int?
+  
+  // Payment gateway info
+  provider        String?
+  providerId      String?
+  providerData    Json?
+  
+  // Timestamps
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  completedAt     DateTime?
+  failedAt        DateTime?
+  failureReason   String?
+  
+  @@index([orderId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  PAYMENT
+  REFUND
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  TRANSFER
+  FEE
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  DISPUTED
+}
+
+model Wallet {
+  id              Int            @id @default(autoincrement())
+  userId          Int            @unique
+  user            User           @relation(fields: [userId], references: [id])
+  
+  balance         Decimal        @db.Decimal(18, 2) @default(0)
+  pendingBalance  Decimal        @db.Decimal(18, 2) @default(0)
+  currency        String         @default("USD")
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  
+  transactions    Transaction[]
+  escrowHoldings  EscrowHolding[]
+  
+  @@index([userId])
+  @@index([balance])
+}
+
+model EscrowHolding {
+  id              Int           @id @default(autoincrement())
+  walletId        Int
+  wallet          Wallet        @relation(fields: [walletId], references: [id])
+  
+  amount          Decimal       @db.Decimal(18, 2)
+  orderId         Int?
+  description     String?
+  status          EscrowStatus  @default(HELD)
+  
+  createdAt       DateTime      @default(now())
+  releasedAt      DateTime?
+  
+  @@index([walletId])
+  @@index([orderId])
+  @@index([status])
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+}
+
+// ============================================
+// REVIEWS & TRUST
+// ============================================
+
+model Review {
+  id            Int           @id @default(autoincrement())
+  userId        Int
+  user          User          @relation(fields: [userId], references: [id])
+  listingId     Int
+  listing       Listing       @relation(fields: [listingId], references: [id])
+  orderId       Int?
+  
+  rating        Int
+  title         String?
+  content       String        @db.Text
+  
+  // Seller/Product review
+  type          ReviewType    @default(PRODUCT)
+  
+  // Response
+  response      String?       @db.Text
+  respondedAt   DateTime?
+  
+  // Status
+  status        ReviewStatus  @default(PENDING)
+  isVerified    Boolean       @default(false)
+  
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  @@unique([userId, listingId, orderId])
+  @@index([listingId])
+  @@index([userId])
+  @@index([rating])
+  @@index([status])
+}
+
+enum ReviewType {
+  PRODUCT
+  SELLER
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+model TrustScore {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  overallScore    Float     @default(5.0)
+  productScore    Float     @default(5.0)
+  communicationScore Float   @default(5.0)
+  shippingScore   Float     @default(5.0)
+  
+  totalReviews    Int       @default(0)
+  positiveReviews Int       @default(0)
+  negativeReviews Int       @default(0)
+  
+  disputesCount   Int       @default(0)
+  disputesLost    Int       @default(0)
+  
+  lastCalculatedAt DateTime @default(now())
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([overallScore])
+  @@index([totalReviews])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  userId      Int
+  user        User             @relation(fields: [userId], references: [id])
+  
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?
+  
+  read        Boolean          @default(false)
+  readAt      DateTime?
+  
+  // Channel
+  channel     NotificationChannel @default(IN_APP)
+  sent        Boolean          @default(false)
+  sentAt      DateTime?
+  
+  createdAt   DateTime         @default(now())
+  
+  @@index([userId])
+  @@index([type])
+  @@index([read])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  ORDER_CONFIRMATION
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  BID_PLACED
+  BID_OUTBID
+  AUCTION_WON
+  REVIEW_RECEIVED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  ESCROW_RELEASED
+  ESCROW_REFUNDED
+  SYSTEM_ALERT
+  MARKETING
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+  ALL
+}
+
+// ============================================
+// ENFORCEMENT & APPEALS (Phase 6)
+// ============================================
+
+model EnforcementAction {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id])
+  
+  type            EnforcementType
+  severity        Severity      @default(MEDIUM)
+  reason          String
+  description     String?       @db.Text
+  
+  status          ActionStatus  @default(PENDING)
+  
+  // Resolution
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolutionNote  String?
+  
+  // Expiry for temporary bans
+  expiresAt       DateTime?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model EnforcementAppeal {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id])
+  actionId        Int?
+  
+  reason          String        @db.Text
+  evidence        Json?
+  
+  status          AppealStatus  @default(PENDING)
+  decision        String?
+  decisionNote    String?       @db.Text
+  
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum EnforcementType {
+  WARNING
+  RESTRICTION
+  SUSPENSION
+  BAN
+  ACCOUNT_CLOSURE
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ActionStatus {
+  PENDING
+  ACTIVE
+  RESOLVED
+  EXPIRED
+}
+
+enum AppealStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ESCALATED
+}
+
+// ============================================
+// POSTGIS GEOSPATIAL SUPPORT
+// ============================================
+
+model PostGISPoint {
+  id          Int       @id @default(autoincrement())
+  
+  // Point geometry (PostGIS geography type for location-based queries)
+  latitude    Float
+  longitude   Float
+  
+  // SRID 4326 (WGS84) for standard GPS coordinates
+  srid        Int       @default(4326)
+  
+  // Indexed GIST geometry column
+  location    Unsupported("geography(Point, 4326)")?
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  users       User[]
+  addresses   Address[]
+  listings    Listing[]
+}
+
+// ============================================
+// AUDIT LOGS
+// ============================================
+
+model AuditLog {
+  id          Int       @id @default(autoincrement())
+  
+  // Entity
+  entityType  String
+  entityId    Int
+  
+  // Action
+  action      String
+  changes     Json?
+  oldValues   Json?
+  newValues   Json?
+  
+  // Actor
+  userId      Int?
+  userEmail   String?
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============================================
+// PERFORMANCE INDEXES (SQL)
+// ============================================
+
+// Note: These indexes are applied via raw SQL in migrations
+// PostGIS spatial indexes are created via raw SQL for GIST index
+
+/*
+-- Example migration for performance indexes:
+CREATE INDEX CONCURRENTLY idx_listing_status_active ON "Listing" (status) WHERE status = 'ACTIVE';
+CREATE INDEX CONCURRENTLY idx_listing_auction_ends ON "Listing" (auctionEndsAt) WHERE isAuction = true AND status = 'ACTIVE';
+CREATE INDEX CONCURRENTLY idx_listing_seller_active ON "Listing" (sellerId, status);
+CREATE INDEX CONCURRENTLY idx_bid_listing_created ON "Bid" (listingId, createdAt DESC);
+CREATE INDEX CONCURRENTLY idx_order_user_status ON "Order" (userId, status);
+CREATE INDEX CONCURRENTLY idx_transaction_order ON "Transaction" (orderId);
+CREATE INDEX CONCURRENTLY idx_notification_user_read ON "Notification" (userId, read) WHERE read = false;
+CREATE INDEX CONCURRENTLY idx_audit_entity_created ON "AuditLog" (entityType, entityId, createdAt DESC);
+
+-- PostGIS spatial index
+CREATE INDEX CONCURRENTLY idx_location_geography ON "PostGISPoint" USING GIST (location);
+*/

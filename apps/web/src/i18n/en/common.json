@@ -1,0 +1,235 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "search": "Search for anything",
+    "signIn": "Sign in",
+    "register": "Register",
+    "myCart": "My Cart",
+    "watchlist": "Watchlist",
+    "notifications": "Notifications"
+  },
+  "nav": {
+    "home": "Home",
+    "saved": "Saved",
+    "electronics": "Electronics",
+    "motors": "Motors",
+    "fashion": "Fashion",
+    "collectibles": "Collectibles",
+    "sports": "Sports",
+    "health": "Health & Beauty",
+    "industrial": "Industrial",
+    "homeGarden": "Home & Garden",
+    "deals": "Deals",
+    "sell": "Sell",
+    "toys": "Toys",
+    "clothing": "Clothing, Shoes & Accessories",
+    "sub": {
+        "mobiles": "Mobiles",
+        "laptops": "Laptops",
+        "accessories": "Accessories",
+        "men": "Men",
+        "women": "Women",
+        "kids": "Kids"
+    },
+    "mnbarhLive": "Mnbarh Live",
+    "departments": "Departments",
+    "newArrivals": "New Arrivals",
+    "giftCards": "Gift Cards",
+    "brandOutlet": "Brand Outlet",
+    "wallet": "Wallet",
+    "more": "More"
+  },
+  "payment": {
+    "shipping": {
+      "free": "Free shipping"
+    }
+  },
+  "header": {
+    "welcome": "Hi!",
+    "signIn": "Sign in",
+    "or": "or",
+    "register": "register",
+    "dailyDeals": "Daily Deals",
+    "helpContact": "Help & Contact",
+    "sell": "Sell",
+    "watchlist": "Watchlist",
+    "myMnbarh": "My MNbarh",
+    "searchPlaceholder": "Search products or paste a product link",
+    "shipControl": "Ship Control",
+    "bridgeConsole": "Bridge Console",
+    "zeroTrust": "Zero-trust oversight",
+    "traveler": {
+      "title": "Traveler-assisted",
+      "subtitle": "Buy via traveler",
+      "optionTraveler": "Traveler Assistant",
+      "optionTravelerDesc": "Faster & cheaper via travelers",
+      "optionShipping": "Shipping",
+      "optionShippingDesc": "Standard delivery"
+    },
+    "fulfillment": {
+      "title": "Fulfillment Center",
+      "subtitle": "Shipping, Pickup, Delivery",
+      "shippingSettings": "Shipping settings",
+      "pickupSettings": "Pickup settings",
+      "deliverySettings": "Delivery settings"
+    }
+  },
+  "homepage": {
+    "hero": {
+      "slide1": {
+        "title": "Buy from anywhere with trusted travelers",
+        "subtitle": "Get products from any website worldwide delivered to your door",
+        "cta": "Start Shopping"
+      },
+      "slide2": {
+        "title": "Paste a link & get it delivered",
+        "subtitle": "Found something online? Paste the link and travelers will bring it to you",
+        "cta": "Paste a Link"
+      },
+      "slide3": {
+        "title": "Travel & earn by helping buyers",
+        "subtitle": "Make money on your next trip by delivering products to buyers",
+        "cta": "Add Your Trip"
+      },
+      "slide4": {
+        "title": "Deals, auctions & buyer protection",
+        "subtitle": "Shop with confidence - every purchase is protected",
+        "cta": "Explore Deals"
+      }
+    },
+    "values": {
+      "title": "Why Choose MNbarh?",
+      "subtitle": "More than just a marketplace — a global shopping revolution",
+      "cta": "Get Started Now",
+      "ctaSubtitle": "Ready to experience the future of shopping?",
+      "items": {
+        "travelEarn": { "title": "Travel & Earn", "desc": "Make money on your next trip by delivering products to buyers" },
+        "pasteLink": { "title": "Paste Link Buying", "desc": "Found something online? Paste the link and get it delivered" },
+        "auctions": { "title": "Auctions & Deals", "desc": "Bid on unique items and grab amazing deals every day" },
+        "protection": { "title": "Buyer Protection", "desc": "Every purchase is protected with our money-back guarantee" }
+      }
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "subtitle": "Discover products from around the world",
+      "items": {
+        "electronics": "Electronics",
+        "fashion": "Fashion",
+        "homeGarden": "Home & Garden",
+        "sports": "Sports & Outdoors",
+        "collectibles": "Collectibles",
+        "travelRequests": "Travel Requests"
+      }
+    },
+    "deals": {
+      "title": "Today's Deals",
+      "subtitle": "Limited time offers - Shop now before they're gone!",
+      "seeAll": "See all deals"
+    }
+  },
+  "footer": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "toolsApps": "Tools & apps",
+    "stayConnected": "Stay connected",
+    "about": "About Mnbarh",
+    "links": {
+      "registration": "Registration",
+      "moneyBack": "Mnbarh Money Back Guarantee",
+      "biddingHelp": "Bidding & buying help",
+      "stores": "Stores",
+      "startSelling": "Start selling",
+      "learnToSell": "Learn to sell",
+      "affiliates": "Affiliates",
+      "siteMap": "Site map",
+      "developers": "Developers",
+      "securityCenter": "Security center",
+      "blogs": "Mnbarh's Blogs",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "companyInfo": "Company info",
+      "news": "News",
+      "investors": "Investors",
+      "careers": "Careers",
+      "policies": "Policies",
+      "accessibility": "Accessibility",
+      "userAgreement": "User Agreement",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "privacyChoices": "Your Privacy Choices",
+      "sellerProtection": "Seller Protection",
+      "disputes": "Disputes",
+      "shipping": "Shipping",
+      "fees": "Fees",
+      "contact": "Contact"
+    },
+    "copyright": "Copyright © 2024-2026 Mnbarh Inc. All Rights Reserved."
+  },
+  "control": {
+    "sections": {
+      "bridge": "Bridge",
+      "trust": "Trust & Security",
+      "operations": "Operations",
+      "finance": "Finance & Controls"
+    },
+    "nav": {
+      "systemOverview": "System Overview",
+      "systemOverviewDesc": "Health, corridors, alerts",
+      "analytics": "Analytics & Signals",
+      "analyticsDesc": "Funnel, friction, abuse",
+      "identity": "Identity & Access",
+      "identityDesc": "Employees, roles, sessions",
+      "threatCenter": "Threat Center",
+      "threatCenterDesc": "Anomalies, incidents",
+      "audit": "Audit & Compliance",
+      "auditDesc": "Immutable logs, exports",
+      "operationsPanel": "Operations Panel",
+      "operationsPanelDesc": "Queues & verifications",
+      "disputes": "Disputes & Arbitration",
+      "disputesDesc": "Evidence & decisions",
+      "logistics": "Logistics & Shipping",
+      "logisticsDesc": "Delivery proofs, corridors",
+      "financeDesk": "Finance Desk",
+      "financeDeskDesc": "Deposits, guarantees, refunds",
+      "featureFlags": "Feature Flags",
+      "featureFlagsDesc": "Releases, kill switches",
+      "engineering": "Engineering Deck",
+      "engineeringDesc": "Deployments, logs"
+    }
+  },
+  "modals": {
+    "pasteLink": {
+      "title": "Paste a product link",
+      "subtitle": "Buy from any website worldwide using trusted travelers",
+      "labelLink": "Product link",
+      "placeholderLink": "https://example.com/product",
+      "labelCountry": "Destination country",
+      "selectCountry": "Select country",
+      "info": "A traveler will purchase this item and deliver it to you. You'll receive price estimates from available travelers.",
+      "cancel": "Cancel",
+      "submit": "Request Purchase",
+      "errorLink": "Please enter a valid product URL",
+      "helperLink": "Paste a link from Amazon, eBay, or any online store"
+    },
+    "traveler": {
+      "title": "Add your trip",
+      "subtitle": "Travel & earn by helping buyers get products from around the world",
+      "labelFrom": "From country",
+      "labelTo": "To country",
+      "labelDate": "Travel date",
+      "cancel": "Cancel",
+      "submit": "Continue"
+    }
+  },
+  "auction": {
+    "placeBid": "Place Bid",
+    "currentBid": "Current Bid",
+    "endingSoon": "Ending Soon",
+    "bids": "bids",
+    "timeLeft": "Time left",
+    "reserveKey": "Reserve not met"
+  }
+}

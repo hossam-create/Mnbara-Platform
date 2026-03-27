@@ -1,0 +1,4 @@
+{
+  "subject": "Order Confirmation - #{{orderId}}",
+  "variables": ["orderId", "productName", "amount", "currency"]
+}

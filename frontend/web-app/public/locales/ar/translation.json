@@ -1,0 +1,231 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "search": "ابحث عن أي شيء",
+    "signIn": "تسجيل الدخول",
+    "register": "التسجيل",
+    "myCart": "عربة التسوق",
+    "watchlist": "سجل المشاهده",
+    "notifications": "الإشعارات"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "saved": "العناصر المحفوظة",
+    "electronics": "إلكترونيات",
+    "motors": "سيارات ومركبات",
+    "fashion": "موضة",
+    "collectibles": "مقتنيات",
+    "sports": "رياضة",
+    "health": "صحة وجمال",
+    "industrial": "صناعة",
+    "homeGarden": "المنزل والحديقة",
+    "deals": "العروض",
+    "sell": "بيع",
+    "toys": "ألعاب",
+    "clothing": "ملابس، أحذية وإكسسوارات",
+    "sub": {
+        "mobiles": "جوالات",
+        "laptops": "لابتوبات",
+        "accessories": "إكسسوارات",
+        "men": "رجال",
+        "women": "نساء",
+        "kids": "أطفال"
+    },
+    "mnbarhLive": "من بره لايف",
+    "plugins": "الإضافات",
+    "departments": "الفئات",
+    "newArrivals": "وصل حديثاً",
+    "giftCards": "بطاقات الهدايا",
+    "brandOutlet": "ماركات مخفضة",
+    "wallet": "المحفظة",
+    "more": "المزيد"
+  },
+  "payment": {
+    "shipping": {
+      "free": "شحن مجاني"
+    }
+  },
+  "header": {
+    "welcome": "مرحباً!",
+    "signIn": "تسجيل الدخول",
+    "or": "أو",
+    "register": "سجل الآن",
+    "dailyDeals": "عروض اليوم",
+    "helpContact": "المساعدة",
+    "sell": "بيع",
+    "watchlist": "سجل المشاهده",
+    "myMnbarh": "حسابي",
+    "searchPlaceholder": "ابحث عن منتجات أو الصق رابط منتج",
+    "shipControl": "تحكم السفينة",
+    "bridgeConsole": "وحدة القيادة",
+    "zeroTrust": "رقابة أمنية مشددة",
+    "traveler": {
+      "title": "مساعدة المسافر",
+      "subtitle": "اشتري عبر مسافر",
+      "optionTraveler": "مساعدة المسافر",
+      "optionTravelerDesc": "أسرع وأوفر عبر المسافرين",
+      "optionShipping": "شحن مباشر",
+      "optionShippingDesc": "توصيل قياسي"
+    },
+    "fulfillment": {
+      "title": "مركز التنفيذ",
+      "subtitle": "شحن، استلام، توصيل",
+      "shippingSettings": "إعدادات الشحن",
+      "pickupSettings": "إعدادات الاستلام",
+      "deliverySettings": "إعدادات التوصيل"
+    }
+  },
+  "homepage": {
+    "hero": {
+      "slide1": {
+        "title": "اشتري من أي مكان مع مسافرين موثوقين",
+        "subtitle": "احصل على المنتجات من أي موقع في العالم وتوصلك لباب بيتك",
+        "cta": "ابدأ التسوق"
+      },
+      "slide2": {
+        "title": "الصق الرابط واشتري فوراً",
+        "subtitle": "لقيت حاجة عجبتك اونلاين؟ حط الرابط والمسافرين يوصلوها لك",
+        "cta": "الصق الرابط"
+      },
+      "slide3": {
+        "title": "سافر واكسب بمساعدة المشترين",
+        "subtitle": "اكسب فلوس في رحلتك الجاية بتوصيل طلبات للمشترين",
+        "cta": "سجل رحلتك"
+      },
+      "slide4": {
+        "title": "عروض، مزادات وحماية للمشتري",
+        "subtitle": "تسوق بثقة - كل مشترياتك محمية بضمان كامل",
+        "cta": "تصفح العروض"
+      }
+    },
+    "values": {
+      "title": "ليه تختار من بره؟",
+      "subtitle": "أكثر من مجرد سوق — ثورة في التسوق العالمي",
+      "cta": "ابدأ الآن",
+      "ctaSubtitle": "جاهز تجرب مستقبل التسوق؟",
+      "items": {
+        "travelEarn": { "title": "سافر واربح", "desc": "اكسب فلوس في رحلتك الجاية بتوصيل طلبات للمشترين" },
+        "pasteLink": { "title": "شراء بالرابط", "desc": "لقيت حاجة عجبتك اونلاين؟ حط الرابط وتوصلك لباب بيتك" },
+        "auctions": { "title": "مزادات وعروض", "desc": "شارك في مزادات على منتجات فريدة واقتنص عروض يومية" },
+        "protection": { "title": "حماية المشتري", "desc": "كل عملية شراء محمية بضمان استرداد الأموال" }
+      }
+    },
+    "categories": {
+      "title": "تسوق حسب القسم",
+      "subtitle": "اكتشف منتجات من كل أنحاء العالم",
+      "items": {
+        "electronics": "إلكترونيات",
+        "fashion": "أزياء",
+        "homeGarden": "المنزل والحديقة",
+        "sports": "رياضة وخارجية",
+        "collectibles": "مقتنيات",
+        "travelRequests": "طلبات السفر"
+      }
+    },
+    "deals": {
+      "title": "عروض اليوم",
+      "subtitle": "عروض لفترة محدودة - الحقها قبل ما تخلص!",
+      "seeAll": "كل العروض"
+    }
+  },
+  "footer": {
+    "buy": "الشراء",
+    "sell": "البيع",
+    "toolsApps": "الأدوات والتطبيقات",
+    "stayConnected": "تواصل معنا",
+    "about": "عن من بره",
+    "links": {
+      "registration": "التسجيل",
+      "moneyBack": "ضمان استرداد الأموال",
+      "biddingHelp": "مساعدة الشراء والمزايدة",
+      "stores": "المتاجر",
+      "startSelling": "ابدأ البيع",
+      "learnToSell": "تعلم البيع",
+      "affiliates": "الشركاء",
+      "siteMap": "خريطة الموقع",
+      "developers": "المطورين",
+      "securityCenter": "مركز الأمان",
+      "blogs": "مدونات من بره",
+      "facebook": "فيسبوك",
+      "twitter": "تويتر",
+      "companyInfo": "معلومات الشركة",
+      "news": "الأخبار",
+      "investors": "المستثمرين",
+      "careers": "الوظائف",
+      "policies": "السياسات",
+      "accessibility": "سهولة الوصول",
+      "userAgreement": "اتفاقية المستخدم",
+      "privacy": "الخصوصية",
+      "cookies": "ملفات تعريف الارتباط",
+      "privacyChoices": "خيارات الخصوصية"
+    },
+    "copyright": "حقوق النشر © 2024-2026 من بره. جميع الحقوق محفوظة."
+  },
+  "control": {
+    "sections": {
+      "bridge": "القيادة",
+      "trust": "الثقة والأمان",
+      "operations": "العمليات",
+      "finance": "المالية والتحكم"
+    },
+    "nav": {
+      "systemOverview": "نظرة عامة للنظام",
+      "systemOverviewDesc": "الحالة، الممرات، التنبيهات",
+      "analytics": "التحليلات والإشارات",
+      "analyticsDesc": "مسار التحويل، الاحتكاك، الإساءة",
+      "identity": "الهوية والوصول",
+      "identityDesc": "الموظفين، الأدوار، الجلسات",
+      "threatCenter": "مركز التهديدات",
+      "threatCenterDesc": "الشذوذ، الحوادث",
+      "audit": "التدقيق والامتثال",
+      "auditDesc": "سجلات غير قابلة للتغيير، تصدير",
+      "operationsPanel": "لوحة العمليات",
+      "operationsPanelDesc": "التحقق والانتظار",
+      "disputes": "النزاعات والتحكيم",
+      "disputesDesc": "الأدلة والقرارات",
+      "logistics": "اللوجستيات والشحن",
+      "logisticsDesc": "إثبات التسليم، الممرات",
+      "financeDesk": "مكتب المالية",
+      "financeDeskDesc": "الودائع، الضمانات، الاسترداد",
+      "featureFlags": "مفاتيح الميزات",
+      "featureFlagsDesc": "الإصدارات، مفاتيح الإيقاف",
+      "engineering": "منصة الهندسة",
+      "engineeringDesc": "النشر، السجلات"
+    }
+  },
+  "modals": {
+    "pasteLink": {
+      "title": "الصق رابط المنتج",
+      "subtitle": "اشتري من أي موقع عالمي باستخدام مسافرين موثوقين",
+      "labelLink": "رابط المنتج",
+      "placeholderLink": "https://example.com/product",
+      "labelCountry": "دولة الوصول",
+      "selectCountry": "اختر الدولة",
+      "info": "سيقوم مسافر بشراء هذا المنتج وتوصيله إليك. ستتلقى تقديرات الأسعار من المسافرين المتاحين.",
+      "cancel": "إلغاء",
+      "submit": "طلب شراء",
+      "errorLink": "الرجاء إدخال رابط منتج صحيح",
+      "helperLink": "الصق رابط من أمازون، إيباي، أو أي متجر إلكتروني"
+    },
+    "traveler": {
+      "title": "أضف رحلتك",
+      "subtitle": "سافر واكسب بمساعدة المشترين في الحصول على منتجات من جميع أنحاء العالم",
+      "labelFrom": "من دولة",
+      "labelTo": "إلى دولة",
+      "labelDate": "تاريخ السفر",
+      "cancel": "إلغاء",
+      "submit": "متابعة"
+    }
+  },
+  "auction": {
+    "placeBid": "زايد الآن",
+    "currentBid": "السعر الحالي",
+    "endingSoon": "ينتهي قريباً",
+    "bids": "مزايدات",
+    "timeLeft": "الوقت المتبقي",
+    "reserveKey": "لم يصل للحد الأدنى"
+  }
+}

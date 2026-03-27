@@ -1,0 +1,395 @@
+/* Refund Status Timeline Styles */
+.refundStatusTimeline {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h3 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Timeline */
+.dayGroup {
+  margin-bottom: 32px;
+}
+
+.dateHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border-left: 4px solid #3b82f6;
+}
+
+.date {
+  font-weight: 600;
+  color: #1e40af;
+  font-size: 14px;
+}
+
+.stepCount {
+  font-size: 12px;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Steps List */
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stepItem {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.stepItem:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Step Icon */
+.stepIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+.icon {
+  font-size: 18px;
+}
+
+/* Step Content */
+.stepContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stepHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.stepTitle {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.stepActor {
+  font-size: 12px;
+  color: #3b82f6;
+  background: #dbeafe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stepAmount {
+  font-weight: 600;
+  color: #111827;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 16px;
+}
+
+.stepDescription {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Step Meta */
+.stepMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.statusBadge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* Step Colors */
+.stepCreated {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.stepDispute {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.stepResolved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.stepRequested {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.stepApproved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.stepRejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.stepProcessed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.stepChargeback {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.stepReview {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.stepWon {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.stepLost {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.stepDefault {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+  margin-top: 24px;
+}
+
+.securityNote {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.securityIcon {
+  font-size: 18px;
+}
+
+.securityText {
+  font-size: 14px;
+  color: #166534;
+  line-height: 1.4;
+}
+
+.helpSection {
+  text-align: center;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.helpSection h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.helpSection p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .refundStatusTimeline {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .header h3 {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .stepItem {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .stepIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .icon {
+    font-size: 14px;
+  }
+
+  .stepHeader {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .stepTitle {
+    font-size: 13px;
+  }
+
+  .stepAmount {
+    font-size: 14px;
+  }
+
+  .stepDescription {
+    font-size: 12px;
+  }
+
+  .stepMeta {
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .dateHeader {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .securityNote {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .securityIcon {
+    font-size: 16px;
+  }
+
+  .securityText {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .refundStatusTimeline {
+    padding: 12px;
+  }
+
+  .header h3 {
+    font-size: 16px;
+  }
+
+  .stepActor {
+    font-size: 11px;
+  }
+
+  .stepAmount {
+    font-size: 13px;
+  }
+}

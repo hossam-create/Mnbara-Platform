@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["views"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id                 Int       @id @default(autoincrement())
+  isoCode           String    @unique @map("iso_code") @db.VarChar(2)
+  name              String    @db.VarChar(100)
+  nameAr           String?   @map("name_ar") @db.VarChar(100)
+  region            String?   @db.VarChar(50)
+  subregion         String?   @db.VarChar(50)
+  riskLevel         String    @default("medium") @map("risk_level") @db.VarChar(20)
+  customsComplexity Int       @default(3) @map("customs_complexity")
+  isActive          Boolean   @default(true) @map("is_active")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  rules             CountryRule[]
+  originProducts    ProductCountry[] @relation("OriginCountry")
+  purchaseProducts  ProductCountry[] @relation("PurchaseCountry")
+  deliveryProducts  ProductCountry[] @relation("DeliveryCountry")
+  travelerRoutesFrom TravelerRoute[] @relation("FromCountry")
+  travelerRoutesTo   TravelerRoute[] @relation("ToCountry")
+
+  @@map("countries")
+}
+
+model ProductCountry {
+  id                Int       @id @default(autoincrement())
+  productId         String    @map("product_id") @db.VarChar(50)
+  originCountry     String    @map("origin_country") @db.VarChar(2)
+  purchaseCountry   String    @map("purchase_country") @db.VarChar(2)
+  deliveryCountry   String    @map("delivery_country") @db.VarChar(2)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  originCountryRel     Country @relation(fields: [originCountry], references: [isoCode], name: "OriginCountry")
+  purchaseCountryRel   Country @relation(fields: [purchaseCountry], references: [isoCode], name: "PurchaseCountry")
+  deliveryCountryRel   Country @relation(fields: [deliveryCountry], references: [isoCode], name: "DeliveryCountry")
+
+  @@unique([productId])
+  @@map("product_countries")
+}
+
+model CountryRule {
+  id              Int       @id @default(autoincrement())
+  country         String    @db.VarChar(2)
+  category        String    @db.VarChar(50)
+  maxQuantity     Int       @default(1) @map("max_quantity")
+  maxValue        Decimal   @default(1000.00) @map("max_value") @db.Decimal(10, 2)
+  isRestricted    Boolean   @default(false) @map("is_restricted")
+  requiresPermit  Boolean   @default(false) @map("requires_permit")
+  permitTypes     String[]  @map("permit_types")
+  restrictions    String?   @db.Text
+  dutyRate        Decimal   @default(0.00) @map("duty_rate") @db.Decimal(5, 2)
+  taxRate         Decimal   @default(0.00) @map("tax_rate") @db.Decimal(5, 2)
+  effectiveDate   DateTime  @default(now()) @map("effective_date") @db.Date
+  expiryDate      DateTime? @map("expiry_date") @db.Date
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  countryRel      Country @relation(fields: [country], references: [isoCode])
+
+  @@unique([country, category])
+  @@map("country_rules")
+}
+
+model TravelerRoute {
+  id                  Int       @id @default(autoincrement())
+  travelerId          String    @map("traveler_id") @db.VarChar(50)
+  fromCountry         String    @map("from_country") @db.VarChar(2)
+  toCountry           String    @map("to_country") @db.VarChar(2)
+  departureDate       DateTime  @map("departure_date") @db.Date
+  arrivalDate         DateTime  @map("arrival_date") @db.Date
+  maxCapacityWeight   Decimal   @default(20.00) @map("max_capacity_weight") @db.Decimal(10, 2)
+  maxCapacityValue    Decimal   @default(2000.00) @map("max_capacity_value") @db.Decimal(10, 2)
+  allowedCategories   String[]  @map("allowed_categories")
+  riskTolerance       String    @default("medium") @map("risk_tolerance") @db.VarChar(20)
+  status              String    @default("active") @db.VarChar(20)
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  fromCountryRel      Country @relation(fields: [fromCountry], references: [isoCode], name: "FromCountry")
+  toCountryRel        Country @relation(fields: [toCountry], references: [isoCode], name: "ToCountry")
+  complianceLogs      ComplianceLog[]
+
+  @@map("traveler_routes")
+}
+
+model ComplianceLog {
+  id                Int       @id @default(autoincrement())
+  productId         String    @map("product_id") @db.VarChar(50)
+  routeId           Int       @map("route_id")
+  travelerId        String    @map("traveler_id") @db.VarChar(50)
+  buyerId           String    @map("buyer_id") @db.VarChar(50)
+  status            String    @db.VarChar(50)
+  riskScore         Int       @default(0) @map("risk_score")
+  restrictions      String[]  @db.Text
+  requiredDocuments String[]  @map("required_documents") @db.Text
+  estimatedDuty     Decimal   @default(0.00) @map("estimated_duty") @db.Decimal(10, 2)
+  estimatedTax      Decimal   @default(0.00) @map("estimated_tax") @db.Decimal(10, 2)
+  complianceNotes   String?   @map("compliance_notes") @db.Text
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  route             TravelerRoute @relation(fields: [routeId], references: [id])
+
+  @@map("compliance_logs")
+}
+
+// Views for analytics
+view CountryComplianceAnalytics {
+  isoCode        String    @unique @map("iso_code")
+  name           String
+  riskLevel      String    @map("risk_level")
+  totalRules     BigInt    @map("total_rules")
+  restrictedRules BigInt    @map("restricted_rules")
+  avgMaxQuantity Decimal?  @map("avg_max_quantity")
+  avgMaxValue    Decimal?  @map("avg_max_value")
+  avgDutyRate    Decimal?  @map("avg_duty_rate")
+  avgTaxRate     Decimal?  @map("avg_tax_rate")
+
+  @@map("country_compliance_analytics")
+}
+
+view TravelerRouteAnalytics {
+  fromCountry      String    @map("from_country")
+  toCountry        String    @map("to_country")
+  totalRoutes      BigInt    @map("total_routes")
+  activeRoutes     BigInt    @map("active_routes")
+  avgMaxWeight     Decimal?  @map("avg_max_weight")
+  avgMaxValue      Decimal?  @map("avg_max_value")
+  earliestDeparture DateTime? @map("earliest_departure")
+  latestArrival     DateTime? @map("latest_arrival")
+
+  @@unique([fromCountry, toCountry])
+  @@map("traveler_route_analytics")
+}
+
+view ComplianceViolationTrends {
+  violationDate  DateTime  @map("violation_date")
+  status         String
+  violationCount BigInt    @map("violation_count")
+  avgRiskScore   Decimal?  @map("avg_risk_score")
+  totalEstimatedCosts Decimal? @map("total_estimated_costs")
+
+  @@unique([violationDate, status])
+  @@map("compliance_violation_trends")
+}

@@ -1,0 +1,403 @@
+# Default values for mnbarh-platform
+# This is a YAML-formatted file
+
+global:
+  imageRegistry: mnbarh
+  imagePullSecrets:
+    - name: registry-secret
+  storageClass: standard
+  domain: mnbarh.local
+  environment: development
+
+# PostgreSQL Configuration
+postgresql:
+  enabled: true
+  architecture: standalone
+  auth:
+    username: mnbarh
+    database: mnbarh
+    existingSecret: postgresql-secret
+  primary:
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    extendedConf:
+      max_connections: "200"
+      shared_buffers: "256MB"
+    postgresqlConfig:
+      max_connections: "200"
+      shared_buffers: "256MB"
+      work_mem: "4MB"
+      maintenance_work_mem: "128MB"
+
+# Redis Configuration
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    existingSecret: redis-secret
+  master:
+    persistence:
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# RabbitMQ Configuration
+rabbitmq:
+  enabled: true
+  auth:
+    username: mnbarh
+    existingPasswordSecret: rabbitmq-secret
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+
+# Elasticsearch Configuration
+elasticsearch:
+  enabled: true
+  clusterName: mnbarh-elasticsearch
+  master:
+    replicas: 1
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  coordinating:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  data:
+    replicas: 1
+    persistence:
+      size: 10Gi
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# API Gateway
+api-gateway:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: api-gateway
+    tag: latest
+  service:
+    type: NodePort
+    port: 8080
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: api.mnbarh.local
+        paths:
+          - path: /
+            pathType: Prefix
+  env:
+    NODE_ENV: development
+    PORT: "8080"
+
+# Auth Service
+auth-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: auth-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3001
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3001"
+    DB_HOST: postgresql
+    DB_PORT: "5432"
+    REDIS_HOST: redis-master
+
+# User Service
+user-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: user-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3002
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3002"
+
+# Listing Service
+listing-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: listing-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3003
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    NODE_ENV: development
+    PORT: "3003"
+    ELASTICSEARCH_HOSTS: http://elasticsearch-coordinating-only:9200
+
+# Auction Service
+auction-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: auction-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3005
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    NODE_ENV: development
+    PORT: "3005"
+    REDIS_HOST: redis-master
+    RABBITMQ_HOST: rabbitmq
+
+# Payment Service
+payment-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: payment-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3008
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    NODE_ENV: development
+    PORT: "3008"
+
+# Escrow Service
+escrow-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: escrow-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3010
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3010"
+
+# Orders Service
+orders-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: orders-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3003
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3003"
+
+# Notification Service
+notification-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: notification-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3004
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3004"
+
+# Matching Service (AI)
+matching-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: matching-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3010
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    NODE_ENV: development
+    PORT: "3010"
+
+# Internal Ledger Service
+internal-ledger-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: internal-ledger-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3015
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    NODE_ENV: development
+    PORT: "3015"
+
+# AI Core Service
+ai-core:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ai-core
+    tag: latest
+  service:
+    type: NodePort
+    port: 3007
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  env:
+    ENVIRONMENT: development
+    PORT: "3007"
+
+# Recommendation Service
+recommendation-service:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: recommendation-service
+    tag: latest
+  service:
+    type: NodePort
+    port: 3012
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  env:
+    ENVIRONMENT: development
+    PORT: "3012"
+
+# Monitoring
+prometheus:
+  enabled: true
+  server:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    persistence:
+      size: 10Gi
+  alertmanager:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+grafana:
+  enabled: true
+  replicaCount: 1
+  adminPassword: admin
+  persistence:
+    size: 1Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-server:80
+          access: proxy
+          isDefault: true
+
+# Network Policies
+networkPolicies:
+  enabled: false
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budgets
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

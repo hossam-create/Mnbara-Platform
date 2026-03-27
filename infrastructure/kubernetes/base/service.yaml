@@ -1,0 +1,206 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Service Configuration
+# =============================================================================
+# Service definition for exposing microservice within the cluster
+# =============================================================================
+
+---
+# =============================================================================
+# Service
+# =============================================================================
+# Internal cluster service for load balancing traffic to pods
+# =============================================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${SERVICE_NAME:-mnbara-service}
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+    environment: ${ENVIRONMENT:-dev}
+    tier: ${TIER:-backend}
+    managed-by: kubectl
+  annotations:
+    # Service description
+    description: ${SERVICE_DESCRIPTION:-Mnbara Platform Microservice}
+    # Prometheus metrics
+    prometheus.io/scrape: "${PROMETHEUS_SCRAPE:-true}"
+    prometheus.io/port: "${METRICS_PORT:-9090}"
+    # AWS NLB annotations (if using AWS)
+    # service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    # service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+    # GCP annotations (if using GCP)
+    # cloud.google.com/backend-config: '{"default": "backend-config"}'
+    # cloud.google.com/health-checks: '{"http": "/health"}'
+
+spec:
+  # Service type
+  type: ${SERVICE_TYPE:-ClusterIP}
+  # Options: ClusterIP, NodePort, LoadBalancer, ExternalName
+  
+  # Session affinity (useful for WebSocket connections)
+  sessionAffinity: ${SESSION_AFFINITY:-None}
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: ${SESSION_AFFINITY_TIMEOUT:-3600}
+  
+  # Traffic distribution policy
+  publishNotReadyAddresses: ${PUBLISH_NOT_READY:-false}
+  
+  # Selector to target pods
+  selector:
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+  
+  # Service ports
+  ports:
+    # Main HTTP port
+    - name: http
+      protocol: TCP
+      port: ${SERVICE_PORT:-80}
+      targetPort: ${CONTAINER_PORT:-3000}
+      # NodePort only (if type is NodePort)
+      # nodePort: ${NODE_PORT:-30000}
+    
+    # HTTPS port (if applicable)
+    # - name: https
+    #   protocol: TCP
+    #   port: 443
+    #   targetPort: ${CONTAINER_PORT:-3443}
+    
+    # Metrics port
+    - name: metrics
+      protocol: TCP
+      port: ${METRICS_PORT:-9090}
+      targetPort: ${METRICS_PORT:-9090}
+    
+    # gRPC port (if applicable)
+    # - name: grpc
+    #   protocol: TCP
+    #   port: 50051
+    #   targetPort: 50051
+
+---
+
+# =============================================================================
+# Service Monitor (for Prometheus Operator)
+# =============================================================================
+# Defines how Prometheus should scrape metrics from this service
+# =============================================================================
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ${SERVICE_NAME:-mnbara-service}
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+    environment: ${ENVIRONMENT:-dev}
+    # Prometheus operator selection
+    release: ${PROMETHEUS_RELEASE:-prometheus}
+  annotations:
+    # Description
+    description: Service monitor for ${SERVICE_NAME:-mnbara-service}
+spec:
+  # Selector for the service
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME:-mnbara-service}
+      version: ${SERVICE_VERSION:-latest}
+  
+  # Namespace selector (if monitoring across namespaces)
+  namespaceSelector:
+    matchNames:
+      - ${NAMESPACE:-mnbara}
+  
+  # Endpoints to scrape
+  endpoints:
+    - port: metrics
+      path: ${PROMETHEUS_METRICS_PATH:-/metrics}
+      interval: ${PROMETHEUS_SCRAPE_INTERVAL:-15s}
+      scheme: ${PROMETHEUS_SCHEME:-http}
+      tlsConfig:
+        insecureSkipVerify: ${PROMETHEUS_SKIP_VERIFY:-false}
+      # Basic auth (if required)
+      # basicAuth:
+      #   secret:
+      #     key: username
+      #     name: prometheus-credentials
+      #   username:
+      #     key: username
+      #     name: prometheus-credentials
+      #   password:
+      #     key: password
+      #     name: prometheus-credentials
+      # Relabeling rules
+      relabelings:
+        # Add namespace label
+        - sourceLabels: [__meta_kubernetes_namespace]
+          targetLabel: namespace
+        # Add service name label
+        - sourceLabels: [__meta_kubernetes_service_name]
+          targetLabel: service
+        # Add pod name label
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        # Remove instance label duplicates
+        - action: labeldrop
+          regex: instance
+
+---
+
+# =============================================================================
+# Pod Disruption Budget
+# =============================================================================
+# Ensures minimum availability during voluntary disruptions
+# =============================================================================
+
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ${SERVICE_NAME:-mnbara-service}
+  namespace: ${NAMESPACE:-mnbara}
+  labels:
+    app: ${SERVICE_NAME:-mnbara-service}
+    version: ${SERVICE_VERSION:-latest}
+    environment: ${ENVIRONMENT:-dev}
+spec:
+  # Minimum available pods during disruption
+  minAvailable: ${MIN_AVAILABLE:-1}
+  # Alternatively, maximum unavailable
+  # maxUnavailable: ${MAX_UNAVAILABLE:-1}
+  
+  # Selector for targeted pods
+  selector:
+    matchLabels:
+      app: ${SERVICE_NAME:-mnbara-service}
+      version: ${SERVICE_VERSION:-latest}
+
+---
+
+# =============================================================================
+# Backend Config (for Cloud HTTPS features on GCP)
+# =============================================================================
+# Configures health checks and load balancing settings
+# =============================================================================
+
+# apiVersion: cloud.google.com/v1
+# kind: BackendConfig
+# metadata:
+#   name: ${SERVICE_NAME:-mnbara-service}-backend
+#   namespace: ${NAMESPACE:-mnbara}
+# spec:
+#   healthCheck:
+#     checkIntervalSec: ${HEALTH_CHECK_INTERVAL:-15}
+#     timeoutSec: ${HEALTH_CHECK_TIMEOUT:-5}
+#     type: ${HEALTH_CHECK_TYPE:-HTTP}
+#     requestPath: ${HEALTH_CHECK_PATH:-/health}
+#     port: ${CONTAINER_PORT:-3000}
+#   connectionDraining:
+#     drainingTimeoutSec: ${DRAINING_TIMEOUT:-60}
+#   sessionAffinity:
+#     affinityType: ${SESSION_AFFINITY:-CLIENT_IP}
+#     affinityCookieTtlSec: ${COOKIE_TTL:-3600}

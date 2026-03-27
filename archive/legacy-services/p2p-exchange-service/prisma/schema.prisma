@@ -1,0 +1,333 @@
+// P2P Exchange Marketplace - Prisma Schema
+// Marketplace + Netting WITHOUT Custody
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// EXCHANGE REQUEST MANAGEMENT
+// ============================================================
+
+// ExchangeRequest - User's currency exchange request
+model ExchangeRequest {
+  id                Int                @id @default(autoincrement())
+  userId            Int
+  fromCurrency      String             // USD, SAR, AED, etc.
+  toCurrency        String
+  fromAmount        Decimal            @db.Decimal(18, 2)
+  toAmount          Decimal            @db.Decimal(18, 2)
+  desiredRate       Decimal            @db.Decimal(18, 6)
+  actualRate        Decimal?           @db.Decimal(18, 6)
+  platformFee       Decimal            @db.Decimal(18, 2)
+  protectionFee     Decimal?           @db.Decimal(18, 2)
+  status            ExchangeStatus     @default(OPEN)
+  trustLevel        Int                @default(1)
+  securityDeposit   Decimal            @db.Decimal(18, 2)
+  useExternalEscrow Boolean            @default(false) // User preference for external escrow
+  expiresAt         DateTime
+  matchedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  match             ExchangeMatch?     @relation("RequestMatch")
+  counterMatch      ExchangeMatch?     @relation("CounterMatch")
+  proofOfPayment    ProofOfPayment[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([fromCurrency, toCurrency])
+  @@index([expiresAt])
+  @@index([status, fromCurrency, toCurrency])
+}
+
+enum ExchangeStatus {
+  OPEN              // Request created, waiting for match
+  MATCHED           // Matched with counter-party
+  PAYMENT_INITIATED // User initiated payment
+  PROOF_UPLOADED    // Proof of payment uploaded
+  CONFIRMING        // Waiting for confirmation
+  COMPLETED         // Exchange completed successfully
+  CANCELLED         // Cancelled by user
+  EXPIRED           // Expired without match
+  DISPUTED          // Under dispute
+  REFUNDED          // Refunded to user
+}
+
+// ============================================================
+// MATCHING ENGINE
+// ============================================================
+
+// ExchangeMatch - Matched exchange requests
+model ExchangeMatch {
+  id                Int                @id @default(autoincrement())
+  requestId         Int                @unique
+  counterRequestId  Int                @unique
+  matchType         MatchType          @default(AUTOMATIC)
+  matchScore        Decimal            @db.Decimal(5, 2)
+  status            MatchStatus        @default(PENDING)
+  escrowHoldId      Int?               @unique
+  externalEscrowId  String?            // External provider escrow ID
+  settlementMethod  SettlementMethod   @default(INTERNAL)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  request           ExchangeRequest    @relation("RequestMatch", fields: [requestId], references: [id])
+  counterRequest    ExchangeRequest    @relation("CounterMatch", fields: [counterRequestId], references: [id])
+  settlement        Settlement?
+  communications    CommunicationLog[]
+  
+  @@index([status])
+  @@index([createdAt])
+  @@index([settlementMethod])
+}
+
+enum MatchType {
+  AUTOMATIC         // Matched by matching engine
+  MANUAL            // User manually accepted offer
+}
+
+enum MatchStatus {
+  PENDING           // Match created, waiting for escrow
+  ESCROWED          // Funds locked in escrow
+  SETTLING          // Settlement in progress
+  COMPLETED         // Settlement completed
+  FAILED            // Settlement failed
+  DISPUTED          // Under dispute
+}
+
+enum SettlementMethod {
+  INTERNAL          // Internal netting only
+  EXTERNAL_OPTIONAL // External escrow (user opted in)
+  EXTERNAL_MANDATORY // External escrow (required for amount)
+}
+
+// ============================================================
+// SETTLEMENT COORDINATION
+// ============================================================
+
+// Settlement - Settlement tracking
+model Settlement {
+  id                Int                @id @default(autoincrement())
+  matchId           Int                @unique
+  method            SettlementMethod
+  pspProvider       String?            // Stripe, Plaid, Tatum, etc.
+  pspTransactionId  String?
+  pspStatus         String?
+  externalEscrowProvider String?        // Tatum, Vodafone Cash, etc.
+  externalEscrowId  String?
+  status            SettlementStatus   @default(PENDING)
+  initiatedAt       DateTime           @default(now())
+  completedAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  retryCount        Int                @default(0)
+  
+  // Relations
+  match             ExchangeMatch      @relation(fields: [matchId], references: [id])
+  
+  @@index([status])
+  @@index([pspProvider])
+  @@index([externalEscrowProvider])
+}
+
+enum SettlementStatus {
+  PENDING           // Settlement initiated
+  PSP_PROCESSING    // PSP processing transfer
+  ESCROW_RELEASING  // External escrow releasing funds
+  COMPLETED         // Settlement completed
+  FAILED            // Settlement failed
+  TIMEOUT           // Settlement timed out
+}
+
+// ============================================================
+// PROOF OF PAYMENT (Layer 3: Anti-Scam)
+// ============================================================
+
+// ProofOfPayment - Proof of payment evidence
+model ProofOfPayment {
+  id                Int                @id @default(autoincrement())
+  requestId         Int
+  userId            Int
+  photoUrl          String             // S3 URL for photo
+  videoUrl          String?            // S3 URL for video (optional)
+  timestamp         DateTime
+  referenceId       String             // Payment reference ID
+  recipientName     String
+  paymentMethod     String             // Bank transfer, mobile wallet, etc.
+  metadata          Json?              // Additional metadata
+  verificationStatus VerificationStatus @default(PENDING)
+  verifiedBy        Int?               // Admin user ID
+  verifiedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime           @default(now())
+  
+  // Relations
+  request           ExchangeRequest    @relation(fields: [requestId], references: [id])
+  
+  @@index([requestId])
+  @@index([verificationStatus])
+  @@index([userId])
+}
+
+enum VerificationStatus {
+  PENDING           // Awaiting verification
+  VERIFIED          // Verified by admin
+  REJECTED          // Rejected by admin
+  FLAGGED           // Flagged as suspicious
+}
+
+// ============================================================
+// SECURITY DEPOSIT (Layer 1: Anti-Scam)
+// ============================================================
+
+// SecurityDeposit - User's security deposit
+model SecurityDeposit {
+  id                Int                @id @default(autoincrement())
+  userId            Int
+  amount            Decimal            @db.Decimal(18, 2)
+  currency          String             @default("USD")
+  source            DepositSource
+  status            DepositStatus      @default(ACTIVE)
+  frozenAmount      Decimal            @db.Decimal(18, 2) @default(0)
+  frozenReason      String?
+  frozenAt          DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  @@unique([userId, currency])
+  @@index([userId])
+  @@index([status])
+}
+
+enum DepositSource {
+  TRANSACTION_HISTORY // Built from successful transactions
+  PLATFORM_FEES      // Accumulated from fees
+  CASH_DEPOSIT       // Direct cash deposit
+  INITIAL_DEPOSIT    // Initial security deposit
+}
+
+enum DepositStatus {
+  ACTIVE            // Available for use
+  FROZEN            // Frozen due to suspicious activity
+  DEDUCTED          // Deducted for compensation
+  REFUNDED          // Refunded to user
+}
+
+// ============================================================
+// TRUST LEVEL (Layer 2: Anti-Scam)
+// ============================================================
+
+// TrustLevel - User's trust level and limits
+model TrustLevel {
+  id                Int                @id @default(autoincrement())
+  userId            Int                @unique
+  level             Int                @default(1)
+  maxTransactionAmount Decimal         @db.Decimal(18, 2)
+  successfulExchanges Int              @default(0)
+  totalVolume       Decimal            @db.Decimal(18, 2) @default(0)
+  disputeCount      Int                @default(0)
+  timeoutCount      Int                @default(0)
+  lastLevelUpAt     DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  @@index([userId])
+  @@index([level])
+}
+
+// ============================================================
+// COMMUNICATION (Layer 5: Anti-Scam)
+// ============================================================
+
+// CommunicationLog - In-platform communication
+model CommunicationLog {
+  id                Int                @id @default(autoincrement())
+  matchId           Int
+  senderId          Int
+  recipientId       Int
+  message           String             @db.Text
+  flagged           Boolean            @default(false)
+  flagReason        String?
+  createdAt         DateTime           @default(now())
+  
+  // Relations
+  match             ExchangeMatch      @relation(fields: [matchId], references: [id])
+  
+  @@index([matchId])
+  @@index([flagged])
+  @@index([senderId])
+  @@index([recipientId])
+}
+
+// ============================================================
+// EXTERNAL ESCROW PROVIDERS
+// ============================================================
+
+// ExternalEscrowProvider - External escrow provider configuration
+model ExternalEscrowProvider {
+  id                Int                @id @default(autoincrement())
+  name              String             @unique
+  type              ProviderType
+  country           String?            // Specific country or null for international
+  supportedCurrencies String[]         // Array of supported currencies
+  minAmount         Decimal?           @db.Decimal(18, 2)
+  maxAmount         Decimal?           @db.Decimal(18, 2)
+  feePercentage     Decimal            @db.Decimal(5, 2)
+  feeFixed          Decimal?           @db.Decimal(18, 2)
+  settlementTime    Int                // Minutes
+  apiEndpoint       String
+  apiKey            String?            // Encrypted
+  isActive          Boolean            @default(true)
+  enabled           Boolean            @default(true)
+  priority          Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  
+  // Relations
+  externalEscrows   ExternalEscrow[]
+  
+  @@index([country])
+  @@index([isActive])
+  @@index([enabled])
+  @@index([type])
+}
+
+// ExternalEscrow - External escrow tracking
+model ExternalEscrow {
+  id                Int                @id @default(autoincrement())
+  matchId           Int
+  providerId        Int
+  externalEscrowId  String             @unique // Provider's escrow ID
+  amount            Decimal            @db.Decimal(18, 2)
+  currency          String
+  status            String             // PENDING, DEPOSITED, RELEASED, REFUNDED, EXPIRED, FAILED
+  createdAt         DateTime
+  updatedAt         DateTime           @updatedAt
+  expiresAt         DateTime?
+  releasedAt        DateTime?
+  refundedAt        DateTime?
+  
+  // Relations
+  provider          ExternalEscrowProvider @relation(fields: [providerId], references: [id])
+  
+  @@index([matchId])
+  @@index([providerId])
+  @@index([status])
+  @@index([externalEscrowId])
+}
+
+enum ProviderType {
+  BLOCKCHAIN        // Tatum.io, blockchain-based
+  MOBILE_WALLET     // Vodafone Cash, STC Pay, etc.
+  BANK              // Traditional bank escrow
+  PAYMENT_PROCESSOR // Stripe, PayPal, etc.
+}

@@ -1,0 +1,71 @@
+// Subscription Service Database Schema
+// Central subscription management and feature gating
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Subscription {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  plan        String   @map("plan")
+  isActive    Boolean  @default(true) @map("is_active")
+  expiresAt   DateTime @map("expires_at")
+  features    Json?    @map("features")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("subscriptions")
+  @@index([userId])
+  @@index([plan])
+  @@index([isActive])
+  @@index([expiresAt])
+}
+
+model SubscriptionPlan {
+  id              String   @id @map("id")
+  name            String   @map("name")
+  description     String?  @map("description")
+  price           Decimal? @map("price") @db.Decimal(10, 2)
+  currency        String   @default("USD") @map("currency")
+  features        Json?    @map("features")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("subscription_plans")
+  @@index([isActive])
+}
+
+model SubscriptionHistory {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  plan            String   @map("plan")
+  action          String   @map("action") // 'created', 'upgraded', 'downgraded', 'cancelled', 'expired'
+  previousPlan    String?  @map("previous_plan")
+  reason          String?  @map("reason")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("subscription_history")
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model FeatureUsage {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  featureName     String   @map("feature_name")
+  usageCount      Int      @default(1) @map("usage_count")
+  lastUsedAt      DateTime @default(now()) @map("last_used_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, featureName])
+  @@index([userId])
+  @@index([featureName])
+  @@map("feature_usage")
+}

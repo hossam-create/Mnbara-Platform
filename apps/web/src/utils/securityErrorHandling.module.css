@@ -1,0 +1,382 @@
+/**
+ * 🔒 SECURITY-COMPLIANT ERROR HANDLING STYLES
+ * ACCESS CONTROL & AUTHORITY POLICY IMPLEMENTATION
+ * 
+ * CRITICAL SECURITY NOTICE:
+ * - Error styling provides clear visual feedback without exposing technical details
+ * - Security levels are visually distinguished for immediate user awareness
+ * - Error messages are user-friendly and non-technical
+ * - No sensitive information is displayed in error UI components
+ * - All technical details are logged securely in backend only
+ */
+
+/* SECURITY ERROR BOUNDARY */
+.security-error-boundary {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin: 2rem auto;
+  max-width: 600px;
+  box-shadow: 0 10px 25px rgba(127, 29, 29, 0.3);
+  border: 2px solid #dc2626;
+  position: relative;
+  overflow: hidden;
+}
+
+.security-error-boundary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+  animation: securityBackgroundPulse 4s ease-in-out infinite;
+}
+
+@keyframes securityBackgroundPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.1; }
+}
+
+.error-boundary-content {
+  position: relative;
+  z-index: 1;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  animation: securityPulse 2s infinite;
+}
+
+@keyframes securityPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.error-boundary-content h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: #fecaca;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.error-boundary-content p {
+  font-size: 1.125rem;
+  margin: 0 0 1.5rem 0;
+  color: #fee2e2;
+  line-height: 1.6;
+}
+
+.error-boundary-retry {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.error-boundary-retry:hover {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+}
+
+.error-boundary-retry:active {
+  transform: translateY(0);
+}
+
+/* SECURITY NOTIFICATION STYLES */
+.security-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border: 2px solid;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.security-notification.critical {
+  background: linear-gradient(135deg, #7f1d1d, #991b1b);
+  border-color: #dc2626;
+  color: #fecaca;
+}
+
+.security-notification.high {
+  background: linear-gradient(135deg, #991b1b, #b91c1c);
+  border-color: #ef4444;
+  color: #fecaca;
+}
+
+.security-notification.medium {
+  background: linear-gradient(135deg, #92400e, #b45309);
+  border-color: #f59e0b;
+  color: #fef3c7;
+}
+
+.security-notification.low {
+  background: linear-gradient(135deg, #374151, #4b5563);
+  border-color: #6b7280;
+  color: #e5e7eb;
+}
+
+.security-notification-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.security-notification-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  animation: securityPulse 2s infinite;
+}
+
+.security-notification-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin: 0;
+  flex: 1;
+}
+
+.security-notification-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.security-notification-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.security-notification-body {
+  padding: 1.5rem;
+}
+
+.security-notification-message {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+}
+
+.security-notification-actions {
+  margin-top: 1rem;
+}
+
+.security-notification-actions ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  list-style: none;
+}
+
+.security-notification-actions li {
+  margin-bottom: 0.5rem;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.security-notification-actions li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: inherit;
+  font-weight: bold;
+}
+
+.security-notification-error-id {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.875rem;
+  opacity: 0.8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* SECURITY FORM ERROR STYLES */
+.security-form-errors {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.security-form-errors-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.security-form-errors-icon {
+  font-size: 1.5rem;
+  color: #dc2626;
+  animation: securityPulse 2s infinite;
+}
+
+.security-form-errors-title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #991b1b;
+  margin: 0;
+  flex: 1;
+}
+
+.security-form-errors-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.security-form-errors-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+}
+
+.security-form-errors-item:last-child {
+  margin-bottom: 0;
+}
+
+.security-form-errors-item-icon {
+  color: #dc2626;
+  font-size: 1.125rem;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.security-form-errors-item-content {
+  flex: 1;
+}
+
+.security-form-errors-item-field {
+  font-weight: 600;
+  color: #7f1d1d;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.security-form-errors-item-message {
+  color: #991b1b;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.security-form-errors-security-notice {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #92400e;
+  font-weight: 500;
+}
+
+.security-form-errors-security-icon {
+  color: #f59e0b;
+  font-size: 1rem;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .security-error-boundary {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+  }
+  
+  .security-notification {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+  
+  .security-form-errors {
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .security-form-errors-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .security-form-errors-item-icon {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* DARK MODE SUPPORT */
+@media (prefers-color-scheme: dark) {
+  .security-error-boundary {
+    background: linear-gradient(135deg, #450a0a, #7f1d1d);
+    color: #fecaca;
+  }
+  
+  .security-form-errors {
+    background: linear-gradient(135deg, #450a0a, #7f1d1d);
+    border-color: #dc2626;
+  }
+  
+  .security-form-errors-header {
+    border-bottom-color: rgba(220, 38, 38, 0.3);
+  }
+  
+  .security-form-errors-title {
+    color: #fecaca;
+  }
+  
+  .security-form-errors-item {
+    background: rgba(220, 38, 38, 0.1);
+    border-left-color: #dc2626;
+  }
+  
+  .security-form-errors-item-field {
+    color: #fecaca;
+  }
+  
+  .security-form-errors-item-message {
+    color: #fecaca;
+  }
+  
+  .security-form-errors-security-notice {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: #f59e0b;
+    color: #fef3c7;
+  }
+}

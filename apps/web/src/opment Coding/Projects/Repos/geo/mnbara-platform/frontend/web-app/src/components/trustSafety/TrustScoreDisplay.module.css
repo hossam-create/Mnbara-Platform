@@ -1,0 +1,453 @@
+/* Trust Score Display Styles */
+.trustScore {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Compact View */
+.compact {
+  padding: 16px;
+}
+
+.compactScore {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noScore {
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.lastUpdated {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Score Visualization */
+.scoreVisualization {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.scoreCircle {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.compact .scoreCircle {
+  width: 60px;
+  height: 60px;
+  border: 3px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressRing {
+  transform: rotate(-90deg);
+  width: 120px;
+  height: 120px;
+}
+
+.compact .progressRing {
+  width: 60px;
+  height: 60px;
+}
+
+.progressRingBackground {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 3;
+}
+
+.progressRingFill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s ease;
+}
+
+.scoreContent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.scoreValue {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.compact .scoreValue {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.scoreLevel {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compact .scoreLevel {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Level Badge */
+.levelBadge {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Breakdown */
+.breakdown {
+  margin-bottom: 32px;
+}
+
+.breakdown h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.breakdownItems {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.breakdownItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.breakdownHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 4px;
+}
+
+/* Factors */
+.factors {
+  margin-bottom: 32px;
+}
+
+.factors h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 16px 0;
+}
+
+.factorList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.factor {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.factorIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.factorContent {
+  flex: 1;
+}
+
+.factorType {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.factorDescription {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.factorScore {
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+/* Level Description */
+.levelDescription {
+  text-align: center;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.levelDescription h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 8px 0;
+}
+
+.levelDescription p {
+  font-size: 14px;
+  color: #374151;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* UI Only Notice */
+.uiOnlyNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+}
+
+.compact .uiOnlyNotice {
+  margin-top: 8px;
+  padding: 4px 8px;
+}
+
+.noticeIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.compact .noticeIcon {
+  font-size: 12px;
+}
+
+.noticeContent {
+  font-size: 12px;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.compact .noticeContent {
+  font-size: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .trustScore {
+    padding: 20px;
+  }
+  
+  .compact {
+    padding: 12px;
+  }
+  
+  .scoreCircle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .progressRing {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .scoreValue {
+    font-size: 20px;
+  }
+  
+  .scoreLevel {
+    font-size: 11px;
+  }
+  
+  .breakdownItems {
+    gap: 12px;
+  }
+  
+  .factor {
+    padding: 10px;
+    gap: 10px;
+  }
+  
+  .factorIcon {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+  
+  .factorType {
+    font-size: 13px;
+  }
+  
+  .factorDescription {
+    font-size: 12px;
+  }
+  
+  .factorScore {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .trustScore {
+    padding: 16px;
+  }
+  
+  .compact {
+    padding: 8px;
+  }
+  
+  .scoreCircle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .progressRing {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .scoreValue {
+    font-size: 16px;
+  }
+  
+  .scoreLevel {
+    font-size: 10px;
+  }
+  
+  .compactScore {
+    gap: 8px;
+  }
+  
+  .compact .scoreCircle {
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+  }
+  
+  .compact .progressRing {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .compact .scoreValue {
+    font-size: 12px;
+  }
+  
+  .compact .scoreLevel {
+    font-size: 7px;
+  }
+  
+  .levelDescription {
+    padding: 16px;
+  }
+  
+  .factor {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+  }
+  
+  .factorIcon {
+    margin-top: 0;
+  }
+}

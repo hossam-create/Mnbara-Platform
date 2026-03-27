@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// LOYALTY ACCOUNT & POINTS
+// ============================================
+
+model LoyaltyAccount {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  availablePoints Int      @default(0)
+  lifetimePoints  Int      @default(0)
+  redeemedPoints  Int      @default(0)
+  expiredPoints   Int      @default(0)
+  currentTier     String   @default("BRONZE")
+  tierStartDate   DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  transactions    LoyaltyTransaction[]
+  expiringPoints  ExpiringPoints[]
+  achievements    UserAchievement[]
+
+  @@index([userId])
+}
+
+model LoyaltyTransaction {
+  id              String   @id @default(uuid())
+  loyaltyAccountId String
+  userId          String
+  points          Int
+  type            String
+  action          String
+  description     String?
+  referenceType   String?
+  referenceId     String?
+  expiresAt       DateTime?
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  loyaltyAccount  LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model ExpiringPoints {
+  id              String   @id @default(uuid())
+  loyaltyAccountId String
+  userId          String
+  points          Int
+  earnedAt        DateTime
+  expiresAt       DateTime
+  notified        Boolean  @default(false)
+  status          String   @default("PENDING")
+
+  loyaltyAccount  LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ============================================
+// ACHIEVEMENTS
+// ============================================
+
+model Achievement {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  name            String
+  description     String
+  category        String
+  iconUrl         String?
+  pointsReward    Int      @default(0)
+  criteria        Json
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([code])
+}
+
+model UserAchievement {
+  id              String   @id @default(uuid())
+  loyaltyAccountId String
+  userId          String
+  achievementId   String
+  unlockedAt      DateTime @default(now())
+  progress        Int      @default(0)
+  metadata        Json?
+
+  loyaltyAccount  LoyaltyAccount @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([loyaltyAccountId, achievementId])
+  @@index([userId])
+}
+
+// ============================================
+// PARTNERS
+// ============================================
+
+model Partner {
+  id              String   @id @default(uuid())
+  name            String
+  slug            String   @unique
+  description     String?
+  logoUrl         String?
+  websiteUrl      String?
+  category        String
+  status          String   @default("ACTIVE")
+  pointsPerDollar Float    @default(1.0)
+  redemptionRate  Float    @default(100)
+  apiKey          String?
+  apiEndpoint     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  redemptions     PartnerRedemption[]
+  transactions    PartnerTransaction[]
+
+  @@index([slug])
+  @@index([category])
+}
+
+model PartnerRedemption {
+  id              String   @id @default(uuid())
+  partnerId       String
+  userId          String
+  pointsSpent     Int
+  valueReceived   Float
+  status          String   @default("PENDING")
+  referenceId     String?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+
+  partner         Partner @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@index([userId])
+}
+
+model PartnerTransaction {
+  id          String   @id @default(uuid())
+  partnerId   String
+  userId      String
+  type        String
+  points      Int
+  amount      Float
+  currency    String   @default("USD")
+  status      String   @default("PENDING")
+  referenceId String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  partner     Partner @relation(fields: [partnerId], references: [id])
+
+  @@index([partnerId])
+  @@index([userId])
+}
+
+// ============================================
+// SPECIAL OFFERS
+// ============================================
+
+model SpecialOffer {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  title           String
+  description     String
+  type            String
+  bonusPoints     Int?
+  multiplier      Float?
+  minPurchase     Float?
+  maxBonus        Int?
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean  @default(true)
+  targetTiers     String[]
+  usageLimit      Int?
+  totalUses       Int     @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  usages         OfferUsage[]
+
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+}
+
+model OfferUsage {
+  id          String   @id @default(uuid())
+  offerId     String
+  userId      String
+  pointsEarned Int
+  orderId     String?
+  usedAt      DateTime @default(now())
+
+  specialOffer SpecialOffer @relation(fields: [offerId], references: [id])
+
+  @@index([offerId])
+  @@unique([offerId, userId, orderId])
+}

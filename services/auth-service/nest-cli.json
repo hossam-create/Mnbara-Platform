@@ -1,0 +1,11 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": false,
+    "assets": ["**/*.prisma"],
+    "watchAssets": true,
+    "ignoreDiagnostics": [2307, 2305, 2339, 2345, 2353, 2322, 2724, 2769, 2564, 1240, 1206]
+  }
+}

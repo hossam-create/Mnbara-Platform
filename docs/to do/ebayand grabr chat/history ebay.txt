@@ -1,0 +1,30 @@
+https://www.cisin.com/coffee-break/cost-and-feature-to-start-a-website-like-ebay.html
+
+
+eBay, one of the world's largest and most well-known online auction and shopping websites, was founded by Pierre Omidyar in 1995. The creation of eBay is a classic example of how a simple idea can grow into a global enterprise through the strategic use of software and technology. Here's a brief overview of how eBay started and how it grew, with a focus on its software development aspects:
+
+The Beginnings
+Initial Concept: eBay started as AuctionWeb, part of Pierre Omidyar's larger personal site. The first item sold was a broken laser pointer, which surprisingly found a buyer interested in collecting such items. This sale validated Omidyar's idea that an online platform could connect buyers interested in specific items with sellers who have them.
+
+Early Development: Omidyar, a computer programmer, wrote the original code for AuctionWeb during Labor Day weekend in 1995. Initially, it was a basic platform allowing person-to-person transactions mediated through auction formats. The simplicity of the platform, focusing on the auction mechanism, allowed it to rapidly gain traction.
+
+Evolution of The Platform
+Growth: As the user base expanded, so did the need for more robust software infrastructure. The early days saw eBay running on a basic web page with listings managed manually. However, the explosive growth meant that automation of listings, user accounts, bidding processes, and transaction management became essential.
+
+Technical Challenges: eBay faced several technical challenges, including scaling the website to handle increasing traffic, ensuring transaction security, and implementing effective search functionality to navigate the growing list of auctions.
+
+Software Infrastructure: In response to these challenges, eBay continuously evolved its software architecture. This included adopting more sophisticated databases, implementing distributed computing models to manage load, and employing various technologies over the years, such as Java and Oracle databases, to ensure the platform's reliability and scalability.
+
+Key Software Development Milestones
+Feedback System: One of eBay's notable innovations was the introduction of a user feedback system, significantly contributing to building trust among its users. This feature required careful integration into the platform's software to ensure its integrity and reliability.
+
+PayPal Acquisition: In 2002, eBay acquired PayPal, integrating it as the platform's primary payment system. This strategic move required significant software integration work, deeply embedding PayPal’s payment processing capabilities into eBay’s transaction flow, enhancing the user experience and transaction security.
+
+Mobile Adoption: Recognizing the shift towards mobile internet usage, eBay invested heavily in developing mobile applications and optimizing its website for mobile devices. This required adapting the software to provide a seamless experience across different devices and screen sizes.
+
+Contemporary eBay
+Modernization and Microservices: Today, eBay's software infrastructure relies on a microservices architecture, splitting the application into smaller, loosely coupled services. This approach allows for easier scaling, faster feature development, and more efficient maintenance.
+
+Artificial Intelligence and Machine Learning: eBay has integrated AI and ML into various aspects of its platform, from personalizing user shopping experiences to enhancing its search engine and fraud detection systems. Developing these capabilities has involved incorporating sophisticated data processing and analytics into eBay’s software backbone.
+
+From its humble beginnings, eBay has grown through continuous innovation in its software and technology stack, adapting to changing user behaviors, scaling challenges, and market dynamics. eBay's journey underscores the importance of strategic software development, adaptability, and the integration of new technologies to meet user needs and sustain growth in the digital marketplace landscape.

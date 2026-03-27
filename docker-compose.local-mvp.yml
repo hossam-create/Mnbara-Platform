@@ -1,0 +1,333 @@
+# 🔒 LOCAL MVP VALIDATION - Phase 2.5
+# Minimal services for local testing only
+# NO PRODUCTION. NO REAL STRIPE. NO PUBLIC DEPLOYMENT.
+
+version: '3.8'
+
+services:
+  # ===================
+  # INFRASTRUCTURE
+  # ===================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: mnbarh-postgres-local
+    environment:
+      POSTGRES_DB: mnbarh_local
+      POSTGRES_USER: mnbarh_local
+      POSTGRES_PASSWORD: local_test_password
+      POSTGRES_MULTIPLE_DATABASES: auth_db,user_db,payment_db,orders_db,wallet_db,escrow_db,notification_db,matching_db,trips_db,product_db,subscription_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./scripts/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    networks:
+      - mnbarh-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnbarh_local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: mnbarh-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    networks:
+      - mnbarh-local
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: mnbarh-rabbitmq-local
+    environment:
+      RABBITMQ_DEFAULT_USER: mnbarh_local
+      RABBITMQ_DEFAULT_PASS: local_test_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_local_data:/var/lib/rabbitmq
+    networks:
+      - mnbarh-local
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ===================
+  # CORE MVP SERVICES
+  # ===================
+
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-auth-local
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/auth_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  user-service:
+    build:
+      context: ./backend/services/user-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-user-local
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/user_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  product-service:
+    build:
+      context: ./backend/services/product-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-product-local
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/product_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  wallet-service:
+    build:
+      context: ./backend/services/wallet-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-wallet-local
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/wallet_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+      - OPENEXCHANGERATES_API_KEY=mock-api-key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-payment-local
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/payment_db
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_SECRET_KEY=sk_test_51234567890abcdefghijklmnopqrstuvwxyz
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+      - WALLET_SERVICE_URL=http://wallet-service:3005
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  orders-service:
+    build:
+      context: ./backend/services/orders-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-orders-local
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/orders_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  escrow-service:
+    build:
+      context: ./backend/services/escrow-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-escrow-local
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/escrow_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+      - WALLET_SERVICE_URL=http://wallet-service:3005
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  trips-service:
+    build:
+      context: ./backend/services/trips-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-trips-local
+    ports:
+      - "3009:3009"
+    environment:
+      - NODE_ENV=development
+      - PORT=3009
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/trips_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbarh_local:local_test_password@rabbitmq:5672
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  matching-service:
+    build:
+      context: ./backend/services/matching-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-matching-local
+    ports:
+      - "3010:3010"
+    environment:
+      - NODE_ENV=development
+      - PORT=3010
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/matching_db
+      - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://mnbarh_local:local_test_password@rabbitmq:5672
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-notification-local
+    ports:
+      - "3011:3011"
+    environment:
+      - NODE_ENV=development
+      - PORT=3011
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/notification_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+      - SENDGRID_API_KEY=SG.test_key_not_real
+      - TWILIO_ACCOUNT_SID=ACtest_not_real
+      - TWILIO_AUTH_TOKEN=test_token_not_real
+      - FCM_SERVER_KEY=test_fcm_key_not_real
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  subscription-service:
+    build:
+      context: ./backend/services/subscription-service
+      dockerfile: Dockerfile
+    container_name: mnbarh-subscription-local
+    ports:
+      - "3012:3012"
+    environment:
+      - NODE_ENV=development
+      - PORT=3012
+      - DATABASE_URL=postgresql://mnbarh_local:local_test_password@postgres:5432/subscription_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=local-test-jwt-secret-key-not-for-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mnbarh-local
+
+  # ===================
+  # FRONTEND (Development Mode)
+  # ===================
+  # Note: Frontend should be run manually with: cd frontend/web-app && npm run dev
+
+networks:
+  mnbarh-local:
+    driver: bridge
+
+volumes:
+  postgres_local_data:
+  redis_local_data:
+  rabbitmq_local_data:

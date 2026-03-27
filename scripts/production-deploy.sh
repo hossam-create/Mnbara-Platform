@@ -1,13 +1,13 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # ============================================
 # Production Deployment Script
-# Deploy Mnbara Platform to Production Server
+# Deploy mnbarh Platform to Production Server
 # ============================================
 
 set -e  # Exit on any error
 
-echo "🚀 Mnbara Platform - Production Deployment"
+echo "ًںڑ€ mnbarh Platform - Production Deployment"
 echo "============================================"
 
 # Colors for output
@@ -18,11 +18,11 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-DOMAIN=${DOMAIN:-"mnbara.com"}
+DOMAIN=${DOMAIN:-"mnbarh.com"}
 ADMIN_SUBDOMAIN=${ADMIN_SUBDOMAIN:-"admin"}
 CONTROL_SUBDOMAIN=${CONTROL_SUBDOMAIN:-"control"}
-DB_NAME=${DB_NAME:-"mnbara_platform"}
-DB_USER=${DB_USER:-"mnbara_user"}
+DB_NAME=${DB_NAME:-"mnbarh_platform"}
+DB_USER=${DB_USER:-"mnbarh_user"}
 
 echo -e "${BLUE}Deployment Configuration:${NC}"
 echo "Domain: $DOMAIN"
@@ -36,29 +36,29 @@ echo -e "${BLUE}Step 1: Checking system requirements...${NC}"
 
 # Check Docker
 if ! command -v docker &> /dev/null; then
-    echo -e "${RED}❌ Docker is not installed${NC}"
+    echo -e "${RED}â‌Œ Docker is not installed${NC}"
     exit 1
 fi
 
 # Check Docker Compose
 if ! command -v docker-compose &> /dev/null; then
-    echo -e "${RED}❌ Docker Compose is not installed${NC}"
+    echo -e "${RED}â‌Œ Docker Compose is not installed${NC}"
     exit 1
 fi
 
 # Check Node.js
 if ! command -v node &> /dev/null; then
-    echo -e "${RED}❌ Node.js is not installed${NC}"
+    echo -e "${RED}â‌Œ Node.js is not installed${NC}"
     exit 1
 fi
 
 # Check PostgreSQL client
 if ! command -v psql &> /dev/null; then
-    echo -e "${RED}❌ PostgreSQL client is not installed${NC}"
+    echo -e "${RED}â‌Œ PostgreSQL client is not installed${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ All system requirements met${NC}"
+echo -e "${GREEN}âœ… All system requirements met${NC}"
 
 # Step 2: Environment Setup
 echo -e "${BLUE}Step 2: Setting up environment...${NC}"
@@ -84,7 +84,7 @@ SYSTEM_JWT_SECRET=$(openssl rand -base64 64 | tr -d "=+/" | cut -c1-64)
 
 # MFA Configuration
 MFA_SECRET=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-MFA_ISSUER=Mnbara Platform
+MFA_ISSUER=mnbarh Platform
 
 # Session Configuration
 ADMIN_SESSION_TIMEOUT=7200
@@ -106,11 +106,11 @@ PROMETHEUS_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 # Backup Configuration
 BACKUP_RETENTION_DAYS=30
-BACKUP_S3_BUCKET=mnbara-backups
+BACKUP_S3_BUCKET=mnbarh-backups
 EOF
-    echo -e "${GREEN}✅ Environment file created${NC}"
+    echo -e "${GREEN}âœ… Environment file created${NC}"
 else
-    echo -e "${GREEN}✅ Environment file exists${NC}"
+    echo -e "${GREEN}âœ… Environment file exists${NC}"
 fi
 
 # Step 3: SSL Certificates
@@ -134,9 +134,9 @@ if [ ! -f "/etc/ssl/certs/$DOMAIN.crt" ]; then
         --agree-tos \
         --email admin@$DOMAIN
     
-    echo -e "${GREEN}✅ SSL certificates configured${NC}"
+    echo -e "${GREEN}âœ… SSL certificates configured${NC}"
 else
-    echo -e "${GREEN}✅ SSL certificates already exist${NC}"
+    echo -e "${GREEN}âœ… SSL certificates already exist${NC}"
 fi
 
 # Step 4: Database Setup
@@ -162,7 +162,7 @@ cd backend/services/listing-service && npm run migrate:prod && cd ../../..
 cd backend/services/payment-service && npm run migrate:prod && cd ../../..
 cd backend/services/order-service && npm run migrate:prod && cd ../../..
 
-echo -e "${GREEN}✅ Database setup complete${NC}"
+echo -e "${GREEN}âœ… Database setup complete${NC}"
 
 # Step 5: Build Applications
 echo -e "${BLUE}Step 5: Building applications...${NC}"
@@ -180,7 +180,7 @@ cd frontend/web-app && npm ci --production && npm run build && cd ../..
 cd frontend/admin-dashboard && npm ci --production && npm run build && cd ../..
 cd frontend/system-control-dashboard && npm ci --production && npm run build && cd ../..
 
-echo -e "${GREEN}✅ Applications built successfully${NC}"
+echo -e "${GREEN}âœ… Applications built successfully${NC}"
 
 # Step 6: Deploy with Docker
 echo -e "${BLUE}Step 6: Deploying with Docker...${NC}"
@@ -195,7 +195,7 @@ docker-compose -f docker-compose.prod.yml up -d
 echo "Waiting for services to start..."
 sleep 30
 
-echo -e "${GREEN}✅ Services deployed successfully${NC}"
+echo -e "${GREEN}âœ… Services deployed successfully${NC}"
 
 # Step 7: Setup Owner Accounts
 echo -e "${BLUE}Step 7: Setting up owner accounts...${NC}"
@@ -203,13 +203,13 @@ echo -e "${BLUE}Step 7: Setting up owner accounts...${NC}"
 # Run owner setup script
 PGPASSWORD=$POSTGRES_PASSWORD psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB -f scripts/setup-owner-accounts.sql
 
-echo -e "${GREEN}✅ Owner accounts created${NC}"
+echo -e "${GREEN}âœ… Owner accounts created${NC}"
 
 # Step 8: Configure Nginx
 echo -e "${BLUE}Step 8: Configuring Nginx...${NC}"
 
 # Create Nginx configuration
-sudo tee /etc/nginx/sites-available/mnbara << EOF
+sudo tee /etc/nginx/sites-available/mnbarh << EOF
 # Admin Dashboard
 server {
     listen 443 ssl http2;
@@ -271,10 +271,10 @@ server {
 EOF
 
 # Enable the site
-sudo ln -sf /etc/nginx/sites-available/mnbara /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/mnbarh /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 
-echo -e "${GREEN}✅ Nginx configured${NC}"
+echo -e "${GREEN}âœ… Nginx configured${NC}"
 
 # Step 9: Setup Monitoring
 echo -e "${BLUE}Step 9: Setting up monitoring...${NC}"
@@ -282,15 +282,15 @@ echo -e "${BLUE}Step 9: Setting up monitoring...${NC}"
 # Start monitoring services
 docker-compose -f docker-compose.prod.yml up -d prometheus grafana
 
-echo -e "${GREEN}✅ Monitoring services started${NC}"
+echo -e "${GREEN}âœ… Monitoring services started${NC}"
 
 # Step 10: Setup Backups
 echo -e "${BLUE}Step 10: Setting up automated backups...${NC}"
 
 # Create backup script
-sudo tee /usr/local/bin/mnbara-backup.sh << EOF
+sudo tee /usr/local/bin/mnbarh-backup.sh << EOF
 #!/bin/bash
-BACKUP_DIR="/var/backups/mnbara"
+BACKUP_DIR="/var/backups/mnbarh"
 DATE=\$(date +%Y%m%d_%H%M%S)
 mkdir -p \$BACKUP_DIR
 
@@ -306,12 +306,12 @@ find \$BACKUP_DIR -name "*.sql.gz" -mtime +30 -delete
 echo "Backup completed: \$BACKUP_DIR/db_backup_\$DATE.sql.gz"
 EOF
 
-sudo chmod +x /usr/local/bin/mnbara-backup.sh
+sudo chmod +x /usr/local/bin/mnbarh-backup.sh
 
 # Add to crontab (daily at 2 AM)
-(crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/mnbara-backup.sh") | crontab -
+(crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/mnbarh-backup.sh") | crontab -
 
-echo -e "${GREEN}✅ Automated backups configured${NC}"
+echo -e "${GREEN}âœ… Automated backups configured${NC}"
 
 # Step 11: Final Health Check
 echo -e "${BLUE}Step 11: Running health checks...${NC}"
@@ -321,56 +321,56 @@ sleep 10
 
 # Check admin dashboard
 if curl -f -s https://$ADMIN_SUBDOMAIN.$DOMAIN > /dev/null; then
-    echo -e "${GREEN}✅ Admin Dashboard is accessible${NC}"
+    echo -e "${GREEN}âœ… Admin Dashboard is accessible${NC}"
 else
-    echo -e "${YELLOW}⚠️  Admin Dashboard health check failed${NC}"
+    echo -e "${YELLOW}âڑ ï¸ڈ  Admin Dashboard health check failed${NC}"
 fi
 
 # Check system control dashboard
 if curl -f -s https://$CONTROL_SUBDOMAIN.$DOMAIN > /dev/null; then
-    echo -e "${GREEN}✅ System Control Dashboard is accessible${NC}"
+    echo -e "${GREEN}âœ… System Control Dashboard is accessible${NC}"
 else
-    echo -e "${YELLOW}⚠️  System Control Dashboard health check failed${NC}"
+    echo -e "${YELLOW}âڑ ï¸ڈ  System Control Dashboard health check failed${NC}"
 fi
 
 # Check database
 if PGPASSWORD=$POSTGRES_PASSWORD psql -h localhost -p 5432 -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT 1;" > /dev/null 2>&1; then
-    echo -e "${GREEN}✅ Database is accessible${NC}"
+    echo -e "${GREEN}âœ… Database is accessible${NC}"
 else
-    echo -e "${RED}❌ Database health check failed${NC}"
+    echo -e "${RED}â‌Œ Database health check failed${NC}"
 fi
 
 echo ""
 echo "============================================"
-echo -e "${GREEN}🎉 PRODUCTION DEPLOYMENT COMPLETE!${NC}"
+echo -e "${GREEN}ًںژ‰ PRODUCTION DEPLOYMENT COMPLETE!${NC}"
 echo "============================================"
 echo ""
-echo -e "${YELLOW}📊 Admin Dashboard:${NC}"
+echo -e "${YELLOW}ًں“ٹ Admin Dashboard:${NC}"
 echo "URL: https://$ADMIN_SUBDOMAIN.$DOMAIN"
 echo "Email: owner@mnbarh.com"
-echo "Password: MnbaraOwner2026!"
+echo "Password: mnbarhOwner2026!"
 echo ""
-echo -e "${YELLOW}🚀 System Control Dashboard:${NC}"
+echo -e "${YELLOW}ًںڑ€ System Control Dashboard:${NC}"
 echo "URL: https://$CONTROL_SUBDOMAIN.$DOMAIN"
 echo "Email: owner@mnbarh.com"
 echo "Password: SystemControl2026!"
 echo "MFA: Required (scan QR code on first login)"
 echo ""
-echo -e "${BLUE}🔐 Important Security Notes:${NC}"
+echo -e "${BLUE}ًں”گ Important Security Notes:${NC}"
 echo "1. Change default passwords immediately after first login"
 echo "2. Configure IP whitelist for System Control Dashboard"
 echo "3. Setup MFA for System Control Dashboard"
 echo "4. Review and update firewall rules"
 echo "5. Monitor logs regularly"
 echo ""
-echo -e "${BLUE}📊 Monitoring:${NC}"
+echo -e "${BLUE}ًں“ٹ Monitoring:${NC}"
 echo "Grafana: https://monitoring.$DOMAIN"
 echo "Prometheus: https://metrics.$DOMAIN"
 echo ""
-echo -e "${BLUE}💾 Backups:${NC}"
+echo -e "${BLUE}ًں’¾ Backups:${NC}"
 echo "Automated daily backups at 2 AM"
-echo "Backup location: /var/backups/mnbara"
+echo "Backup location: /var/backups/mnbarh"
 echo "Retention: 30 days"
 echo ""
-echo -e "${GREEN}Platform is now live and ready for use! 🚀${NC}"
+echo -e "${GREEN}Platform is now live and ready for use! ًںڑ€${NC}"
 echo "============================================"

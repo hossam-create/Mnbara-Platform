@@ -1,0 +1,143 @@
+# =============================================================================
+# Mnbara Platform - Kubernetes Kustomization for Staging Environment
+# =============================================================================
+# This overlay configures resources for the staging environment
+# Staging mirrors production but with lower resource allocation
+# =============================================================================
+
+# =============================================================================
+# Namespace
+# =============================================================================
+namespace: mnbara-staging
+
+# =============================================================================
+# Name Prefix
+# =============================================================================
+namePrefix: staging-
+
+# =============================================================================
+# Common Labels
+# =============================================================================
+commonLabels:
+  app: mnbara-platform
+  organization: mnbara
+  managed-by: kubectl
+  environment: staging
+  version: ${STAGING_VERSION:-latest}
+
+# =============================================================================
+# Common Annotations
+# =============================================================================
+commonAnnotations:
+  maintainer: dev@mnbara.com
+  environment: staging
+  description: Staging deployment for Mnbara Platform
+
+# =============================================================================
+# Resources
+# =============================================================================
+resources:
+  - ../../base
+
+# =============================================================================
+# Patches
+# =============================================================================
+# Staging-specific patches
+# =============================================================================
+
+patches:
+  # Moderate resources for staging
+  - target:
+      kind: Deployment
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/cpu
+        value: "1000m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/limits/memory
+        value: "1024Mi"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/cpu
+        value: "250m"
+      - op: replace
+        path: /spec/template/spec/containers/0/resources/requests/memory
+        value: "256Mi"
+
+  # HPA configuration for staging
+  - target:
+      kind: HorizontalPodAutoscaler
+    patch: |
+      - op: replace
+        path: /spec/minReplicas
+        value: 2
+      - op: replace
+        path: /spec/maxReplicas
+        value: 5
+
+  # Staging service configuration
+  - target:
+      kind: Service
+    patch: |
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+
+# =============================================================================
+# ConfigMap Generator
+# =============================================================================
+configMapGenerator:
+  - name: app-config
+    literals:
+      - ENVIRONMENT=staging
+      - LOG_LEVEL=info
+      - LOG_FORMAT=json
+      - NODE_ENV=staging
+      - DEBUG=false
+      - FEATURE_CACHE_ENABLED=true
+
+# =============================================================================
+# Secret Generator
+# =============================================================================
+secretGenerator:
+  - name: db-credentials
+    literals:
+      - username=mnbara_staging
+      - password=${DB_PASSWORD:-staging_password}
+      - host=postgres.staging
+      - port=5432
+      - database=mnbara_staging
+    options:
+      disableNameSuffixHash: false
+
+# =============================================================================
+# Images
+# =============================================================================
+images:
+  - name: mnbara/api-gateway
+    newTag: ${STAGING_VERSION:-latest}
+  - name: mnbara/user-service
+    newTag: ${STAGING_VERSION:-latest}
+  - name: mnbara/matching-service
+    newTag: ${STAGING_VERSION:-latest}
+  - name: mnbara/order-service
+    newTag: ${STAGING_VERSION:-latest}
+  - name: mnbara/trip-service
+    newTag: ${STAGING_VERSION:-latest}
+
+# =============================================================================
+# Replicas
+# =============================================================================
+replicas:
+  - name: api-gateway
+    count: 2
+  - name: user-service
+    count: 2
+  - name: matching-service
+    count: 2
+  - name: order-service
+    count: 2
+  - name: trip-service
+    count: 2

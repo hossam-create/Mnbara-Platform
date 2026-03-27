@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Product Content Type Definition for CrafterCMS -->
+<form>
+  <title>Product</title>
+  <description>Product content type for e-commerce</description>
+  <objectType>content</objectType>
+  <content-type>/component/product</content-type>
+  <imageThumbnail>content-types/component/product/product.png</imageThumbnail>
+  
+  <properties>
+    <property>
+      <name>display-template</name>
+      <label>Display Template</label>
+      <value>/templates/web/components/product.ftl</value>
+      <type>template</type>
+    </property>
+    <property>
+      <name>merge-strategy</name>
+      <label>Merge Strategy</label>
+      <value>inherit-levels</value>
+      <type>string</type>
+    </property>
+  </properties>
+
+  <sections>
+    <!-- Basic Information Section -->
+    <section>
+      <title>Basic Information</title>
+      <description>Basic product information</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>name</id>
+          <label>Product Name</label>
+          <required>true</required>
+          <helpText>Enter the product name</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>255</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>textarea</type>
+          <id>description</id>
+          <label>Description</label>
+          <required>true</required>
+          <helpText>Enter the product description</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>5000</value>
+            </property>
+            <property>
+              <name>rows</name>
+              <value>5</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>textarea</type>
+          <id>shortDescription</id>
+          <label>Short Description</label>
+          <required>false</required>
+          <helpText>Enter a short description for listings</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>500</value>
+            </property>
+            <property>
+              <name>rows</name>
+              <value>3</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>sku</id>
+          <label>SKU</label>
+          <required>true</required>
+          <helpText>Enter the product SKU</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>brand</id>
+          <label>Brand</label>
+          <required>false</required>
+          <helpText>Enter the product brand</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>manufacturer</id>
+          <label>Manufacturer</label>
+          <required>false</required>
+          <helpText>Enter the manufacturer</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>model</id>
+          <label>Model</label>
+          <required>false</required>
+          <helpText>Enter the product model</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Pricing Section -->
+    <section>
+      <title>Pricing</title>
+      <description>Product pricing information</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>price</id>
+          <label>Price</label>
+          <required>true</required>
+          <helpText>Enter the product price</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>step</name>
+              <value>0.01</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>compareAtPrice</id>
+          <label>Compare at Price</label>
+          <required>false</required>
+          <helpText>Enter the original price for comparison</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>step</name>
+              <value>0.01</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>cost</id>
+          <label>Cost</label>
+          <required>false</required>
+          <helpText>Enter the product cost</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>step</name>
+              <value>0.01</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>currency</id>
+          <label>Currency</label>
+          <required>true</required>
+          <helpText>Enter the currency code (e.g., USD, EUR)</helpText>
+          <defaultValue>USD</defaultValue>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>3</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Inventory Section -->
+    <section>
+      <title>Inventory</title>
+      <description>Product inventory settings</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>inventory</id>
+          <label>Inventory Quantity</label>
+          <required>false</required>
+          <helpText>Enter the current inventory quantity</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>trackInventory</id>
+          <label>Track Inventory</label>
+          <required>false</required>
+          <helpText>Enable inventory tracking</helpText>
+          <defaultValue>true</defaultValue>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>allowBackorders</id>
+          <label>Allow Backorders</label>
+          <required>false</required>
+          <helpText>Allow orders when out of stock</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>lowStockThreshold</id>
+          <label>Low Stock Threshold</label>
+          <required>false</required>
+          <helpText>Enter the low stock alert threshold</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Media Section -->
+    <section>
+      <title>Media</title>
+      <description>Product images and media</description>
+      <fields>
+        <field>
+          <type>image-picker</type>
+          <id>primaryImage</id>
+          <label>Primary Image</label>
+          <required>false</required>
+          <helpText>Select the primary product image</helpText>
+          <properties>
+            <property>
+              <name>width</name>
+              <value>800</value>
+            </property>
+            <property>
+              <name>height</name>
+              <value>800</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>repeat</type>
+          <id>gallery</id>
+          <label>Image Gallery</label>
+          <required>false</required>
+          <helpText>Add additional product images</helpText>
+          <properties>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+            <property>
+              <name>max</name>
+              <value>20</value>
+            </property>
+          </properties>
+          <fields>
+            <field>
+              <type>image-picker</type>
+              <id>image</id>
+              <label>Image</label>
+              <required>true</required>
+            </field>
+            <field>
+              <type>input</type>
+              <id>alt</id>
+              <label>Alt Text</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>255</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>caption</id>
+              <label>Caption</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>500</value>
+                </property>
+              </properties>
+            </field>
+          </fields>
+        </field>
+
+        <field>
+          <type>video-picker</type>
+          <id>productVideo</id>
+          <label>Product Video</label>
+          <required>false</required>
+          <helpText>Select a product demonstration video</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Variants Section -->
+    <section>
+      <title>Variants</title>
+      <description>Product variants and options</description>
+      <fields>
+        <field>
+          <type>repeat</type>
+          <id>variants</id>
+          <label>Product Variants</label>
+          <required>false</required>
+          <helpText>Add product variants (size, color, etc.)</helpText>
+          <properties>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+          <fields>
+            <field>
+              <type>input</type>
+              <id>name</id>
+              <label>Variant Name</label>
+              <required>true</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>255</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>sku</id>
+              <label>Variant SKU</label>
+              <required>true</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>100</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>price</id>
+              <label>Variant Price</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>type</name>
+                  <value>number</value>
+                </property>
+                <property>
+                  <name>step</name>
+                  <value>0.01</value>
+                </property>
+                <property>
+                  <name>min</name>
+                  <value>0</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>inventory</id>
+              <label>Variant Inventory</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>type</name>
+                  <value>number</value>
+                </property>
+                <property>
+                  <name>min</name>
+                  <value>0</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>image-picker</type>
+              <id>image</id>
+              <label>Variant Image</label>
+              <required>false</required>
+            </field>
+            <field>
+              <type>input</type>
+              <id>options</id>
+              <label>Variant Options (JSON)</label>
+              <required>false</required>
+              <helpText>Enter variant options as JSON (e.g., {"color": "red", "size": "M"})</helpText>
+            </field>
+          </fields>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Specifications Section -->
+    <section>
+      <title>Specifications</title>
+      <description>Product specifications and attributes</description>
+      <fields>
+        <field>
+          <type>repeat</type>
+          <id>specifications</id>
+          <label>Product Specifications</label>
+          <required>false</required>
+          <helpText>Add product specifications</helpText>
+          <fields>
+            <field>
+              <type>input</type>
+              <id>name</id>
+              <label>Specification Name</label>
+              <required>true</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>100</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>value</id>
+              <label>Specification Value</label>
+              <required>true</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>255</value>
+                </property>
+              </properties>
+            </field>
+            <field>
+              <type>input</type>
+              <id>unit</id>
+              <label>Unit</label>
+              <required>false</required>
+              <properties>
+                <property>
+                  <name>maxlength</name>
+                  <value>50</value>
+                </property>
+              </properties>
+            </field>
+          </fields>
+        </field>
+      </fields>
+    </section>
+
+    <!-- SEO Section -->
+    <section>
+      <title>SEO</title>
+      <description>Search engine optimization settings</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>seoTitle</id>
+          <label>SEO Title</label>
+          <required>false</required>
+          <helpText>Enter the SEO title (max 60 characters)</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>60</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>textarea</type>
+          <id>seoDescription</id>
+          <label>SEO Description</label>
+          <required>false</required>
+          <helpText>Enter the SEO description (max 160 characters)</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>160</value>
+            </property>
+            <property>
+              <name>rows</name>
+              <value>3</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>slug</id>
+          <label>URL Slug</label>
+          <required>false</required>
+          <helpText>Enter the URL slug (e.g., my-product-name)</helpText>
+          <properties>
+            <property>
+              <name>pattern</name>
+              <value>^[a-z0-9-]+$</value>
+            </property>
+            <property>
+              <name>maxlength</name>
+              <value>255</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>tags</type>
+          <id>metaKeywords</id>
+          <label>Meta Keywords</label>
+          <required>false</required>
+          <helpText>Add SEO keywords</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Status Section -->
+    <section>
+      <title>Status</title>
+      <description>Product status and visibility</description>
+      <fields>
+        <field>
+          <type>dropdown</type>
+          <id>status</id>
+          <label>Status</label>
+          <required>true</required>
+          <helpText>Select the product status</helpText>
+          <defaultValue>draft</defaultValue>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>product-status</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>dropdown</type>
+          <id>visibility</id>
+          <label>Visibility</label>
+          <required>true</required>
+          <helpText>Select the product visibility</helpText>
+          <defaultValue>public</defaultValue>
+          <properties>
+            <property>
+              <name>datasource</name>
+              <value>product-visibility</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>featured</id>
+          <label>Featured Product</label>
+          <required>false</required>
+          <helpText>Mark as featured product</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>checkbox</type>
+          <id>freeShipping</id>
+          <label>Free Shipping</label>
+          <required>false</required>
+          <helpText>Offer free shipping for this product</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>taxClass</id>
+          <label>Tax Class</label>
+          <required>false</required>
+          <helpText>Enter the tax class</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>50</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>shippingClass</id>
+          <label>Shipping Class</label>
+          <required>false</required>
+          <helpText>Enter the shipping class</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>50</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Physical Properties Section -->
+    <section>
+      <title>Physical Properties</title>
+      <description>Physical product properties</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>weight</id>
+          <label>Weight</label>
+          <required>false</required>
+          <helpText>Enter the product weight</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>step</name>
+              <value>0.01</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>dimensions</id>
+          <label>Dimensions</label>
+          <required>false</required>
+          <helpText>Enter product dimensions (L×W×H)</helpText>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>material</id>
+          <label>Material</label>
+          <required>false</required>
+          <helpText>Enter the product material</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>color</id>
+          <label>Color</label>
+          <required>false</required>
+          <helpText>Enter the product color</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>50</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>size</id>
+          <label>Size</label>
+          <required>false</required>
+          <helpText>Enter the product size</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>50</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>style</id>
+          <label>Style</label>
+          <required>false</required>
+          <helpText>Enter the product style</helpText>
+          <properties>
+            <property>
+              <name>maxlength</name>
+              <value>100</value>
+            </property>
+          </properties>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Digital Products Section -->
+    <section>
+      <title>Digital Products</title>
+      <description>Settings for digital/downloadable products</description>
+      <fields>
+        <field>
+          <type>checkbox</type>
+          <id>isDigital</id>
+          <label>Is Digital Product</label>
+          <required>false</required>
+          <helpText>Mark as digital/downloadable product</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>file-picker</type>
+          <id>downloadUrl</id>
+          <label>Download File</label>
+          <required>false</required>
+          <helpText>Select the downloadable file</helpText>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>downloadLimit</id>
+          <label>Download Limit</label>
+          <required>false</required>
+          <helpText>Enter the maximum number of downloads</helpText>
+          <properties>
+            <property>
+              <name>type</name>
+              <value>number</value>
+            </property>
+            <property>
+              <name>min</name>
+              <value>0</value>
+            </property>
+          </properties>
+        </field>
+
+        <field>
+          <type>date-time</type>
+          <id>downloadExpiry</id>
+          <label>Download Expiry</label>
+          <required>false</required>
+          <helpText>Set the download expiry date</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Subscription Section -->
+    <section>
+      <title>Subscription</title>
+      <description>Settings for subscription products</description>
+      <fields>
+        <field>
+          <type>checkbox</type>
+          <id>isSubscription</id>
+          <label>Is Subscription Product</label>
+          <required>false</required>
+          <helpText>Mark as subscription product</helpText>
+          <defaultValue>false</defaultValue>
+        </field>
+
+        <field>
+          <type>input</type>
+          <id>subscriptionPlan</id>
+          <label>Subscription Plan</label>
+          <required>false</required>
+          <helpText>Enter the subscription plan details</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Dates Section -->
+    <section>
+      <title>Dates</title>
+      <description>Product date information</description>
+      <fields>
+        <field>
+          <type>date-time</type>
+          <id>createdAt</id>
+          <label>Created Date</label>
+          <required>false</required>
+          <helpText>Product creation date</helpText>
+        </field>
+
+        <field>
+          <type>date-time</type>
+          <id>updatedAt</id>
+          <label>Updated Date</label>
+          <required>false</required>
+          <helpText>Product last updated date</helpText>
+        </field>
+
+        <field>
+          <type>date-time</type>
+          <id>publishedAt</id>
+          <label>Published Date</label>
+          <required>false</required>
+          <helpText>Product publication date</helpText>
+        </field>
+      </fields>
+    </section>
+
+    <!-- Custom Fields Section -->
+    <section>
+      <title>Custom Fields</title>
+      <description>Custom product fields</description>
+      <fields>
+        <field>
+          <type>input</type>
+          <id>customFields</id>
+          <label>Custom Fields (JSON)</label>
+          <required>false</required>
+          <helpText>Enter custom fields as JSON</helpText>
+        </field>
+
+        <field>
+          <type>tags</type>
+          <id>tags</id>
+          <label>Tags</label>
+          <required>false</required>
+          <helpText>Add product tags</helpText>
+        </field>
+      </fields>
+    </section>
+  </sections>
+
+  <datasources>
+    <datasource>
+      <id>product-status</id>
+      <title>Product Status</title>
+      <type>dropdown</type>
+      <values>
+        <value>draft</value>
+        <value>pending</value>
+        <value>published</value>
+        <value>archived</value>
+      </values>
+    </datasource>
+
+    <datasource>
+      <id>product-visibility</id>
+      <title>Product Visibility</title>
+      <type>dropdown</type>
+      <values>
+        <value>public</value>
+        <value>private</value>
+        <value>password</value>
+      </values>
+    </datasource>
+  </datasources>
+</form>

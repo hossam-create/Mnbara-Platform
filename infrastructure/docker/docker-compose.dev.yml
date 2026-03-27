@@ -1,0 +1,209 @@
+# =============================================================================
+# Mnbara Platform - Development Docker Compose Configuration
+# =============================================================================
+# This configuration is for local development with hot reload support
+# All services run with development settings and debugging enabled
+# =============================================================================
+
+services:
+  # -----------------------------------------------------------------------------
+  # API Gateway Service
+  # -----------------------------------------------------------------------------
+  api-gateway:
+    build:
+      context: ../../backend/services/api-gateway
+      dockerfile: Dockerfile.dev
+    container_name: mnbara-api-gateway-dev
+    ports:
+      - "${API_GATEWAY_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SERVICE_NAME=api-gateway
+    volumes:
+      - ../../backend/services/api-gateway/src:/app/src:ro
+      - api-gateway-node-modules:/app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -----------------------------------------------------------------------------
+  # User Service
+  # -----------------------------------------------------------------------------
+  user-service:
+    build:
+      context: ../../backend/services/user-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbara-user-service-dev
+    ports:
+      - "${USER_SERVICE_PORT:-3001}:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SERVICE_NAME=user-service
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mnbara}:${POSTGRES_PASSWORD:-mnbara}@postgres:5432/${POSTGRES_DB:-mnbara_users}?schema=public
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../../backend/services/user-service/src:/app/src:ro
+      - user-service-node-modules:/app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -----------------------------------------------------------------------------
+  # Matching Service
+  # -----------------------------------------------------------------------------
+  matching-service:
+    build:
+      context: ../../backend/services/matching-service
+      dockerfile: Dockerfile.dev
+    container_name: mnbara-matching-service-dev
+    ports:
+      - "${MATCHING_SERVICE_PORT:-3002}:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - SERVICE_NAME=matching-service
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-mnbara}:${POSTGRES_PASSWORD:-mnbara}@postgres:5432/${POSTGRES_DB:-mnbara_matching}?schema=public
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ../../backend/services/matching-service/src:/app/src:ro
+      - matching-service-node-modules:/app/node_modules
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # -----------------------------------------------------------------------------
+  # Redis (Cache & Message Broker)
+  # -----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: mnbara-redis-dev
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-dev-data:/data
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -----------------------------------------------------------------------------
+  # PostgreSQL Database
+  # -----------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: mnbara-postgres-dev
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-mnbara}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mnbara}
+      - POSTGRES_DB=${POSTGRES_DB:-mnbara}
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mnbara}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -----------------------------------------------------------------------------
+  # Elasticsearch (Search)
+  # -----------------------------------------------------------------------------
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: mnbara-elasticsearch-dev
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-dev-data:/usr/share/elasticsearch/data
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "${ELASTICSEARCH_TRANSPORT:-9300}:9300"
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # -----------------------------------------------------------------------------
+  # Kibana (Dev Only - Optional)
+  # -----------------------------------------------------------------------------
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: mnbara-kibana-dev
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - mnbara-dev
+    restart: unless-stopped
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  mnbara-dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis-dev-data:
+  postgres-dev-data:
+  elasticsearch-dev-data:
+  api-gateway-node-modules:
+  user-service-node-modules:
+  matching-service-node-modules:

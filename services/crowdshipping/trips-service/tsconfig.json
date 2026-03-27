@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@mnbara/types": ["../../packages/types/src/index.ts"],
+      "@mnbara/types/*": ["../../packages/types/src/*"],
+      "@mnbara/utils": ["../../packages/utils/src/index.ts"],
+      "@mnbara/utils/*": ["../../packages/utils/src/*"],
+      "@mnbara/api-client": ["../../packages/api-client/src/index.ts"],
+      "@mnbara/api-client/*": ["../../packages/api-client/src/*"],
+      "@mnbara/validation": ["../../packages/validation/src/index.ts"],
+      "@mnbara/validation/*": ["../../packages/validation/src/*"]
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}

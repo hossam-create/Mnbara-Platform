@@ -1,8 +1,8 @@
-# Mnbara Platform - Render Deployment Configuration
-# Comprehensive microservices deployment
+﻿# mnbarh Platform - Render Deployment Configuration
+# Simplified deployment with frontend and core backend service
 
 services:
-  # Frontend Web App (React/Next.js)
+  # Frontend Web App (Vite React)
   - type: web
     name: mnbarh-web
     env: static
@@ -12,144 +12,62 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXT_PUBLIC_API_URL
-        value: https://mnbarh-api-gateway.onrender.com
+      - key: VITE_API_BASE_URL
+        value: https://mnbarh-listing-service.onrender.com/api
+      - key: VITE_SOCKET_URL
+        value: https://mnbarh-listing-service.onrender.com
     healthCheckPath: /
     autoDeploy: true
 
-  # Admin Dashboard
+  # Listing Service (Main Backend)
   - type: web
-    name: mnbarh-admin
-    env: static
-    plan: free
-    buildCommand: cd frontend/admin-dashboard && npm install && npm run build
-    staticPublishPath: frontend/admin-dashboard/dist
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_API_URL
-        value: https://mnbarh-api-gateway.onrender.com
-    healthCheckPath: /
-    autoDeploy: true
-
-  # API Gateway (Main Backend Service)
-  - type: web
-    name: mnbarh-api-gateway
+    name: mnbarh-listing-service
     env: node
     plan: free
-    buildCommand: cd backend/services/api-gateway && npm install && npm run build
-    startCommand: cd backend/services/api-gateway && npm start
+    buildCommand: cd backend/services/listing-service-node && npm install
+    startCommand: cd backend/services/listing-service-node && node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbarh-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbarh-redis
-          property: connectionString
       - key: JWT_SECRET
         generateValue: true
     healthCheckPath: /health
     autoDeploy: true
 
-  # Auth Service
+  # Decision Authority Service
   - type: web
-    name: mnbarh-auth-service
+    name: mnbarh-decision-authority-service
     env: node
     plan: free
-    buildCommand: cd backend/services/auth-service && npm install && npm run build
-    startCommand: cd backend/services/auth-service && npm start
+    buildCommand: cd backend/services/decision-authority-service && npm install && npm run build
+    startCommand: cd backend/services/decision-authority-service && npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10001
+      - key: DECISION_AUTHORITY_MODE
+        value: INTERNAL
+      - key: DECISION_TIMEOUT_MS
+        value: 30000
+      - key: DECISION_POLL_INTERVAL_MS
+        value: 5000
+      - key: LOG_LEVEL
+        value: info
+      - key: METRICS_ENABLED
+        value: true
       - key: DATABASE_URL
         fromDatabase:
           name: mnbarh-postgres
           property: connectionString
-      - key: JWT_SECRET
-        fromService:
-          type: web
-          name: mnbarh-api-gateway
-          envVarKey: JWT_SECRET
-    healthCheckPath: /health
-    autoDeploy: true
-
-  # Listing Service
-  - type: web
-    name: mnbarh-listing-service
-    env: node
-    plan: free
-    buildCommand: cd backend/services/listing-service && npm install && npm run build
-    startCommand: cd backend/services/listing-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10002
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbarh-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbarh-redis
-          property: connectionString
-    healthCheckPath: /health
-    autoDeploy: true
-
-  # Payment Service
-  - type: web
-    name: mnbarh-payment-service
-    env: node
-    plan: free
-    buildCommand: cd backend/services/payment-service && npm install && npm run build
-    startCommand: cd backend/services/payment-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10003
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbarh-postgres
-          property: connectionString
-      - key: STRIPE_SECRET_KEY
+      - key: CUSTODII_API_URL
+        value: https://staging-api.custodii.com/v1
+      - key: CUSTODII_API_KEY
         sync: false
-      - key: PAYPAL_CLIENT_ID
+      - key: CUSTODII_WEBHOOK_SECRET
         sync: false
-    healthCheckPath: /health
-    autoDeploy: true
-
-  # Auction Service
-  - type: web
-    name: mnbarh-auction-service
-    env: node
-    plan: free
-    buildCommand: cd backend/services/auction-service && npm install && npm run build
-    startCommand: cd backend/services/auction-service && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10004
-      - key: DATABASE_URL
-        fromDatabase:
-          name: mnbarh-postgres
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: mnbarh-redis
-          property: connectionString
     healthCheckPath: /health
     autoDeploy: true
 
@@ -161,8 +79,4 @@ databases:
     databaseName: mnbarh_prod
     user: mnbarh_user
     ipAllowList: []
-    
-  # Redis Cache
-  - name: mnbarh-redis
-    plan: free
-    ipAllowList: []
+

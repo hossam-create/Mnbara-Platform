@@ -1,5 +1,5 @@
-@echo off
-echo Starting Mnbara Platform Local Setup...
+﻿@echo off
+echo Starting mnbarh Platform Local Setup...
 
 echo [1/2] Building and Starting Services...
 docker-compose up -d --build
@@ -20,3 +20,4 @@ echo Crowdship Service: http://localhost:3005
 echo Notification Service: http://localhost:3006
 echo Recommendation Service: http://localhost:3007
 echo Rewards Service: http://localhost:3008
+

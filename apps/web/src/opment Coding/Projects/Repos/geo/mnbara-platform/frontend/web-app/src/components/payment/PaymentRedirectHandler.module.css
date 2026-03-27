@@ -1,0 +1,258 @@
+.paymentRedirectHandler {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.verifyingState,
+.successState,
+.failedState,
+.errorState {
+  background: white;
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.verifyingState h2,
+.successState h2,
+.failedState h2,
+.errorState h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #111827;
+}
+
+.verifyingState p,
+.successState p,
+.failedState p,
+.errorState p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.subtext {
+  font-size: 14px !important;
+  color: #9ca3af !important;
+  margin-top: 16px !important;
+}
+
+.successIcon,
+.failedIcon,
+.errorIcon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  animation: bounceIn 0.6s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.successState {
+  border: 2px solid #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+}
+
+.successState h2 {
+  color: #059669;
+}
+
+.successState p {
+  color: #047857;
+}
+
+.failedState {
+  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #fef2f2 0%, #fef2f2 100%);
+}
+
+.failedState h2 {
+  color: #dc2626;
+}
+
+.failedState p {
+  color: #b91c1c;
+}
+
+.errorState {
+  border: 2px solid #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.errorState h2 {
+  color: #d97706;
+}
+
+.errorState p {
+  color: #b45309;
+}
+
+.errorText {
+  background: #fed7aa;
+  color: #9a3412 !important;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.retryButton,
+.backButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.retryButton {
+  background: #3b82f6;
+  color: white;
+}
+
+.retryButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.backButton {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.backButton:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .paymentRedirectHandler {
+    padding: 16px;
+  }
+  
+  .verifyingState,
+  .successState,
+  .failedState,
+  .errorState {
+    padding: 32px 24px;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .retryButton,
+  .backButton {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .paymentRedirectHandler {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  }
+  
+  .verifyingState,
+  .successState,
+  .failedState,
+  .errorState {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .verifyingState h2,
+  .successState h2,
+  .failedState h2,
+  .errorState h2 {
+    color: #f9fafb;
+  }
+  
+  .verifyingState p,
+  .successState p,
+  .failedState p,
+  .errorState p {
+    color: #d1d5db;
+  }
+  
+  .subtext {
+    color: #9ca3af !important;
+  }
+  
+  .backButton {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .backButton:hover {
+    background: #4b5563;
+  }
+}

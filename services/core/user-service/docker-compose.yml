@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: user-service-postgres
+    environment:
+      POSTGRES_USER: mnbara
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mnbara_user_service
+    ports:
+      - "5433:5432"
+    volumes:
+      - user-service-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mnbara"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user-service
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DATABASE_URL: "postgresql://mnbara:password@postgres:5432/mnbara_user_service"
+      JWT_SECRET: dev-secret-key-change-in-production
+      LOG_LEVEL: info
+    ports:
+      - "3004:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+volumes:
+  user-service-postgres-data:

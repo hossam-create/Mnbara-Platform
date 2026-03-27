@@ -1,0 +1,505 @@
+// ============================================================
+// Enhanced Event Bus Prisma Schema - Event Storage and Analytics
+// ============================================================
+
+// Event storage
+model Event {
+  id              String          @id @default(cuid())
+  eventId         String          @unique
+  type            String
+  category        String
+  
+  // Event metadata
+  priority        EventPriority   @default(MEDIUM)
+  source          String
+  version         String          @default("1.0.0")
+  
+  // User context
+  userId          String?
+  sessionId       String?
+  ipAddress       String?
+  userAgent       String?
+  
+  // Event data
+  eventData       Json            // The actual event payload
+  metadata        Json            // Event metadata (correlationId, causationId, etc.)
+  tags            String[]        @default([])
+  
+  // Processing information
+  processedAt     DateTime        @default(now())
+  processingTime  Int?            // Processing time in milliseconds
+  retries         Int             @default(0)
+  status          EventStatus     @default(PROCESSED)
+  
+  // Error information
+  errorMessage    String?
+  errorStack      String?
+  errorCode       String?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  expiresAt       DateTime?       // TTL for event deletion
+  
+  // Relations
+  routingResults  EventRoutingResult[]
+  analyticsData   EventAnalytics[]
+  
+  @@index([type])
+  @@index([category])
+  @@index([userId])
+  @@index([priority])
+  @@index([status])
+  @@index([createdAt])
+  @@index([expiresAt])
+}
+
+// Event routing results
+model EventRoutingResult {
+  id              String          @id @default(cuid())
+  eventId         String
+  destination     String
+  
+  // Routing status
+  status          RoutingStatus   @default(SUCCESS)
+  attempts        Int             @default(1)
+  lastAttemptAt   DateTime        @default(now())
+  
+  // Response information
+  responseCode    Int?
+  responseBody    String?
+  responseHeaders Json?
+  
+  // Error information
+  errorMessage    String?
+  errorDetails    Json?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  event           Event           @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
+  
+  @@index([eventId])
+  @@index([destination])
+  @@index([status])
+}
+
+// Event analytics data
+model EventAnalytics {
+  id              String          @id @default(cuid())
+  eventId         String          @unique
+  
+  // Analytics metrics
+  processingTime  Int             // Processing time in milliseconds
+  routingTime     Int?            // Total routing time
+  validationTime  Int?            // Validation time
+  
+  // Event characteristics
+  eventSize       Int             // Event size in bytes
+  routingCount    Int             // Number of destinations
+  
+  // Performance metrics
+  memoryUsage     Int?            // Memory usage in bytes
+  cpuUsage        Float?          // CPU usage percentage
+  
+  // Custom metrics
+  customMetrics   Json?           // Custom analytics metrics
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  event           Event           @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
+  
+  @@index([eventId])
+}
+
+// Event routing rules
+model EventRoutingRule {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Rule criteria
+  eventType       String?
+  eventCategory   String?
+  eventPriority   EventPriority?
+  
+  // Filters
+  userFilter      Json?           // Filter by user ID, user type, etc.
+  metadataFilter  Json?           // Filter by metadata fields
+  tagFilter       String[]        @default([])
+  
+  // Destinations
+  destinations    String[]        // List of destination channels/URLs
+  
+  // Rule configuration
+  isActive        Boolean         @default(true)
+  order           Int             @default(0) // Processing order
+  
+  // Transformations
+  fieldMappings   Json?           // Field name mappings
+  valueTransformers Json?       // Value transformation functions
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([isActive])
+  @@index([order])
+}
+
+// Event validation rules
+model EventValidationRule {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Rule criteria
+  eventType       String
+  eventCategory   String?
+  
+  // Validation schema
+  requiredFields  String[]        @default([])
+  optionalFields  String[]        @default([])
+  metadataSchema  Json?           // JSON Schema for metadata validation
+  
+  // Validation constraints
+  maxSizeBytes    Int?            // Maximum event size in bytes
+  minSizeBytes    Int?            // Minimum event size in bytes
+  ttlSeconds      Int?            // Time-to-live for events
+  
+  // Rule configuration
+  isActive        Boolean         @default(true)
+  isStrict        Boolean         @default(false) // Fail on validation errors
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([isActive])
+}
+
+// Event retention policies
+model EventRetentionPolicy {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Policy criteria
+  eventCategory   String
+  eventPriority   EventPriority?
+  
+  // Retention settings
+  retentionDays   Int             // Total retention period in days
+  archiveAfterDays Int            // Archive after this many days
+  compressAfterDays Int           // Compress after this many days
+  deleteAfterDays Int             // Delete after this many days
+  
+  // Storage settings
+  storageTier     StorageTier     @default(HOT) // Hot, Warm, Cold, Glacier
+  backupEnabled   Boolean         @default(true)
+  
+  // Policy configuration
+  isActive        Boolean         @default(true)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventCategory])
+  @@index([eventPriority])
+  @@index([isActive])
+}
+
+// Event indexing configuration
+model EventIndexingConfig {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Indexing criteria
+  eventType       String
+  eventCategory   String?
+  
+  // Index configuration
+  indexedFields   String[]        @default([])
+  fullTextSearchFields String[]   @default([])
+  timeSeriesFields String[]       @default([])
+  aggregationFields String[]      @default([])
+  
+  // Performance settings
+  refreshInterval Int             @default(30000) // 30 seconds
+  shardCount      Int             @default(1)
+  replicaCount    Int             @default(1)
+  
+  // Configuration
+  isActive        Boolean         @default(true)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([isActive])
+}
+
+// Event analytics configuration
+model EventAnalyticsConfig {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Analytics criteria
+  eventType       String
+  eventCategory   String?
+  
+  // Metrics configuration
+  trackCount      Boolean         @default(true)
+  trackRate       Boolean         @default(true)
+  trackDuration   Boolean         @default(false)
+  trackErrorRate  Boolean         @default(true)
+  
+  // Dimensions and filters
+  dimensions      String[]        @default([])
+  filters         Json?           // Filter configuration
+  
+  // Time windows for aggregation
+  timeWindows     TimeWindow[]    @default([ONE_MINUTE, FIVE_MINUTES, FIFTEEN_MINUTES, ONE_HOUR])
+  
+  // Alert configuration
+  alertThresholds Json?           // Alert threshold configuration
+  
+  // Configuration
+  isActive        Boolean         @default(true)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([isActive])
+}
+
+// Event time-series data
+model EventTimeSeries {
+  id              String          @id @default(cuid())
+  
+  // Time-series dimensions
+  eventType       String
+  eventCategory   String
+  timeBucket      DateTime        // Time bucket (e.g., 1 minute, 5 minutes)
+  timeWindow      TimeWindow
+  
+  // Aggregation data
+  count           Int             @default(0)
+  uniqueUsers     Int             @default(0)
+  sumValue        Float?          // Sum of numeric values
+  avgValue        Float?          // Average of numeric values
+  minValue        Float?          // Minimum value
+  maxValue        Float?          // Maximum value
+  
+  // Custom aggregations
+  customMetrics   Json?           // Custom aggregation data
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@unique([eventType, eventCategory, timeBucket, timeWindow])
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([timeBucket])
+  @@index([timeWindow])
+}
+
+// Event archive
+model EventArchive {
+  id              String          @id @default(cuid())
+  
+  // Archive metadata
+  archiveId       String          @unique
+  eventType       String
+  eventCategory   String
+  timeRangeStart  DateTime
+  timeRangeEnd    DateTime
+  
+  // Archive details
+  eventCount      Int
+  compressedSize  Int             // Size in bytes after compression
+  originalSize    Int             // Original size in bytes
+  compressionRatio Float
+  
+  // Storage information
+  storageLocation String          // File path or S3 key
+  storageTier     StorageTier
+  checksum        String          // SHA256 checksum
+  
+  // Archive status
+  status          ArchiveStatus   @default(CREATED)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([timeRangeStart, timeRangeEnd])
+  @@index([status])
+}
+
+// Event alert configuration
+model EventAlert {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String?
+  
+  // Alert criteria
+  eventType       String?
+  eventCategory   String?
+  eventPriority   EventPriority?
+  
+  // Alert conditions
+  conditionType   AlertConditionType
+  thresholdValue  Float
+  timeWindow      TimeWindow
+  comparison      AlertComparison
+  
+  // Alert actions
+  actions         AlertAction[]   @default([EMAIL])
+  recipients      String[]        @default([])
+  
+  // Alert configuration
+  isActive        Boolean         @default(true)
+  cooldownMinutes Int             @default(60)
+  
+  // Statistics
+  triggerCount    Int             @default(0)
+  lastTriggeredAt DateTime?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([eventType])
+  @@index([eventCategory])
+  @@index([isActive])
+}
+
+// Event alert history
+model EventAlertHistory {
+  id              String          @id @default(cuid())
+  alertId         String
+  
+  // Alert trigger details
+  triggerValue    Float
+  triggerTime     DateTime        @default(now())
+  
+  // Event context
+  eventType       String
+  eventCategory   String
+  eventCount      Int
+  
+  // Alert response
+  responseStatus  AlertResponseStatus @default(SENT)
+  responseDetails Json?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  
+  @@index([alertId])
+  @@index([triggerTime])
+  @@index([responseStatus])
+}
+
+// Enums
+enum EventPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum EventStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  RETRYING
+  SKIPPED
+}
+
+enum RoutingStatus {
+  SUCCESS
+  FAILED
+  RETRYING
+  SKIPPED
+}
+
+enum StorageTier {
+  HOT
+  WARM
+  COLD
+  GLACIER
+}
+
+enum ArchiveStatus {
+  CREATED
+  UPLOADING
+  UPLOADED
+  FAILED
+  DELETED
+}
+
+enum TimeWindow {
+  ONE_MINUTE
+  FIVE_MINUTES
+  FIFTEEN_MINUTES
+  ONE_HOUR
+  SIX_HOURS
+  TWENTY_FOUR_HOURS
+  SEVEN_DAYS
+  THIRTY_DAYS
+}
+
+enum AlertConditionType {
+  COUNT_THRESHOLD
+  RATE_THRESHOLD
+  ERROR_RATE_THRESHOLD
+  RESPONSE_TIME_THRESHOLD
+  CUSTOM_METRIC
+}
+
+enum AlertComparison {
+  GREATER_THAN
+  LESS_THAN
+  EQUALS
+  NOT_EQUALS
+  GREATER_THAN_OR_EQUAL
+  LESS_THAN_OR_EQUAL
+}
+
+enum AlertAction {
+  EMAIL
+  SMS
+  WEBHOOK
+  SLACK
+  PAGERDUTY
+  CUSTOM
+}
+
+enum AlertResponseStatus {
+  SENT
+  DELIVERED
+  FAILED
+  ACKNOWLEDGED
+  RESOLVED
+}

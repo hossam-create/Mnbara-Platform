@@ -1,0 +1,54 @@
+{
+  "name": "sample-test-plugin",
+  "version": "1.0.0",
+  "description": "A sample plugin for testing the framework",
+  "type": "payment-gateway",
+  "category": "payment",
+  "manifest": {
+    "name": "sample-test-plugin",
+    "version": "1.0.0",
+    "description": "Sample plugin for testing framework validation",
+    "author": "Test Author",
+    "license": "MIT",
+    "main": "index.js",
+    "dependencies": {
+      "express": "^4.18.0",
+      "lodash": "^4.17.21"
+    },
+    "devDependencies": {
+      "jest": "^29.0.0",
+      "@types/node": "^18.0.0"
+    },
+    "scripts": {
+      "test": "jest",
+      "build": "tsc"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  },
+  "hooks": [
+    {
+      "name": "payment.process",
+      "handler": "processPayment",
+      "priority": 100
+    },
+    {
+      "name": "payment.refund",
+      "handler": "processRefund",
+      "priority": 90
+    }
+  ],
+  "config": {
+    "apiKey": {
+      "type": "string",
+      "required": true,
+      "secret": true
+    },
+    "environment": {
+      "type": "string",
+      "required": true,
+      "default": "sandbox"
+    }
+  }
+}
