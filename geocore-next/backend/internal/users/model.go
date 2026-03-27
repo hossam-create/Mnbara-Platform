@@ -45,6 +45,10 @@ type User struct {
         PasswordChangedAt      *time.Time `json:"-"`
 
         StripeCustomerID string `gorm:"size:64;uniqueIndex:idx_users_stripe_customer_id,where:stripe_customer_id <> ''" json:"-"`
+
+        // Monetization — subscription tier and expiry (mirrored from seller_subscriptions for fast access)
+        SubscriptionTier      string     `gorm:"size:20;default:'basic'" json:"subscription_tier,omitempty"`
+        SubscriptionExpiresAt *time.Time `json:"subscription_expires_at,omitempty"`
 }
 
 type PublicUser struct {

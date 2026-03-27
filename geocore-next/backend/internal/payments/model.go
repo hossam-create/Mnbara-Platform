@@ -31,6 +31,8 @@ package payments
         PaymentKindAuctionPayment PaymentKind = "auction_payment"
         PaymentKindWalletTopUp    PaymentKind = "wallet_topup"
         PaymentKindRefund         PaymentKind = "refund"
+        PaymentKindBoost          PaymentKind = "boost"
+        PaymentKindSubscription   PaymentKind = "subscription"
   )
 
   // Payment records every payment transaction in the system.

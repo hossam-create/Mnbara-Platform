@@ -235,6 +235,60 @@ func (h *Handler) Create(c *gin.Context) {
                 imageURLs = req.Images
         }
 
+        // ── Subscription tier enforcement ─────────────────────────────────────────
+        // Load seller's tier from the users table (mirrored from seller_subscriptions).
+        var tierInfo struct {
+                SubscriptionTier      string
+                SubscriptionExpiresAt *time.Time
+        }
+        h.db.Table("users").
+                Select("subscription_tier, subscription_expires_at").
+                Where("id = ?", userID).
+                Scan(&tierInfo)
+
+        effectiveTier := tierInfo.SubscriptionTier
+        if effectiveTier == "" {
+                effectiveTier = "basic"
+        }
+        if tierInfo.SubscriptionExpiresAt != nil && tierInfo.SubscriptionExpiresAt.Before(time.Now()) {
+                effectiveTier = "basic"
+        }
+
+        maxListings := 5 // basic default
+        maxImages := 3
+        switch effectiveTier {
+        case "pro":
+                maxListings = 50
+                maxImages = 10
+        case "business":
+                maxListings = 0  // unlimited
+                maxImages = 20
+        }
+
+        // Enforce listing count limit (0 = unlimited)
+        if maxListings > 0 {
+                var activeCount int64
+                h.db.Model(&Listing{}).
+                        Where("user_id = ? AND status NOT IN ('sold','expired') AND deleted_at IS NULL", userID).
+                        Count(&activeCount)
+                if int(activeCount) >= maxListings {
+                        c.JSON(402, gin.H{
+                                "error":         "listing_limit_reached",
+                                "message":       "You have reached the listing limit for your subscription tier.",
+                                "current_tier":  effectiveTier,
+                                "max_listings":  maxListings,
+                                "active_count":  activeCount,
+                                "upgrade_hint":  "Upgrade to Pro or Business to post more listings.",
+                        })
+                        return
+                }
+        }
+
+        // Enforce image count limit
+        if len(imageURLs) > maxImages {
+                imageURLs = imageURLs[:maxImages]
+        }
+
         expires := time.Now().AddDate(0, 2, 0) // 2 months
         listing := Listing{
                 ID:          uuid.New(),

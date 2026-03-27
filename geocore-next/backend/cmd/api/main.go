@@ -17,6 +17,7 @@ import (
         "github.com/geocore-next/backend/internal/images"
         "github.com/geocore-next/backend/internal/kyc"
         "github.com/geocore-next/backend/internal/listings"
+        "github.com/geocore-next/backend/internal/monetization"
         "github.com/geocore-next/backend/internal/notifications"
         "github.com/geocore-next/backend/internal/payments"
         "github.com/geocore-next/backend/internal/reviews"
@@ -213,6 +214,7 @@ func main() {
         kyc.RegisterRoutes(v1, db)
         reviews.RegisterRoutes(v1, db)
         stores.RegisterRoutes(v1, db, rdb)
+        monetization.RegisterRoutes(v1, db)
 
         // Wire notification service into dependent packages
         auctions.SetNotificationService(notifSvc)

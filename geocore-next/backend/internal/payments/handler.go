@@ -395,6 +395,41 @@ package payments
                 "amount",    escrow.Amount,
         )
 
+        // Record platform commission (non-blocking; failure is logged, not fatal)
+        go func() {
+                var commRate float64 = 0.05
+                var settings struct{ CommissionRate float64 }
+                if err := h.db.Table("platform_settings").Select("commission_rate").First(&settings).Error; err == nil {
+                        commRate = settings.CommissionRate
+                }
+                if commRate <= 0 {
+                        commRate = 0.05
+                }
+                commAmt := escrow.Amount * commRate
+                netAmt  := escrow.Amount - commAmt
+                comm := map[string]interface{}{
+                        "id":               uuid.New(),
+                        "escrow_id":        escrow.ID,
+                        "seller_id":        escrow.SellerID,
+                        "buyer_id":         escrow.BuyerID,
+                        "gross_amount":     escrow.Amount,
+                        "commission_rate":  commRate,
+                        "commission_amount": commAmt,
+                        "net_amount":       netAmt,
+                        "currency":         escrow.Currency,
+                        "created_at":       time.Now(),
+                }
+                if err := h.db.Table("platform_commissions").Create(comm).Error; err != nil {
+                        slog.Warn("commission record failed",
+                                "escrow_id", escrow.ID.String(), "error", err.Error())
+                } else {
+                        slog.Info("commission recorded",
+                                "escrow_id", escrow.ID.String(),
+                                "commission", commAmt, "net", netAmt,
+                        )
+                }
+        }()
+
         // Notify seller of fund release (non-blocking) — in-app + email
         go func() {
                 notifyEscrowReleased(escrow.SellerID, escrow.Amount, escrow.Currency)

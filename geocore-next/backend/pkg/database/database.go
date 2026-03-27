@@ -11,6 +11,7 @@ import (
         "github.com/geocore-next/backend/internal/images"
         "github.com/geocore-next/backend/internal/kyc"
         "github.com/geocore-next/backend/internal/listings"
+        "github.com/geocore-next/backend/internal/monetization"
         "github.com/geocore-next/backend/internal/notifications"
         "github.com/geocore-next/backend/internal/payments"
         "github.com/geocore-next/backend/internal/reviews"
@@ -118,6 +119,9 @@ func AutoMigrate(db *gorm.DB) error {
                 &kyc.KYCAuditLog{},
                 &reviews.Review{},
                 &stores.Storefront{},
+		&monetization.PlatformSettings{},
+		&monetization.PlatformCommission{},
+		&monetization.SellerSubscription{},
         )
         if err != nil {
                 return err

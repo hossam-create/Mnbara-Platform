@@ -67,6 +67,8 @@ func setupListingsDB(t *testing.T) *gorm.DB {
                 password_reset_expires_at DATETIME,
                 password_changed_at DATETIME,
                 stripe_customer_id TEXT,
+                subscription_tier TEXT DEFAULT 'basic',
+                subscription_expires_at DATETIME,
                 created_at DATETIME,
                 updated_at DATETIME,
                 deleted_at DATETIME
@@ -105,6 +107,7 @@ func setupListingsDB(t *testing.T) *gorm.DB {
                 view_count INTEGER DEFAULT 0,
                 favorite_count INTEGER DEFAULT 0,
                 is_featured INTEGER DEFAULT 0,
+                featured_until DATETIME,
                 expires_at DATETIME,
                 sold_at DATETIME,
                 created_at DATETIME,

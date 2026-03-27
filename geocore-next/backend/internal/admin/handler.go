@@ -369,9 +369,35 @@ package admin
                 Where("status = ?", "succeeded").
                 Select("COALESCE(SUM(amount), 0)").Scan(&totalRevenue)
 
+        // ── Monetization breakdown ────────────────────────────────────────────
+        var totalCommissions float64
+        h.db.Table("platform_commissions").
+                Select("COALESCE(SUM(commission_amount), 0)").
+                Scan(&totalCommissions)
+
+        var boostRevenue float64
+        h.db.Model(&payments.Payment{}).
+                Where("status = ? AND kind = ?", "succeeded", "boost").
+                Select("COALESCE(SUM(amount), 0)").Scan(&boostRevenue)
+
+        var subscriptionRevenue float64
+        h.db.Model(&payments.Payment{}).
+                Where("status = ? AND kind = ?", "succeeded", "subscription").
+                Select("COALESCE(SUM(amount), 0)").Scan(&subscriptionRevenue)
+
+        var activeSubscriptions int64
+        h.db.Table("users").
+                Where("subscription_tier != ? AND (subscription_expires_at IS NULL OR subscription_expires_at > NOW()) AND deleted_at IS NULL",
+                        "basic").
+                Count(&activeSubscriptions)
+
         response.OK(c, gin.H{
-                "total":        totalRevenue,
-                "daily_30days": daily,
+                "total":                 totalRevenue,
+                "daily_30days":          daily,
+                "total_commissions":     totalCommissions,
+                "boost_revenue":         boostRevenue,
+                "subscription_revenue":  subscriptionRevenue,
+                "active_subscriptions":  activeSubscriptions,
         })
   }
 
