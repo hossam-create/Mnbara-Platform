@@ -1,0 +1,106 @@
+name: Go Backend CI
+
+on:
+  push:
+    branches: [main, develop, 'feature/*', 'release/*']
+    paths:
+      - 'geocore-next/backend/**'
+      - '.github/workflows/go-backend.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'geocore-next/backend/**'
+      - '.github/workflows/go-backend.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build, Vet & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: geocore
+          POSTGRES_PASSWORD: geocore_pass
+          POSTGRES_DB: geocore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://geocore:geocore_pass@localhost:5432/geocore_test?sslmode=disable
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-test-secret-key-not-for-production
+      GIN_MODE: test
+
+    defaults:
+      run:
+        working-directory: geocore-next/backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: geocore-next/backend/go.mod
+          cache-dependency-path: geocore-next/backend/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Verify dependencies
+        run: go mod verify
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Build binary
+        run: go build -v -o /tmp/geocore-api ./cmd/api/
+
+      - name: Run tests (short mode — skips integration tests)
+        run: go test -short -race -timeout 120s ./...
+
+      - name: Check for security issues (gosec)
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec -severity medium -confidence medium -quiet ./... || true
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: geocore-next/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: geocore-next/backend/go.mod
+          cache-dependency-path: geocore-next/backend/go.sum
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: geocore-next/backend
+          args: --timeout=5m
