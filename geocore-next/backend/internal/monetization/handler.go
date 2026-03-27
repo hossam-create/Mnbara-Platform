@@ -12,7 +12,7 @@ import (
         "github.com/google/uuid"
         "math"
 
-	"github.com/stripe/stripe-go/v79"
+        "github.com/stripe/stripe-go/v79"
         "github.com/stripe/stripe-go/v79/customer"
         "github.com/stripe/stripe-go/v79/paymentintent"
         strprice "github.com/stripe/stripe-go/v79/price"
@@ -174,15 +174,15 @@ func (h *Handler) ConfirmBoost(c *gin.Context) {
 
         userID := c.GetString("user_id")
 
-        // Verify ownership
-        var ownerID string
+        // Verify ownership — use Scan into a struct to avoid GORM Pluck scalar issue
+        var listingOwner struct{ UserID string }
         if err := h.db.Table("listings").Select("user_id").
                 Where("id = ? AND deleted_at IS NULL", listingID).
-                Pluck("user_id", &ownerID).Error; err != nil {
+                Scan(&listingOwner).Error; err != nil || listingOwner.UserID == "" {
                 response.NotFound(c, "listing")
                 return
         }
-        if ownerID != userID {
+        if listingOwner.UserID != userID {
                 response.Forbidden(c)
                 return
         }
