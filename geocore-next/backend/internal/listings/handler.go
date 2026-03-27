@@ -61,11 +61,32 @@ func (h *Handler) List(c *gin.Context) {
         if condition := c.Query("condition"); condition != "" {
                 q = q.Where("condition = ?", condition)
         }
+        var minPriceVal, maxPriceVal *float64
         if minPrice := c.Query("min_price"); minPrice != "" {
-                q = q.Where("price >= ?", minPrice)
+                v, parseErr := strconv.ParseFloat(minPrice, 64)
+                if parseErr != nil || v < 0 {
+                        response.BadRequest(c, "Invalid min_price: must be a non-negative number")
+                        return
+                }
+                minPriceVal = &v
         }
         if maxPrice := c.Query("max_price"); maxPrice != "" {
-                q = q.Where("price <= ?", maxPrice)
+                v, parseErr := strconv.ParseFloat(maxPrice, 64)
+                if parseErr != nil || v < 0 {
+                        response.BadRequest(c, "Invalid max_price: must be a non-negative number")
+                        return
+                }
+                maxPriceVal = &v
+        }
+        if minPriceVal != nil && maxPriceVal != nil && *minPriceVal > *maxPriceVal {
+                response.BadRequest(c, "min_price must be less than or equal to max_price")
+                return
+        }
+        if minPriceVal != nil {
+                q = q.Where("price >= ?", *minPriceVal)
+        }
+        if maxPriceVal != nil {
+                q = q.Where("price <= ?", *maxPriceVal)
         }
         if search := c.Query("q"); search != "" {
                 q = q.Where("title ILIKE ? OR description ILIKE ?", "%"+search+"%", "%"+search+"%")
@@ -268,15 +289,58 @@ func (h *Handler) Update(c *gin.Context) {
                 response.BadRequest(c, err.Error())
                 return
         }
+
+        // Validate enum fields if provided
+        validConditions := map[string]bool{"new": true, "like-new": true, "good": true, "fair": true, "for-parts": true}
+        validTypes := map[string]bool{"sell": true, "buy": true, "rent": true, "auction": true, "service": true}
+        validStatuses := map[string]bool{"active": true, "draft": true, "pending": true, "reserved": true, "sold": true, "expired": true}
+        validPriceTypes := map[string]bool{"fixed": true, "negotiable": true, "free": true, "contact": true}
+
+        if v, ok := req["condition"]; ok && v != nil {
+                if s, ok := v.(string); ok && s != "" && !validConditions[s] {
+                        response.BadRequest(c, "Invalid condition: must be one of new, like-new, good, fair, for-parts")
+                        return
+                }
+        }
+        if v, ok := req["type"]; ok && v != nil {
+                if s, ok := v.(string); ok && s != "" && !validTypes[s] {
+                        response.BadRequest(c, "Invalid type: must be one of sell, buy, rent, auction, service")
+                        return
+                }
+        }
+        if v, ok := req["status"]; ok && v != nil {
+                if s, ok := v.(string); ok && s != "" && !validStatuses[s] {
+                        response.BadRequest(c, "Invalid status: must be one of active, draft, pending, reserved, sold, expired")
+                        return
+                }
+        }
+        if v, ok := req["price_type"]; ok && v != nil {
+                if s, ok := v.(string); ok && s != "" && !validPriceTypes[s] {
+                        response.BadRequest(c, "Invalid price_type: must be one of fixed, negotiable, free, contact")
+                        return
+                }
+        }
+        if v, ok := req["price"]; ok && v != nil {
+                if p, ok := v.(float64); ok && p < 0 {
+                        response.BadRequest(c, "Price cannot be negative")
+                        return
+                }
+        }
+
         // Allow only safe fields to update
-        allowed := []string{"title", "description", "price", "currency", "price_type", "condition", "country", "city", "address", "status"}
+        allowed := []string{"title", "description", "price", "currency", "price_type", "condition", "country", "city", "address", "status", "type"}
         updates := map[string]interface{}{}
         for _, k := range allowed {
                 if v, ok := req[k]; ok {
                         updates[k] = v
                 }
         }
-        h.db.Model(&listing).Updates(updates)
+        if err := h.db.Model(&listing).Updates(updates).Error; err != nil {
+                response.InternalError(c, err)
+                return
+        }
+        // Reload the listing to return fresh data
+        h.db.Preload("Images").Preload("Category").First(&listing, "id = ?", id)
         response.OK(c, listing)
 }
 
