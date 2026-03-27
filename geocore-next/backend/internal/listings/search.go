@@ -219,7 +219,7 @@ func (h *Handler) Search(c *gin.Context) {
                         )
                         q = q.Order(rankExpr)
                 } else {
-                        q = q.Order("listings.is_featured DESC, listings.created_at DESC")
+                        q = q.Order("CASE WHEN listings.is_featured AND (listings.featured_until IS NULL OR listings.featured_until > NOW()) THEN 1 ELSE 0 END DESC, listings.created_at DESC")
                 }
         case "distance":
                 if req.Lat != nil && req.Lng != nil {
@@ -237,7 +237,7 @@ func (h *Handler) Search(c *gin.Context) {
                 q = q.Joins("LEFT JOIN auctions ON auctions.listing_id = listings.id AND auctions.deleted_at IS NULL").
                         Order("auctions.bid_count DESC NULLS LAST, listings.created_at DESC")
         default: // "date"
-                q = q.Order("listings.is_featured DESC, listings.created_at DESC")
+                q = q.Order("CASE WHEN listings.is_featured AND (listings.featured_until IS NULL OR listings.featured_until > NOW()) THEN 1 ELSE 0 END DESC, listings.created_at DESC")
         }
 
         // ── Paginate + fetch ──────────────────────────────────────────────────────

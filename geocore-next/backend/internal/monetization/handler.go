@@ -183,6 +183,30 @@ func (h *Handler) ConfirmBoost(c *gin.Context) {
 		return
 	}
 
+	// Validate PI belongs to this caller for this listing (prevents PI reuse)
+	var pendingBoost struct {
+		ID        string
+		ListingID *string
+	}
+	if err := h.db.Table("payments").
+		Select("id, listing_id").
+		Where("stripe_payment_intent_id = ? AND user_id = ? AND kind = ? AND status = ?",
+			req.PaymentIntentID, userID, "boost", "pending").
+		First(&pendingBoost).Error; err != nil {
+		c.AbortWithStatusJSON(403, gin.H{
+			"error":   "payment_not_found",
+			"message": "Payment not found or does not belong to you.",
+		})
+		return
+	}
+	if pendingBoost.ListingID == nil || *pendingBoost.ListingID != listingID.String() {
+		c.AbortWithStatusJSON(403, gin.H{
+			"error":   "payment_listing_mismatch",
+			"message": "Payment was created for a different listing.",
+		})
+		return
+	}
+
 	// Retrieve PI status from Stripe
 	pi, err := paymentintent.Get(req.PaymentIntentID, nil)
 	if err != nil {
@@ -348,9 +372,31 @@ func (h *Handler) ConfirmSubscription(c *gin.Context) {
 
 	userID := c.GetString("user_id")
 
+	// Validate PI belongs to this caller with matching kind (prevents PI reuse)
+	var pendingSub struct{ ID string }
+	if err := h.db.Table("payments").
+		Select("id").
+		Where("stripe_payment_intent_id = ? AND user_id = ? AND kind = ? AND status = ?",
+			req.PaymentIntentID, userID, "subscription", "pending").
+		First(&pendingSub).Error; err != nil {
+		c.AbortWithStatusJSON(403, gin.H{
+			"error":   "payment_not_found",
+			"message": "Payment not found or does not belong to you.",
+		})
+		return
+	}
+
 	pi, err := paymentintent.Get(req.PaymentIntentID, nil)
 	if err != nil {
 		response.BadRequest(c, "Stripe error: "+err.Error())
+		return
+	}
+	// Verify tier from PI metadata matches requested tier
+	if metaTier, ok := pi.Metadata["tier"]; ok && metaTier != string(req.Tier) {
+		c.AbortWithStatusJSON(403, gin.H{
+			"error":   "tier_mismatch",
+			"message": "Payment was created for a different subscription tier.",
+		})
 		return
 	}
 	if pi.Status != stripe.PaymentIntentStatusSucceeded {

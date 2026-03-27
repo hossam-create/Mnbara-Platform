@@ -423,7 +423,14 @@ package payments
                         slog.Warn("commission record failed",
                                 "escrow_id", escrow.ID.String(), "error", err.Error())
                 } else {
-                        slog.Info("commission recorded",
+                        // Credit platform wallet atomically
+                        if walletErr := h.db.Table("platform_settings").
+                                Where("id IS NOT NULL").
+                                UpdateColumn("platform_balance", gorm.Expr("platform_balance + ?", commAmt)).Error; walletErr != nil {
+                                slog.Warn("platform wallet credit failed",
+                                        "escrow_id", escrow.ID.String(), "error", walletErr.Error())
+                        }
+                        slog.Info("commission recorded and credited to platform wallet",
                                 "escrow_id", escrow.ID.String(),
                                 "commission", commAmt, "net", netAmt,
                         )

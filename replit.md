@@ -53,8 +53,9 @@ After any task merge, the `scripts/post-merge.sh` script:
 - Payments: Stripe integration (disabled without `STRIPE_SECRET_KEY`)
 - Images: R2 upload (disabled without `R2_ACCOUNT_ID`)
 - Notifications: push (disabled without `FIREBASE_SERVICE_ACCOUNT_JSON`), in-app
-- Admin: stats, user management, listing moderation, revenue, KYC
+- Admin: stats, user management, listing moderation, revenue (with commission/boost/subscription breakdown), KYC
 - Stores/Storefronts, Reviews, KYC
+- Monetization: listing boosts (7-day featured, Stripe PI), seller subscriptions (basic/pro/business tiers), platform commission deduction (5% default) on escrow release, subscription tier enforcement at listing creation
 
 ## Required Env Vars for Production
 
