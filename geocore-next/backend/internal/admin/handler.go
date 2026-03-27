@@ -29,17 +29,41 @@ package admin
   }
 
   // requireAdmin is a defense-in-depth role check called at the top of every
-  // admin handler. Although the route group already enforces Auth()+AdminWithDB(),
-  // this explicit check guards against any future middleware mis-ordering.
-  // Returns true if the request should continue; false (and 403) if not.
-  func requireAdmin(c *gin.Context) bool {
-        role := c.GetString("user_role")
-        if role != "admin" && role != "super_admin" {
-                slog.Warn("admin: unauthorized handler access",
-                        "user_id", c.GetString("user_id"),
-                        "role",    role,
+  // admin handler. It performs a fresh DB lookup independently of the middleware
+  // stack — so it remains effective even if Auth()+AdminWithDB() are accidentally
+  // mis-ordered or removed in a future refactor.
+  // Returns true if the request should continue; false (with 403 abort) if not.
+  func (h *Handler) requireAdmin(c *gin.Context) bool {
+        userID := c.GetString("user_id")
+        if userID == "" {
+                c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+                        "error":   "unauthorized",
+                        "message": "authentication required",
+                })
+                return false
+        }
+
+        var row struct{ Role string }
+        if err := h.db.Table("users").Select("role").Where("id = ?", userID).Scan(&row).Error; err != nil {
+                slog.Error("admin: DB role verification failed",
+                        "user_id", userID,
                         "path",    c.FullPath(),
-                        "ip",      c.ClientIP(),
+                        "error",   err.Error(),
+                )
+                c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+                        "error":   "server_error",
+                        "message": "could not verify admin role",
+                })
+                return false
+        }
+
+        if row.Role != "admin" && row.Role != "super_admin" {
+                slog.Warn("admin: unauthorized handler access",
+                        "user_id",     userID,
+                        "db_role",     row.Role,
+                        "ctx_role",    c.GetString("user_role"),
+                        "path",        c.FullPath(),
+                        "ip",          c.ClientIP(),
                 )
                 c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
                         "error":   "forbidden",
@@ -55,7 +79,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) GetStats(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         today := time.Now().Truncate(24 * time.Hour)
         weekAgo := today.AddDate(0, 0, -7)
         var stats DashboardStats
@@ -88,7 +112,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) ListUsers(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         page, perPage := paginationParams(c)
 
         q := h.db.Model(&users.User{})
@@ -124,7 +148,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) GetUser(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         var user users.User
         if err := h.db.First(&user, "id = ?", c.Param("id")).Error; err != nil {
                 response.NotFound(c, "user")
@@ -147,7 +171,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) UpdateUser(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         var req struct {
                 Role          string `json:"role"`
                 EmailVerified *bool  `json:"email_verified"`
@@ -188,7 +212,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) DeleteUser(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         result := h.db.Where("id = ?", c.Param("id")).Delete(&users.User{})
         if result.RowsAffected == 0 {
                 response.NotFound(c, "user")
@@ -203,7 +227,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) BanUser(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         var req struct {
                 Reason string `json:"reason" binding:"required"`
         }
@@ -228,7 +252,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) UnbanUser(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         result := h.db.Model(&users.User{}).Where("id = ?", c.Param("id")).
                 Updates(map[string]any{"is_banned": false, "ban_reason": ""})
         if result.RowsAffected == 0 {
@@ -244,7 +268,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) ListListings(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         page, perPage := paginationParams(c)
         q := h.db.Model(&listings.Listing{}).Preload("Category").Preload("Images")
 
@@ -271,7 +295,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) ApproveListing(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         result := h.db.Model(&listings.Listing{}).
                 Where("id = ? AND status = ?", c.Param("id"), "pending").
                 Update("status", "active")
@@ -288,7 +312,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) RejectListing(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         var req struct {
                 Reason string `json:"reason" binding:"required"`
         }
@@ -311,7 +335,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) DeleteListing(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         result := h.db.Unscoped().Where("id = ?", c.Param("id")).Delete(&listings.Listing{})
         if result.RowsAffected == 0 {
                 response.NotFound(c, "listing")
@@ -326,7 +350,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) GetRevenue(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         type dailyRevenue struct {
                 Date    string  `json:"date"`
                 Revenue float64 `json:"revenue"`
@@ -356,7 +380,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) GetTransactions(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         page, perPage := paginationParams(c)
         q := h.db.Model(&payments.Payment{}).Preload("Escrow")
 
@@ -404,7 +428,7 @@ package admin
   // ════════════════════════════════════════════════════════════════════════════
 
   func (h *Handler) GetAuditLogs(c *gin.Context) {
-        if !requireAdmin(c) { return }
+        if !h.requireAdmin(c) { return }
         page, perPage := paginationParams(c)
         var total int64
         h.db.Model(&AdminLog{}).Count(&total)

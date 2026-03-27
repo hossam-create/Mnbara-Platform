@@ -140,11 +140,18 @@ func main() {
                         corsConfig.AllowAllOrigins = true
                 }
         } else if isProd {
-                // No ALLOWED_ORIGINS in production: warn and refuse wildcard.
-                // Operators must explicitly set ALLOWED_ORIGINS before launch.
-                logger.Warn("ALLOWED_ORIGINS not set in production — CORS will reject all cross-origin requests")
-                corsConfig.AllowOrigins = []string{}
-                corsConfig.AllowCredentials = true
+                // No ALLOWED_ORIGINS in production: fall back to FRONTEND_URL if set,
+                // otherwise fail-safe (reject all cross-origin). Wildcard is never used.
+                if frontendURL := os.Getenv("FRONTEND_URL"); frontendURL != "" {
+                        logger.Warn("ALLOWED_ORIGINS not set — using FRONTEND_URL as default production origin",
+                                zap.String("origin", frontendURL))
+                        corsConfig.AllowOrigins = []string{frontendURL}
+                        corsConfig.AllowCredentials = true
+                } else {
+                        logger.Warn("ALLOWED_ORIGINS and FRONTEND_URL not set in production — rejecting all cross-origin requests")
+                        corsConfig.AllowOrigins = []string{}
+                        corsConfig.AllowCredentials = true
+                }
         } else {
                 // Development: allow all (wildcard) for easier local iteration.
                 corsConfig.AllowAllOrigins = true
