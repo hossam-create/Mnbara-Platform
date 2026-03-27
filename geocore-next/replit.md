@@ -130,6 +130,11 @@ React + Vite web frontend for GCC marketplace. Pre-installed: TanStack Query, Ra
 - **KYC Verification** (`frontend/artifacts/web/src/components/kyc/KYCSection.tsx`) — KYC status banner + file upload form embedded in ProfilePage. Document images uploaded via `POST /api/v1/media/upload-url` (presigned URL), then submitted to `POST /kyc/submit`. Shows pending/approved/rejected state.
 - **Buyer-Seller Chat** (`frontend/artifacts/web/src/components/chat/ChatPanel.tsx`) — Floating chat panel with real-time WebSocket (`/api/v1/chat/conversations/:id/ws?token=<jwt>`). Auth via JWT query param; membership enforced before WS upgrade. Messages sent via REST (`POST /chat/conversations/:id/messages`) which persists and broadcasts to WS subscribers. WS is server-push only (client frames are discarded to prevent spoofing). Vite proxy has `ws: true` for WS forwarding.
 - **Admin Dashboard** (`frontend/artifacts/admin/`) — Full admin UI with ban/unban users, approve/reject listings, KYC approval/rejection, reports queue. All wired to Go backend endpoints.
+- **Security Hardening** (commit `2ec1336`) — Four layers:
+  - *CORS allowlist*: `ALLOWED_ORIGINS` env var (comma-separated) replaces single `FRONTEND_URL`. Dev allows all; prod locks to allowlist; prod without env var warns + defaults to localhost.
+  - *Per-user rate limits*: `LimitByUser` wired to three high-value endpoints: 10 listings/hour, 30 bids/minute, 60 chat messages/minute. Sliding-window Redis implementation, fails open if Redis unavailable.
+  - *Fraud detector* (`internal/fraud/detector.go`): Evaluates three live DB signals — listing velocity (24 h), bid velocity (1 h), new-account flag (10 min). Composite weighted score 0–1. Fires `slog.Warn` on score ≥ 0.70. Called async (non-blocking) from Create listing and PlaceBid handlers.
+  - *Admin defense-in-depth*: `requireAdmin()` helper added to `admin/handler.go`; called at the top of all 14 admin handler functions. Guards against any future middleware mis-ordering.
 
 ### `artifacts/admin` (`@workspace/admin`)
 
