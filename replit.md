@@ -35,3 +35,23 @@ Sourced from: https://github.com/hossam-create/geocore-marketplace
 - Fixed pointer comparison issues in `listings/search_validation.go`
 - Fixed GORM Order() single-argument call in `listings/search.go`
 - Added missing `strings` import in `admin/handler.go`
+
+## Auth Module (Task 12: Auth Hardening & Test Coverage)
+
+### Bugs Fixed
+- `verify_handler.go`: Silent error ignore on `generateToken()` in `VerifyEmail` — now returns 500 on failure
+- `password_reset_handler.go`: Nil pointer panic when Redis is nil (e.g. in tests) — added nil guards around all `h.rdb` calls in `ForgotPassword` and `ResetPassword`
+- `verify_handler.go`: Same nil panic in `ResendVerification` — added nil guards around all `h.rdb` calls
+
+### Auth Test Suite (`internal/auth/auth_test.go`)
+Comprehensive coverage of all auth endpoints (44 tests):
+- **Register**: happy path, duplicate email, weak/missing/invalid inputs, name too short
+- **Login**: success, wrong password, nonexistent user, missing fields, unverified account warning
+- **Me endpoint**: success with valid JWT, no token, malformed token, expired token, wrong auth header format
+- **Email verification**: success (token consumed, user marked verified, fresh JWT returned), invalid token, already verified, expired token, missing token
+- **Forgot password**: registered email, unregistered email (blind 200), invalid email, rate limit behavior
+- **Validate reset token**: valid, invalid, expired
+- **Reset password**: success + login works + old password rejected, password mismatch, weak passwords (4 subtests), expired token, invalid token, token consumed after use, missing fields
+- **JWT middleware**: missing header, garbage token, expired token, wrong algorithm (RS256), wrong secret
+- **End-to-end password reset flow**: full sequence from register → inject token → validate → reset → login
+- **Rate limiter**: fail-open behavior when Redis is nil
