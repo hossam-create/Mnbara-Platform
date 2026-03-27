@@ -143,6 +143,11 @@ func main() {
 	go auctionHub.Run()
 	go auctionHub.SubscribeRedis(context.Background())
 
+	// Background schedulers
+	schedulerCtx, cancelSchedulers := context.WithCancel(context.Background())
+	go auctions.StartAuctionEndWorker(schedulerCtx, db, auctionHub)
+	go listings.StartListingExpiryWorker(schedulerCtx, db)
+
 	v1 := r.Group("/api/v1")
 	auth.RegisterRoutes(v1, db, rdb)
 	users.RegisterRoutes(v1, db, rdb)
@@ -206,6 +211,7 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logger.Info("Shutting down gracefully...")
+	cancelSchedulers()
 	ctx2, cancel2 := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel2()
 	_ = srv.Shutdown(ctx2)

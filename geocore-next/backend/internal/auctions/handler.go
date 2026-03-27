@@ -1,6 +1,7 @@
 package auctions
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -11,6 +12,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+)
+
+const (
+	bidIncrement      = 10.0
+	antiSnipWindow    = 5 * time.Minute
+	antiSnipExtension = 5 * time.Minute
+	maxExtensions     = 3
 )
 
 type Handler struct {
@@ -119,6 +127,7 @@ func (h *Handler) PlaceBid(c *gin.Context) {
 
 	var bid Bid
 	var prevLeaderID *uuid.UUID
+	var finalAuction Auction
 
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		// SELECT FOR UPDATE serialises concurrent bids on the same auction row
@@ -162,19 +171,29 @@ func (h *Handler) PlaceBid(c *gin.Context) {
 			MaxAmount: req.MaxAmount,
 			PlacedAt:  time.Now(),
 		}
+
+		updates := map[string]interface{}{
+			"current_bid": req.Amount,
+			"bid_count":   gorm.Expr("bid_count + 1"),
+		}
+
+		// Anti-sniping: extend ends_at if bid lands within the last 5 minutes
+		timeRemaining := auction.EndsAt.Sub(time.Now())
+		if timeRemaining < antiSnipWindow && auction.ExtensionCount < maxExtensions {
+			auction.EndsAt = auction.EndsAt.Add(antiSnipExtension)
+			auction.ExtensionCount++
+			updates["ends_at"] = auction.EndsAt
+			updates["extension_count"] = auction.ExtensionCount
+		}
+
 		if err := tx.Create(&bid).Error; err != nil {
 			return err
 		}
-		if err := tx.Model(&auction).Updates(map[string]interface{}{
-			"current_bid": req.Amount,
-			"bid_count":   gorm.Expr("bid_count + 1"),
-		}).Error; err != nil {
+		if err := tx.Model(&auction).Updates(updates).Error; err != nil {
 			return err
 		}
 
-		// Load auction for notification (after update)
-		tx.First(&auction, "id = ?", auctionID)
-
+		finalAuction = auction
 		go notifyNewBid(&auction, userID, prevLeaderID, req.Amount)
 		return nil
 	})
@@ -191,9 +210,103 @@ func (h *Handler) PlaceBid(c *gin.Context) {
 	}
 
 	// Broadcast via Redis Pub/Sub
-	h.rdb.Publish(c, fmt.Sprintf("auction:%s", auctionID), fmt.Sprintf(`{"bid": %.2f, "user": "%s"}`, req.Amount, userID))
+	h.rdb.Publish(c, fmt.Sprintf("auction:%s", auctionID),
+		fmt.Sprintf(`{"bid": %.2f, "user": "%s", "ends_at": "%s"}`,
+			req.Amount, userID, finalAuction.EndsAt.UTC().Format(time.RFC3339)))
+
+	// Auto-bid proxy: trigger counter-bids from other bidders who set a max_amount
+	go h.runAutoBidProxy(auctionID, userID, req.Amount)
 
 	response.Created(c, bid)
+}
+
+// runAutoBidProxy finds other bidders with a max_amount that still exceeds the
+// current bid and places the smallest winning counter-bid on their behalf.
+// It serializes via SELECT FOR UPDATE to prevent concurrent race conditions.
+func (h *Handler) runAutoBidProxy(auctionID uuid.UUID, lastBidderID uuid.UUID, currentBid float64) {
+	for {
+		var placed bool
+
+		err := h.db.Transaction(func(tx *gorm.DB) error {
+			// Lock the auction row
+			var auction Auction
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+				First(&auction, "id = ? AND status = ?", auctionID, "active").Error; err != nil {
+				return err
+			}
+
+			if time.Now().After(auction.EndsAt) {
+				return nil
+			}
+
+			// Find the auto-bidder with the highest max_amount that exceeds the current bid,
+			// excluding the user who just placed the triggering bid.
+			var autoBid Bid
+			if err := tx.Where(
+				"auction_id = ? AND user_id != ? AND max_amount > ? AND is_auto = true",
+				auctionID, lastBidderID, auction.CurrentBid,
+			).Order("max_amount DESC").First(&autoBid).Error; err != nil {
+				// No qualifying auto-bidder found
+				return nil
+			}
+
+			counterAmount := auction.CurrentBid + bidIncrement
+			if counterAmount > *autoBid.MaxAmount {
+				counterAmount = *autoBid.MaxAmount
+			}
+			if counterAmount <= auction.CurrentBid {
+				return nil
+			}
+
+			newBid := Bid{
+				ID:        uuid.New(),
+				AuctionID: auctionID,
+				UserID:    autoBid.UserID,
+				Amount:    counterAmount,
+				IsAuto:    true,
+				MaxAmount: autoBid.MaxAmount,
+				PlacedAt:  time.Now(),
+			}
+
+			updates := map[string]interface{}{
+				"current_bid": counterAmount,
+				"bid_count":   gorm.Expr("bid_count + 1"),
+			}
+
+			// Anti-sniping check for auto-bid as well
+			timeRemaining := auction.EndsAt.Sub(time.Now())
+			if timeRemaining < antiSnipWindow && auction.ExtensionCount < maxExtensions {
+				auction.EndsAt = auction.EndsAt.Add(antiSnipExtension)
+				auction.ExtensionCount++
+				updates["ends_at"] = auction.EndsAt
+				updates["extension_count"] = auction.ExtensionCount
+			}
+
+			if err := tx.Create(&newBid).Error; err != nil {
+				return err
+			}
+			if err := tx.Model(&auction).Updates(updates).Error; err != nil {
+				return err
+			}
+
+			// Notify the user who was just outbid by the auto-bid
+			go notifyNewBid(&auction, autoBid.UserID, &lastBidderID, counterAmount)
+
+			// Broadcast new auto-bid via Redis
+			h.rdb.Publish(context.Background(), fmt.Sprintf("auction:%s", auctionID),
+				fmt.Sprintf(`{"bid": %.2f, "user": "%s", "is_auto": true, "ends_at": "%s"}`,
+					counterAmount, autoBid.UserID, auction.EndsAt.UTC().Format(time.RFC3339)))
+
+			placed = true
+			lastBidderID = autoBid.UserID
+			currentBid = counterAmount
+			return nil
+		})
+
+		if err != nil || !placed {
+			break
+		}
+	}
 }
 
 func (h *Handler) GetBids(c *gin.Context) {
